@@ -1,0 +1,663 @@
+-- ZIL to Lua Compiler
+local Compiler = {}
+
+-- Output buffers using tables for efficient concatenation
+local function Buffer()
+  local lines = {}
+  return {
+    write = function(fmt, ...)
+      table.insert(lines, string.format(fmt, ...))
+    end,
+    writeln = function(fmt, ...)
+      if fmt then
+        table.insert(lines, string.format(fmt, ...))
+      end
+      table.insert(lines, "\n")
+    end,
+    indent = function(level)
+      table.insert(lines, string.rep("  ", level))
+    end,
+    get = function()
+      return table.concat(lines)
+    end,
+    clear = function()
+      lines = {}
+    end
+  }
+end
+
+local function safeget(node, attr)
+  return node and node[attr] or nil
+end
+
+-- Convert ZIL values to Lua representations
+local function value(node)
+  -- Handle number nodes (where value is already a number)
+  if node.type == "number" then
+    return tostring(node.value)
+  end
+
+  if not (node.value or node.name) then return "nil" end
+  
+  local val = tostring(node.value or node.name)
+  
+  -- Strings
+  if node.type == "string" then
+    val = val:gsub("\\", "/"):gsub("\n", "\\n"):gsub("\"", "\\\"")
+    return string.format("\"%s\"", val)
+  end
+    
+  -- Octal numbers (starting with *)
+  if val:match("^%*") then
+    return tostring(tonumber(val:match("%d+"), 8))
+  end
+  
+  -- Property references (,P?...)
+  if val:match("^,P%?") then
+    return string.format('"%s"', val:sub(4))
+  end
+
+  -- Convert identifier to Lua-safe name
+  local result = val
+    :gsub("^[,.]+", "")        -- Remove leading commas/dots
+    :gsub("[,.]", "")          -- Remove internal commas/dots
+    :gsub("%-", "_") -- Replace - between alphanumeric chars
+    :gsub("%?", "Q")           -- Question mark to Q
+    :gsub("\\", "/")           -- Backslash to forward slash
+  
+  -- Convert leading numbers to letters (a-j for 0-9)
+  if result:match("^%d") then
+    result = result:gsub("^(%d+)", function(digits)
+      return digits:gsub("%d", function(d)
+        return string.char(string.byte('a') + tonumber(d))
+      end)
+    end)
+  end
+  
+  return result
+end
+
+-- Field writer functions
+local function write_flags(buf, node)
+  local first = true
+  for child in Compiler.iter_children(node, 1) do
+    if not first then buf.write("|") end
+    
+    buf.write("%s", value(child))
+    first = false
+  end
+end
+
+local function write_list_string(buf, node)
+  buf.write("{")
+  local first = true
+  for child in Compiler.iter_children(node, 1) do
+    if not first then buf.write(",") end
+    buf.write('"%s"', value(child))
+    first = false
+  end
+  buf.write("}")
+end
+
+local function write_string_field(buf, node)
+  for child in Compiler.iter_children(node, 1) do
+    if child.type ~= "string" then
+      buf.write('"%s"', child.value)
+    else
+      buf.write("%s", value(child))
+    end
+    break
+  end
+end
+
+local function write_value_field(buf, node)
+  for child in Compiler.iter_children(node, 1) do
+    buf.write("%s", value(child))
+    break
+  end
+end
+
+local FIELD_WRITERS = {
+  FLAGS = write_flags,
+  SYNONYM = write_list_string,
+  ADJECTIVE = write_list_string,
+  DESC = write_string_field,
+  LDESC = write_string_field,
+  FDESC = write_string_field,
+  ACTION = write_value_field,
+  IN = write_value_field,
+}
+-- Navigation direction writer
+-- Format: (direction TO room [IF condition [IS flag]] [ELSE fallback])
+local function write_nav(buf, node)
+  local parts = {}
+  
+  -- Collect navigation parts
+  for child in Compiler.iter_children(node, 1) do
+    table.insert(parts, child)
+  end
+  
+  -- parts[1] = TO
+  -- parts[2] = room
+  -- parts[3] = IF (optional)
+  -- parts[4] = condition (optional)
+  -- parts[5] = IS (optional)
+  -- parts[6] = flag (optional)
+  -- parts[7] = ELSE (optional)
+  -- parts[8] = fallback (optional)
+  
+  if safeget(parts[3], 'value') == "IF" and parts[4] then
+    -- Conditional navigation - use table and/or for short-circuit evaluation
+    local cond = value(parts[4])
+    
+    -- Check for IS flag test
+    if safeget(parts[5], 'value') == "IS" and parts[6] then
+      cond = string.format("%s.FLAGS&%sBIT", cond, value(parts[6]))
+    end
+    
+    local room = value(parts[2])
+    
+    -- Check for ELSE clause
+    local else_idx = safeget(parts[5], 'value') == "ELSE" and 6 or
+                     safeget(parts[7], 'value') == "ELSE" and 8 or nil
+    local fallback = else_idx and parts[else_idx] and value(parts[else_idx]) or "nil"
+    
+    buf.write("function() return %s and %s or %s end", cond, room, fallback)
+  elseif parts[2] then
+    -- Simple navigation
+    buf.write("function() return %s end", value(parts[2]))
+  elseif safeget(parts[1], 'type') == "string" then
+    buf.write("function() return %s end", value(parts[1]))
+  else
+    buf.write("function() return nil end")
+  end
+end
+
+-- Write field using appropriate writer or default
+local function write_field(buf, node, field_name)
+  local writer = FIELD_WRITERS[field_name] or write_value_field
+  writer(buf, node)
+end
+
+-- AST node iteration helper
+function Compiler.iter_children(node, skip)
+  skip = skip or 0
+  local i = skip + 1
+  return function()
+    if node[i] then
+      local child = node[i]
+      i = i + 1
+      return child
+    end
+  end
+end
+
+-- Check node type helpers
+local function is_cond(n)
+  return n.type == "expr" and n.name == "COND"
+end
+
+local function is_prog(n)
+  return n.type == "expr" and n.name == "PROG"
+end
+
+local function is_loop(n)
+  return n.type == "expr" and n.name == "REPEAT"
+end
+
+local function is_return(n)
+  return n.type == "expr" and 
+    (n.name == "RETURN" or n.name == "RTRUE" or n.name == "RFALSE")
+end
+
+local function need_return(node, add_return)
+  return add_return and
+    not is_cond(node) and
+    not is_loop(node) and
+    not is_prog(node) and
+    not is_return(node)
+end
+
+-- Forward declaration
+local print_node
+
+-- Function header with locals and optional parameters
+local function write_function_header(buf, node)
+  local params = {}
+  local locals = {}
+  local optionals = {}
+  local mode = "params" -- params, locals, optional
+  
+  local args_node = node[2]
+  if not args_node or args_node.type ~= "list" then
+    buf.writeln(")")
+    return
+  end
+  
+  -- Parse argument list
+  for arg in Compiler.iter_children(args_node) do
+    if arg.type == "string" then
+      if arg.value == "AUX" then
+        mode = "locals"
+      elseif arg.value == "OPTIONAL" then
+        mode = "optional"
+      end
+    elseif arg.type == "list" then
+      if mode == "locals" then
+        table.insert(locals, arg)
+      else
+        table.insert(params, value(arg[1]))
+        table.insert(optionals, arg)
+      end
+    elseif arg.type == "ident" then
+      if mode == "locals" then
+        table.insert(locals, arg)
+      else
+        table.insert(params, value(arg))
+      end
+    end
+  end
+  
+  -- Write parameters
+  buf.writeln("%s)", table.concat(params, ", "))
+  
+  -- Write local declarations
+  for _, local_node in ipairs(locals) do
+    if local_node.type == "list" then
+      buf.indent(1)
+      buf.write("local %s = ", value(local_node[1]))
+      print_node(buf, local_node[2], 2, false, false)
+      buf.writeln()
+    else
+      buf.writeln("\tlocal %s", value(local_node))
+    end
+  end
+  
+  -- Write optional defaults
+  for _, opt in ipairs(optionals) do
+    buf.indent(1)
+    buf.write("%s = %s or ", value(opt[1]), value(opt[1]))
+    print_node(buf, opt[2], 2, false, false)
+    buf.writeln()
+  end
+end
+
+-- Syntax object helper
+local function print_syntax_object(buf, nodes, start_idx, field_name)
+  buf.writeln("\t%s = {", field_name)
+  
+  local i = start_idx + 1
+  while safeget(nodes[i], 'type') == "list" do
+    local clause = nodes[i]
+    if safeget(clause[1], 'value') == "FIND" then
+      buf.writeln("\t\tFIND = %s,", value(clause[2]))
+    else
+      buf.write("\t\tWHERE = {")
+      for j = 1, #clause do
+        buf.write('"%s",', value(clause[j]))
+      end
+      buf.writeln("},")
+    end
+    i = i + 1
+  end
+  
+  buf.writeln("\t},")
+  return i
+end
+
+-- Expression handlers table
+local form = {}
+
+-- COND (if-elseif-else)
+form.COND = function(buf, node, indent, add_return)
+  for i, clause in ipairs(node) do
+    buf.writeln()
+    buf.indent(indent)
+    
+    if safeget(clause[1], 'value') == "ELSE" then
+      buf.write("else ")
+    else
+      buf.write(i == 1 and "if " or "elseif ")
+      print_node(buf, clause[1], indent + 1, false)
+      buf.write(" then ")
+    end
+    
+    -- Then clauses
+    for j = 2, #clause do
+      buf.writeln()
+      buf.indent(indent + 1)
+      if clause[j].type ~= "expr" then
+        buf.write("-- ")
+      end
+      print_node(buf, clause[j], indent + 1, add_return and j == #clause)
+    end
+  end
+  buf.writeln()
+  buf.indent(indent)
+  buf.writeln("end")
+end
+
+-- SET/SETG
+local function compile_set(buf, node, indent, add_return)
+  buf.write("APPLY(function() %s = ", value(node[1]))
+  for i = 2, #node do
+    if is_cond(node[i]) then
+      buf.write("APPLY(function()")
+      print_node(buf, node[i], indent + 1, true)
+      buf.write(" end)")
+    else
+      print_node(buf, node[i], indent + 1, false)
+    end
+  end
+  buf.write(" return %s end)", value(node[1]))
+end
+
+form.SET = compile_set
+form.SETG = compile_set
+
+-- RETURN
+form.RETURN = function(buf, node, indent, add_return)
+  buf.write("return ")
+  if node[1] then
+    print_node(buf, node[1], indent + 1, false)
+  end
+end
+
+-- RTRUE
+form.RTRUE = function(buf, node, indent, add_return)
+  buf.write("\terror(true)")
+end
+
+-- RFALSE
+form.RFALSE = function(buf, node, indent, add_return)
+  buf.write("\terror(false)")
+end
+
+-- PROG (do block)
+form.PROG = function(buf, node, indent, add_return)
+  buf.writeln()
+  buf.indent(indent)
+  buf.writeln("do")
+  for i = 2, #node do
+    buf.indent(indent + 1)
+    print_node(buf, node[i], indent + 1, add_return and i == #node)
+  end
+  buf.writeln()
+  buf.indent(indent)
+  buf.writeln("end")
+end
+
+-- REPEAT (while true loop)
+form.REPEAT = function(buf, node, indent, add_return)
+  buf.writeln()
+  buf.indent(indent)
+  buf.writeln("APPLY(function() while true do")
+  for i = 2, #node do
+    buf.indent(indent + 1)
+    print_node(buf, node[i], indent + 1, add_return and i == #node)
+  end
+  buf.writeln()
+  buf.indent(indent)
+  buf.writeln("end end)")
+end
+
+-- BUZZ/SYNONYM
+local function compile_buzz(buf, node, indent, add_return)
+  buf.write("BUZZ(")
+  for i = 1, #node do
+    if i > 1 then buf.write(", ") end
+    buf.write('"%s"', node[i].value)
+  end
+  buf.writeln(")")
+end
+
+form.BUZZ = compile_buzz
+form.SYNONYM = compile_buzz
+
+-- GLOBAL
+form.GLOBAL = function(buf, node, indent, add_return)
+  buf.write("%s = ", value(node[1]))
+  for i = 2, #node do
+    print_node(buf, node[i], 0, add_return and i == #node)
+    buf.writeln()
+  end
+end
+
+form.CONSTANT = form.GLOBAL
+
+-- SYNTAX
+form.SYNTAX = function(buf, node, indent, add_return)
+  buf.writeln("SYNTAX {")
+  buf.write('\tVERB = "%s', node[1].value)
+  
+  local i = 2
+  while safeget(node[i], 'value') ~= "OBJECT" and node[i].value ~= "=" do
+    buf.write(" %s", node[i].value)
+    i = i + 1
+  end
+  buf.writeln('",')
+  
+  if safeget(node[i], 'value') == "OBJECT" then
+    i = print_syntax_object(buf, node, i, "OBJECT")
+  end
+  
+  if safeget(node[i], 'value') ~= "OBJECT" and node[i].value ~= "=" then
+    buf.writeln('\tJOIN = "%s",', node[i].value)
+    i = i + 1
+  end
+  
+  if safeget(node[i], 'value') == "OBJECT" then
+    i = print_syntax_object(buf, node, i, "SUBJECT")
+  end
+  
+  if safeget(node[i], 'value') == "=" then
+    buf.writeln("\tACTION = %s,", value(node[i + 1]))
+  end
+  
+  buf.writeln("}")
+end
+
+-- TABLE/LTABLE
+local function compile_table(buf, node, indent, add_return)
+  local start = safeget(node[1], 'type') == "list" and 2 or 1
+  buf.write("{")
+  for i = start, #node do
+    print_node(buf, node[i], 0, add_return and i == #node)
+    if i < #node then buf.write(",") end
+  end
+  buf.writeln("}")
+end
+
+form.TABLE = compile_table
+form.LTABLE = compile_table
+form.ITABLE = compile_table
+
+-- AND/OR
+local function compile_logical(buf, node, indent, add_return, op)
+  if indent == 1 then buf.indent(indent) end
+  buf.write("PASS(")
+  for i = 1, #node do
+    if node[i].value ~= "D" then
+      if is_cond(node[i]) then
+        buf.write("APPLY(function()")
+        print_node(buf, node[i], indent + 1, true)
+        buf.write(" end)")
+      else
+        print_node(buf, node[i], indent + 1, false)
+      end
+      if i < #node then buf.write(string.format(" %s ", string.lower(op))) end
+    end
+  end
+  buf.write(")")
+end
+
+form.AND = function(buf, node, indent, add_return)
+  compile_logical(buf, node, indent, add_return, "AND")
+end
+
+form.OR = function(buf, node, indent, add_return)
+  compile_logical(buf, node, indent, add_return, "OR")
+end
+
+-- Main code generation
+function print_node(buf, node, indent, add_return)
+  indent = indent or 0
+  add_return = add_return or false
+
+  -- Add return if needed
+  if indent ~= 0 and need_return(node, add_return) then
+    buf.write("\treturn ")
+    add_return = false
+  end
+  
+  if node.type == "expr" then
+    if #node.name == 0 then buf.write("nil") return true end
+    local handler = form[node.name]
+    if handler then
+      -- Use specialized handler
+      handler(buf, node, indent, add_return)
+    else
+      -- Generic function call
+      if indent == 1 then buf.indent(indent) end
+      local ops = {
+        ["+"] = "ADD",
+        ["-"] = "SUB",
+        ["/"] = "DIV",
+        ["*"] = "MULL",
+        ["=?"] = "EQUALQ",
+        ["==?"] = "EQUALQ",
+        ["N=?"] = "NEQUALQ",
+        ["N==?"] = "NEQUALQ",
+        ["0?"] = "ZEROQ",
+        ["1?"] = "ONEQ",
+      }
+      buf.write("%s(", ops[node.name] or node.name:gsub("%-", "_"):gsub("%?", "Q"))
+      for i = 1, #node do
+        if node[i].value ~= "D" then
+          if is_cond(node[i]) then
+            buf.write("APPLY(function()")
+            print_node(buf, node[i], indent + 1, true)
+            buf.write(" end)")
+          else
+            print_node(buf, node[i], indent + 1, false)
+          end
+          if i < #node then buf.write(", ") end
+        end
+      end
+      buf.write(")")
+    end
+    
+  else
+    -- Atoms: ident, string, number, symbol
+    buf.write("%s", value(node))
+  end
+
+  return true
+end
+
+-- Top-level compilation functions
+local function compile_routine(decl, body, node)
+  local name = value(node[1])
+  decl.writeln("%s = nil", name)
+  body.write("%s = function(", name)
+  write_function_header(body, node)
+  body.writeln("\tlocal __ok, __res = pcall(function()")
+  for i = 3, #node do
+    print_node(body, node[i], 1, i == #node)
+    body.writeln()
+  end
+  body.writeln("\tend)")
+  body.writeln("\treturn __res")
+  body.writeln("end")
+end
+
+local function compile_object(decl, body, node)
+  local name = value(node[1])
+  decl.writeln('%s = setmetatable({}, { __tostring = function(self) return self.DESC or "%s" end })', name, name)
+  decl.writeln('OBJECTS["%s"] = %s', name, name)
+  
+  for i = 2, #node do
+    local field = node[i]
+    if field.type == "list" and safeget(field[1], 'type') == "ident" and field[2] then
+      body.write("%s.", name)
+      
+      if value(field[2]) == "TO" then
+        body.write("NAV_%s = ", value(field[1]))
+        write_nav(body, field)
+      else
+        body.write("%s = ", value(field[1]))
+        write_field(body, field, field[1].value)
+      end
+      
+      body.writeln()
+    end
+  end
+end
+
+-- Top-level compiler registry
+local TOP_LEVEL_COMPILERS = {
+  ROOM = compile_object,
+  OBJECT = compile_object,
+  ROUTINE = compile_routine,
+  GDECL = function() end,
+  DIRECTIONS = function() end,
+}
+
+-- Top-level statements that should be printed directly
+local DIRECT_STATEMENTS = {
+  COND = true,
+  BUZZ = true,
+  SYNONYM = true,
+  SYNTAX = true,
+  GLOBAL = true,
+  CONSTANT = true,
+  SETG = true,
+  -- PROG = true,
+}
+
+-- Main compilation entry point
+function Compiler.compile(ast)
+  local decl = Buffer()
+  local body = Buffer()
+  
+  for i = 1, #ast do
+    local node = ast[i]
+    
+    if node.type == "expr" then
+      local name = node.name or ""
+      
+      -- Skip GDECL
+      if name == "GDECL" or name == "PROG" then
+        goto continue
+      end
+      
+      -- Direct statements
+      if DIRECT_STATEMENTS[name] then
+        print_node(body, node, 0, false)
+        goto continue
+      end
+      
+      -- Compile with appropriate handler
+      if safeget(node[1], 'value') then
+        local compiler = TOP_LEVEL_COMPILERS[name]
+        if compiler then
+          compiler(decl, body, node)
+        else
+          io.stderr:write(string.format("Unknown top-level form: %s on line %d\n", name, getmetatable(ast).source.line))
+        end
+      else
+        io.stderr:write(string.format("Expected type in <%s> on line %d\n", name, getmetatable(ast).source.line))
+      end
+    end
+    
+    ::continue::
+  end
+  
+  return {
+    declarations = decl.get(),
+    body = body.get(),
+    combined = decl.get() .. "\n" .. body.get()
+  }
+end
+
+return Compiler
