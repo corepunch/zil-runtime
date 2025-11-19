@@ -37,7 +37,13 @@ VERBS   = {}
 QUEUES  = {}
 ROOMS   = {}
 _OBJECTS = {}
-_PROPERTIES = {}
+PROPERTIES = {}
+PREPOSITIONS = {}
+ADJECTIVES = {}
+ACTIONS = {}
+PREACTIONS = {}
+OBJECTS = {}
+_DIRECTIONS = {}
 
 _VTBL = {}
 _OTBL = {}
@@ -66,11 +72,13 @@ local cache = {
 	words = {},
 }
 
-ACTIONS = {}
-PREACTIONS = {}
-
-local mycounters = {}
-local mywords = {}
+local function register(tbl, value)
+	local n = 0
+	value = value:lower()
+	for k, v in pairs(tbl) do n = n + 1 end
+	if not tbl[value] then tbl[value] = n + 1 end
+	return tbl[value]
+end
 
 local function tohex(s)
     local t = {}
@@ -149,22 +157,22 @@ LESSQ = LQ
 MULL = MUL
 
 -- Object / room ops
-function LOC(obj) return obj.IN end
-function INQ(obj, room) return obj.IN == room end
-function MOVE(obj, dest) obj.IN = dest end
-function REMOVE(obj) obj.IN = nil end
+function LOC(obj) return obj.LOC end
+function INQ(obj, room) return obj.LOC == room end
+function MOVE(obj, dest) obj.LOC = dest end
+function REMOVE(obj) obj.LOC = nil end
 
 function FIRSTQ(obj)
 	for _, o in ipairs(_OBJECTS) do
-		if o.IN == obj then return o end
+		if o.LOC == obj then return o end
 	end
 end
 
 function NEXTQ(obj)
-  local parent = obj.IN
+  local parent = obj.LOC
   local found = false
   for _, o in ipairs(_OBJECTS) do
-    if o.IN == parent then
+    if o.LOC == parent then
       if found then return o end
       if o == obj then found = true end
     end
@@ -176,6 +184,8 @@ function FCLEAR(obj, flag) obj.FLAGS = (obj.FLAGS or 0) & ~(1<<flag) end
 function FSETQ(obj, flag) return obj.FLAGS and (obj.FLAGS & (1<<flag)) ~= 0 end
 function PUTP(obj, prop, val) obj[prop] = val end
 function GETP(obj, prop) return obj[prop] end
+
+-- function GETPT(obj, prop) print(obj, prop) os.exit() end
 
 function REST(s, i)
 	if type(s) == 'number' then
@@ -261,14 +271,10 @@ function READ(inbuf, parse)
 	end
 	writemem(s:lower()..'\0', inbuf+1)
 	writemem(string.char(#p)..table.concat(p), parse+1)
-
-	print(WTQ(cache.words["east"], PSQDIRECTION, P1QDIRECTION))
-	os.exit()
-
 	buf = false
 end
 
-local function learn(word, type, func)
+local function learn(word, atom, value)
 	local prim = {
 		[PSQOBJECT]=P1QOBJECT,
 		[PSQVERB]=P1QVERB,
@@ -279,32 +285,24 @@ local function learn(word, type, func)
 	}
 	if not word then return 0 end
 	word = word:lower()
-	if not mywords[type] then
-		mywords[type] = {}
-	end
-	if not mywords[type][word] then
-		mycounters[type] = mycounters[type] and mycounters[type] + 1 or 1
-		mywords[type][word] = mycounters[type]
-	end
-	-- print(word, func)
+	if type(value) == 'table' then value = register(value, word) end
 	if cache.words[word] then
 		local index = cache.words[word]
-		local ent = readmem(7, index)
-		local new = string.char(0,0,0,0,ent:byte(5)|type,ent:byte(6),func)
+		local ent = readmem(7, cache.words[word])
+		local new = string.char(0,0,0,0,ent:byte(5)|atom,ent:byte(6),value or OQANY)
 		writemem(new, index)
 	else
-		local enc = string.char(0,0,0,0,type|prim[type],func,0)
+		local enc = string.char(0,0,0,0,atom|prim[atom],value or OQANY,0)
 		local pos = writemem(enc)
 		cache.words[word] = pos
 		_G['WQ'..string.upper(word)] = enc
 	end
-	return mywords[type][word]
+	return value or cache.words[word]
 end
 
 function DIRECTIONS(...)
 	for _, dir in ipairs {...} do
-		table.insert(_PROPERTIES, dir)
-		learn(dir:lower(), PSQDIRECTION, #_PROPERTIES)
+		_DIRECTIONS[dir] = learn(dir, PSQDIRECTION, PROPERTIES)
 	end
 end
 
@@ -324,8 +322,8 @@ function SYNTAX(syn)
 	local function encode(s)
 		return string.char(
 			s.OBJECT and (s.SUBJECT and 2 or 1) or 0,
-			learn(s.PREFIX, PSQPREPOSITION, 0),
-			learn(s.JOIN, PSQPREPOSITION, 0),
+			learn(s.PREFIX, PSQPREPOSITION, PREPOSITIONS),
+			learn(s.JOIN, PSQPREPOSITION, PREPOSITIONS),
 			s.OBJECT and s.OBJECT.FIND or 0,
 			s.SUBJECT and s.SUBJECT.FIND or 0,
 			s.OBJECT and s.OBJECT.WHERE or 0,
@@ -338,8 +336,7 @@ function SYNTAX(syn)
 	else
 		table.insert(VERBS, {encode(syn)})
 		cache.verbs[name] = #VERBS
-		learn(name, PSQVERB, 255-#VERBS)
-		_G['ACTQ'..syn.VERB] = 255-#VERBS
+		_G['ACTQ'..syn.VERB] = learn(name, PSQVERB, 255-#VERBS)
 	end
 	_G[syn.ACTION:gsub("_", "Q", 1)] = action_id(ACTIONS, syn.ACTION)
 	if syn.PREACTION then
@@ -347,17 +344,51 @@ function SYNTAX(syn)
 	end
 end
 
+table.concat2 = function(t, fn)
+	local tmp = {}
+	for i, s in ipairs(t) do tmp[i] = fn(s) end
+	return table.concat(tmp)
+end
+
 function OBJECT(object)
+	local function makeprop(len, name)
+		local num = register(PROPERTIES, name)
+		return string.char(num|((len-1)<<5))
+	end
+	local function makeword(val)
+		return string.char(val&0xff, (val>>8)&0xff)
+	end
+
 	assert(_G[object.NAME], object.NAME.." must be declared before definition")
 	table.insert(_OBJECTS, _G[object.NAME])
 	for k, v in pairs(object) do _G[object.NAME][k] = v end
-	for _, adj in ipairs(object.ADJECTIVE or {}) do learn(adj, PSQADJECTIVE, 0) end
-	for _, syn in ipairs(object.SYNONYM or {}) do learn(syn, PSQOBJECT, #_OBJECTS) end
+
+	local info = string.char(#object.NAME)..object.NAME
+	for k, v in pairs(object) do
+		if k == "SYNONYM" then
+			local body = table.concat2(v, function(syn)
+				return makeword(learn(syn, PSQOBJECT, nil))
+			end)
+			info = info..makeprop(#body, k)..body
+		elseif k == "ADJECTIVE" then
+			local body = table.concat2(v, function(adj)
+				return string.char(learn(adj, PSQADJECTIVE, ADJECTIVES))
+			end)
+			info = info..makeprop(#body, k)..body
+		elseif type(v) == 'string' then
+			info = info..makeprop(2, k)..writemem(v.."\0")
+		elseif _DIRECTIONS[k] then
+			if v.NAME then
+			end
+		end
+	end
+
+	table.insert(OBJECTS, info)
 end
 
 function BUZZ(...)
 	for _, buzz in ipairs {...} do
-		learn(buzz, PSQBUZZ_WORD, 0)
+		learn(buzz, PSQBUZZ_WORD, nil)
 	end
 end
 

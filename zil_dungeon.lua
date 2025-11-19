@@ -240,7 +240,7 @@ SCORE_MAX = 350
 FALSE_FLAG = nil
 OBJECT {
 	NAME = "BOARD",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"BOARDS","BOARD"},
 	DESC = "board",
 	FLAGS = (1<<NDESCBIT),
@@ -248,7 +248,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "TEETH",
-	IN = GLOBAL_OBJECTS,
+	LOC = GLOBAL_OBJECTS,
 	SYNONYM = {"OVERBOARD","TEETH"},
 	DESC = "set of teeth",
 	FLAGS = (1<<NDESCBIT),
@@ -256,14 +256,14 @@ OBJECT {
 }
 OBJECT {
 	NAME = "WALL",
-	IN = GLOBAL_OBJECTS,
+	LOC = GLOBAL_OBJECTS,
 	SYNONYM = {"WALL","WALLS"},
 	ADJECTIVE = {"SURROUNDING"},
 	DESC = "surrounding wall",
 }
 OBJECT {
 	NAME = "GRANITE_WALL",
-	IN = GLOBAL_OBJECTS,
+	LOC = GLOBAL_OBJECTS,
 	SYNONYM = {"WALL"},
 	ADJECTIVE = {"GRANITE"},
 	DESC = "granite wall",
@@ -271,7 +271,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "SONGBIRD",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"BIRD","SONGBIRD"},
 	ADJECTIVE = {"SONG"},
 	DESC = "songbird",
@@ -280,7 +280,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "WHITE_HOUSE",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"HOUSE"},
 	ADJECTIVE = {"WHITE","BEAUTI","COLONI"},
 	DESC = "white house",
@@ -289,7 +289,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "FOREST",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"FOREST","TREES","PINES","HEMLOCKS"},
 	DESC = "forest",
 	FLAGS = (1<<NDESCBIT),
@@ -297,7 +297,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "TREE",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"TREE","BRANCH"},
 	ADJECTIVE = {"LARGE","STORM"},
 	DESC = "tree",
@@ -305,7 +305,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "MOUNTAIN_RANGE",
-	IN = MOUNTAINS,
+	LOC = MOUNTAINS,
 	DESC = "mountain range",
 	SYNONYM = {"MOUNTAIN","RANGE"},
 	ADJECTIVE = {"IMPASSABLE","FLATHEAD"},
@@ -314,7 +314,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "GLOBAL_WATER",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"WATER","QUANTITY"},
 	DESC = "water",
 	FLAGS = (1<<DRINKBIT),
@@ -322,7 +322,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "WATER",
-	IN = BOTTLE,
+	LOC = BOTTLE,
 	SYNONYM = {"WATER","QUANTITY","LIQUID","H2O"},
 	DESC = "quantity of water",
 	FLAGS = (1<<TRYTAKEBIT)|(1<<TAKEBIT)|(1<<DRINKBIT),
@@ -331,7 +331,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "KITCHEN_WINDOW",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"WINDOW"},
 	ADJECTIVE = {"KITCHEN","SMALL"},
 	DESC = "kitchen window",
@@ -340,7 +340,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "CHIMNEY",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"CHIMNEY"},
 	ADJECTIVE = {"DARK","NARROW"},
 	DESC = "chimney",
@@ -349,7 +349,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "GHOSTS",
-	IN = ENTRANCE_TO_HADES,
+	LOC = ENTRANCE_TO_HADES,
 	SYNONYM = {"GHOSTS","SPIRITS","FIENDS","FORCE"},
 	ADJECTIVE = {"INVISIBLE","EVIL"},
 	DESC = "number of ghosts",
@@ -358,7 +358,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "SKULL",
-	IN = LAND_OF_LIVING_DEAD,
+	LOC = LAND_OF_LIVING_DEAD,
 	SYNONYM = {"SKULL","HEAD","TREASURE"},
 	ADJECTIVE = {"CRYSTAL"},
 	DESC = "crystal skull",
@@ -369,7 +369,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "LOWERED_BASKET",
-	IN = LOWER_SHAFT,
+	LOC = LOWER_SHAFT,
 	SYNONYM = {"CAGE","DUMBWAITER","BASKET"},
 	ADJECTIVE = {"LOWERED"},
 	LDESC = "From the chain is suspended a basket.",
@@ -379,7 +379,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "RAISED_BASKET",
-	IN = SHAFT_ROOM,
+	LOC = SHAFT_ROOM,
 	SYNONYM = {"CAGE","DUMBWAITER","BASKET"},
 	DESC = "basket",
 	FLAGS = (1<<TRANSBIT)|(1<<TRYTAKEBIT)|(1<<CONTBIT)|(1<<OPENBIT),
@@ -389,7 +389,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "LUNCH",
-	IN = SANDWICH_BAG,
+	LOC = SANDWICH_BAG,
 	SYNONYM = {"FOOD","SANDWICH","LUNCH","DINNER"},
 	ADJECTIVE = {"HOT","PEPPER"},
 	DESC = "lunch",
@@ -398,7 +398,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BAT",
-	IN = BAT_ROOM,
+	LOC = BAT_ROOM,
 	SYNONYM = {"BAT","VAMPIRE"},
 	ADJECTIVE = {"VAMPIRE","DERANGED"},
 	DESC = "bat",
@@ -408,7 +408,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BELL",
-	IN = NORTH_TEMPLE,
+	LOC = NORTH_TEMPLE,
 	SYNONYM = {"BELL"},
 	ADJECTIVE = {"SMALL","BRASS"},
 	DESC = "brass bell",
@@ -426,7 +426,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "AXE",
-	IN = TROLL,
+	LOC = TROLL,
 	SYNONYM = {"AXE","AX"},
 	ADJECTIVE = {"BLOODY"},
 	DESC = "bloody axe",
@@ -436,7 +436,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BOLT",
-	IN = DAM_ROOM,
+	LOC = DAM_ROOM,
 	SYNONYM = {"BOLT","NUT"},
 	ADJECTIVE = {"METAL","LARGE"},
 	DESC = "bolt",
@@ -445,7 +445,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BUBBLE",
-	IN = DAM_ROOM,
+	LOC = DAM_ROOM,
 	SYNONYM = {"BUBBLE"},
 	ADJECTIVE = {"SMALL","GREEN","PLASTIC"},
 	DESC = "green bubble",
@@ -454,7 +454,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "ALTAR",
-	IN = SOUTH_TEMPLE,
+	LOC = SOUTH_TEMPLE,
 	SYNONYM = {"ALTAR"},
 	DESC = "altar",
 	FLAGS = (1<<NDESCBIT)|(1<<SURFACEBIT)|(1<<CONTBIT)|(1<<OPENBIT),
@@ -462,7 +462,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BOOK",
-	IN = ALTAR,
+	LOC = ALTAR,
 	SYNONYM = {"BOOK","PRAYER","PAGE","BOOKS"},
 	ADJECTIVE = {"LARGE","BLACK"},
 	DESC = "black book",
@@ -481,7 +481,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "SCEPTRE",
-	IN = COFFIN,
+	LOC = COFFIN,
 	SYNONYM = {"SCEPTRE","SCEPTER","TREASURE"},
 	ADJECTIVE = {"SHARP","EGYPTIAN","ANCIENT","ENAMELED"},
 	DESC = "sceptre",
@@ -495,7 +495,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "TIMBERS",
-	IN = TIMBER_ROOM,
+	LOC = TIMBER_ROOM,
 	SYNONYM = {"TIMBERS","PILE"},
 	ADJECTIVE = {"WOODEN","BROKEN"},
 	DESC = "broken timber",
@@ -504,7 +504,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "SLIDE",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"CHUTE","RAMP","SLIDE"},
 	ADJECTIVE = {"STEEP","METAL","TWISTING"},
 	DESC = "chute",
@@ -513,7 +513,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "KITCHEN_TABLE",
-	IN = KITCHEN,
+	LOC = KITCHEN,
 	SYNONYM = {"TABLE"},
 	ADJECTIVE = {"KITCHEN"},
 	DESC = "kitchen table",
@@ -522,7 +522,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "ATTIC_TABLE",
-	IN = ATTIC,
+	LOC = ATTIC,
 	SYNONYM = {"TABLE"},
 	DESC = "table",
 	FLAGS = (1<<NDESCBIT)|(1<<CONTBIT)|(1<<OPENBIT)|(1<<SURFACEBIT),
@@ -530,7 +530,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "SANDWICH_BAG",
-	IN = KITCHEN_TABLE,
+	LOC = KITCHEN_TABLE,
 	SYNONYM = {"BAG","SACK"},
 	ADJECTIVE = {"BROWN","ELONGATED","SMELLY"},
 	DESC = "brown sack",
@@ -542,7 +542,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "TOOL_CHEST",
-	IN = MAINTENANCE_ROOM,
+	LOC = MAINTENANCE_ROOM,
 	SYNONYM = {"CHEST","CHESTS","GROUP","TOOLCHESTS"},
 	ADJECTIVE = {"TOOL"},
 	DESC = "group of tool chests",
@@ -551,7 +551,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "YELLOW_BUTTON",
-	IN = MAINTENANCE_ROOM,
+	LOC = MAINTENANCE_ROOM,
 	SYNONYM = {"BUTTON","SWITCH"},
 	ADJECTIVE = {"YELLOW"},
 	DESC = "yellow button",
@@ -560,7 +560,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BROWN_BUTTON",
-	IN = MAINTENANCE_ROOM,
+	LOC = MAINTENANCE_ROOM,
 	SYNONYM = {"BUTTON","SWITCH"},
 	ADJECTIVE = {"BROWN"},
 	DESC = "brown button",
@@ -569,7 +569,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "RED_BUTTON",
-	IN = MAINTENANCE_ROOM,
+	LOC = MAINTENANCE_ROOM,
 	SYNONYM = {"BUTTON","SWITCH"},
 	ADJECTIVE = {"RED"},
 	DESC = "red button",
@@ -578,7 +578,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BLUE_BUTTON",
-	IN = MAINTENANCE_ROOM,
+	LOC = MAINTENANCE_ROOM,
 	SYNONYM = {"BUTTON","SWITCH"},
 	ADJECTIVE = {"BLUE"},
 	DESC = "blue button",
@@ -587,7 +587,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "TROPHY_CASE",
-	IN = LIVING_ROOM,
+	LOC = LIVING_ROOM,
 	SYNONYM = {"CASE"},
 	ADJECTIVE = {"TROPHY"},
 	DESC = "trophy case",
@@ -597,7 +597,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "RUG",
-	IN = LIVING_ROOM,
+	LOC = LIVING_ROOM,
 	SYNONYM = {"RUG","CARPET"},
 	ADJECTIVE = {"LARGE","ORIENTAL"},
 	DESC = "carpet",
@@ -606,7 +606,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "CHALICE",
-	IN = TREASURE_ROOM,
+	LOC = TREASURE_ROOM,
 	SYNONYM = {"CHALICE","CUP","SILVER","TREASURE"},
 	ADJECTIVE = {"SILVER","ENGRAVINGS"},
 	DESC = "chalice",
@@ -620,7 +620,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "GARLIC",
-	IN = SANDWICH_BAG,
+	LOC = SANDWICH_BAG,
 	SYNONYM = {"GARLIC","CLOVE"},
 	DESC = "clove of garlic",
 	FLAGS = (1<<TAKEBIT)|(1<<FOODBIT),
@@ -629,7 +629,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "TRIDENT",
-	IN = ATLANTIS_ROOM,
+	LOC = ATLANTIS_ROOM,
 	SYNONYM = {"TRIDENT","FORK","TREASURE"},
 	ADJECTIVE = {"POSEIDON","OWN","CRYSTAL"},
 	DESC = "crystal trident",
@@ -641,7 +641,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "CYCLOPS",
-	IN = CYCLOPS_ROOM,
+	LOC = CYCLOPS_ROOM,
 	SYNONYM = {"CYCLOPS","MONSTER","EYE"},
 	ADJECTIVE = {"HUNGRY","GIANT"},
 	DESC = "cyclops",
@@ -651,7 +651,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "DAM",
-	IN = DAM_ROOM,
+	LOC = DAM_ROOM,
 	SYNONYM = {"DAM","GATE","GATES","FCD/#3"},
 	DESC = "dam",
 	FLAGS = (1<<NDESCBIT)|(1<<TRYTAKEBIT),
@@ -659,7 +659,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "TRAP_DOOR",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"DOOR","TRAPDOOR","TRAP_DOOR","COVER"},
 	ADJECTIVE = {"TRAP","DUSTY"},
 	DESC = "trap door",
@@ -668,7 +668,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BOARDED_WINDOW",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"WINDOW"},
 	ADJECTIVE = {"BOARDED"},
 	DESC = "boarded window",
@@ -677,7 +677,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "FRONT_DOOR",
-	IN = WEST_OF_HOUSE,
+	LOC = WEST_OF_HOUSE,
 	SYNONYM = {"DOOR"},
 	ADJECTIVE = {"FRONT","BOARDED"},
 	DESC = "door",
@@ -686,7 +686,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BARROW_DOOR",
-	IN = STONE_BARROW,
+	LOC = STONE_BARROW,
 	SYNONYM = {"DOOR"},
 	ADJECTIVE = {"HUGE","STONE"},
 	DESC = "stone door",
@@ -695,7 +695,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BARROW",
-	IN = STONE_BARROW,
+	LOC = STONE_BARROW,
 	SYNONYM = {"BARROW","TOMB"},
 	ADJECTIVE = {"MASSIVE","STONE"},
 	DESC = "stone barrow",
@@ -704,7 +704,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BOTTLE",
-	IN = KITCHEN_TABLE,
+	LOC = KITCHEN_TABLE,
 	SYNONYM = {"BOTTLE","CONTAINER"},
 	ADJECTIVE = {"CLEAR","GLASS"},
 	DESC = "glass bottle",
@@ -715,7 +715,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "CRACK",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"CRACK"},
 	ADJECTIVE = {"NARROW"},
 	DESC = "crack",
@@ -724,7 +724,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "COFFIN",
-	IN = EGYPT_ROOM,
+	LOC = EGYPT_ROOM,
 	SYNONYM = {"COFFIN","CASKET","TREASURE"},
 	ADJECTIVE = {"SOLID","GOLD"},
 	DESC = "gold coffin",
@@ -737,7 +737,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "GRATE",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"GRATE","GRATING"},
 	DESC = "grating",
 	FLAGS = (1<<DOORBIT)|(1<<NDESCBIT)|(1<<INVISIBLE),
@@ -745,7 +745,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "PUMP",
-	IN = RESERVOIR_NORTH,
+	LOC = RESERVOIR_NORTH,
 	SYNONYM = {"PUMP","AIR_PUMP","TOOL","TOOLS"},
 	ADJECTIVE = {"SMALL","HAND_HELD"},
 	DESC = "hand-held air pump",
@@ -763,7 +763,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "JADE",
-	IN = BAT_ROOM,
+	LOC = BAT_ROOM,
 	SYNONYM = {"FIGURINE","TREASURE"},
 	ADJECTIVE = {"EXQUISITE","JADE"},
 	DESC = "jade figurine",
@@ -775,7 +775,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "KNIFE",
-	IN = ATTIC_TABLE,
+	LOC = ATTIC_TABLE,
 	SYNONYM = {"KNIVES","KNIFE","BLADE"},
 	ADJECTIVE = {"NASTY","UNRUSTY"},
 	DESC = "nasty knife",
@@ -785,7 +785,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BONES",
-	IN = MAZE_5,
+	LOC = MAZE_5,
 	SYNONYM = {"BONES","SKELETON","BODY"},
 	DESC = "skeleton",
 	FLAGS = (1<<TRYTAKEBIT)|(1<<NDESCBIT),
@@ -793,7 +793,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BURNED_OUT_LANTERN",
-	IN = MAZE_5,
+	LOC = MAZE_5,
 	SYNONYM = {"LANTERN","LAMP"},
 	ADJECTIVE = {"RUSTY","BURNED","DEAD","USELESS"},
 	DESC = "burned-out lantern",
@@ -803,7 +803,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BAG_OF_COINS",
-	IN = MAZE_5,
+	LOC = MAZE_5,
 	SYNONYM = {"BAG","COINS","TREASURE"},
 	ADJECTIVE = {"OLD","LEATHER"},
 	DESC = "leather bag of coins",
@@ -816,7 +816,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "LAMP",
-	IN = LIVING_ROOM,
+	LOC = LIVING_ROOM,
 	SYNONYM = {"LAMP","LANTERN","LIGHT"},
 	ADJECTIVE = {"BRASS"},
 	DESC = "brass lantern",
@@ -828,7 +828,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "EMERALD",
-	IN = BUOY,
+	LOC = BUOY,
 	SYNONYM = {"EMERALD","TREASURE"},
 	ADJECTIVE = {"LARGE"},
 	DESC = "large emerald",
@@ -838,7 +838,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "ADVERTISEMENT",
-	IN = MAILBOX,
+	LOC = MAILBOX,
 	SYNONYM = {"ADVERTISEMENT","LEAFLET","BOOKLET","MAIL"},
 	ADJECTIVE = {"SMALL"},
 	DESC = "leaflet",
@@ -849,7 +849,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "LEAK",
-	IN = MAINTENANCE_ROOM,
+	LOC = MAINTENANCE_ROOM,
 	SYNONYM = {"LEAK","DRIP","PIPE"},
 	DESC = "leak",
 	FLAGS = (1<<NDESCBIT)|(1<<INVISIBLE),
@@ -857,7 +857,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "MACHINE",
-	IN = MACHINE_ROOM,
+	LOC = MACHINE_ROOM,
 	SYNONYM = {"MACHINE","PDP10","DRYER","LID"},
 	DESC = "machine",
 	FLAGS = (1<<CONTBIT)|(1<<NDESCBIT)|(1<<TRYTAKEBIT),
@@ -877,7 +877,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "MAILBOX",
-	IN = WEST_OF_HOUSE,
+	LOC = WEST_OF_HOUSE,
 	SYNONYM = {"MAILBOX","BOX"},
 	ADJECTIVE = {"SMALL"},
 	DESC = "small mailbox",
@@ -887,7 +887,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "MATCH",
-	IN = DAM_LOBBY,
+	LOC = DAM_LOBBY,
 	SYNONYM = {"MATCH","MATCHES","MATCHBOOK"},
 	ADJECTIVE = {"MATCH"},
 	DESC = "matchbook",
@@ -899,7 +899,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "MIRROR_2",
-	IN = MIRROR_ROOM_2,
+	LOC = MIRROR_ROOM_2,
 	SYNONYM = {"REFLECTION","MIRROR","ENORMOUS"},
 	DESC = "mirror",
 	FLAGS = (1<<TRYTAKEBIT)|(1<<NDESCBIT),
@@ -907,7 +907,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "MIRROR_1",
-	IN = MIRROR_ROOM_1,
+	LOC = MIRROR_ROOM_1,
 	SYNONYM = {"REFLECTION","MIRROR","ENORMOUS"},
 	DESC = "mirror",
 	FLAGS = (1<<TRYTAKEBIT)|(1<<NDESCBIT),
@@ -915,7 +915,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "PAINTING",
-	IN = GALLERY,
+	LOC = GALLERY,
 	SYNONYM = {"PAINTING","ART","CANVAS","TREASURE"},
 	ADJECTIVE = {"BEAUTI"},
 	DESC = "painting",
@@ -929,7 +929,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "CANDLES",
-	IN = SOUTH_TEMPLE,
+	LOC = SOUTH_TEMPLE,
 	SYNONYM = {"CANDLES","PAIR"},
 	ADJECTIVE = {"BURNING"},
 	DESC = "pair of candles",
@@ -949,7 +949,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BODIES",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"BODIES","BODY","REMAINS","PILE"},
 	ADJECTIVE = {"MANGLED"},
 	DESC = "pile of bodies",
@@ -958,7 +958,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "LEAVES",
-	IN = GRATING_CLEARING,
+	LOC = GRATING_CLEARING,
 	SYNONYM = {"LEAVES","LEAF","PILE"},
 	DESC = "pile of leaves",
 	FLAGS = (1<<TAKEBIT)|(1<<BURNBIT)|(1<<TRYTAKEBIT),
@@ -977,7 +977,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "INFLATABLE_BOAT",
-	IN = DAM_BASE,
+	LOC = DAM_BASE,
 	SYNONYM = {"BOAT","PILE","PLASTIC","VALVE"},
 	ADJECTIVE = {"PLASTIC","INFLAT"},
 	DESC = "pile of plastic",
@@ -988,7 +988,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BAR",
-	IN = LOUD_ROOM,
+	LOC = LOUD_ROOM,
 	SYNONYM = {"BAR","PLATINUM","TREASURE"},
 	ADJECTIVE = {"PLATINUM","LARGE"},
 	DESC = "platinum bar",
@@ -1000,7 +1000,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "POT_OF_GOLD",
-	IN = END_OF_RAINBOW,
+	LOC = END_OF_RAINBOW,
 	SYNONYM = {"POT","GOLD","TREASURE"},
 	ADJECTIVE = {"GOLD"},
 	DESC = "pot of gold",
@@ -1012,7 +1012,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "PRAYER",
-	IN = NORTH_TEMPLE,
+	LOC = NORTH_TEMPLE,
 	SYNONYM = {"PRAYER","INSCRIPTION"},
 	ADJECTIVE = {"ANCIENT","OLD"},
 	DESC = "prayer",
@@ -1021,7 +1021,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "RAILING",
-	IN = DOME_ROOM,
+	LOC = DOME_ROOM,
 	SYNONYM = {"RAILING","RAIL"},
 	ADJECTIVE = {"WOODEN"},
 	DESC = "wooden railing",
@@ -1029,7 +1029,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "RAINBOW",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"RAINBOW"},
 	DESC = "rainbow",
 	FLAGS = (1<<NDESCBIT)|(1<<CLIMBBIT),
@@ -1037,7 +1037,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "RIVER",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	DESC = "river",
 	SYNONYM = {"RIVER"},
 	ADJECTIVE = {"FRIGID"},
@@ -1046,7 +1046,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BUOY",
-	IN = RIVER_4,
+	LOC = RIVER_4,
 	SYNONYM = {"BUOY"},
 	ADJECTIVE = {"RED"},
 	DESC = "red buoy",
@@ -1070,7 +1070,7 @@ TREASURE_INSIDE = function()
 end
 OBJECT {
 	NAME = "ROPE",
-	IN = ATTIC,
+	LOC = ATTIC,
 	SYNONYM = {"ROPE","HEMP","COIL"},
 	ADJECTIVE = {"LARGE"},
 	DESC = "rope",
@@ -1081,7 +1081,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "RUSTY_KNIFE",
-	IN = MAZE_5,
+	LOC = MAZE_5,
 	SYNONYM = {"KNIVES","KNIFE"},
 	ADJECTIVE = {"RUSTY"},
 	DESC = "rusty knife",
@@ -1092,7 +1092,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "SAND",
-	IN = SANDY_CAVE,
+	LOC = SANDY_CAVE,
 	SYNONYM = {"SAND"},
 	DESC = "sand",
 	FLAGS = (1<<NDESCBIT),
@@ -1100,7 +1100,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BRACELET",
-	IN = GAS_ROOM,
+	LOC = GAS_ROOM,
 	SYNONYM = {"BRACELET","JEWEL","SAPPHIRE","TREASURE"},
 	ADJECTIVE = {"SAPPHIRE"},
 	DESC = "sapphire-encrusted bracelet",
@@ -1111,7 +1111,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "SCREWDRIVER",
-	IN = MAINTENANCE_ROOM,
+	LOC = MAINTENANCE_ROOM,
 	SYNONYM = {"SCREWDRIVER","TOOL","TOOLS","DRIVER"},
 	ADJECTIVE = {"SCREW"},
 	DESC = "screwdriver",
@@ -1119,7 +1119,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "KEYS",
-	IN = MAZE_5,
+	LOC = MAZE_5,
 	SYNONYM = {"KEY"},
 	ADJECTIVE = {"SKELETON"},
 	DESC = "skeleton key",
@@ -1128,7 +1128,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "SHOVEL",
-	IN = SANDY_BEACH,
+	LOC = SANDY_BEACH,
 	SYNONYM = {"SHOVEL","TOOL","TOOLS"},
 	DESC = "shovel",
 	FLAGS = (1<<TAKEBIT)|(1<<TOOLBIT),
@@ -1136,7 +1136,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "COAL",
-	IN = DEAD_END_5,
+	LOC = DEAD_END_5,
 	SYNONYM = {"COAL","PILE","HEAP"},
 	ADJECTIVE = {"SMALL"},
 	DESC = "small pile of coal",
@@ -1145,7 +1145,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "LADDER",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"LADDER"},
 	ADJECTIVE = {"WOODEN","RICKETY","NARROW"},
 	DESC = "wooden ladder",
@@ -1153,7 +1153,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "SCARAB",
-	IN = SANDY_CAVE,
+	LOC = SANDY_CAVE,
 	SYNONYM = {"SCARAB","BUG","BEETLE","TREASURE"},
 	ADJECTIVE = {"BEAUTI","CARVED","JEWELED"},
 	DESC = "beautiful jeweled scarab",
@@ -1164,7 +1164,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "LARGE_BAG",
-	IN = THIEF,
+	LOC = THIEF,
 	SYNONYM = {"BAG"},
 	ADJECTIVE = {"LARGE","THIEFS"},
 	DESC = "large bag",
@@ -1173,7 +1173,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "STILETTO",
-	IN = THIEF,
+	LOC = THIEF,
 	SYNONYM = {"STILETTO"},
 	ADJECTIVE = {"VICIOUS"},
 	DESC = "stiletto",
@@ -1183,7 +1183,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "MACHINE_SWITCH",
-	IN = MACHINE_ROOM,
+	LOC = MACHINE_ROOM,
 	SYNONYM = {"SWITCH"},
 	DESC = "switch",
 	FLAGS = (1<<NDESCBIT)|(1<<TURNBIT),
@@ -1191,7 +1191,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "WOODEN_DOOR",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"DOOR","LETTERING","WRITING"},
 	ADJECTIVE = {"WOODEN","GOTHIC","STRANGE","WEST"},
 	DESC = "wooden door",
@@ -1201,7 +1201,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "SWORD",
-	IN = LIVING_ROOM,
+	LOC = LIVING_ROOM,
 	SYNONYM = {"SWORD","ORCRIST","GLAMDRING","BLADE"},
 	ADJECTIVE = {"ELVISH","OLD","ANTIQUE"},
 	DESC = "sword",
@@ -1213,7 +1213,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "MAP",
-	IN = TROPHY_CASE,
+	LOC = TROPHY_CASE,
 	SYNONYM = {"PARCHMENT","MAP"},
 	ADJECTIVE = {"ANTIQUE","OLD","ANCIENT"},
 	DESC = "ancient map",
@@ -1224,7 +1224,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BOAT_LABEL",
-	IN = INFLATED_BOAT,
+	LOC = INFLATED_BOAT,
 	SYNONYM = {"LABEL","FINEPRINT","PRINT"},
 	ADJECTIVE = {"TAN","FINE"},
 	DESC = "tan label",
@@ -1234,7 +1234,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "THIEF",
-	IN = ROUND_ROOM,
+	LOC = ROUND_ROOM,
 	SYNONYM = {"THIEF","ROBBER","MAN","PERSON"},
 	ADJECTIVE = {"SHADY","SUSPICIOUS","SEEDY"},
 	DESC = "thief",
@@ -1245,7 +1245,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "PEDESTAL",
-	IN = TORCH_ROOM,
+	LOC = TORCH_ROOM,
 	SYNONYM = {"PEDESTAL"},
 	ADJECTIVE = {"WHITE","MARBLE"},
 	DESC = "pedestal",
@@ -1255,7 +1255,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "TORCH",
-	IN = PEDESTAL,
+	LOC = PEDESTAL,
 	SYNONYM = {"TORCH","IVORY","TREASURE"},
 	ADJECTIVE = {"FLAMING","IVORY"},
 	DESC = "torch",
@@ -1268,7 +1268,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "GUIDE",
-	IN = DAM_LOBBY,
+	LOC = DAM_LOBBY,
 	SYNONYM = {"GUIDE","BOOK","BOOKS","GUIDEBOOKS"},
 	ADJECTIVE = {"TOUR","GUIDE"},
 	DESC = "tour guidebook",
@@ -1278,7 +1278,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "TROLL",
-	IN = TROLL_ROOM,
+	LOC = TROLL_ROOM,
 	SYNONYM = {"TROLL"},
 	ADJECTIVE = {"NASTY"},
 	DESC = "troll",
@@ -1289,7 +1289,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "TRUNK",
-	IN = RESERVOIR,
+	LOC = RESERVOIR,
 	SYNONYM = {"TRUNK","CHEST","JEWELS","TREASURE"},
 	ADJECTIVE = {"OLD"},
 	DESC = "trunk of jewels",
@@ -1303,7 +1303,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "TUBE",
-	IN = MAINTENANCE_ROOM,
+	LOC = MAINTENANCE_ROOM,
 	SYNONYM = {"TUBE","TOOTH","PASTE"},
 	DESC = "tube",
 	FLAGS = (1<<TAKEBIT)|(1<<CONTBIT)|(1<<READBIT),
@@ -1315,7 +1315,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "PUTTY",
-	IN = TUBE,
+	LOC = TUBE,
 	SYNONYM = {"MATERIAL","GUNK"},
 	ADJECTIVE = {"VISCOUS"},
 	DESC = "viscous material",
@@ -1325,7 +1325,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "ENGRAVINGS",
-	IN = ENGRAVINGS_CAVE,
+	LOC = ENGRAVINGS_CAVE,
 	SYNONYM = {"WALL","ENGRAVINGS","INSCRIPTION"},
 	ADJECTIVE = {"OLD","ANCIENT"},
 	DESC = "wall with engravings",
@@ -1335,7 +1335,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "OWNERS_MANUAL",
-	IN = STUDIO,
+	LOC = STUDIO,
 	SYNONYM = {"MANUAL","PIECE","PAPER"},
 	ADJECTIVE = {"ZORK","OWNERS","SMALL"},
 	DESC = "ZORK owner's manual",
@@ -1345,7 +1345,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "CLIMBABLE_CLIFF",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"WALL","CLIFF","WALLS","LEDGE"},
 	ADJECTIVE = {"ROCKY","SHEER"},
 	DESC = "cliff",
@@ -1354,7 +1354,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "WHITE_CLIFF",
-	IN = LOCAL_GLOBALS,
+	LOC = LOCAL_GLOBALS,
 	SYNONYM = {"CLIFF","CLIFFS"},
 	ADJECTIVE = {"WHITE"},
 	DESC = "white cliffs",
@@ -1363,7 +1363,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "WRENCH",
-	IN = MAINTENANCE_ROOM,
+	LOC = MAINTENANCE_ROOM,
 	SYNONYM = {"WRENCH","TOOL","TOOLS"},
 	DESC = "wrench",
 	FLAGS = (1<<TAKEBIT)|(1<<TOOLBIT),
@@ -1371,7 +1371,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "CONTROL_PANEL",
-	IN = DAM_ROOM,
+	LOC = DAM_ROOM,
 	SYNONYM = {"PANEL"},
 	ADJECTIVE = {"CONTROL"},
 	DESC = "control panel",
@@ -1379,7 +1379,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "NEST",
-	IN = UP_A_TREE,
+	LOC = UP_A_TREE,
 	SYNONYM = {"NEST"},
 	ADJECTIVE = {"BIRDS"},
 	DESC = "bird's nest",
@@ -1389,7 +1389,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "EGG",
-	IN = NEST,
+	LOC = NEST,
 	SYNONYM = {"EGG","TREASURE"},
 	ADJECTIVE = {"BIRDS","ENCRUSTED","JEWELED"},
 	DESC = "jewel-encrusted egg",
@@ -1421,7 +1421,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "CANARY",
-	IN = EGG,
+	LOC = EGG,
 	SYNONYM = {"CANARY","TREASURE"},
 	ADJECTIVE = {"CLOCKWORK","GOLD","GOLDEN"},
 	DESC = "golden clockwork canary",
@@ -1433,7 +1433,7 @@ OBJECT {
 }
 OBJECT {
 	NAME = "BROKEN_CANARY",
-	IN = BROKEN_EGG,
+	LOC = BROKEN_EGG,
 	SYNONYM = {"CANARY","TREASURE"},
 	ADJECTIVE = {"BROKEN","CLOCKWORK","GOLD","GOLDEN"},
 	DESC = "broken clockwork canary",
@@ -1454,81 +1454,81 @@ TROLL_FLAG = nil
 COFFIN_CURE = nil
 ROOM {
 	NAME = "WEST_OF_HOUSE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "West of House",
-	NAV_NORTH = function() return NORTH_OF_HOUSE end,
-	NAV_SOUTH = function() return SOUTH_OF_HOUSE end,
-	NAV_NE = function() return NORTH_OF_HOUSE end,
-	NAV_SE = function() return SOUTH_OF_HOUSE end,
-	NAV_WEST = function() return FOREST_1 end,
+	NORTH = NORTH_OF_HOUSE,
+	SOUTH = SOUTH_OF_HOUSE,
+	NE = NORTH_OF_HOUSE,
+	SE = SOUTH_OF_HOUSE,
+	WEST = FOREST_1,
 	EAST = "The door is boarded and you can't remove the boards.",
-	NAV_SW = function() return WON_FLAG and STONE_BARROW or nil end,
-	NAV_IN = function() return WON_FLAG and STONE_BARROW or nil end,
+	SW = {STONE_BARROW, WON_FLAG},
+	IN = {STONE_BARROW, WON_FLAG},
 	ACTION = WEST_HOUSE,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	GLOBAL = WHITE_HOUSE,
 }
 ROOM {
 	NAME = "STONE_BARROW",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are standing in front of a massive barrow of stone. In the east face\nis a huge stone door which is open. You cannot see into the dark of the tomb.",
 	DESC = "Stone Barrow",
-	NAV_NE = function() return WEST_OF_HOUSE end,
+	NE = WEST_OF_HOUSE,
 	ACTION = STONE_BARROW_FCN,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 }
 ROOM {
 	NAME = "NORTH_OF_HOUSE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are facing the north side of a white house. There is no door here,\nand all the windows are boarded up. To the north a narrow path winds through\nthe trees.",
 	DESC = "North of House",
-	NAV_SW = function() return WEST_OF_HOUSE end,
-	NAV_SE = function() return EAST_OF_HOUSE end,
-	NAV_WEST = function() return WEST_OF_HOUSE end,
-	NAV_EAST = function() return EAST_OF_HOUSE end,
-	NAV_NORTH = function() return PATH end,
+	SW = WEST_OF_HOUSE,
+	SE = EAST_OF_HOUSE,
+	WEST = WEST_OF_HOUSE,
+	EAST = EAST_OF_HOUSE,
+	NORTH = PATH,
 	SOUTH = "The windows are all boarded.",
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	GLOBAL = BOARDED_WINDOW,
 }
 ROOM {
 	NAME = "SOUTH_OF_HOUSE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are facing the south side of a white house. There is no door here,\nand all the windows are boarded.",
 	DESC = "South of House",
-	NAV_WEST = function() return WEST_OF_HOUSE end,
-	NAV_EAST = function() return EAST_OF_HOUSE end,
-	NAV_NE = function() return EAST_OF_HOUSE end,
-	NAV_NW = function() return WEST_OF_HOUSE end,
-	NAV_SOUTH = function() return FOREST_3 end,
+	WEST = WEST_OF_HOUSE,
+	EAST = EAST_OF_HOUSE,
+	NE = EAST_OF_HOUSE,
+	NW = WEST_OF_HOUSE,
+	SOUTH = FOREST_3,
 	NORTH = "The windows are all boarded.",
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	GLOBAL = BOARDED_WINDOW,
 }
 ROOM {
 	NAME = "EAST_OF_HOUSE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Behind House",
-	NAV_NORTH = function() return NORTH_OF_HOUSE end,
-	NAV_SOUTH = function() return SOUTH_OF_HOUSE end,
-	NAV_SW = function() return SOUTH_OF_HOUSE end,
-	NAV_NW = function() return NORTH_OF_HOUSE end,
-	NAV_EAST = function() return CLEARING end,
-	NAV_WEST = function() return KITCHEN_WINDOW.FLAGS&(1<<OPENBIT) and KITCHEN or nil end,
-	NAV_IN = function() return KITCHEN_WINDOW.FLAGS&(1<<OPENBIT) and KITCHEN or nil end,
+	NORTH = NORTH_OF_HOUSE,
+	SOUTH = SOUTH_OF_HOUSE,
+	SW = SOUTH_OF_HOUSE,
+	NW = NORTH_OF_HOUSE,
+	EAST = CLEARING,
+	WEST = {KITCHEN, KITCHEN_WINDOW, OPENBIT},
+	IN = {KITCHEN, KITCHEN_WINDOW, OPENBIT},
 	ACTION = EAST_HOUSE,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	GLOBAL = WHITE_HOUSE,
 }
 ROOM {
 	NAME = "FOREST_1",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a forest, with trees in all directions. To the east,\nthere appears to be sunlight.",
 	DESC = "Forest",
 	UP = "There is no tree here suitable for climbing.",
-	NAV_NORTH = function() return GRATING_CLEARING end,
-	NAV_EAST = function() return PATH end,
-	NAV_SOUTH = function() return FOREST_3 end,
+	NORTH = GRATING_CLEARING,
+	EAST = PATH,
+	SOUTH = FOREST_3,
 	WEST = "You would need a machete to go further west.",
 	ACTION = FOREST_ROOM,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
@@ -1536,65 +1536,65 @@ ROOM {
 }
 ROOM {
 	NAME = "FOREST_2",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a dimly lit forest, with large trees all around.",
 	DESC = "Forest",
 	UP = "There is no tree here suitable for climbing.",
 	NORTH = "The forest becomes impenetrable to the north.",
-	NAV_EAST = function() return MOUNTAINS end,
-	NAV_SOUTH = function() return CLEARING end,
-	NAV_WEST = function() return PATH end,
+	EAST = MOUNTAINS,
+	SOUTH = CLEARING,
+	WEST = PATH,
 	ACTION = FOREST_ROOM,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	GLOBAL = TREE,
 }
 ROOM {
 	NAME = "MOUNTAINS",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "The forest thins out, revealing impassable mountains.",
 	DESC = "Forest",
 	UP = "The mountains are impassable.",
-	NAV_NORTH = function() return FOREST_2 end,
+	NORTH = FOREST_2,
 	EAST = "The mountains are impassable.",
-	NAV_SOUTH = function() return FOREST_2 end,
-	NAV_WEST = function() return FOREST_2 end,
+	SOUTH = FOREST_2,
+	WEST = FOREST_2,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	GLOBAL = TREE,
 }
 ROOM {
 	NAME = "FOREST_3",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a dimly lit forest, with large trees all around.",
 	DESC = "Forest",
 	UP = "There is no tree here suitable for climbing.",
-	NAV_NORTH = function() return CLEARING end,
+	NORTH = CLEARING,
 	EAST = "The rank undergrowth prevents eastward movement.",
 	SOUTH = "Storm-tossed trees block your way.",
-	NAV_WEST = function() return FOREST_1 end,
-	NAV_NW = function() return SOUTH_OF_HOUSE end,
+	WEST = FOREST_1,
+	NW = SOUTH_OF_HOUSE,
 	ACTION = FOREST_ROOM,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	GLOBAL = TREE,
 }
 ROOM {
 	NAME = "PATH",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a path winding through a dimly lit forest. The path heads\nnorth-south here. One particularly large tree with some low branches\nstands at the edge of the path.",
 	DESC = "Forest Path",
-	NAV_UP = function() return UP_A_TREE end,
-	NAV_NORTH = function() return GRATING_CLEARING end,
-	NAV_EAST = function() return FOREST_2 end,
-	NAV_SOUTH = function() return NORTH_OF_HOUSE end,
-	NAV_WEST = function() return FOREST_1 end,
+	UP = UP_A_TREE,
+	NORTH = GRATING_CLEARING,
+	EAST = FOREST_2,
+	SOUTH = NORTH_OF_HOUSE,
+	WEST = FOREST_1,
 	ACTION = FOREST_ROOM,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	GLOBAL = TREE,
 }
 ROOM {
 	NAME = "UP_A_TREE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Up a Tree",
-	NAV_DOWN = function() return PATH end,
+	DOWN = PATH,
 	UP = "You cannot climb any higher.",
 	ACTION = TREE_ROOM,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
@@ -1602,12 +1602,12 @@ ROOM {
 }
 ROOM {
 	NAME = "GRATING_CLEARING",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Clearing",
 	NORTH = "The forest becomes impenetrable to the north.",
-	NAV_EAST = function() return FOREST_2 end,
-	NAV_WEST = function() return FOREST_1 end,
-	NAV_SOUTH = function() return PATH end,
+	EAST = FOREST_2,
+	WEST = FOREST_1,
+	SOUTH = PATH,
 	DOWN = PER,
 	ACTION = CLEARING_FCN,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
@@ -1637,27 +1637,27 @@ GRATING_EXIT = function()
 end
 ROOM {
 	NAME = "CLEARING",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are in a small clearing in a well marked forest path that\nextends to the east and west.",
 	DESC = "Clearing",
 	UP = "There is no tree here suitable for climbing.",
-	NAV_EAST = function() return CANYON_VIEW end,
-	NAV_NORTH = function() return FOREST_2 end,
-	NAV_SOUTH = function() return FOREST_3 end,
-	NAV_WEST = function() return EAST_OF_HOUSE end,
+	EAST = CANYON_VIEW,
+	NORTH = FOREST_2,
+	SOUTH = FOREST_3,
+	WEST = EAST_OF_HOUSE,
 	ACTION = FOREST_ROOM,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	GLOBAL = TREE,
 }
 ROOM {
 	NAME = "KITCHEN",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Kitchen",
-	NAV_EAST = function() return KITCHEN_WINDOW.FLAGS&(1<<OPENBIT) and EAST_OF_HOUSE or nil end,
-	NAV_WEST = function() return LIVING_ROOM end,
-	NAV_OUT = function() return KITCHEN_WINDOW.FLAGS&(1<<OPENBIT) and EAST_OF_HOUSE or nil end,
-	NAV_UP = function() return ATTIC end,
-	NAV_DOWN = function() return FALSE_FLAG and STUDIO or "Only Santa Claus climbs down chimneys." end,
+	EAST = {EAST_OF_HOUSE, KITCHEN_WINDOW, OPENBIT},
+	WEST = LIVING_ROOM,
+	OUT = {EAST_OF_HOUSE, KITCHEN_WINDOW, OPENBIT},
+	UP = ATTIC,
+	DOWN = {STUDIO, FALSE_FLAG, "Only Santa Claus climbs down chimneys."},
 	ACTION = KITCHEN_FCN,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	VALUE = 10,
@@ -1665,19 +1665,19 @@ ROOM {
 }
 ROOM {
 	NAME = "ATTIC",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is the attic. The only exit is a stairway leading down.",
 	DESC = "Attic",
-	NAV_DOWN = function() return KITCHEN end,
+	DOWN = KITCHEN,
 	FLAGS = (1<<RLANDBIT)|(1<<SACREDBIT),
 	GLOBAL = STAIRS,
 }
 ROOM {
 	NAME = "LIVING_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Living Room",
-	NAV_EAST = function() return KITCHEN end,
-	NAV_WEST = function() return MAGIC_FLAG and STRANGE_PASSAGE or "The door is nailed shut." end,
+	EAST = KITCHEN,
+	WEST = {STRANGE_PASSAGE, MAGIC_FLAG, "The door is nailed shut."},
 	DOWN = PER,
 	ACTION = LIVING_ROOM_FCN,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
@@ -1686,11 +1686,11 @@ ROOM {
 }
 ROOM {
 	NAME = "CELLAR",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Cellar",
-	NAV_NORTH = function() return TROLL_ROOM end,
-	NAV_SOUTH = function() return EAST_OF_CHASM end,
-	NAV_UP = function() return TRAP_DOOR.FLAGS&(1<<OPENBIT) and LIVING_ROOM or nil end,
+	NORTH = TROLL_ROOM,
+	SOUTH = EAST_OF_CHASM,
+	UP = {LIVING_ROOM, TRAP_DOOR, OPENBIT},
 	WEST = "You try to ascend the ramp, but it is impossible, and you slide back down.",
 	ACTION = CELLAR_FCN,
 	FLAGS = (1<<RLANDBIT),
@@ -1699,41 +1699,41 @@ ROOM {
 }
 ROOM {
 	NAME = "TROLL_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a small room with passages to the east and south and a\nforbidding hole leading west. Bloodstains and deep scratches\n(perhaps made by an axe) mar the walls.",
 	DESC = "The Troll Room",
-	NAV_SOUTH = function() return CELLAR end,
-	NAV_EAST = function() return TROLL_FLAG and EW_PASSAGE or "The troll fends you off with a menacing gesture." end,
-	NAV_WEST = function() return TROLL_FLAG and MAZE_1 or "The troll fends you off with a menacing gesture." end,
+	SOUTH = CELLAR,
+	EAST = {EW_PASSAGE, TROLL_FLAG, "The troll fends you off with a menacing gesture."},
+	WEST = {MAZE_1, TROLL_FLAG, "The troll fends you off with a menacing gesture."},
 	FLAGS = (1<<RLANDBIT),
 	ACTION = TROLL_ROOM_F,
 }
 ROOM {
 	NAME = "EAST_OF_CHASM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are on the east edge of a chasm, the bottom of which cannot be\nseen. A narrow passage goes north, and the path you are on continues\nto the east.",
 	DESC = "East of Chasm",
-	NAV_NORTH = function() return CELLAR end,
-	NAV_EAST = function() return GALLERY end,
+	NORTH = CELLAR,
+	EAST = GALLERY,
 	DOWN = "The chasm probably leads straight to the infernal regions.",
 	FLAGS = (1<<RLANDBIT),
 	PSEUDO = "CHASM",
 }
 ROOM {
 	NAME = "GALLERY",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is an art gallery. Most of the paintings have been stolen by\nvandals with exceptional taste. The vandals left through either the\nnorth or west exits.",
 	DESC = "Gallery",
-	NAV_WEST = function() return EAST_OF_CHASM end,
-	NAV_NORTH = function() return STUDIO end,
+	WEST = EAST_OF_CHASM,
+	NORTH = STUDIO,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT),
 }
 ROOM {
 	NAME = "STUDIO",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This appears to have been an artist's studio. The walls and floors are\nsplattered with paints of 69 different colors. Strangely enough, nothing\nof value is hanging here. At the south end of the room is an open door\n(also covered with paint). A dark and narrow chimney leads up from a\nfireplace; although you might be able to get up it, it seems unlikely\nyou could get back down.",
 	DESC = "Studio",
-	NAV_SOUTH = function() return GALLERY end,
+	SOUTH = GALLERY,
 	UP = PER,
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = CHIMNEY,
@@ -1741,236 +1741,236 @@ ROOM {
 }
 ROOM {
 	NAME = "MAZE_1",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is part of a maze of twisty little passages, all alike.",
 	DESC = "Maze",
-	NAV_EAST = function() return TROLL_ROOM end,
-	NAV_NORTH = function() return MAZE_1 end,
-	NAV_SOUTH = function() return MAZE_2 end,
-	NAV_WEST = function() return MAZE_4 end,
+	EAST = TROLL_ROOM,
+	NORTH = MAZE_1,
+	SOUTH = MAZE_2,
+	WEST = MAZE_4,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "MAZE_2",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is part of a maze of twisty little passages, all alike.",
 	DESC = "Maze",
-	NAV_SOUTH = function() return MAZE_1 end,
+	SOUTH = MAZE_1,
 	DOWN = PER,
-	NAV_EAST = function() return MAZE_3 end,
+	EAST = MAZE_3,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "MAZE_3",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is part of a maze of twisty little passages, all alike.",
 	DESC = "Maze",
-	NAV_WEST = function() return MAZE_2 end,
-	NAV_NORTH = function() return MAZE_4 end,
-	NAV_UP = function() return MAZE_5 end,
+	WEST = MAZE_2,
+	NORTH = MAZE_4,
+	UP = MAZE_5,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "MAZE_4",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is part of a maze of twisty little passages, all alike.",
 	DESC = "Maze",
-	NAV_WEST = function() return MAZE_3 end,
-	NAV_NORTH = function() return MAZE_1 end,
-	NAV_EAST = function() return DEAD_END_1 end,
+	WEST = MAZE_3,
+	NORTH = MAZE_1,
+	EAST = DEAD_END_1,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "DEAD_END_1",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Dead End",
 	LDESC = "You have come to a dead end in the maze.",
-	NAV_SOUTH = function() return MAZE_4 end,
+	SOUTH = MAZE_4,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "MAZE_5",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is part of a maze of twisty little passages, all alike.\nA skeleton, probably the remains of a luckless adventurer, lies here.",
 	DESC = "Maze",
-	NAV_EAST = function() return DEAD_END_2 end,
-	NAV_NORTH = function() return MAZE_3 end,
-	NAV_SW = function() return MAZE_6 end,
+	EAST = DEAD_END_2,
+	NORTH = MAZE_3,
+	SW = MAZE_6,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "DEAD_END_2",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Dead End",
 	LDESC = "You have come to a dead end in the maze.",
-	NAV_WEST = function() return MAZE_5 end,
+	WEST = MAZE_5,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "MAZE_6",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is part of a maze of twisty little passages, all alike.",
 	DESC = "Maze",
-	NAV_DOWN = function() return MAZE_5 end,
-	NAV_EAST = function() return MAZE_7 end,
-	NAV_WEST = function() return MAZE_6 end,
-	NAV_UP = function() return MAZE_9 end,
+	DOWN = MAZE_5,
+	EAST = MAZE_7,
+	WEST = MAZE_6,
+	UP = MAZE_9,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "MAZE_7",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is part of a maze of twisty little passages, all alike.",
 	DESC = "Maze",
-	NAV_UP = function() return MAZE_14 end,
-	NAV_WEST = function() return MAZE_6 end,
+	UP = MAZE_14,
+	WEST = MAZE_6,
 	DOWN = PER,
-	NAV_EAST = function() return MAZE_8 end,
-	NAV_SOUTH = function() return MAZE_15 end,
+	EAST = MAZE_8,
+	SOUTH = MAZE_15,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "MAZE_8",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is part of a maze of twisty little passages, all alike.",
 	DESC = "Maze",
-	NAV_NE = function() return MAZE_7 end,
-	NAV_WEST = function() return MAZE_8 end,
-	NAV_SE = function() return DEAD_END_3 end,
+	NE = MAZE_7,
+	WEST = MAZE_8,
+	SE = DEAD_END_3,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "DEAD_END_3",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Dead End",
 	LDESC = "You have come to a dead end in the maze.",
-	NAV_NORTH = function() return MAZE_8 end,
+	NORTH = MAZE_8,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "MAZE_9",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is part of a maze of twisty little passages, all alike.",
 	DESC = "Maze",
-	NAV_NORTH = function() return MAZE_6 end,
+	NORTH = MAZE_6,
 	DOWN = PER,
-	NAV_EAST = function() return MAZE_10 end,
-	NAV_SOUTH = function() return MAZE_13 end,
-	NAV_WEST = function() return MAZE_12 end,
-	NAV_NW = function() return MAZE_9 end,
+	EAST = MAZE_10,
+	SOUTH = MAZE_13,
+	WEST = MAZE_12,
+	NW = MAZE_9,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "MAZE_10",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is part of a maze of twisty little passages, all alike.",
 	DESC = "Maze",
-	NAV_EAST = function() return MAZE_9 end,
-	NAV_WEST = function() return MAZE_13 end,
-	NAV_UP = function() return MAZE_11 end,
+	EAST = MAZE_9,
+	WEST = MAZE_13,
+	UP = MAZE_11,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "MAZE_11",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is part of a maze of twisty little passages, all alike.",
 	DESC = "Maze",
-	NAV_NE = function() return GRATING_ROOM end,
-	NAV_DOWN = function() return MAZE_10 end,
-	NAV_NW = function() return MAZE_13 end,
-	NAV_SW = function() return MAZE_12 end,
+	NE = GRATING_ROOM,
+	DOWN = MAZE_10,
+	NW = MAZE_13,
+	SW = MAZE_12,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "GRATING_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Grating Room",
-	NAV_SW = function() return MAZE_11 end,
-	NAV_UP = function() return GRATE.FLAGS&(1<<OPENBIT) and GRATING_CLEARING or "The grating is closed." end,
+	SW = MAZE_11,
+	UP = {GRATING_CLEARING, GRATE, OPENBIT, "The grating is closed."},
 	ACTION = MAZE_11_FCN,
 	GLOBAL = GRATE,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "MAZE_12",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is part of a maze of twisty little passages, all alike.",
 	DESC = "Maze",
 	DOWN = PER,
-	NAV_SW = function() return MAZE_11 end,
-	NAV_EAST = function() return MAZE_13 end,
-	NAV_UP = function() return MAZE_9 end,
-	NAV_NORTH = function() return DEAD_END_4 end,
+	SW = MAZE_11,
+	EAST = MAZE_13,
+	UP = MAZE_9,
+	NORTH = DEAD_END_4,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "DEAD_END_4",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Dead End",
 	LDESC = "You have come to a dead end in the maze.",
-	NAV_SOUTH = function() return MAZE_12 end,
+	SOUTH = MAZE_12,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "MAZE_13",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is part of a maze of twisty little passages, all alike.",
 	DESC = "Maze",
-	NAV_EAST = function() return MAZE_9 end,
-	NAV_DOWN = function() return MAZE_12 end,
-	NAV_SOUTH = function() return MAZE_10 end,
-	NAV_WEST = function() return MAZE_11 end,
+	EAST = MAZE_9,
+	DOWN = MAZE_12,
+	SOUTH = MAZE_10,
+	WEST = MAZE_11,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "MAZE_14",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is part of a maze of twisty little passages, all alike.",
 	DESC = "Maze",
-	NAV_WEST = function() return MAZE_15 end,
-	NAV_NW = function() return MAZE_14 end,
-	NAV_NE = function() return MAZE_7 end,
-	NAV_SOUTH = function() return MAZE_7 end,
+	WEST = MAZE_15,
+	NW = MAZE_14,
+	NE = MAZE_7,
+	SOUTH = MAZE_7,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "MAZE_15",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is part of a maze of twisty little passages, all alike.",
 	DESC = "Maze",
-	NAV_WEST = function() return MAZE_14 end,
-	NAV_SOUTH = function() return MAZE_7 end,
-	NAV_SE = function() return CYCLOPS_ROOM end,
+	WEST = MAZE_14,
+	SOUTH = MAZE_7,
+	SE = CYCLOPS_ROOM,
 	FLAGS = (1<<RLANDBIT)|(1<<MAZEBIT),
 }
 ROOM {
 	NAME = "CYCLOPS_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Cyclops Room",
-	NAV_NW = function() return MAZE_15 end,
-	NAV_EAST = function() return MAGIC_FLAG and STRANGE_PASSAGE or "The east wall is solid rock." end,
-	NAV_UP = function() return CYCLOPS_FLAG and TREASURE_ROOM or "The cyclops doesn't look like he'll let you past." end,
+	NW = MAZE_15,
+	EAST = {STRANGE_PASSAGE, MAGIC_FLAG, "The east wall is solid rock."},
+	UP = {TREASURE_ROOM, CYCLOPS_FLAG, "The cyclops doesn't look like he'll let you past."},
 	ACTION = CYCLOPS_ROOM_FCN,
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = STAIRS,
 }
 ROOM {
 	NAME = "STRANGE_PASSAGE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a long passage. To the west is one entrance. On the\neast there is an old wooden door, with a large opening in it (about\ncyclops sized).",
 	DESC = "Strange Passage",
-	NAV_WEST = function() return CYCLOPS_ROOM end,
-	NAV_IN = function() return CYCLOPS_ROOM end,
-	NAV_EAST = function() return LIVING_ROOM end,
+	WEST = CYCLOPS_ROOM,
+	IN = CYCLOPS_ROOM,
+	EAST = LIVING_ROOM,
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = WOODEN_DOOR,
 }
 ROOM {
 	NAME = "TREASURE_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a large room, whose east wall is solid granite. A number\nof discarded bags, which crumble at your touch, are scattered about\non the floor. There is an exit down a staircase.",
 	DESC = "Treasure Room",
-	NAV_DOWN = function() return CYCLOPS_ROOM end,
+	DOWN = CYCLOPS_ROOM,
 	ACTION = TREASURE_ROOM_FCN,
 	FLAGS = (1<<RLANDBIT),
 	VALUE = 25,
@@ -1978,13 +1978,13 @@ ROOM {
 }
 ROOM {
 	NAME = "RESERVOIR_SOUTH",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Reservoir South",
-	NAV_SE = function() return DEEP_CANYON end,
-	NAV_SW = function() return CHASM_ROOM end,
-	NAV_EAST = function() return DAM_ROOM end,
-	NAV_WEST = function() return STREAM_VIEW end,
-	NAV_NORTH = function() return LOW_TIDE and RESERVOIR or "You would drown." end,
+	SE = DEEP_CANYON,
+	SW = CHASM_ROOM,
+	EAST = DAM_ROOM,
+	WEST = STREAM_VIEW,
+	NORTH = {RESERVOIR, LOW_TIDE, "You would drown."},
 	ACTION = RESERVOIR_SOUTH_FCN,
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = GLOBAL_WATER,
@@ -1992,12 +1992,12 @@ ROOM {
 }
 ROOM {
 	NAME = "RESERVOIR",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Reservoir",
-	NAV_NORTH = function() return RESERVOIR_NORTH end,
-	NAV_SOUTH = function() return RESERVOIR_SOUTH end,
-	NAV_UP = function() return IN_STREAM end,
-	NAV_WEST = function() return IN_STREAM end,
+	NORTH = RESERVOIR_NORTH,
+	SOUTH = RESERVOIR_SOUTH,
+	UP = IN_STREAM,
+	WEST = IN_STREAM,
 	DOWN = "The dam blocks your way.",
 	ACTION = RESERVOIR_FCN,
 	FLAGS = (1<<NONLANDBIT),
@@ -2006,10 +2006,10 @@ ROOM {
 }
 ROOM {
 	NAME = "RESERVOIR_NORTH",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Reservoir North",
-	NAV_NORTH = function() return ATLANTIS_ROOM end,
-	NAV_SOUTH = function() return LOW_TIDE and RESERVOIR or "You would drown." end,
+	NORTH = ATLANTIS_ROOM,
+	SOUTH = {RESERVOIR, LOW_TIDE, "You would drown."},
 	ACTION = RESERVOIR_NORTH_FCN,
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = GLOBAL_WATER,
@@ -2017,10 +2017,10 @@ ROOM {
 }
 ROOM {
 	NAME = "STREAM_VIEW",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are standing on a path beside a gently flowing stream. The path\nfollows the stream, which flows from west to east.",
 	DESC = "Stream View",
-	NAV_EAST = function() return RESERVOIR_SOUTH end,
+	EAST = RESERVOIR_SOUTH,
 	WEST = "The stream emerges from a spot too small for you to enter.",
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = GLOBAL_WATER,
@@ -2028,186 +2028,186 @@ ROOM {
 }
 ROOM {
 	NAME = "IN_STREAM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are on the gently flowing stream. The upstream route is too narrow\nto navigate, and the downstream route is invisible due to twisting\nwalls. There is a narrow beach to land on.",
 	DESC = "Stream",
 	UP = "The channel is too narrow.",
 	WEST = "The channel is too narrow.",
-	NAV_LAND = function() return STREAM_VIEW end,
-	NAV_DOWN = function() return RESERVOIR end,
-	NAV_EAST = function() return RESERVOIR end,
+	LAND = STREAM_VIEW,
+	DOWN = RESERVOIR,
+	EAST = RESERVOIR,
 	FLAGS = (1<<NONLANDBIT),
 	GLOBAL = GLOBAL_WATER,
 	PSEUDO = "STREAM",
 }
 ROOM {
 	NAME = "MIRROR_ROOM_1",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Mirror Room",
-	NAV_NORTH = function() return COLD_PASSAGE end,
-	NAV_WEST = function() return TWISTING_PASSAGE end,
-	NAV_EAST = function() return SMALL_CAVE end,
+	NORTH = COLD_PASSAGE,
+	WEST = TWISTING_PASSAGE,
+	EAST = SMALL_CAVE,
 	ACTION = MIRROR_ROOM,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "MIRROR_ROOM_2",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Mirror Room",
-	NAV_WEST = function() return WINDING_PASSAGE end,
-	NAV_NORTH = function() return NARROW_PASSAGE end,
-	NAV_EAST = function() return TINY_CAVE end,
+	WEST = WINDING_PASSAGE,
+	NORTH = NARROW_PASSAGE,
+	EAST = TINY_CAVE,
 	ACTION = MIRROR_ROOM,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT),
 }
 ROOM {
 	NAME = "SMALL_CAVE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a tiny cave with entrances west and north, and a staircase\nleading down.",
 	DESC = "Cave",
-	NAV_NORTH = function() return MIRROR_ROOM_1 end,
-	NAV_DOWN = function() return ATLANTIS_ROOM end,
-	NAV_SOUTH = function() return ATLANTIS_ROOM end,
-	NAV_WEST = function() return TWISTING_PASSAGE end,
+	NORTH = MIRROR_ROOM_1,
+	DOWN = ATLANTIS_ROOM,
+	SOUTH = ATLANTIS_ROOM,
+	WEST = TWISTING_PASSAGE,
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = STAIRS,
 }
 ROOM {
 	NAME = "TINY_CAVE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a tiny cave with entrances west and north, and a dark,\nforbidding staircase leading down.",
 	DESC = "Cave",
-	NAV_NORTH = function() return MIRROR_ROOM_2 end,
-	NAV_WEST = function() return WINDING_PASSAGE end,
-	NAV_DOWN = function() return ENTRANCE_TO_HADES end,
+	NORTH = MIRROR_ROOM_2,
+	WEST = WINDING_PASSAGE,
+	DOWN = ENTRANCE_TO_HADES,
 	ACTION = CAVE2_ROOM,
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = STAIRS,
 }
 ROOM {
 	NAME = "COLD_PASSAGE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a cold and damp corridor where a long east-west passageway\nturns into a southward path.",
 	DESC = "Cold Passage",
-	NAV_SOUTH = function() return MIRROR_ROOM_1 end,
-	NAV_WEST = function() return SLIDE_ROOM end,
+	SOUTH = MIRROR_ROOM_1,
+	WEST = SLIDE_ROOM,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "NARROW_PASSAGE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a long and narrow corridor where a long north-south passageway\nbriefly narrows even further.",
 	DESC = "Narrow Passage",
-	NAV_NORTH = function() return ROUND_ROOM end,
-	NAV_SOUTH = function() return MIRROR_ROOM_2 end,
+	NORTH = ROUND_ROOM,
+	SOUTH = MIRROR_ROOM_2,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "WINDING_PASSAGE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a winding passage. It seems that there are only exits\non the east and north.",
 	DESC = "Winding Passage",
-	NAV_NORTH = function() return MIRROR_ROOM_2 end,
-	NAV_EAST = function() return TINY_CAVE end,
+	NORTH = MIRROR_ROOM_2,
+	EAST = TINY_CAVE,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "TWISTING_PASSAGE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a winding passage. It seems that there are only exits\non the east and north.",
 	DESC = "Twisting Passage",
-	NAV_NORTH = function() return MIRROR_ROOM_1 end,
-	NAV_EAST = function() return SMALL_CAVE end,
+	NORTH = MIRROR_ROOM_1,
+	EAST = SMALL_CAVE,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "ATLANTIS_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is an ancient room, long under water. There is an exit to\nthe south and a staircase leading up.",
 	DESC = "Atlantis Room",
-	NAV_UP = function() return SMALL_CAVE end,
-	NAV_SOUTH = function() return RESERVOIR_NORTH end,
+	UP = SMALL_CAVE,
+	SOUTH = RESERVOIR_NORTH,
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = STAIRS,
 }
 ROOM {
 	NAME = "EW_PASSAGE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a narrow east-west passageway. There is a narrow stairway\nleading down at the north end of the room.",
 	DESC = "East-West Passage",
-	NAV_EAST = function() return ROUND_ROOM end,
-	NAV_WEST = function() return TROLL_ROOM end,
-	NAV_DOWN = function() return CHASM_ROOM end,
-	NAV_NORTH = function() return CHASM_ROOM end,
+	EAST = ROUND_ROOM,
+	WEST = TROLL_ROOM,
+	DOWN = CHASM_ROOM,
+	NORTH = CHASM_ROOM,
 	FLAGS = (1<<RLANDBIT),
 	VALUE = 5,
 	GLOBAL = STAIRS,
 }
 ROOM {
 	NAME = "ROUND_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a circular stone room with passages in all directions. Several\nof them have unfortunately been blocked by cave-ins.",
 	DESC = "Round Room",
-	NAV_EAST = function() return LOUD_ROOM end,
-	NAV_WEST = function() return EW_PASSAGE end,
-	NAV_NORTH = function() return NS_PASSAGE end,
-	NAV_SOUTH = function() return NARROW_PASSAGE end,
-	NAV_SE = function() return ENGRAVINGS_CAVE end,
+	EAST = LOUD_ROOM,
+	WEST = EW_PASSAGE,
+	NORTH = NS_PASSAGE,
+	SOUTH = NARROW_PASSAGE,
+	SE = ENGRAVINGS_CAVE,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "DEEP_CANYON",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Deep Canyon",
-	NAV_NW = function() return RESERVOIR_SOUTH end,
-	NAV_EAST = function() return DAM_ROOM end,
-	NAV_SW = function() return NS_PASSAGE end,
-	NAV_DOWN = function() return LOUD_ROOM end,
+	NW = RESERVOIR_SOUTH,
+	EAST = DAM_ROOM,
+	SW = NS_PASSAGE,
+	DOWN = LOUD_ROOM,
 	FLAGS = (1<<RLANDBIT),
 	ACTION = DEEP_CANYON_F,
 	GLOBAL = STAIRS,
 }
 ROOM {
 	NAME = "DAMP_CAVE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This cave has exits to the west and east, and narrows to a crack toward\nthe south. The earth is particularly damp here.",
 	DESC = "Damp Cave",
-	NAV_WEST = function() return LOUD_ROOM end,
-	NAV_EAST = function() return WHITE_CLIFFS_NORTH end,
+	WEST = LOUD_ROOM,
+	EAST = WHITE_CLIFFS_NORTH,
 	SOUTH = "It is too narrow for most insects.",
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = CRACK,
 }
 ROOM {
 	NAME = "LOUD_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Loud Room",
-	NAV_EAST = function() return DAMP_CAVE end,
-	NAV_WEST = function() return ROUND_ROOM end,
-	NAV_UP = function() return DEEP_CANYON end,
+	EAST = DAMP_CAVE,
+	WEST = ROUND_ROOM,
+	UP = DEEP_CANYON,
 	ACTION = LOUD_ROOM_FCN,
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = STAIRS,
 }
 ROOM {
 	NAME = "NS_PASSAGE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a high north-south passage, which forks to the northeast.",
 	DESC = "North-South Passage",
-	NAV_NORTH = function() return CHASM_ROOM end,
-	NAV_NE = function() return DEEP_CANYON end,
-	NAV_SOUTH = function() return ROUND_ROOM end,
+	NORTH = CHASM_ROOM,
+	NE = DEEP_CANYON,
+	SOUTH = ROUND_ROOM,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "CHASM_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "A chasm runs southwest to northeast and the path follows it. You are\non the south side of the chasm, where a crack opens into a passage.",
 	DESC = "Chasm",
-	NAV_NE = function() return RESERVOIR_SOUTH end,
-	NAV_SW = function() return EW_PASSAGE end,
-	NAV_UP = function() return EW_PASSAGE end,
-	NAV_SOUTH = function() return NS_PASSAGE end,
+	NE = RESERVOIR_SOUTH,
+	SW = EW_PASSAGE,
+	UP = EW_PASSAGE,
+	SOUTH = NS_PASSAGE,
 	DOWN = "Are you out of your mind?",
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = CRACK,
@@ -2215,11 +2215,11 @@ ROOM {
 }
 ROOM {
 	NAME = "ENTRANCE_TO_HADES",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Entrance to Hades",
-	NAV_UP = function() return TINY_CAVE end,
-	NAV_IN = function() return LLD_FLAG and LAND_OF_LIVING_DEAD or "Some invisible force prevents you from passing through the gate." end,
-	NAV_SOUTH = function() return LLD_FLAG and LAND_OF_LIVING_DEAD or "Some invisible force prevents you from passing through the gate." end,
+	UP = TINY_CAVE,
+	IN = {LAND_OF_LIVING_DEAD, LLD_FLAG, "Some invisible force prevents you from passing through the gate."},
+	SOUTH = {LAND_OF_LIVING_DEAD, LLD_FLAG, "Some invisible force prevents you from passing through the gate."},
 	ACTION = LLD_ROOM,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT),
 	GLOBAL = BODIES,
@@ -2227,50 +2227,50 @@ ROOM {
 }
 ROOM {
 	NAME = "LAND_OF_LIVING_DEAD",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You have entered the Land of the Living Dead. Thousands of lost souls\ncan be heard weeping and moaning. In the corner are stacked the remains\nof dozens of previous adventurers less fortunate than yourself.\nA passage exits to the north.",
 	DESC = "Land of the Dead",
-	NAV_OUT = function() return ENTRANCE_TO_HADES end,
-	NAV_NORTH = function() return ENTRANCE_TO_HADES end,
+	OUT = ENTRANCE_TO_HADES,
+	NORTH = ENTRANCE_TO_HADES,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT),
 	GLOBAL = BODIES,
 }
 ROOM {
 	NAME = "ENGRAVINGS_CAVE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You have entered a low cave with passages leading northwest and east.",
 	DESC = "Engravings Cave",
-	NAV_NW = function() return ROUND_ROOM end,
-	NAV_EAST = function() return DOME_ROOM end,
+	NW = ROUND_ROOM,
+	EAST = DOME_ROOM,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "EGYPT_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a room which looks like an Egyptian tomb. There is an\nascending staircase to the west.",
 	DESC = "Egyptian Room",
-	NAV_WEST = function() return NORTH_TEMPLE end,
-	NAV_UP = function() return NORTH_TEMPLE end,
+	WEST = NORTH_TEMPLE,
+	UP = NORTH_TEMPLE,
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = STAIRS,
 }
 ROOM {
 	NAME = "DOME_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Dome Room",
-	NAV_WEST = function() return ENGRAVINGS_CAVE end,
-	NAV_DOWN = function() return DOME_FLAG and TORCH_ROOM or "You cannot go down without fracturing many bones." end,
+	WEST = ENGRAVINGS_CAVE,
+	DOWN = {TORCH_ROOM, DOME_FLAG, "You cannot go down without fracturing many bones."},
 	ACTION = DOME_ROOM_FCN,
 	FLAGS = (1<<RLANDBIT),
 	PSEUDO = "DOME",
 }
 ROOM {
 	NAME = "TORCH_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Torch Room",
 	UP = "You cannot reach the rope.",
-	NAV_SOUTH = function() return NORTH_TEMPLE end,
-	NAV_DOWN = function() return NORTH_TEMPLE end,
+	SOUTH = NORTH_TEMPLE,
+	DOWN = NORTH_TEMPLE,
 	ACTION = TORCH_ROOM_FCN,
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = STAIRS,
@@ -2278,90 +2278,90 @@ ROOM {
 }
 ROOM {
 	NAME = "NORTH_TEMPLE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is the north end of a large temple. On the east wall is an\nancient inscription, probably a prayer in a long-forgotten language.\nBelow the prayer is a staircase leading down. The west wall is solid\ngranite. The exit to the north end of the room is through huge\nmarble pillars.",
 	DESC = "Temple",
-	NAV_DOWN = function() return EGYPT_ROOM end,
-	NAV_EAST = function() return EGYPT_ROOM end,
-	NAV_NORTH = function() return TORCH_ROOM end,
-	NAV_OUT = function() return TORCH_ROOM end,
-	NAV_UP = function() return TORCH_ROOM end,
-	NAV_SOUTH = function() return SOUTH_TEMPLE end,
+	DOWN = EGYPT_ROOM,
+	EAST = EGYPT_ROOM,
+	NORTH = TORCH_ROOM,
+	OUT = TORCH_ROOM,
+	UP = TORCH_ROOM,
+	SOUTH = SOUTH_TEMPLE,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	GLOBAL = STAIRS,
 }
 ROOM {
 	NAME = "SOUTH_TEMPLE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is the south end of a large temple. In front of you is what\nappears to be an altar. In one corner is a small hole in the floor\nwhich leads into darkness. You probably could not get back up it.",
 	DESC = "Altar",
-	NAV_NORTH = function() return NORTH_TEMPLE end,
-	NAV_DOWN = function() return COFFIN_CURE and TINY_CAVE or "You haven't a prayer of getting the coffin down there." end,
+	NORTH = NORTH_TEMPLE,
+	DOWN = {TINY_CAVE, COFFIN_CURE, "You haven't a prayer of getting the coffin down there."},
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	ACTION = SOUTH_TEMPLE_FCN,
 }
 ROOM {
 	NAME = "DAM_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Dam",
-	NAV_SOUTH = function() return DEEP_CANYON end,
-	NAV_DOWN = function() return DAM_BASE end,
-	NAV_EAST = function() return DAM_BASE end,
-	NAV_NORTH = function() return DAM_LOBBY end,
-	NAV_WEST = function() return RESERVOIR_SOUTH end,
+	SOUTH = DEEP_CANYON,
+	DOWN = DAM_BASE,
+	EAST = DAM_BASE,
+	NORTH = DAM_LOBBY,
+	WEST = RESERVOIR_SOUTH,
 	ACTION = DAM_ROOM_FCN,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT),
 	GLOBAL = GLOBAL_WATER,
 }
 ROOM {
 	NAME = "DAM_LOBBY",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This room appears to have been the waiting room for groups touring\nthe dam. There are open doorways here to the north and east marked\n\"Private\", and there is a path leading south over the top of the dam.",
 	DESC = "Dam Lobby",
-	NAV_SOUTH = function() return DAM_ROOM end,
-	NAV_NORTH = function() return MAINTENANCE_ROOM end,
-	NAV_EAST = function() return MAINTENANCE_ROOM end,
+	SOUTH = DAM_ROOM,
+	NORTH = MAINTENANCE_ROOM,
+	EAST = MAINTENANCE_ROOM,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT),
 }
 ROOM {
 	NAME = "MAINTENANCE_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is what appears to have been the maintenance room for Flood\nControl Dam #3. Apparently, this room has been ransacked recently, for\nmost of the valuable equipment is gone. On the wall in front of you is a\ngroup of buttons colored blue, yellow, brown, and red. There are doorways to\nthe west and south.",
 	DESC = "Maintenance Room",
-	NAV_SOUTH = function() return DAM_LOBBY end,
-	NAV_WEST = function() return DAM_LOBBY end,
+	SOUTH = DAM_LOBBY,
+	WEST = DAM_LOBBY,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "DAM_BASE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are at the base of Flood Control Dam #3, which looms above you\nand to the north. The river Frigid is flowing by here. Along the\nriver are the White Cliffs which seem to form giant walls stretching\nfrom north to south along the shores of the river as it winds its\nway downstream.",
 	DESC = "Dam Base",
-	NAV_NORTH = function() return DAM_ROOM end,
-	NAV_UP = function() return DAM_ROOM end,
+	NORTH = DAM_ROOM,
+	UP = DAM_ROOM,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	GLOBAL = GLOBAL_WATER,
 }
 ROOM {
 	NAME = "RIVER_1",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are on the Frigid River in the vicinity of the Dam. The river\nflows quietly here. There is a landing on the west shore.",
 	DESC = "Frigid River",
 	UP = "You cannot go upstream due to strong currents.",
-	NAV_WEST = function() return DAM_BASE end,
-	NAV_LAND = function() return DAM_BASE end,
-	NAV_DOWN = function() return RIVER_2 end,
+	WEST = DAM_BASE,
+	LAND = DAM_BASE,
+	DOWN = RIVER_2,
 	EAST = "The White Cliffs prevent your landing here.",
 	FLAGS = (1<<NONLANDBIT)|(1<<SACREDBIT)|(1<<ONBIT),
 	GLOBAL = GLOBAL_WATER,
 }
 ROOM {
 	NAME = "RIVER_2",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "The river turns a corner here making it impossible to see the\nDam. The White Cliffs loom on the east bank and large rocks prevent\nlanding on the west.",
 	DESC = "Frigid River",
 	UP = "You cannot go upstream due to strong currents.",
-	NAV_DOWN = function() return RIVER_3 end,
+	DOWN = RIVER_3,
 	LAND = "There is no safe landing spot here.",
 	EAST = "The White Cliffs prevent your landing here.",
 	WEST = "Just in time you steer away from the rocks.",
@@ -2370,153 +2370,153 @@ ROOM {
 }
 ROOM {
 	NAME = "RIVER_3",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "The river descends here into a valley. There is a narrow beach on the\nwest shore below the cliffs. In the distance a faint rumbling can be\nheard.",
 	DESC = "Frigid River",
 	UP = "You cannot go upstream due to strong currents.",
-	NAV_DOWN = function() return RIVER_4 end,
-	NAV_LAND = function() return WHITE_CLIFFS_NORTH end,
-	NAV_WEST = function() return WHITE_CLIFFS_NORTH end,
+	DOWN = RIVER_4,
+	LAND = WHITE_CLIFFS_NORTH,
+	WEST = WHITE_CLIFFS_NORTH,
 	FLAGS = (1<<NONLANDBIT)|(1<<SACREDBIT),
 	GLOBAL = GLOBAL_WATER,
 }
 ROOM {
 	NAME = "WHITE_CLIFFS_NORTH",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are on a narrow strip of beach which runs along the base of the\nWhite Cliffs. There is a narrow path heading south along the Cliffs\nand a tight passage leading west into the cliffs themselves.",
 	DESC = "White Cliffs Beach",
-	NAV_SOUTH = function() return DEFLATE and WHITE_CLIFFS_SOUTH or "The path is too narrow." end,
-	NAV_WEST = function() return DEFLATE and DAMP_CAVE or "The path is too narrow." end,
+	SOUTH = {WHITE_CLIFFS_SOUTH, DEFLATE, "The path is too narrow."},
+	WEST = {DAMP_CAVE, DEFLATE, "The path is too narrow."},
 	ACTION = WHITE_CLIFFS_FUNCTION,
 	FLAGS = (1<<RLANDBIT)|(1<<SACREDBIT),
 	GLOBAL = GLOBAL_WATER,
 }
 ROOM {
 	NAME = "WHITE_CLIFFS_SOUTH",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are on a rocky, narrow strip of beach beside the Cliffs. A\nnarrow path leads north along the shore.",
 	DESC = "White Cliffs Beach",
-	NAV_NORTH = function() return DEFLATE and WHITE_CLIFFS_NORTH or "The path is too narrow." end,
+	NORTH = {WHITE_CLIFFS_NORTH, DEFLATE, "The path is too narrow."},
 	ACTION = WHITE_CLIFFS_FUNCTION,
 	FLAGS = (1<<RLANDBIT)|(1<<SACREDBIT),
 	GLOBAL = GLOBAL_WATER,
 }
 ROOM {
 	NAME = "RIVER_4",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "The river is running faster here and the sound ahead appears to be\nthat of rushing water. On the east shore is a sandy beach. A small\narea of beach can also be seen below the cliffs on the west shore.",
 	DESC = "Frigid River",
 	UP = "You cannot go upstream due to strong currents.",
-	NAV_DOWN = function() return RIVER_5 end,
+	DOWN = RIVER_5,
 	LAND = "You can land either to the east or the west.",
-	NAV_WEST = function() return WHITE_CLIFFS_SOUTH end,
-	NAV_EAST = function() return SANDY_BEACH end,
+	WEST = WHITE_CLIFFS_SOUTH,
+	EAST = SANDY_BEACH,
 	ACTION = RIVR4_ROOM,
 	FLAGS = (1<<NONLANDBIT)|(1<<SACREDBIT),
 	GLOBAL = GLOBAL_WATER,
 }
 ROOM {
 	NAME = "RIVER_5",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "The sound of rushing water is nearly unbearable here. On the east\nshore is a large landing area.",
 	DESC = "Frigid River",
 	UP = "You cannot go upstream due to strong currents.",
-	NAV_EAST = function() return SHORE end,
-	NAV_LAND = function() return SHORE end,
+	EAST = SHORE,
+	LAND = SHORE,
 	FLAGS = (1<<NONLANDBIT)|(1<<SACREDBIT)|(1<<ONBIT),
 	GLOBAL = GLOBAL_WATER,
 }
 ROOM {
 	NAME = "SHORE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are on the east shore of the river. The water here seems somewhat\ntreacherous. A path travels from north to south here, the south end\nquickly turning around a sharp corner.",
 	DESC = "Shore",
-	NAV_NORTH = function() return SANDY_BEACH end,
-	NAV_SOUTH = function() return ARAGAIN_FALLS end,
+	NORTH = SANDY_BEACH,
+	SOUTH = ARAGAIN_FALLS,
 	FLAGS = (1<<RLANDBIT)|(1<<SACREDBIT)|(1<<ONBIT),
 	GLOBAL = GLOBAL_WATER,
 }
 ROOM {
 	NAME = "SANDY_BEACH",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are on a large sandy beach on the east shore of the river, which is\nflowing quickly by. A path runs beside the river to the south here, and\na passage is partially buried in sand to the northeast.",
 	DESC = "Sandy Beach",
-	NAV_NE = function() return SANDY_CAVE end,
-	NAV_SOUTH = function() return SHORE end,
+	NE = SANDY_CAVE,
+	SOUTH = SHORE,
 	FLAGS = (1<<RLANDBIT)|(1<<SACREDBIT),
 	GLOBAL = GLOBAL_WATER,
 }
 ROOM {
 	NAME = "SANDY_CAVE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a sand-filled cave whose exit is to the southwest.",
 	DESC = "Sandy Cave",
-	NAV_SW = function() return SANDY_BEACH end,
+	SW = SANDY_BEACH,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "ARAGAIN_FALLS",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Aragain Falls",
-	NAV_WEST = function() return RAINBOW_FLAG and ON_RAINBOW or nil end,
+	WEST = {ON_RAINBOW, RAINBOW_FLAG},
 	DOWN = "It's a long way...",
-	NAV_NORTH = function() return SHORE end,
-	NAV_UP = function() return RAINBOW_FLAG and ON_RAINBOW or nil end,
+	NORTH = SHORE,
+	UP = {ON_RAINBOW, RAINBOW_FLAG},
 	ACTION = FALLS_ROOM,
 	FLAGS = (1<<RLANDBIT)|(1<<SACREDBIT)|(1<<ONBIT),
 	GLOBAL = GLOBAL_WATER,
 }
 ROOM {
 	NAME = "ON_RAINBOW",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are on top of a rainbow (I bet you never thought you would walk\non a rainbow), with a magnificent view of the Falls. The rainbow\ntravels east-west here.",
 	DESC = "On the Rainbow",
-	NAV_WEST = function() return END_OF_RAINBOW end,
-	NAV_EAST = function() return ARAGAIN_FALLS end,
+	WEST = END_OF_RAINBOW,
+	EAST = ARAGAIN_FALLS,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	GLOBAL = RAINBOW,
 }
 ROOM {
 	NAME = "END_OF_RAINBOW",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are on a small, rocky beach on the continuation of the Frigid\nRiver past the Falls. The beach is narrow due to the presence of the\nWhite Cliffs. The river canyon opens here and sunlight shines in\nfrom above. A rainbow crosses over the falls to the east and a narrow\npath continues to the southwest.",
 	DESC = "End of Rainbow",
-	NAV_UP = function() return RAINBOW_FLAG and ON_RAINBOW or nil end,
-	NAV_NE = function() return RAINBOW_FLAG and ON_RAINBOW or nil end,
-	NAV_EAST = function() return RAINBOW_FLAG and ON_RAINBOW or nil end,
-	NAV_SW = function() return CANYON_BOTTOM end,
+	UP = {ON_RAINBOW, RAINBOW_FLAG},
+	NE = {ON_RAINBOW, RAINBOW_FLAG},
+	EAST = {ON_RAINBOW, RAINBOW_FLAG},
+	SW = CANYON_BOTTOM,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT),
 	GLOBAL = GLOBAL_WATER,
 }
 ROOM {
 	NAME = "CANYON_BOTTOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are beneath the walls of the river canyon which may be climbable\nhere. The lesser part of the runoff of Aragain Falls flows by below.\nTo the north is a narrow path.",
 	DESC = "Canyon Bottom",
-	NAV_UP = function() return CLIFF_MIDDLE end,
-	NAV_NORTH = function() return END_OF_RAINBOW end,
+	UP = CLIFF_MIDDLE,
+	NORTH = END_OF_RAINBOW,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	GLOBAL = GLOBAL_WATER,
 }
 ROOM {
 	NAME = "CLIFF_MIDDLE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are on a ledge about halfway up the wall of the river canyon.\nYou can see from here that the main flow from Aragain Falls twists\nalong a passage which it is impossible for you to enter. Below you is the\ncanyon bottom. Above you is more cliff, which appears\nclimbable.",
 	DESC = "Rocky Ledge",
-	NAV_UP = function() return CANYON_VIEW end,
-	NAV_DOWN = function() return CANYON_BOTTOM end,
+	UP = CANYON_VIEW,
+	DOWN = CANYON_BOTTOM,
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	GLOBAL = CLIMBABLE_CLIFF,
 }
 ROOM {
 	NAME = "CANYON_VIEW",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are at the top of the Great Canyon on its west wall. From here\nthere is a marvelous view of the canyon and parts of the Frigid River\nupstream. Across the canyon, the walls of the White Cliffs join the\nmighty ramparts of the Flathead Mountains to the east. Following the\nCanyon upstream to the north, Aragain Falls may be seen, complete with\nrainbow. The mighty Frigid River flows out from a great dark cavern. To\nthe west and south can be seen an immense forest, stretching for miles\naround. A path leads northwest. It is possible to climb down into\nthe canyon from here.",
 	DESC = "Canyon View",
-	NAV_EAST = function() return CLIFF_MIDDLE end,
-	NAV_DOWN = function() return CLIFF_MIDDLE end,
-	NAV_NW = function() return CLEARING end,
-	NAV_WEST = function() return FOREST_3 end,
+	EAST = CLIFF_MIDDLE,
+	DOWN = CLIFF_MIDDLE,
+	NW = CLEARING,
+	WEST = FOREST_3,
 	SOUTH = "Storm-tossed trees block your way.",
 	FLAGS = (1<<RLANDBIT)|(1<<ONBIT)|(1<<SACREDBIT),
 	GLOBAL = CLIMBABLE_CLIFF,
@@ -2536,61 +2536,61 @@ CANYON_VIEW_F = function(RARG)
 end
 ROOM {
 	NAME = "MINE_ENTRANCE",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are standing at the entrance of what might have been a coal mine.\nThe shaft enters the west wall, and there is another exit on the south\nend of the room.",
 	DESC = "Mine Entrance",
-	NAV_SOUTH = function() return SLIDE_ROOM end,
-	NAV_IN = function() return SQUEEKY_ROOM end,
-	NAV_WEST = function() return SQUEEKY_ROOM end,
+	SOUTH = SLIDE_ROOM,
+	IN = SQUEEKY_ROOM,
+	WEST = SQUEEKY_ROOM,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "SQUEEKY_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "You are in a small room. Strange squeaky sounds may be heard coming\nfrom the passage at the north end. You may also escape to the east.",
 	DESC = "Squeaky Room",
-	NAV_NORTH = function() return BAT_ROOM end,
-	NAV_EAST = function() return MINE_ENTRANCE end,
+	NORTH = BAT_ROOM,
+	EAST = MINE_ENTRANCE,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "BAT_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Bat Room",
-	NAV_SOUTH = function() return SQUEEKY_ROOM end,
-	NAV_EAST = function() return SHAFT_ROOM end,
+	SOUTH = SQUEEKY_ROOM,
+	EAST = SHAFT_ROOM,
 	ACTION = BATS_ROOM,
 	FLAGS = (1<<RLANDBIT)|(1<<SACREDBIT),
 }
 ROOM {
 	NAME = "SHAFT_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a large room, in the middle of which is a small shaft\ndescending through the floor into darkness below. To the west and\nthe north are exits from this room. Constructed over the top of the\nshaft is a metal framework to which a heavy iron chain is attached.",
 	DESC = "Shaft Room",
 	DOWN = "You wouldn't fit and would die if you could.",
-	NAV_WEST = function() return BAT_ROOM end,
-	NAV_NORTH = function() return SMELLY_ROOM end,
+	WEST = BAT_ROOM,
+	NORTH = SMELLY_ROOM,
 	FLAGS = (1<<RLANDBIT),
 	PSEUDO = "CHAIN",
 }
 ROOM {
 	NAME = "SMELLY_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a small nondescript room. However, from the direction\nof a small descending staircase a foul odor can be detected. To the\nsouth is a narrow tunnel.",
 	DESC = "Smelly Room",
-	NAV_DOWN = function() return GAS_ROOM end,
-	NAV_SOUTH = function() return SHAFT_ROOM end,
+	DOWN = GAS_ROOM,
+	SOUTH = SHAFT_ROOM,
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = STAIRS,
 	PSEUDO = "ODOR",
 }
 ROOM {
 	NAME = "GAS_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a small room which smells strongly of coal gas. There is a\nshort climb up some stairs and a narrow tunnel leading east.",
 	DESC = "Gas Room",
-	NAV_UP = function() return SMELLY_ROOM end,
-	NAV_EAST = function() return MINE_1 end,
+	UP = SMELLY_ROOM,
+	EAST = MINE_1,
 	ACTION = BOOM_ROOM,
 	FLAGS = (1<<RLANDBIT)|(1<<SACREDBIT),
 	GLOBAL = STAIRS,
@@ -2598,111 +2598,111 @@ ROOM {
 }
 ROOM {
 	NAME = "LADDER_TOP",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a very small room. In the corner is a rickety wooden\nladder, leading downward. It might be safe to descend. There is\nalso a staircase leading upward.",
 	DESC = "Ladder Top",
-	NAV_DOWN = function() return LADDER_BOTTOM end,
-	NAV_UP = function() return MINE_4 end,
+	DOWN = LADDER_BOTTOM,
+	UP = MINE_4,
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = LADDER,
 }
 ROOM {
 	NAME = "LADDER_BOTTOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a rather wide room. On one side is the bottom of a\nnarrow wooden ladder. To the west and the south are passages\nleaving the room.",
 	DESC = "Ladder Bottom",
-	NAV_SOUTH = function() return DEAD_END_5 end,
-	NAV_WEST = function() return TIMBER_ROOM end,
-	NAV_UP = function() return LADDER_TOP end,
+	SOUTH = DEAD_END_5,
+	WEST = TIMBER_ROOM,
+	UP = LADDER_TOP,
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = LADDER,
 }
 ROOM {
 	NAME = "DEAD_END_5",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Dead End",
 	LDESC = "You have come to a dead end in the mine.",
-	NAV_NORTH = function() return LADDER_BOTTOM end,
+	NORTH = LADDER_BOTTOM,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "TIMBER_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a long and narrow passage, which is cluttered with broken\ntimbers. A wide passage comes from the east and turns at the\nwest end of the room into a very narrow passageway. From the west\ncomes a strong draft.",
 	DESC = "Timber Room",
-	NAV_EAST = function() return LADDER_BOTTOM end,
-	NAV_WEST = function() return EMPTY_HANDED and LOWER_SHAFT or "You cannot fit through this passage with that load." end,
+	EAST = LADDER_BOTTOM,
+	WEST = {LOWER_SHAFT, EMPTY_HANDED, "You cannot fit through this passage with that load."},
 	ACTION = NO_OBJS,
 	FLAGS = (1<<RLANDBIT)|(1<<SACREDBIT),
 }
 ROOM {
 	NAME = "LOWER_SHAFT",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a small drafty room in which is the bottom of a long\nshaft. To the south is a passageway and to the east a very narrow\npassage. In the shaft can be seen a heavy iron chain.",
 	DESC = "Drafty Room",
-	NAV_SOUTH = function() return MACHINE_ROOM end,
-	NAV_OUT = function() return EMPTY_HANDED and TIMBER_ROOM or "You cannot fit through this passage with that load." end,
-	NAV_EAST = function() return EMPTY_HANDED and TIMBER_ROOM or "You cannot fit through this passage with that load." end,
+	SOUTH = MACHINE_ROOM,
+	OUT = {TIMBER_ROOM, EMPTY_HANDED, "You cannot fit through this passage with that load."},
+	EAST = {TIMBER_ROOM, EMPTY_HANDED, "You cannot fit through this passage with that load."},
 	ACTION = NO_OBJS,
 	FLAGS = (1<<RLANDBIT)|(1<<SACREDBIT),
 	PSEUDO = "CHAIN",
 }
 ROOM {
 	NAME = "MACHINE_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	DESC = "Machine Room",
-	NAV_NORTH = function() return LOWER_SHAFT end,
+	NORTH = LOWER_SHAFT,
 	ACTION = MACHINE_ROOM_FCN,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "MINE_1",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a nondescript part of a coal mine.",
 	DESC = "Coal Mine",
-	NAV_NORTH = function() return GAS_ROOM end,
-	NAV_EAST = function() return MINE_1 end,
-	NAV_NE = function() return MINE_2 end,
+	NORTH = GAS_ROOM,
+	EAST = MINE_1,
+	NE = MINE_2,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "MINE_2",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a nondescript part of a coal mine.",
 	DESC = "Coal Mine",
-	NAV_NORTH = function() return MINE_2 end,
-	NAV_SOUTH = function() return MINE_1 end,
-	NAV_SE = function() return MINE_3 end,
+	NORTH = MINE_2,
+	SOUTH = MINE_1,
+	SE = MINE_3,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "MINE_3",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a nondescript part of a coal mine.",
 	DESC = "Coal Mine",
-	NAV_SOUTH = function() return MINE_3 end,
-	NAV_SW = function() return MINE_4 end,
-	NAV_EAST = function() return MINE_2 end,
+	SOUTH = MINE_3,
+	SW = MINE_4,
+	EAST = MINE_2,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "MINE_4",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a nondescript part of a coal mine.",
 	DESC = "Coal Mine",
-	NAV_NORTH = function() return MINE_3 end,
-	NAV_WEST = function() return MINE_4 end,
-	NAV_DOWN = function() return LADDER_TOP end,
+	NORTH = MINE_3,
+	WEST = MINE_4,
+	DOWN = LADDER_TOP,
 	FLAGS = (1<<RLANDBIT),
 }
 ROOM {
 	NAME = "SLIDE_ROOM",
-	IN = ROOMS,
+	LOC = ROOMS,
 	LDESC = "This is a small chamber, which appears to have been part of a\ncoal mine. On the south wall of the chamber the letters \"Granite\nWall\" are etched in the rock. To the east is a long passage, and\nthere is a steep metal slide twisting downward. To the north is\na small opening.",
 	DESC = "Slide Room",
-	NAV_EAST = function() return COLD_PASSAGE end,
-	NAV_NORTH = function() return MINE_ENTRANCE end,
-	NAV_DOWN = function() return CELLAR end,
+	EAST = COLD_PASSAGE,
+	NORTH = MINE_ENTRANCE,
+	DOWN = CELLAR,
 	FLAGS = (1<<RLANDBIT),
 	GLOBAL = SLIDE,
 }

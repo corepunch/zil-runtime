@@ -156,7 +156,7 @@ local function write_nav(buf, node)
     
     -- Check for IS flag test
     if safeget(parts[5], 'value') == "IS" and parts[6] then
-      cond = string.format("%s.FLAGS&(1<<%sBIT)", cond, value(parts[6]))
+      cond = string.format("%s, %sBIT", cond, value(parts[6]))
     end
     
     local room = value(parts[2])
@@ -164,16 +164,20 @@ local function write_nav(buf, node)
     -- Check for ELSE clause
     local else_idx = safeget(parts[5], 'value') == "ELSE" and 6 or
                      safeget(parts[7], 'value') == "ELSE" and 8 or nil
-    local fallback = else_idx and parts[else_idx] and value(parts[else_idx]) or "nil"
+    local fallback = else_idx and parts[else_idx] and value(parts[else_idx]) or nil
     
-    buf.write("function() return %s and %s or %s end", cond, room, fallback)
+    if fallback then
+      buf.write("{%s, %s, %s}", room, cond, fallback)
+    else
+      buf.write("{%s, %s}", room, cond)
+    end
   elseif parts[2] then
     -- Simple navigation
-    buf.write("function() return %s end", value(parts[2]))
+    buf.write(value(parts[2]))
   elseif safeget(parts[1], 'type') == "string" then
-    buf.write("function() return %s end", value(parts[1]))
+    buf.write("%s", value(parts[1]))
   else
-    buf.write("function() return nil end")
+    buf.write("nil")
   end
 end
 
@@ -639,11 +643,13 @@ local function compile_object(decl, body, node)
     local field = node[i]
     if field.type == "list" and safeget(field[1], 'type') == "ident" and field[2] then
       if value(field[2]) == "TO" then
-        body.write("\tNAV_%s = ", value(field[1]))
+        body.write("\t%s = ", value(field[1]))
         write_nav(body, field)
         body.writeln(",")
       else
-        body.write("\t%s = ", value(field[1]))
+        local prop = value(field[1])
+        if prop == "IN" then prop = "LOC" end
+        body.write("\t%s = ", prop)
         write_field(body, field, field[1].value)
         body.writeln(",")
       end
