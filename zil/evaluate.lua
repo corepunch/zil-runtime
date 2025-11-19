@@ -24,6 +24,8 @@ local function evaluate_cond(node, value_node)
 					return value_node
 				end
 			end
+		elseif node.name == "GASSIGNED?" then
+			return value_node
 		end
 	elseif node.type == "ident" then
 		return value_node
@@ -35,7 +37,6 @@ local function evaluate(cond)
 	if not cond or cond.name ~= "COND" then
 		return nil
 	end
-	
 	for _, clause in ipairs(cond) do
 		if clause.type == "list" and #clause > 0 then
 			local result = evaluate_cond(clause[1], clause[2])

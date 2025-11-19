@@ -237,22 +237,22 @@ FINISH = function()
   APPLY(function() while true do
     CRLF()
     TELL("Would you like to restart the game from the beginning, restore a saved\ngame position, or end this session of the game?|\n(Type RESTART, RESTORE, or QUIT):|\n>")
-    P_INBUF, P_LEXV = READ()
+    READ(P_INBUF, P_LEXV)
     APPLY(function() WRD = GET(P_LEXV, 1) return WRD end)
     
     if EQUALQ(WRD, WQRESTART) then 
       RESTART()
-      	return TELL("Failed.", CR)
+      TELL("Failed.", CR)
     elseif EQUALQ(WRD, WQRESTORE) then 
       
       if RESTORE() then 
-        	return TELL("Ok.", CR)
+        TELL("Ok.", CR)
       elseif T then 
-        	return TELL("Failed.", CR)
+        TELL("Failed.", CR)
       end
 
     elseif EQUALQ(WRD, WQQUIT, WQQ) then 
-      	return QUIT()
+      QUIT()
     end
 
 
@@ -985,7 +985,7 @@ V_ECHO = function()
 
         end end)
 
-        	return TELL(" ")
+        TELL(" ")
       end
 
 
@@ -2030,7 +2030,7 @@ SHAKE_LOOP = function()
     
     if APPLY(function() X = FIRSTQ(PRSO) return X end) then 
       FSET(X, TOUCHBIT)
-      	return MOVE(X, APPLY(function()
+      MOVE(X, APPLY(function()
         if EQUALQ(HERE, UP_A_TREE) then 
           -- 	return PATH
         elseif NOT(FSETQ(HERE, RLANDBIT)) then 
@@ -2947,7 +2947,7 @@ end
 YESQ = function()
 	local __ok, __res = pcall(function()
   PRINTI(">")
-P_INBUF, P_LEXV = READ()
+  READ(P_INBUF, P_LEXV)
 
   if EQUALQ(GET(P_LEXV, 1), WQYES, WQY) then 
     	error(true)

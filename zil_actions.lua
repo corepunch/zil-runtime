@@ -932,7 +932,7 @@ APPLY(function() F = FIRSTQ(OBJ) return F end)
 
     end
 
-    	return APPLY(function() F = NEXTQ(F) return F end)
+    APPLY(function() F = NEXTQ(F) return F end)
 
   end end)
 
@@ -959,7 +959,7 @@ APPLY(function() F = FIRSTQ(O) return F end)
       OTVAL_FROB(F)
     end
 
-    	return APPLY(function() F = NEXTQ(F) return F end)
+    APPLY(function() F = NEXTQ(F) return F end)
 
   end end)
 
@@ -2417,7 +2417,7 @@ LOUD_ROOM_FCN = function(RARG)
         end
 
         TELL(">")
-        P_INBUF, P_LEXV = READ()
+        READ(P_INBUF, P_LEXV)
         
         if ZEROQ(GETB(P_LEXV, P_LEXWORDS)) then 
           TELL("I beg your pardon?", CR)
@@ -2434,11 +2434,11 @@ LOUD_ROOM_FCN = function(RARG)
 
         
         if EQUALQ(WRD, WQSAVE) then 
-          	return V_SAVE()
+          V_SAVE()
         elseif EQUALQ(WRD, WQRESTORE) then 
-          	return V_RESTORE()
+          V_RESTORE()
         elseif EQUALQ(WRD, WQQ, WQQUIT) then 
-          	return V_QUIT()
+          V_QUIT()
         elseif EQUALQ(WRD, WQW, WQWEST) then 
           return GOTO(ROUND_ROOM)
         elseif EQUALQ(WRD, WQE, WQEAST) then 
@@ -2446,7 +2446,7 @@ LOUD_ROOM_FCN = function(RARG)
         elseif EQUALQ(WRD, WQU, WQUP) then 
           return GOTO(DEEP_CANYON)
         elseif EQUALQ(WRD, WQBUG) then 
-          	return TELL("That's only your opinion.", CR)
+          TELL("That's only your opinion.", CR)
         elseif EQUALQ(WRD, WQECHO) then 
           APPLY(function() LOUD_FLAG = T return LOUD_FLAG end)
           FCLEAR(BAR, SACREDBIT)
@@ -2458,7 +2458,7 @@ LOUD_ROOM_FCN = function(RARG)
 
           return 
         elseif T then 
-          	return V_ECHO()
+          V_ECHO()
         end
 
 
@@ -2649,7 +2649,7 @@ APPLY(function() X = FIRSTQ(TREASURE_ROOM) return X end)
       FCLEAR(X, INVISIBLE)
     end
 
-    	return APPLY(function() X = NEXTQ(X) return X end)
+    APPLY(function() X = NEXTQ(X) return X end)
 
   end end)
 
@@ -2684,7 +2684,7 @@ APPLY(function() X = FIRSTQ(THIEF) return X end)
 
     end
 
-    	return APPLY(function() X = N return X end)
+    APPLY(function() X = N return X end)
 
   end end)
 
@@ -2718,7 +2718,7 @@ APPLY(function() X = FIRSTQ(RM) return X end)
       return 
     end
 
-    	return APPLY(function() X = N return X end)
+    APPLY(function() X = N return X end)
 
   end end)
 
@@ -2927,7 +2927,7 @@ MOVE_ALL = function(FROM, TO)
       APPLY(function() N = NEXTQ(X) return N end)
       FCLEAR(X, INVISIBLE)
       MOVE(X, TO)
-      	return APPLY(function() X = N return X end)
+      APPLY(function() X = N return X end)
 
     end end)
 
@@ -2993,7 +2993,7 @@ APPLY(function() F = FIRSTQ(HERE) return F end)
       FSET(F, INVISIBLE)
     end
 
-    	return APPLY(function() F = NEXTQ(F) return F end)
+    APPLY(function() F = NEXTQ(F) return F end)
 
   end end)
 
@@ -5565,7 +5565,7 @@ APPLY(function() X = FIRSTQ(THIEF) return X end)
 
     end
 
-    	return APPLY(function() X = N return X end)
+    APPLY(function() X = N return X end)
 
   end end)
 
@@ -5618,7 +5618,7 @@ APPLY(function() X = FIRSTQ(RM) return X end)
 
     end
 
-    	return APPLY(function() X = N return X end)
+    APPLY(function() X = N return X end)
 
   end end)
 
@@ -5653,7 +5653,7 @@ APPLY(function() X = FIRSTQ(WHAT) return X end)
       APPLY(function() ROBBEDQ = T return ROBBEDQ end)
     end
 
-    	return APPLY(function() X = N return X end)
+    APPLY(function() X = N return X end)
 
   end end)
 
@@ -5869,14 +5869,14 @@ APPLY(function() L = GET(ABOVE_GROUND, 0) return L end)
           MOVE(F, R)
           return 
         else 
-          	return APPLY(function() R = NEXTQ(R) return R end)
+          APPLY(function() R = NEXTQ(R) return R end)
         end
 
 
       end end)
 
     else 
-      	return MOVE(F, GET(ABOVE_GROUND, RANDOM(L)))
+      MOVE(F, GET(ABOVE_GROUND, RANDOM(L)))
     end
 
 

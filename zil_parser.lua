@@ -57,17 +57,12 @@ P_LEN = 0
 P_DIR = 0
 HERE = 0
 WINNER = 0
-P_LEXV = {59,nil,0}
-
-AGAIN_LEXV = {59,nil,0}
-
-RESERVE_LEXV = {59,nil,0}
-
+P_LEXV = ITABLE(59)
+AGAIN_LEXV = ITABLE(59)
+RESERVE_LEXV = ITABLE(59)
 RESERVE_PTR = nil
-P_INBUF = {120,nil,0}
-
-OOPS_INBUF = {120,nil,0}
-
+P_INBUF = ITABLE(120)
+OOPS_INBUF = ITABLE(120)
 OOPS_TABLE = {nil,nil,nil,nil}
 
 O_PTR = 0
@@ -190,11 +185,10 @@ APPLY(function() P_END_ON_PREP = nil return P_END_ON_PREP end)
     end
 
     TELL(">")
-    P_INBUF, P_LEXV = READ()
+    READ(P_INBUF, P_LEXV)
   end
 
 APPLY(function() P_LEN = GETB(P_LEXV, P_LEXWORDS) return P_LEN end)
-  TELL(P_LEN, CR)
 
   if ZEROQ(P_LEN) then 
     TELL("I beg your pardon?", CR)
@@ -434,6 +428,7 @@ APPLY(function() P_LEN = GETB(P_LEXV, P_LEXWORDS) return P_LEN end)
   PUT(OOPS_TABLE, O_PTR, nil)
 
   if DIR then 
+    TELL("Walking ", VQWALK, CR)
     APPLY(function() PRSA = VQWALK return PRSA end)
     APPLY(function() PRSO = DIR return PRSO end)
     APPLY(function() P_OFLAG = nil return P_OFLAG end)
@@ -497,7 +492,7 @@ APPLY(function() CNT = SUB(GETB(SRC, 0), 1) return CNT end)
   APPLY(function() while true do
     PUTB(DEST, CNT, GETB(SRC, CNT))
     
-    if APPLY(function() CNT = CNT - 1 return CNT > 0 end) then 
+    if APPLY(function() CNT = CNT - 1 return CNT < 0 end) then 
       return 
     end
 
@@ -544,7 +539,6 @@ WTQ = function(PTR, BIT, B1)
 	local TYP
   B1 = B1 or 5
 	local __ok, __res = pcall(function()
-  TELL("WT2 ", PTR, " ", BIT, " ", B1, CR)
 
   if BTST(APPLY(function() TYP = GETB(PTR, P_PSOFF) return TYP end), BIT) then 
     
@@ -658,7 +652,7 @@ APPLY(function() OFF = MULL(SUB(P_NCN, 1), 2) return OFF end)
 
     APPLY(function() LW = WRD return LW end)
     APPLY(function() FIRSTQQ = nil return FIRSTQQ end)
-    	return APPLY(function() PTR = ADD(PTR, P_LEXELEN) return PTR end)
+    APPLY(function() PTR = ADD(PTR, P_LEXELEN) return PTR end)
 
   end end)
 
@@ -911,11 +905,11 @@ WORD_PRINT = function(CNT, BUF)
 
   APPLY(function() while true do
     
-    if APPLY(function() CNT = CNT - 1 return CNT > 0 end) then 
+    if APPLY(function() CNT = CNT - 1 return CNT < 0 end) then 
       return 
     else 
       PRINTC(GETB(P_INBUF, BUF))
-      	return APPLY(function() BUF = ADD(BUF, 1) return BUF end)
+      APPLY(function() BUF = ADD(BUF, 1) return BUF end)
     end
 
 
@@ -1014,7 +1008,7 @@ APPLY(function() SYN = REST(SYN) return SYN end)
     end
 
     
-    if APPLY(function() LEN = LEN - 1 return LEN > 1 end) then 
+    if APPLY(function() LEN = LEN - 1 return LEN < 1 end) then 
       
       if PASS(DRIVE1 or DRIVE2) then 
         return 
@@ -1213,7 +1207,7 @@ BUFFER_PRINT = function(BEG, END, CP)
 
     end
 
-    	return APPLY(function() BEG = REST(BEG, P_WORDLEN) return BEG end)
+    APPLY(function() BEG = REST(BEG, P_WORDLEN) return BEG end)
 
   end end)
 
@@ -1262,7 +1256,7 @@ APPLY(function() END = GET(SRC, GET(P_CCTBL, CC_SEPTR)) return END end)
       CLAUSE_ADD(GET(BEG, 0))
     end
 
-    	return APPLY(function() BEG = REST(BEG, P_WORDLEN) return BEG end)
+    APPLY(function() BEG = REST(BEG, P_WORDLEN) return BEG end)
 
   end end)
 
@@ -1413,7 +1407,7 @@ APPLY(function() LEN = GET(TBL, P_MATCHLEN) return LEN end)
 
   APPLY(function() while true do
     
-    if APPLY(function() LEN = LEN - 1 return LEN > 0 end) then 
+    if APPLY(function() LEN = LEN - 1 return LEN < 0 end) then 
       return 
     elseif ZMEMQ(APPLY(function() OBJ = GET(TBL, CNT) return OBJ end), P_BUTS) then 
     elseif T then 
@@ -1437,16 +1431,11 @@ P_NAM = nil
 P_ADJ = nil
 P_ADVERB = nil
 P_ADJN = nil
-P_PRSO = {NONE,50}
-
-P_PRSI = {NONE,50}
-
-P_BUTS = {NONE,50}
-
-P_MERGE = {NONE,50}
-
-P_OCLAUSE = {NONE,100}
-
+P_PRSO = ITABLE(50)
+P_PRSI = ITABLE(50)
+P_BUTS = ITABLE(50)
+P_MERGE = ITABLE(50)
+P_OCLAUSE = ITABLE(100)
 P_MATCHLEN = 0
 P_GETFLAGS = 0
 P_ALL = 1
@@ -1541,7 +1530,7 @@ APPLY(function() WRD = GET(PTR, 0) return WRD end)
     
     if NOT(EQUALQ(PTR, EPTR)) then 
       APPLY(function() PTR = REST(PTR, P_WORDLEN) return PTR end)
-      	return APPLY(function() WRD = NW return WRD end)
+      APPLY(function() WRD = NW return WRD end)
     end
 
 
@@ -1967,7 +1956,7 @@ ITAKE_CHECK = function(TBL, IBITS)
             TELL(".", CR)
             	error(false)
           elseif PASS(NOT(TAKEN) and EQUALQ(WINNER, ADVENTURER)) then 
-            	return TELL("(Taken)", CR)
+            TELL("(Taken)", CR)
           end
 
         end
@@ -2180,7 +2169,7 @@ META_LOC = function(OBJ)
     if INQ(OBJ, ROOMS) then 
       return OBJ
     elseif T then 
-      	return APPLY(function() OBJ = LOC(OBJ) return OBJ end)
+      APPLY(function() OBJ = LOC(OBJ) return OBJ end)
     end
 
 

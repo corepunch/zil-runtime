@@ -376,7 +376,7 @@ end
 
 form["DLESS?"] = function(buf, node, indent, add_return)
   buf.write("APPLY(function() %s = %s - 1", value(node[1]), value(node[1]))
-  buf.write(" return %s > %s end)", value(node[1]), value(node[2]))
+  buf.write(" return %s < %s end)", value(node[1]), value(node[2]))
 end
 
 -- RETURN
@@ -395,15 +395,6 @@ end
 -- RFALSE
 form.RFALSE = function(buf, node, indent, add_return)
   buf.write("\terror(false)")
-end
-
--- READ
-form.READ = function(buf, node, indent, add_return)
-  for i, n in ipairs(node) do
-    if i == 1 then buf.write(value(n))
-    else buf.write(', %s', value(n)) end
-  end
-  buf.write(" = READ()")
 end
 
 -- PROG (do block)
@@ -427,7 +418,7 @@ form.REPEAT = function(buf, node, indent, add_return)
   buf.writeln("APPLY(function() while true do")
   for i = 2, #node do
     buf.indent(indent + 1)
-    print_node(buf, node[i], indent + 1, add_return and i == #node)
+    print_node(buf, node[i], indent + 1, false)
     buf.writeln()
   end
   buf.writeln()
@@ -491,9 +482,14 @@ form.SYNTAX = function(buf, node, indent, add_return)
   end
   
   if safeget(node[i], 'value') == "=" then
-    buf.writeln("\tACTION = %s,", value(node[i + 1]))
+    buf.writeln("\tACTION = \"%s\",", value(node[i + 1]))
+
+    if safeget(node[i+2], 'value') then
+      buf.writeln("\tPREACTION = \"%s\",", value(node[i+2]))
+    end
+
   end
-  
+
   buf.writeln("}")
 end
 
@@ -507,10 +503,32 @@ local function compile_table(buf, node, indent, add_return)
   end
   buf.writeln("}")
 end
-
 form.TABLE = compile_table
 form.LTABLE = compile_table
-form.ITABLE = compile_table
+-- form.ITABLE = compile_table
+
+-- form.TABLE = function(buf, node)
+--   local start = safeget(node[1], 'type') == "list" and 2 or 1
+--   buf.write("TABLE(")
+--   for i = start, #node do
+--     print_node(buf, node[i], 0, false)
+--     if i < #node then buf.write(",") end
+--   end
+--   buf.writeln(")")
+-- end
+-- form.LTABLE = function(buf, node)
+--   local start = safeget(node[1], 'type') == "list" and 2 or 1
+--   buf.write("LTABLE(")
+--   for i = start, #node do
+--     print_node(buf, node[i], 0)
+--     if i < #node then buf.write(",") end
+--   end
+--   buf.writeln(")")
+-- end
+form.ITABLE = function(buf, node)
+  local num = node[1].value == "NONE" and node[2].value or node[1].value
+  buf.write("ITABLE(%s)", num)
+end
 
 -- AND/OR
 local function compile_logical(buf, node, indent, add_return, op)

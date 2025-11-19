@@ -1,5 +1,6 @@
 MAIN_LOOP = nil
 MAIN_LOOP_1 = nil
+PERFORM = nil
 
 SERIAL = 0
 PLAYER = nil
@@ -19,7 +20,7 @@ MAIN_LOOP = function()
 	local __ok, __res = pcall(function()
 
   APPLY(function() while true do
-    	return APPLY(function() TRASH = MAIN_LOOP_1() return TRASH end)
+    APPLY(function() TRASH = MAIN_LOOP_1() return TRASH end)
 
   end end)
 
@@ -271,3 +272,71 @@ APPLY(function() PTBL = T return PTBL end)
 end
 P_MULT = nil
 P_NOT_HERE = 0
+PERFORM = function(A, O, I)
+	local V
+	local OA
+	local OO
+	local OI
+  O = O or nil
+  I = I or nil
+	local __ok, __res = pcall(function()
+APPLY(function() OA = PRSA return OA end)
+APPLY(function() OO = PRSO return OO end)
+APPLY(function() OI = PRSI return OI end)
+
+  if PASS(EQUALQ(IT, I, O) and NOT(ACCESSIBLEQ(P_IT_OBJECT))) then 
+    TELL("I don't see what you are referring to.", CR)
+    RFATAL()
+  end
+
+
+  if EQUALQ(O, IT) then 
+    APPLY(function() O = P_IT_OBJECT return O end)
+  end
+
+
+  if EQUALQ(I, IT) then 
+    APPLY(function() I = P_IT_OBJECT return I end)
+  end
+
+APPLY(function() PRSA = A return PRSA end)
+APPLY(function() PRSO = O return PRSO end)
+
+  if PASS(PRSO and NOT(EQUALQ(PRSI, IT)) and NOT(VERBQ(WALK))) then 
+    APPLY(function() P_IT_OBJECT = PRSO return P_IT_OBJECT end)
+  end
+
+APPLY(function() PRSI = I return PRSI end)
+
+  if PASS(EQUALQ(NOT_HERE_OBJECT, PRSO, PRSI) and APPLY(function() V = NOT_HERE_OBJECT_F() return V end)) then 
+    -- V
+  elseif T then 
+    APPLY(function() O = PRSO return O end)
+    APPLY(function() I = PRSI return I end)
+    
+    if APPLY(function() V = APPLY(GETP(WINNER, "ACTION")) return V end) then 
+      -- V
+    elseif APPLY(function() V = APPLY(GETP(LOC(WINNER), "ACTION"), M_BEG) return V end) then 
+      -- V
+    elseif APPLY(function() V = APPLY(GET(PREACTIONS, A)) return V end) then 
+      -- V
+    elseif PASS(I and APPLY(function() V = APPLY(GETP(I, "ACTION")) return V end)) then 
+      -- V
+    elseif PASS(O and NOT(EQUALQ(A, VQWALK)) and LOC(O) and APPLY(function() V = APPLY(GETP(LOC(O), "CONTFCN")) return V end)) then 
+      -- V
+    elseif PASS(O and NOT(EQUALQ(A, VQWALK)) and APPLY(function() V = APPLY(GETP(O, "ACTION")) return V end)) then 
+      -- V
+    elseif APPLY(function() V = APPLY(GET(ACTIONS, A)) return V end) then 
+      -- V
+    end
+
+  end
+
+APPLY(function() PRSA = OA return PRSA end)
+APPLY(function() PRSO = OO return PRSO end)
+APPLY(function() PRSI = OI return PRSI end)
+	return V
+	end)
+	if __ok or type(__res) == 'boolean' then return __res
+	else error('PERFORM\n'..__res) end
+end
