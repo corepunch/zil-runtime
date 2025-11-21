@@ -503,7 +503,7 @@ end
 FWEEP = function(N)
 	local __ok, __res = pcall(function()
 
-  APPLY(function() while true do
+  local __prog16 = function()
     
     if LQ(APPLY(function() N = SUB(N, 1) return N end), 1) then 
       return 
@@ -512,7 +512,11 @@ FWEEP = function(N)
     end
 
 
-  end end)
+error(123) end
+local __ok16, __res16
+repeat __ok16, __res16 = pcall(__prog16)
+until __ok16 or __res16 ~= 123
+if not __ok16 then error(__res16) end
 
 	return   CRLF()
 	end)
@@ -732,7 +736,7 @@ TOUCH_ALL = function(OBJ)
 	local __ok, __res = pcall(function()
 APPLY(function() F = FIRSTQ(OBJ) return F end)
 
-  APPLY(function() while true do
+  local __prog17 = function()
     
     if NOT(F) then 
       return 
@@ -747,7 +751,11 @@ APPLY(function() F = FIRSTQ(OBJ) return F end)
 
     APPLY(function() F = NEXTQ(F) return F end)
 
-  end end)
+error(123) end
+local __ok17, __res17
+repeat __ok17, __res17 = pcall(__prog17)
+until __ok17 or __res17 ~= 123
+if not __ok17 then error(__res17) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -760,7 +768,7 @@ OTVAL_FROB = function(O)
 	local __ok, __res = pcall(function()
 APPLY(function() F = FIRSTQ(O) return F end)
 
-  APPLY(function() while true do
+  local __prog18 = function()
     
     if NOT(F) then 
       return SCORE
@@ -774,7 +782,11 @@ APPLY(function() F = FIRSTQ(O) return F end)
 
     APPLY(function() F = NEXTQ(F) return F end)
 
-  end end)
+error(123) end
+local __ok18, __res18
+repeat __ok18, __res18 = pcall(__prog18)
+until __ok18 or __res18 ~= 123
+if not __ok18 then error(__res18) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -1412,7 +1424,7 @@ MIRROR_MIRROR = function()
     APPLY(function() L1 = FIRSTQ(HERE) return L1 end)
     APPLY(function() L2 = FIRSTQ(RM2) return L2 end)
     
-    APPLY(function() while true do
+    local __prog19 = function()
       
       if NOT(L1) then 
         return 
@@ -1422,10 +1434,14 @@ MIRROR_MIRROR = function()
       MOVE(L1, RM2)
       APPLY(function() L1 = N return L1 end)
 
-    end end)
+error(123) end
+local __ok19, __res19
+repeat __ok19, __res19 = pcall(__prog19)
+until __ok19 or __res19 ~= 123
+if not __ok19 then error(__res19) end
 
     
-    APPLY(function() while true do
+    local __prog20 = function()
       
       if NOT(L2) then 
         return 
@@ -1435,7 +1451,11 @@ MIRROR_MIRROR = function()
       MOVE(L2, HERE)
       APPLY(function() L2 = N return L2 end)
 
-    end end)
+error(123) end
+local __ok20, __res20
+repeat __ok20, __res20 = pcall(__prog20)
+until __ok20 or __res20 ~= 123
+if not __ok20 then error(__res20) end
 
     GOTO(RM2, nil)
     	return TELL("There is a rumble from deep within the earth and the room shakes.", CR)
@@ -2220,7 +2240,7 @@ LOUD_ROOM_FCN = function(RARG)
       end
 
       
-      APPLY(function() while true do
+      local __prog21 = function()
         
         if NOT(SUPER_BRIEF) then 
           CRLF()
@@ -2231,7 +2251,7 @@ LOUD_ROOM_FCN = function(RARG)
         
         if ZEROQ(GETB(P_LEXV, P_LEXWORDS)) then 
           TELL("I beg your pardon?", CR)
-          AGAIN()
+          	error(123)
         end
 
         APPLY(function() WRD = GET(P_LEXV, 1) return WRD end)
@@ -2272,7 +2292,11 @@ LOUD_ROOM_FCN = function(RARG)
         end
 
 
-      end end)
+error(123) end
+local __ok21, __res21
+repeat __ok21, __res21 = pcall(__prog21)
+until __ok21 or __res21 ~= 123
+if not __ok21 then error(__res21) end
 
     end
 
@@ -2451,7 +2475,7 @@ HACK_TREASURES = function()
   FSET(THIEF, INVISIBLE)
 APPLY(function() X = FIRSTQ(TREASURE_ROOM) return X end)
 
-  APPLY(function() while true do
+  local __prog22 = function()
     
     if NOT(X) then 
       return 
@@ -2461,7 +2485,11 @@ APPLY(function() X = FIRSTQ(TREASURE_ROOM) return X end)
 
     APPLY(function() X = NEXTQ(X) return X end)
 
-  end end)
+error(123) end
+local __ok22, __res22
+repeat __ok22, __res22 = pcall(__prog22)
+until __ok22 or __res22 ~= 123
+if not __ok22 then error(__res22) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -2474,7 +2502,7 @@ DEPOSIT_BOOTY = function(RM)
 	local __ok, __res = pcall(function()
 APPLY(function() X = FIRSTQ(THIEF) return X end)
 
-  APPLY(function() while true do
+  local __prog23 = function()
     
     if NOT(X) then 
       return FLG
@@ -2496,7 +2524,11 @@ APPLY(function() X = FIRSTQ(THIEF) return X end)
 
     APPLY(function() X = N return X end)
 
-  end end)
+error(123) end
+local __ok23, __res23
+repeat __ok23, __res23 = pcall(__prog23)
+until __ok23 or __res23 ~= 123
+if not __ok23 then error(__res23) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -2508,7 +2540,7 @@ ROB_MAZE = function(RM)
 	local __ok, __res = pcall(function()
 APPLY(function() X = FIRSTQ(RM) return X end)
 
-  APPLY(function() while true do
+  local __prog24 = function()
     
     if NOT(X) then 
       	error(false)
@@ -2530,7 +2562,11 @@ APPLY(function() X = FIRSTQ(RM) return X end)
 
     APPLY(function() X = N return X end)
 
-  end end)
+error(123) end
+local __ok24, __res24
+repeat __ok24, __res24 = pcall(__prog24)
+until __ok24 or __res24 ~= 123
+if not __ok24 then error(__res24) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -2634,7 +2670,7 @@ ROBBER_FUNCTION = function(MODE)
     if EQUALQ(HERE, TREASURE_ROOM) then 
       APPLY(function() X = FIRSTQ(HERE) return X end)
       
-      APPLY(function() while true do
+      local __prog25 = function()
         
         if NOT(X) then 
           TELL("The chalice is now safe to take.", CR)
@@ -2659,7 +2695,11 @@ ROBBER_FUNCTION = function(MODE)
 
         APPLY(function() X = NEXTQ(X) return X end)
 
-      end end)
+error(123) end
+local __ok25, __res25
+repeat __ok25, __res25 = pcall(__prog25)
+until __ok25 or __res25 ~= 123
+if not __ok25 then error(__res25) end
 
     elseif X then 
       TELL("His booty remains.", CR)
@@ -2728,7 +2768,7 @@ MOVE_ALL = function(FROM, TO)
 
   if APPLY(function() X = FIRSTQ(FROM) return X end) then 
     
-    APPLY(function() while true do
+    local __prog26 = function()
       
       if NOT(X) then 
         return 
@@ -2739,7 +2779,11 @@ MOVE_ALL = function(FROM, TO)
       MOVE(X, TO)
       APPLY(function() X = N return X end)
 
-    end end)
+error(123) end
+local __ok26, __res26
+repeat __ok26, __res26 = pcall(__prog26)
+until __ok26 or __res26 ~= 123
+if not __ok26 then error(__res26) end
 
   end
 
@@ -2795,7 +2839,7 @@ APPLY(function() F = FIRSTQ(HERE) return F end)
   end
 
 
-  APPLY(function() while true do
+  local __prog27 = function()
     
     if NOT(F) then 
       return 
@@ -2805,7 +2849,11 @@ APPLY(function() F = FIRSTQ(HERE) return F end)
 
     APPLY(function() F = NEXTQ(F) return F end)
 
-  end end)
+error(123) end
+local __ok27, __res27
+repeat __ok27, __res27 = pcall(__prog27)
+until __ok27 or __res27 ~= 123
+if not __ok27 then error(__res27) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -3367,7 +3415,7 @@ MSWITCH_FUNCTION = function()
           	return MOVE(DIAMOND, MACHINE)
         elseif T then 
           
-          APPLY(function() while true do
+          local __prog28 = function()
             
             if APPLY(function() O = FIRSTQ(MACHINE) return O end) then 
               REMOVE_CAREFULLY(O)
@@ -3376,7 +3424,11 @@ MSWITCH_FUNCTION = function()
             end
 
 
-          end end)
+error(123) end
+local __ok28, __res28
+repeat __ok28, __res28 = pcall(__prog28)
+until __ok28 or __res28 ~= 123
+if not __ok28 then error(__res28) end
 
           	return MOVE(GUNK, MACHINE)
         end
@@ -3409,7 +3461,7 @@ NO_OBJS = function(RARG)
     APPLY(function() F = FIRSTQ(WINNER) return F end)
     APPLY(function() EMPTY_HANDED = T return EMPTY_HANDED end)
     
-    APPLY(function() while true do
+    local __prog29 = function()
       
       if NOT(F) then 
         return 
@@ -3420,7 +3472,11 @@ NO_OBJS = function(RARG)
 
       APPLY(function() F = NEXTQ(F) return F end)
 
-    end end)
+error(123) end
+local __ok29, __res29
+repeat __ok29, __res29 = pcall(__prog29)
+until __ok29 or __res29 ~= 123
+if not __ok29 then error(__res29) end
 
     
     if PASS(EQUALQ(HERE, LOWER_SHAFT) and LIT) then 
@@ -4383,10 +4439,10 @@ DO_FIGHT = function(LEN)
   local OUT = nil
 	local __ok, __res = pcall(function()
 
-  APPLY(function() while true do
+  local __prog30 = function()
     APPLY(function() CNT = 0 return CNT end)
     
-    APPLY(function() while true do
+    local __prog31 = function()
       APPLY(function() CNT = ADD(CNT, 1) return CNT end)
       
       if EQUALQ(CNT, LEN) then 
@@ -4407,7 +4463,11 @@ DO_FIGHT = function(LEN)
       end
 
 
-    end end)
+error(123) end
+local __ok31, __res31
+repeat __ok31, __res31 = pcall(__prog31)
+until __ok31 or __res31 ~= 123
+if not __ok31 then error(__res31) end
 
     
     if RES then 
@@ -4428,7 +4488,11 @@ DO_FIGHT = function(LEN)
     end
 
 
-  end end)
+error(123) end
+local __ok30, __res30
+repeat __ok30, __res30 = pcall(__prog30)
+until __ok30 or __res30 ~= 123
+if not __ok30 then error(__res30) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -4440,7 +4504,7 @@ REMARK = function(REMARK, D, W)
 	local STR
 	local __ok, __res = pcall(function()
 
-  APPLY(function() while true do
+  local __prog32 = function()
     
     if GQ(APPLY(function() CNT = ADD(CNT, 1) return CNT end), LEN) then 
       return 
@@ -4457,7 +4521,11 @@ REMARK = function(REMARK, D, W)
     end
 
 
-  end end)
+error(123) end
+local __ok32, __res32
+repeat __ok32, __res32 = pcall(__prog32)
+until __ok32 or __res32 ~= 123
+if not __ok32 then error(__res32) end
 
 	return   CRLF()
 	end)
@@ -4526,7 +4594,7 @@ APPLY(function() W = FIRSTQ(O) return W end)
   end
 
 
-  APPLY(function() while true do
+  local __prog33 = function()
     
     if PASS(EQUALQ(W, STILETTO, AXE, SWORD) or EQUALQ(W, KNIFE, RUSTY_KNIFE)) then 
       return W
@@ -4535,7 +4603,11 @@ APPLY(function() W = FIRSTQ(O) return W end)
     end
 
 
-  end end)
+error(123) end
+local __ok33, __res33
+repeat __ok33, __res33 = pcall(__prog33)
+until __ok33 or __res33 ~= 123
+if not __ok33 then error(__res33) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -4686,7 +4758,7 @@ HERO_BLOW = function()
   local LEN = GET(VILLAINS, 0)
 	local __ok, __res = pcall(function()
 
-  APPLY(function() while true do
+  local __prog34 = function()
     APPLY(function() CNT = ADD(CNT, 1) return CNT end)
     
     if EQUALQ(CNT, LEN) then 
@@ -4700,7 +4772,11 @@ HERO_BLOW = function()
     end
 
 
-  end end)
+error(123) end
+local __ok34, __res34
+repeat __ok34, __res34 = pcall(__prog34)
+until __ok34 or __res34 ~= 123
+if not __ok34 then error(__res34) end
 
   FSET(PRSO, FIGHTBIT)
 
@@ -4951,7 +5027,7 @@ I_FIGHT = function()
 
 APPLY(function() CNT = 0 return CNT end)
 
-  APPLY(function() while true do
+  local __prog35 = function()
     APPLY(function() CNT = ADD(CNT, 1) return CNT end)
     
     if EQUALQ(CNT, LEN) then 
@@ -4996,7 +5072,11 @@ APPLY(function() CNT = 0 return CNT end)
     end
 
 
-  end end)
+error(123) end
+local __ok35, __res35
+repeat __ok35, __res35 = pcall(__prog35)
+until __ok35 or __res35 ~= 123
+if not __ok35 then error(__res35) end
 
 
   if NOT(FIGHTQ) then 
@@ -5038,7 +5118,7 @@ I_SWORD = function()
     elseif T then 
       APPLY(function() P = 0 return P end)
       
-      APPLY(function() while true do
+      local __prog36 = function()
         
         if ZEROQ(APPLY(function() P = NEXTP(HERE, P) return P end)) then 
           return 
@@ -5058,7 +5138,11 @@ I_SWORD = function()
         end
 
 
-      end end)
+error(123) end
+local __ok36, __res36
+repeat __ok36, __res36 = pcall(__prog36)
+until __ok36 or __res36 ~= 123
+if not __ok36 then error(__res36) end
 
     end
 
@@ -5088,7 +5172,7 @@ INFESTEDQ = function(R)
   local F = FIRSTQ(R)
 	local __ok, __res = pcall(function()
 
-  APPLY(function() while true do
+  local __prog37 = function()
     
     if NOT(F) then 
       	error(false)
@@ -5099,7 +5183,11 @@ INFESTEDQ = function(R)
     end
 
 
-  end end)
+error(123) end
+local __ok37, __res37
+repeat __ok37, __res37 = pcall(__prog37)
+until __ok37 or __res37 ~= 123
+if not __ok37 then error(__res37) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -5112,7 +5200,7 @@ I_THIEF = function()
   local FLG = nil
 	local __ok, __res = pcall(function()
 
-  do
+  local __prog38 = function()
     
     if APPLY(function() HEREQ = NOT(FSETQ(THIEF, INVISIBLE)) return HEREQ end) then 
       APPLY(function() RM = LOC(THIEF) return RM end)
@@ -5161,7 +5249,7 @@ I_THIEF = function()
     if PASS(APPLY(function() ONCE = NOT(ONCE) return ONCE end) and NOT(HEREQ)) then 
       RECOVER_STILETTO()
       
-      APPLY(function() while true do
+      local __prog39 = function()
         
         if PASS(RM and APPLY(function() RM = NEXTQ(RM) return RM end)) then 
         elseif T then 
@@ -5178,12 +5266,19 @@ I_THIEF = function()
         end
 
 
-      end end)
+error(123) end
+local __ok39, __res39
+repeat __ok39, __res39 = pcall(__prog39)
+until __ok39 or __res39 ~= 123
+if not __ok39 then error(__res39) end
 
-      AGAIN()
+      	error(123)
     end
-
-  end
+end
+local __ok38, __res38
+repeat __ok38, __res38 = pcall(__prog38)
+until __ok38 or __res38 ~= 123
+if not __ok38 then error(__res38) end
 
 
   if NOT(EQUALQ(RM, TREASURE_ROOM)) then 
@@ -5202,7 +5297,7 @@ DROP_JUNK = function(RM)
 	local __ok, __res = pcall(function()
 APPLY(function() X = FIRSTQ(THIEF) return X end)
 
-  APPLY(function() while true do
+  local __prog40 = function()
     
     if NOT(X) then 
       return FLG
@@ -5224,7 +5319,11 @@ APPLY(function() X = FIRSTQ(THIEF) return X end)
 
     APPLY(function() X = N return X end)
 
-  end end)
+error(123) end
+local __ok40, __res40
+repeat __ok40, __res40 = pcall(__prog40)
+until __ok40 or __res40 ~= 123
+if not __ok40 then error(__res40) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -5248,7 +5347,7 @@ STEAL_JUNK = function(RM)
 	local __ok, __res = pcall(function()
 APPLY(function() X = FIRSTQ(RM) return X end)
 
-  APPLY(function() while true do
+  local __prog41 = function()
     
     if NOT(X) then 
       	error(false)
@@ -5277,7 +5376,11 @@ APPLY(function() X = FIRSTQ(RM) return X end)
 
     APPLY(function() X = N return X end)
 
-  end end)
+error(123) end
+local __ok41, __res41
+repeat __ok41, __res41 = pcall(__prog41)
+until __ok41 or __res41 ~= 123
+if not __ok41 then error(__res41) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -5291,7 +5394,7 @@ ROB = function(WHAT, WHERE, PROB)
 	local __ok, __res = pcall(function()
 APPLY(function() X = FIRSTQ(WHAT) return X end)
 
-  APPLY(function() while true do
+  local __prog42 = function()
     
     if NOT(X) then 
       return ROBBEDQ
@@ -5312,7 +5415,11 @@ APPLY(function() X = FIRSTQ(WHAT) return X end)
 
     APPLY(function() X = N return X end)
 
-  end end)
+error(123) end
+local __ok42, __res42
+repeat __ok42, __res42 = pcall(__prog42)
+until __ok42 or __res42 ~= 123
+if not __ok42 then error(__res42) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -5446,7 +5553,7 @@ APPLY(function() WINNER = ADVENTURER return WINNER end)
   end
 
 
-  do
+  local __prog43 = function()
     SCORE_UPD(-10)    TELL("\n|    ****  You have died  ****\n|\n|")    
     if FSETQ(LOC(WINNER), VEHBIT) then 
       MOVE(WINNER, HERE)
@@ -5477,8 +5584,11 @@ APPLY(function() WINNER = ADVENTURER return WINNER end)
       KILL_INTERRUPTS()
       	return RFATAL()
     end
-
-  end
+end
+local __ok43, __res43
+repeat __ok43, __res43 = pcall(__prog43)
+until __ok43 or __res43 ~= 123
+if not __ok43 then error(__res43) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -5504,7 +5614,7 @@ RANDOMIZE_OBJECTS = function()
 APPLY(function() N = FIRSTQ(WINNER) return N end)
 APPLY(function() L = GET(ABOVE_GROUND, 0) return L end)
 
-  APPLY(function() while true do
+  local __prog44 = function()
     APPLY(function() F = N return F end)
     
     if NOT(F) then 
@@ -5515,7 +5625,7 @@ APPLY(function() L = GET(ABOVE_GROUND, 0) return L end)
     
     if GQ(GETP(F, PQTVALUE), 0) then 
       
-      APPLY(function() while true do
+      local __prog45 = function()
         
         if NOT(R) then 
           APPLY(function() R = FIRSTQ(ROOMS) return R end)
@@ -5530,14 +5640,22 @@ APPLY(function() L = GET(ABOVE_GROUND, 0) return L end)
         end
 
 
-      end end)
+error(123) end
+local __ok45, __res45
+repeat __ok45, __res45 = pcall(__prog45)
+until __ok45 or __res45 ~= 123
+if not __ok45 then error(__res45) end
 
     else 
       MOVE(F, GET(ABOVE_GROUND, RANDOM(L)))
     end
 
 
-  end end)
+error(123) end
+local __ok44, __res44
+repeat __ok44, __res44 = pcall(__prog44)
+until __ok44 or __res44 ~= 123
+if not __ok44 then error(__res44) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res

@@ -964,6 +964,7 @@ by knocking down the wall on the east of the room." CR>
 	 <TELL "You probably put spinach in your gas tank, too." CR>>
 
 <ROUTINE V-OPEN ("AUX" F STR)
+	<TELL "V-OPEN: OPENING" CR>
 	 <COND (<AND <FSET? ,PRSO ,CONTBIT>
 		     <NOT <EQUAL? <GETP ,PRSO ,P?CAPACITY> 0>>>
 		<COND (<FSET? ,PRSO ,OPENBIT>

@@ -72,7 +72,7 @@ PARSER = function()
   local CNT = -1
 	local __ok, __res = pcall(function()
 
-  APPLY(function() while true do
+  local __prog46 = function()
     
     if GQ(APPLY(function() CNT = ADD(CNT, 1) return CNT end), P_ITBLLEN) then 
       return 
@@ -86,7 +86,11 @@ PARSER = function()
     end
 
 
-  end end)
+error(123) end
+local __ok46, __res46
+repeat __ok46, __res46 = pcall(__prog46)
+until __ok46 or __res46 ~= 123
+if not __ok46 then error(__res46) end
 
 APPLY(function() OWINNER = WINNER return OWINNER end)
 APPLY(function() OMERGED = P_MERGED return OMERGED end)
@@ -232,7 +236,7 @@ APPLY(function() P_LEN = GETB(P_LEXV, P_LEXWORDS) return P_LEN end)
     APPLY(function() CNT = -1 return CNT end)
     APPLY(function() DIR = AGAIN_DIR return DIR end)
     
-    APPLY(function() while true do
+    local __prog47 = function()
       
       if APPLY(function() CNT = CNT + 1 return CNT > P_ITBLLEN end) then 
         return 
@@ -241,7 +245,11 @@ APPLY(function() P_LEN = GETB(P_LEXV, P_LEXWORDS) return P_LEN end)
       end
 
 
-    end end)
+error(123) end
+local __ok47, __res47
+repeat __ok47, __res47 = pcall(__prog47)
+until __ok47 or __res47 ~= 123
+if not __ok47 then error(__res47) end
 
   elseif T then 
     STUFF(P_LEXV, AGAIN_LEXV)
@@ -256,7 +264,7 @@ APPLY(function() P_LEN = GETB(P_LEXV, P_LEXWORDS) return P_LEN end)
     APPLY(function() P_NCN = 0 return P_NCN end)
     APPLY(function() P_GETFLAGS = 0 return P_GETFLAGS end)
     
-    APPLY(function() while true do
+    local __prog48 = function()
       
       if LQ(APPLY(function() P_LEN = SUB(P_LEN, 1) return P_LEN end), 0) then 
         APPLY(function() QUOTE_FLAG = nil return QUOTE_FLAG end)
@@ -373,7 +381,11 @@ APPLY(function() P_LEN = GETB(P_LEXV, P_LEXWORDS) return P_LEN end)
       APPLY(function() LW = WRD return LW end)
       APPLY(function() PTR = ADD(PTR, P_LEXELEN) return PTR end)
 
-    end end)
+error(123) end
+local __ok48, __res48
+repeat __ok48, __res48 = pcall(__prog48)
+until __ok48 or __res48 ~= 123
+if not __ok48 then error(__res48) end
 
   end
 
@@ -416,7 +428,7 @@ STUFF = function(SRC, DEST, MAX)
   PUTB(DEST, 0, GETB(SRC, 0))
   PUTB(DEST, 1, GETB(SRC, 1))
 
-  APPLY(function() while true do
+  local __prog49 = function()
     PUT(DEST, PTR, GET(SRC, PTR))
     APPLY(function() BPTR = ADD(MULL(PTR, 2), 2) return BPTR end)
     PUTB(DEST, BPTR, GETB(SRC, BPTR))
@@ -429,7 +441,11 @@ STUFF = function(SRC, DEST, MAX)
     end
 
 
-  end end)
+error(123) end
+local __ok49, __res49
+repeat __ok49, __res49 = pcall(__prog49)
+until __ok49 or __res49 ~= 123
+if not __ok49 then error(__res49) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -440,7 +456,7 @@ INBUF_STUFF = function(SRC, DEST)
 	local __ok, __res = pcall(function()
 APPLY(function() CNT = SUB(GETB(SRC, 0), 1) return CNT end)
 
-  APPLY(function() while true do
+  local __prog50 = function()
     PUTB(DEST, CNT, GETB(SRC, CNT))
     
     if APPLY(function() CNT = CNT - 1 return CNT < 0 end) then 
@@ -448,7 +464,11 @@ APPLY(function() CNT = SUB(GETB(SRC, 0), 1) return CNT end)
     end
 
 
-  end end)
+error(123) end
+local __ok50, __res50
+repeat __ok50, __res50 = pcall(__prog50)
+until __ok50 or __res50 ~= 123
+if not __ok50 then error(__res50) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -468,7 +488,7 @@ INBUF_ADD = function(LEN, BEG, SLOT)
 
   PUT(OOPS_TABLE, O_END, ADD(DBEG, LEN))
 
-  APPLY(function() while true do
+  local __prog51 = function()
     PUTB(OOPS_INBUF, ADD(DBEG, CTR), GETB(P_INBUF, ADD(BEG, CTR)))
     APPLY(function() CTR = ADD(CTR, 1) return CTR end)
     
@@ -477,7 +497,11 @@ INBUF_ADD = function(LEN, BEG, SLOT)
     end
 
 
-  end end)
+error(123) end
+local __ok51, __res51
+repeat __ok51, __res51 = pcall(__prog51)
+until __ok51 or __res51 ~= 123
+if not __ok51 then error(__res51) end
 
   PUTB(AGAIN_LEXV, SLOT, DBEG)
 	return   PUTB(AGAIN_LEXV, SUB(SLOT, 1), LEN)
@@ -542,7 +566,7 @@ APPLY(function() OFF = MULL(SUB(P_NCN, 1), 2) return OFF end)
   end
 
 
-  APPLY(function() while true do
+  local __prog52 = function()
     
     if LQ(APPLY(function() P_LEN = SUB(P_LEN, 1) return P_LEN end), 0) then 
       PUT(P_ITBL, ADD(NUM, 1), REST(P_LEXV, MULL(PTR, 2)))
@@ -605,7 +629,11 @@ APPLY(function() OFF = MULL(SUB(P_NCN, 1), 2) return OFF end)
     APPLY(function() FIRSTQQ = nil return FIRSTQQ end)
     APPLY(function() PTR = ADD(PTR, P_LEXELEN) return PTR end)
 
-  end end)
+error(123) end
+local __ok52, __res52
+repeat __ok52, __res52 = pcall(__prog52)
+until __ok52 or __res52 ~= 123
+if not __ok52 then error(__res52) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -621,7 +649,7 @@ NUMBERQ = function(PTR)
 APPLY(function() CNT = GETB(REST(P_LEXV, MULL(PTR, 2)), 2) return CNT end)
 APPLY(function() BPTR = GETB(REST(P_LEXV, MULL(PTR, 2)), 3) return BPTR end)
 
-  APPLY(function() while true do
+  local __prog53 = function()
     
     if LQ(APPLY(function() CNT = SUB(CNT, 1) return CNT end), 0) then 
       return 
@@ -643,7 +671,11 @@ APPLY(function() BPTR = GETB(REST(P_LEXV, MULL(PTR, 2)), 3) return BPTR end)
     end
 
 
-  end end)
+error(123) end
+local __ok53, __res53
+repeat __ok53, __res53 = pcall(__prog53)
+until __ok53 or __res53 ~= 123
+if not __ok53 then error(__res53) end
 
   PUT(P_LEXV, PTR, WQINTNUM)
 
@@ -754,7 +786,7 @@ APPLY(function() P_OFLAG = nil return P_OFLAG end)
 
       APPLY(function() END = GET(P_ITBL, P_NC1L) return END end)
       
-      APPLY(function() while true do
+      local __prog54 = function()
         APPLY(function() WRD = GET(BEG, 0) return WRD end)
         
         if EQUALQ(BEG, END) then 
@@ -793,7 +825,11 @@ APPLY(function() P_OFLAG = nil return P_OFLAG end)
         end
 
 
-      end end)
+error(123) end
+local __ok54, __res54
+repeat __ok54, __res54 = pcall(__prog54)
+until __ok54 or __res54 ~= 123
+if not __ok54 then error(__res54) end
 
     end
 
@@ -805,7 +841,7 @@ APPLY(function() P_OFLAG = nil return P_OFLAG end)
   PUT(P_OTBL, P_VERBN, P_VTBL)
   PUTB(P_VTBL, 2, 0)
 
-  APPLY(function() while true do
+  local __prog55 = function()
     
     if GQ(APPLY(function() CNT = ADD(CNT, 1) return CNT end), P_ITBLLEN) then 
       APPLY(function() P_MERGED = T return P_MERGED end)
@@ -815,7 +851,11 @@ APPLY(function() P_OFLAG = nil return P_OFLAG end)
     end
 
 
-  end end)
+error(123) end
+local __ok55, __res55
+repeat __ok55, __res55 = pcall(__prog55)
+until __ok55 or __res55 ~= 123
+if not __ok55 then error(__res55) end
 
 	return T
 	end)
@@ -854,7 +894,7 @@ end
 WORD_PRINT = function(CNT, BUF)
 	local __ok, __res = pcall(function()
 
-  APPLY(function() while true do
+  local __prog56 = function()
     
     if APPLY(function() CNT = CNT - 1 return CNT < 0 end) then 
       return 
@@ -864,7 +904,11 @@ WORD_PRINT = function(CNT, BUF)
     end
 
 
-  end end)
+error(123) end
+local __ok56, __res56
+repeat __ok56, __res56 = pcall(__prog56)
+until __ok56 or __res56 ~= 123
+if not __ok56 then error(__res56) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -935,12 +979,12 @@ SYNTAX_CHECK = function()
     	error(false)
   end
 
-  TELL("SYNTAX-CHECK ", VERBS, VERB, CR)
+  TELL("SYNTAX-CHECK ", VERBS, " ", VERB, " ", CR)
 APPLY(function() SYN = GET(VERBS, SUB(255, VERB)) return SYN end)
 APPLY(function() LEN = GETB(SYN, 0) return LEN end)
 APPLY(function() SYN = REST(SYN) return SYN end)
 
-  APPLY(function() while true do
+  local __prog57 = function()
     APPLY(function() NUM = BAND(GETB(SYN, P_SBITS), P_SONUMS) return NUM end)
     TELL(NUM, " ", GETB(SYN, P_SBITS), CR)
     
@@ -974,7 +1018,11 @@ APPLY(function() SYN = REST(SYN) return SYN end)
     end
 
 
-  end end)
+error(123) end
+local __ok57, __res57
+repeat __ok57, __res57 = pcall(__prog57)
+until __ok57 or __res57 ~= 123
+if not __ok57 then error(__res57) end
 
 
   if PASS(DRIVE1 and APPLY(function() OBJ = GWIM(GETB(DRIVE1, P_SFWIM1), GETB(DRIVE1, P_SLOC1), GETB(DRIVE1, P_SPREP1)) return OBJ end)) then 
@@ -1046,7 +1094,7 @@ ORPHAN = function(D1, D2)
   PUTB(P_OVTBL, 2, GETB(P_VTBL, 2))
   PUTB(P_OVTBL, 3, GETB(P_VTBL, 3))
 
-  APPLY(function() while true do
+  local __prog58 = function()
     
     if APPLY(function() CNT = CNT + 1 return CNT > P_ITBLLEN end) then 
       return 
@@ -1055,7 +1103,11 @@ ORPHAN = function(D1, D2)
     end
 
 
-  end end)
+error(123) end
+local __ok58, __res58
+repeat __ok58, __res58 = pcall(__prog58)
+until __ok58 or __res58 ~= 123
+if not __ok58 then error(__res58) end
 
 
   if EQUALQ(P_NCN, 2) then 
@@ -1115,7 +1167,7 @@ BUFFER_PRINT = function(BEG, END, CP)
   local QQ = nil
 	local __ok, __res = pcall(function()
 
-  APPLY(function() while true do
+  local __prog59 = function()
     
     if EQUALQ(BEG, END) then 
       return 
@@ -1161,7 +1213,11 @@ BUFFER_PRINT = function(BEG, END, CP)
 
     APPLY(function() BEG = REST(BEG, P_WORDLEN) return BEG end)
 
-  end end)
+error(123) end
+local __ok59, __res59
+repeat __ok59, __res59 = pcall(__prog59)
+until __ok59 or __res59 ~= 123
+if not __ok59 then error(__res59) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -1194,7 +1250,7 @@ APPLY(function() BEG = GET(SRC, GET(P_CCTBL, CC_SBPTR)) return BEG end)
 APPLY(function() END = GET(SRC, GET(P_CCTBL, CC_SEPTR)) return END end)
   PUT(DEST, GET(P_CCTBL, CC_DBPTR), REST(P_OCLAUSE, ADD(MULL(GET(P_OCLAUSE, P_MATCHLEN), P_LEXELEN), 2)))
 
-  APPLY(function() while true do
+  local __prog60 = function()
     
     if EQUALQ(BEG, END) then 
       PUT(DEST, GET(P_CCTBL, CC_DEPTR), REST(P_OCLAUSE, ADD(MULL(GET(P_OCLAUSE, P_MATCHLEN), P_LEXELEN), 2)))
@@ -1210,7 +1266,11 @@ APPLY(function() END = GET(SRC, GET(P_CCTBL, CC_SEPTR)) return END end)
 
     APPLY(function() BEG = REST(BEG, P_WORDLEN) return BEG end)
 
-  end end)
+error(123) end
+local __ok60, __res60
+repeat __ok60, __res60 = pcall(__prog60)
+until __ok60 or __res60 ~= 123
+if not __ok60 then error(__res60) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -1233,7 +1293,7 @@ PREP_FIND = function(PREP)
 	local __ok, __res = pcall(function()
 APPLY(function() SIZE = MULL(GET(PREPOSITIONS, 0), 2) return SIZE end)
 
-  APPLY(function() while true do
+  local __prog61 = function()
     
     if APPLY(function() CNT = CNT + 1 return CNT > SIZE end) then 
       	error(false)
@@ -1242,7 +1302,11 @@ APPLY(function() SIZE = MULL(GET(PREPOSITIONS, 0), 2) return SIZE end)
     end
 
 
-  end end)
+error(123) end
+local __ok61, __res61
+repeat __ok61, __res61 = pcall(__prog61)
+until __ok61 or __res61 ~= 123
+if not __ok61 then error(__res61) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -1357,7 +1421,7 @@ BUT_MERGE = function(TBL)
 APPLY(function() LEN = GET(TBL, P_MATCHLEN) return LEN end)
   PUT(P_MERGE, P_MATCHLEN, 0)
 
-  APPLY(function() while true do
+  local __prog62 = function()
     
     if APPLY(function() LEN = LEN - 1 return LEN < 0 end) then 
       return 
@@ -1369,7 +1433,11 @@ APPLY(function() LEN = GET(TBL, P_MATCHLEN) return LEN end)
 
     APPLY(function() CNT = ADD(CNT, 1) return CNT end)
 
-  end end)
+error(123) end
+local __ok62, __res62
+repeat __ok62, __res62 = pcall(__prog62)
+until __ok62 or __res62 ~= 123
+if not __ok62 then error(__res62) end
 
   PUT(P_MERGE, P_MATCHLEN, MATCHES)
 APPLY(function() NTBL = P_MERGE return NTBL end)
@@ -1412,7 +1480,7 @@ APPLY(function() P_GETFLAGS = 0 return P_GETFLAGS end)
   PUT(TBL, P_MATCHLEN, 0)
 APPLY(function() WRD = GET(PTR, 0) return WRD end)
 
-  APPLY(function() while true do
+  local __prog63 = function()
     
     if EQUALQ(PTR, EPTR) then 
       APPLY(function() WV = GET_OBJECT(PASS(BUT or TBL)) return WV end)
@@ -1486,7 +1554,11 @@ APPLY(function() WRD = GET(PTR, 0) return WRD end)
     end
 
 
-  end end)
+error(123) end
+local __ok63, __res63
+repeat __ok63, __res63 = pcall(__prog63)
+until __ok63 or __res63 ~= 123
+if not __ok63 then error(__res63) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -1545,7 +1617,7 @@ APPLY(function() TLEN = GET(TBL, P_MATCHLEN) return TLEN end)
 
 APPLY(function() P_TABLE = TBL return P_TABLE end)
 
-  do
+  local __prog64 = function()
     
     if GCHECK then 
       GLOBAL_CHECK(TBL)
@@ -1577,7 +1649,7 @@ APPLY(function() P_TABLE = TBL return P_TABLE end)
         APPLY(function() P_SLOCBITS = XBITS return P_SLOCBITS end)
         APPLY(function() OLEN = LEN return OLEN end)
         PUT(TBL, P_MATCHLEN, SUB(GET(TBL, P_MATCHLEN), LEN))
-        AGAIN()
+        	error(123)
       elseif T then 
         
         if ZEROQ(LEN) then 
@@ -1637,10 +1709,13 @@ APPLY(function() P_TABLE = TBL return P_TABLE end)
       	error(false)
     elseif ZEROQ(LEN) then 
       APPLY(function() GCHECK = T return GCHECK end)
-      AGAIN()
+      	error(123)
     end
-    APPLY(function() P_SLOCBITS = XBITS return P_SLOCBITS end)    APPLY(function() P_NAM = nil return P_NAM end)    APPLY(function() P_ADJ = nil return P_ADJ end)    	error(true)
-  end
+    APPLY(function() P_SLOCBITS = XBITS return P_SLOCBITS end)    APPLY(function() P_NAM = nil return P_NAM end)    APPLY(function() P_ADJ = nil return P_ADJ end)    	error(true)end
+local __ok64, __res64
+repeat __ok64, __res64 = pcall(__prog64)
+until __ok64 or __res64 ~= 123
+if not __ok64 then error(__res64) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -1672,7 +1747,7 @@ APPLY(function() RLEN = LEN return RLEN end)
 
   TELL(" do you mean, ")
 
-  APPLY(function() while true do
+  local __prog65 = function()
     APPLY(function() TLEN = ADD(TLEN, 1) return TLEN end)
     APPLY(function() OBJ = GET(TBL, TLEN) return OBJ end)
     TELL("the ", D, OBJ)
@@ -1695,7 +1770,11 @@ APPLY(function() RLEN = LEN return RLEN end)
     end
 
 
-  end end)
+error(123) end
+local __ok65, __res65
+repeat __ok65, __res65 = pcall(__prog65)
+until __ok65 or __res65 ~= 123
+if not __ok65 then error(__res65) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -1716,7 +1795,7 @@ APPLY(function() OBITS = P_SLOCBITS return OBITS end)
   if APPLY(function() RMG = GETPT(HERE, PQGLOBAL) return RMG end) then 
     APPLY(function() RMGL = SUB(PTSIZE(RMG), 1) return RMGL end)
     
-    APPLY(function() while true do
+    local __prog66 = function()
       
       if THIS_ITQ(APPLY(function() OBJ = GETB(RMG, CNT) return OBJ end), TBL) then 
         OBJ_FOUND(OBJ, TBL)
@@ -1728,7 +1807,11 @@ APPLY(function() OBITS = P_SLOCBITS return OBITS end)
       end
 
 
-    end end)
+error(123) end
+local __ok66, __res66
+repeat __ok66, __res66 = pcall(__prog66)
+until __ok66 or __res66 ~= 123
+if not __ok66 then error(__res66) end
 
   end
 
@@ -1737,7 +1820,7 @@ APPLY(function() OBITS = P_SLOCBITS return OBITS end)
     APPLY(function() RMGL = SUB(DIV(PTSIZE(RMG), 4), 1) return RMGL end)
     APPLY(function() CNT = 0 return CNT end)
     
-    APPLY(function() while true do
+    local __prog67 = function()
       
       if EQUALQ(P_NAM, GET(RMG, MULL(CNT, 2))) then 
         PUTP(PSEUDO_OBJECT, PQACTION, GET(RMG, ADD(MULL(CNT, 2), 1)))
@@ -1751,7 +1834,11 @@ APPLY(function() OBITS = P_SLOCBITS return OBITS end)
       end
 
 
-    end end)
+error(123) end
+local __ok67, __res67
+repeat __ok67, __res67 = pcall(__prog67)
+until __ok67 or __res67 ~= 123
+if not __ok67 then error(__res67) end
 
   end
 
@@ -1804,7 +1891,7 @@ SEARCH_LIST = function(OBJ, TBL, LVL)
 
   if APPLY(function() OBJ = FIRSTQ(OBJ) return OBJ end) then 
     
-    APPLY(function() while true do
+    local __prog68 = function()
       
       if PASS(NOT(EQUALQ(LVL, P_SRCBOT)) and GETPT(OBJ, PQSYNONYM) and THIS_ITQ(OBJ, TBL)) then 
         OBJ_FOUND(OBJ, TBL)
@@ -1830,7 +1917,11 @@ SEARCH_LIST = function(OBJ, TBL, LVL)
       end
 
 
-    end end)
+error(123) end
+local __ok68, __res68
+repeat __ok68, __res68 = pcall(__prog68)
+until __ok68 or __res68 ~= 123
+if not __ok68 then error(__res68) end
 
   end
 
@@ -1863,7 +1954,7 @@ ITAKE_CHECK = function(TBL, IBITS)
 
   if PASS(APPLY(function() PTR = GET(TBL, P_MATCHLEN) return PTR end) and PASS(BTST(IBITS, SHAVE) or BTST(IBITS, STAKE))) then 
     
-    APPLY(function() while true do
+    local __prog69 = function()
       
       if LQ(APPLY(function() PTR = SUB(PTR, 1) return PTR end), 0) then 
         return 
@@ -1916,7 +2007,11 @@ ITAKE_CHECK = function(TBL, IBITS)
       end
 
 
-    end end)
+error(123) end
+local __ok69, __res69
+repeat __ok69, __res69 = pcall(__prog69)
+until __ok69 or __res69 ~= 123
+if not __ok69 then error(__res69) end
 
   elseif T then 
   end
@@ -1981,7 +2076,7 @@ ZMEMQ = function(ITM, TBL, SIZE)
   end
 
 
-  APPLY(function() while true do
+  local __prog70 = function()
     
     if EQUALQ(ITM, GET(TBL, CNT)) then 
       return REST(TBL, MULL(CNT, 2))
@@ -1990,7 +2085,11 @@ ZMEMQ = function(ITM, TBL, SIZE)
     end
 
 
-  end end)
+error(123) end
+local __ok70, __res70
+repeat __ok70, __res70 = pcall(__prog70)
+until __ok70 or __res70 ~= 123
+if not __ok70 then error(__res70) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -2000,7 +2099,7 @@ ZMEMQB = function(ITM, TBL, SIZE)
   local CNT = 0
 	local __ok, __res = pcall(function()
 
-  APPLY(function() while true do
+  local __prog71 = function()
     
     if EQUALQ(ITM, GETB(TBL, CNT)) then 
       	error(true)
@@ -2009,7 +2108,11 @@ ZMEMQB = function(ITM, TBL, SIZE)
     end
 
 
-  end end)
+error(123) end
+local __ok71, __res71
+repeat __ok71, __res71 = pcall(__prog71)
+until __ok71 or __res71 ~= 123
+if not __ok71 then error(__res71) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -2109,7 +2212,7 @@ end
 META_LOC = function(OBJ)
 	local __ok, __res = pcall(function()
 
-  APPLY(function() while true do
+  local __prog72 = function()
     
     if NOT(OBJ) then 
       	error(false)
@@ -2125,7 +2228,11 @@ META_LOC = function(OBJ)
     end
 
 
-  end end)
+error(123) end
+local __ok72, __res72
+repeat __ok72, __res72 = pcall(__prog72)
+until __ok72 or __res72 ~= 123
+if not __ok72 then error(__res72) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res

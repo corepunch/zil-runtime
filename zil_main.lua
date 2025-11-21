@@ -16,10 +16,14 @@ MAIN_LOOP = function()
 	local TRASH
 	local __ok, __res = pcall(function()
 
-  APPLY(function() while true do
+  local __prog73 = function()
     APPLY(function() TRASH = MAIN_LOOP_1() return TRASH end)
 
-  end end)
+error(123) end
+local __ok73, __res73
+repeat __ok73, __res73 = pcall(__prog73)
+until __ok73 or __res73 ~= 123
+if not __ok73 then error(__res73) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -50,7 +54,7 @@ APPLY(function() PTBL = T return PTBL end)
     if PASS(P_IT_OBJECT and ACCESSIBLEQ(P_IT_OBJECT)) then 
       APPLY(function() TMP = nil return TMP end)
       
-      APPLY(function() while true do
+      local __prog74 = function()
         
         if GQ(APPLY(function() CNT = ADD(CNT, 1) return CNT end), ICNT) then 
           return 
@@ -65,13 +69,17 @@ APPLY(function() PTBL = T return PTBL end)
         end
 
 
-      end end)
+error(123) end
+local __ok74, __res74
+repeat __ok74, __res74 = pcall(__prog74)
+until __ok74 or __res74 ~= 123
+if not __ok74 then error(__res74) end
 
       
       if NOT(TMP) then 
         APPLY(function() CNT = 0 return CNT end)
         
-        APPLY(function() while true do
+        local __prog75 = function()
           
           if GQ(APPLY(function() CNT = ADD(CNT, 1) return CNT end), OCNT) then 
             return 
@@ -85,7 +93,11 @@ APPLY(function() PTBL = T return PTBL end)
           end
 
 
-        end end)
+error(123) end
+local __ok75, __res75
+repeat __ok75, __res75 = pcall(__prog75)
+until __ok75 or __res75 ~= 123
+if not __ok75 then error(__res75) end
 
       end
 
@@ -144,7 +156,7 @@ APPLY(function() PTBL = T return PTBL end)
 
       APPLY(function() TMP = nil return TMP end)
       
-      APPLY(function() while true do
+      local __prog76 = function()
         
         if GQ(APPLY(function() CNT = ADD(CNT, 1) return CNT end), NUM) then 
           
@@ -203,11 +215,11 @@ APPLY(function() PTBL = T return PTBL end)
             
             if EQUALQ(O, NOT_HERE_OBJECT) then 
               APPLY(function() P_NOT_HERE = ADD(P_NOT_HERE, 1) return P_NOT_HERE end)
-              AGAIN()
+              	error(123)
             elseif PASS(VERBQ(TAKE) and I and EQUALQ(GET(GET(P_ITBL, P_NC1), 0), WQALL) and NOT(INQ(O, I))) then 
-              AGAIN()
+              	error(123)
             elseif PASS(EQUALQ(P_GETFLAGS, P_ALL) and VERBQ(TAKE) and PASS(PASS(NOT(EQUALQ(LOC(O), WINNER, HERE, V)) and NOT(EQUALQ(LOC(O), I)) and NOT(FSETQ(LOC(O), SURFACEBIT))) or NOT(PASS(FSETQ(O, TAKEBIT) or FSETQ(O, TRYTAKEBIT))))) then 
-              AGAIN()
+              	error(123)
             else 
               
               if EQUALQ(OBJ1, IT) then 
@@ -233,7 +245,11 @@ APPLY(function() PTBL = T return PTBL end)
         end
 
 
-      end end)
+error(123) end
+local __ok76, __res76
+repeat __ok76, __res76 = pcall(__prog76)
+until __ok76 or __res76 ~= 123
+if not __ok76 then error(__res76) end
 
     end
 

@@ -2734,7 +2734,7 @@ APPLY(function() PLAYER = WINNER return PLAYER end)
   MOVE(WINNER, HERE)
   V_LOOK()
   MAIN_LOOP()
-	return   AGAIN()
+	error(123)
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
 	else error('GO\n'..__res) end

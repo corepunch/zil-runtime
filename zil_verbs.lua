@@ -45,7 +45,7 @@ FINISH = function()
 	local __ok, __res = pcall(function()
   V_SCORE()
 
-  APPLY(function() while true do
+  local __prog1 = function()
     CRLF()
     TELL("Would you like to restart the game from the beginning, restore a saved\ngame position, or end this session of the game?|\n(Type RESTART, RESTORE, or QUIT):|\n>")
     READ(P_INBUF, P_LEXV)
@@ -67,7 +67,11 @@ FINISH = function()
     end
 
 
-  end end)
+error(123) end
+local __ok1, __res1
+repeat __ok1, __res1 = pcall(__prog1)
+until __ok1 or __res1 ~= 123
+if not __ok1 then error(__res1) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -160,7 +164,7 @@ V_VERSION = function()
   PRINTN(BAND(GET(0, 1), 2047))
   TELL(" / Serial number ")
 
-  APPLY(function() while true do
+  local __prog2 = function()
     
     if GQ(APPLY(function() CNT = ADD(CNT, 1) return CNT end), 23) then 
       return 
@@ -169,7 +173,11 @@ V_VERSION = function()
     end
 
 
-  end end)
+error(123) end
+local __ok2, __res2
+repeat __ok2, __res2 = pcall(__prog2)
+until __ok2 or __res2 ~= 123
+if not __ok2 then error(__res2) end
 
 	return   CRLF()
 	end)
@@ -777,7 +785,7 @@ V_ECHO = function()
     APPLY(function() LST = REST(P_LEXV, MULL(GETB(P_LEXV, P_LEXWORDS), P_WORDLEN)) return LST end)
     APPLY(function() MAX = SUB(ADD(GETB(LST, 0), GETB(LST, 1)), 1) return MAX end)
     
-    APPLY(function() while true do
+    local __prog3 = function()
       
       if GQ(APPLY(function() ECH = ADD(ECH, 1) return ECH end), 2) then 
         TELL("...", CR)
@@ -785,7 +793,7 @@ V_ECHO = function()
       elseif T then 
         APPLY(function() CNT = SUB(GETB(LST, 1), 1) return CNT end)
         
-        APPLY(function() while true do
+        local __prog4 = function()
           
           if GQ(APPLY(function() CNT = ADD(CNT, 1) return CNT end), MAX) then 
             return 
@@ -794,13 +802,21 @@ V_ECHO = function()
           end
 
 
-        end end)
+error(123) end
+local __ok4, __res4
+repeat __ok4, __res4 = pcall(__prog4)
+until __ok4 or __res4 ~= 123
+if not __ok4 then error(__res4) end
 
         TELL(" ")
       end
 
 
-    end end)
+error(123) end
+local __ok3, __res3
+repeat __ok3, __res3 = pcall(__prog3)
+until __ok3 or __res3 ~= 123
+if not __ok3 then error(__res3) end
 
   elseif T then 
     	return TELL("echo echo ...", CR)
@@ -1836,7 +1852,7 @@ SHAKE_LOOP = function()
 	local X
 	local __ok, __res = pcall(function()
 
-  APPLY(function() while true do
+  local __prog5 = function()
     
     if APPLY(function() X = FIRSTQ(PRSO) return X end) then 
       FSET(X, TOUCHBIT)
@@ -1854,7 +1870,11 @@ SHAKE_LOOP = function()
     end
 
 
-  end end)
+error(123) end
+local __ok5, __res5
+repeat __ok5, __res5 = pcall(__prog5)
+until __ok5 or __res5 ~= 123
+if not __ok5 then error(__res5) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -2195,7 +2215,7 @@ V_WAIT = function(NUM)
 	local __ok, __res = pcall(function()
   TELL("Time passes...", CR)
 
-  APPLY(function() while true do
+  local __prog6 = function()
     
     if LQ(APPLY(function() NUM = SUB(NUM, 1) return NUM end), 0) then 
       return 
@@ -2204,7 +2224,11 @@ V_WAIT = function(NUM)
     end
 
 
-  end end)
+error(123) end
+local __ok6, __res6
+repeat __ok6, __res6 = pcall(__prog6)
+until __ok6 or __res6 ~= 123
+if not __ok6 then error(__res6) end
 
 	return APPLY(function() CLOCK_WAIT = T return CLOCK_WAIT end)
 	end)
@@ -2520,7 +2544,7 @@ PRINT_CONTENTS = function(OBJ)
 
   if APPLY(function() F = FIRSTQ(OBJ) return F end) then 
     
-    APPLY(function() while true do
+    local __prog7 = function()
       APPLY(function() N = NEXTQ(F) return N end)
       
       if bSTQ then 
@@ -2555,7 +2579,11 @@ PRINT_CONTENTS = function(OBJ)
       end
 
 
-    end end)
+error(123) end
+local __ok7, __res7
+repeat __ok7, __res7 = pcall(__prog7)
+until __ok7 or __res7 ~= 123
+if not __ok7 then error(__res7) end
 
   end
 
@@ -2593,7 +2621,7 @@ APPLY(function() SHIT = T return SHIT end)
     APPLY(function() INVQ = T return INVQ end)
   else 
     
-    APPLY(function() while true do
+    local __prog8 = function()
       
       if NOT(Y) then 
         return 
@@ -2620,13 +2648,17 @@ APPLY(function() SHIT = T return SHIT end)
 
       APPLY(function() Y = NEXTQ(Y) return Y end)
 
-    end end)
+error(123) end
+local __ok8, __res8
+repeat __ok8, __res8 = pcall(__prog8)
+until __ok8 or __res8 ~= 123
+if not __ok8 then error(__res8) end
 
   end
 
 APPLY(function() Y = FIRSTQ(OBJ) return Y end)
 
-  APPLY(function() while true do
+  local __prog9 = function()
     
     if NOT(Y) then 
       
@@ -2671,7 +2703,11 @@ APPLY(function() Y = FIRSTQ(OBJ) return Y end)
 
     APPLY(function() Y = NEXTQ(Y) return Y end)
 
-  end end)
+error(123) end
+local __ok9, __res9
+repeat __ok9, __res9 = pcall(__prog9)
+until __ok9 or __res9 ~= 123
+if not __ok9 then error(__res9) end
 
 
   if PASS(bSTQ and SHIT) then 
@@ -2853,7 +2889,7 @@ CCOUNT = function(OBJ)
 
   if APPLY(function() X = FIRSTQ(OBJ) return X end) then 
     
-    APPLY(function() while true do
+    local __prog10 = function()
       
       if NOT(FSETQ(X, WEARBIT)) then 
         APPLY(function() CNT = ADD(CNT, 1) return CNT end)
@@ -2865,7 +2901,11 @@ CCOUNT = function(OBJ)
       end
 
 
-    end end)
+error(123) end
+local __ok10, __res10
+repeat __ok10, __res10 = pcall(__prog10)
+until __ok10 or __res10 ~= 123
+if not __ok10 then error(__res10) end
 
   end
 
@@ -2881,7 +2921,7 @@ WEIGHT = function(OBJ)
 
   if APPLY(function() CONT = FIRSTQ(OBJ) return CONT end) then 
     
-    APPLY(function() while true do
+    local __prog11 = function()
       
       if PASS(EQUALQ(OBJ, PLAYER) and FSETQ(CONT, WEARBIT)) then 
         APPLY(function() WT = ADD(WT, 1) return WT end)
@@ -2895,7 +2935,11 @@ WEIGHT = function(OBJ)
       end
 
 
-    end end)
+error(123) end
+local __ok11, __res11
+repeat __ok11, __res11 = pcall(__prog11)
+until __ok11 or __res11 ~= 123
+if not __ok11 then error(__res11) end
 
   end
 
@@ -3041,7 +3085,7 @@ LKP = function(ITM, TBL)
   local LEN = GET(TBL, 0)
 	local __ok, __res = pcall(function()
 
-  APPLY(function() while true do
+  local __prog12 = function()
     
     if GQ(APPLY(function() CNT = ADD(CNT, 1) return CNT end), LEN) then 
       	error(false)
@@ -3056,7 +3100,11 @@ LKP = function(ITM, TBL)
     end
 
 
-  end end)
+error(123) end
+local __ok12, __res12
+repeat __ok12, __res12 = pcall(__prog12)
+until __ok12 or __res12 ~= 123
+if not __ok12 then error(__res12) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -3092,7 +3140,7 @@ APPLY(function() W = FIRSTQ(WHERE) return W end)
   end
 
 
-  APPLY(function() while true do
+  local __prog13 = function()
     
     if PASS(FSETQ(W, WHAT) and NOT(EQUALQ(W, ADVENTURER))) then 
       return W
@@ -3101,7 +3149,11 @@ APPLY(function() W = FIRSTQ(WHERE) return W end)
     end
 
 
-  end end)
+error(123) end
+local __ok13, __res13
+repeat __ok13, __res13 = pcall(__prog13)
+until __ok13 or __res13 ~= 123
+if not __ok13 then error(__res13) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -3110,7 +3162,7 @@ end
 HELDQ = function(CAN)
 	local __ok, __res = pcall(function()
 
-  APPLY(function() while true do
+  local __prog14 = function()
     APPLY(function() CAN = LOC(CAN) return CAN end)
     
     if NOT(CAN) then 
@@ -3120,7 +3172,11 @@ HELDQ = function(CAN)
     end
 
 
-  end end)
+error(123) end
+local __ok14, __res14
+repeat __ok14, __res14 = pcall(__prog14)
+until __ok14 or __res14 ~= 123
+if not __ok14 then error(__res14) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res
@@ -3131,7 +3187,7 @@ OTHER_SIDE = function(DOBJ)
 	local TX
 	local __ok, __res = pcall(function()
 
-  APPLY(function() while true do
+  local __prog15 = function()
     
     if LQ(APPLY(function() P = NEXTP(HERE, P) return P end), LOW_DIRECTION) then 
       return nil
@@ -3145,7 +3201,11 @@ OTHER_SIDE = function(DOBJ)
     end
 
 
-  end end)
+error(123) end
+local __ok15, __res15
+repeat __ok15, __res15 = pcall(__prog15)
+until __ok15 or __res15 ~= 123
+if not __ok15 then error(__res15) end
 
 	end)
 	if __ok or type(__res) == 'boolean' then return __res

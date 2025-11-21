@@ -35,7 +35,7 @@ for i, flag in ipairs(ZIL_ObjectFlags) do
 end
 
 -- === Core globals ===
-VERBS   = {}
+VERBS   = nil
 QUEUES  = {}
 ROOMS   = {}
 PROPERTIES = {}
@@ -361,25 +361,27 @@ end
 function PUT(obj, i, val)
 	i = i * 2
 	if type(obj) == 'number' then
-		local code = string.char(i&0xff, (i>>8)&0xff)
-		writemem(code, i)
-	else
+		writemem(makeword(i), i)
+	elseif type(obj) == 'table' then
 		obj[i] = val
+	else 
+		error("PUT: Unsupported type "..type(obj))
 	end
 end
 function PUTB(obj, i, val) 
 	if type(obj) == 'number' then
-		local code = string.char(i&0xff)
-		writemem(code, i)
-	else
-		obj[i] = val
+		writemem(string.char(i&0xff), i)
+	-- elseif type(obj) == 'table' then
+	-- 	obj[i] = val
+	else 
+		error("PUT: Unsupported type "..type(obj))
 	end
 end
 -- function GET(t, i) return type(t) == 'table' and t[i * 2] or 0 end
 -- function GETB(t, i) return type(t) == 'table' and t[i] or 0 end
 
 function GETB(s, i)
-	assert(type(s) == 'number')
+	assert(type(s) == 'number', "GETB: Only number types")
 	if s == 0 then return GET(s) end
 	return mem:byte(s+i)
 	-- if s == 0 then return GET(s)
@@ -439,8 +441,8 @@ local function action_id(ACTIONS, action)
 end
 
 function SYNTAX(syn)
+	VERBS = VERBS or writemem(string.rep('\0\0', 256))
 	local name = syn.VERB:lower()
-	local prev = cache.verbs[name]
 	local action = action_id(ACTIONS, fn(_G[syn.ACTION]))
 	local function encode(s)
 		return string.char(
@@ -454,12 +456,15 @@ function SYNTAX(syn)
 			action
 		)
 	end
-	if prev then
-		table.insert(VERBS[prev], encode(syn))
+	if cache.verbs[name] then
+		local ptr = GET(VERBS, cache.verbs[name])
+		PUTB(ptr, GETB(ptr) + 1)
+		writemem(encode(syn))
 	else
-		table.insert(VERBS, {encode(syn)})
-		cache.verbs[name] = #VERBS
-		_G['ACTQ'..syn.VERB] = learn(name, PSQVERB, 255-#VERBS)
+		local num = register(cache.verbs, name)
+		PUT(VERBS, num, writemem(string.byte(1)))
+		writemem(encode(syn))
+		_G['ACTQ'..syn.VERB] = learn(name, PSQVERB, 255-num)
 	end
 	_G[syn.ACTION:gsub("_", "Q", 1)] = action
 	if syn.PREACTION then PREACTIONS[action] = fn(_G[syn.PREACTION]) end

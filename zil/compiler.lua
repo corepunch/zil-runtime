@@ -2,7 +2,8 @@
 local Compiler = {
   flags = {},
   current_flag = 1,
-  current_decl = nil
+  current_decl = nil,
+  prog = 1
 }
 
 -- Output buffers using tables for efficient concatenation
@@ -206,6 +207,10 @@ local function is_loop(n)
   return n.type == "expr" and n.name == "REPEAT"
 end
 
+local function is_again(n)
+  return n.type == "expr" and n.name == "AGAIN"
+end
+
 local function is_return(n)
   return n.type == "expr" and 
     (n.name == "RETURN" or n.name == "RTRUE" or n.name == "RFALSE")
@@ -216,6 +221,7 @@ local function need_return(node, add_return)
     not is_cond(node) and
     not is_loop(node) and
     not is_prog(node) and
+    not is_again(node) and
     not is_return(node)
 end
 
@@ -394,33 +400,48 @@ form.RFALSE = function(buf, node, indent, add_return)
   buf.write("\terror(false)")
 end
 
+local __again = 123
+
+form.AGAIN = function(buf, node, indent, add_return)
+  buf.write("\terror(%d)", __again)
+end
+
 -- PROG (do block)
 form.PROG = function(buf, node, indent, add_return)
+  local p = Compiler.prog
+  Compiler.prog = Compiler.prog + 1
   buf.writeln()
   buf.indent(indent)
-  buf.writeln("do")
+  buf.writeln("local __prog%d = function()", p)
   for i = 2, #node do
     buf.indent(indent + 1)
     print_node(buf, node[i], indent + 1, add_return and i == #node)
   end
-  buf.writeln()
-  buf.indent(indent)
   buf.writeln("end")
+  buf.writeln("local __ok%d, __res%d", p, p)
+  buf.writeln("repeat __ok%d, __res%d = pcall(__prog%d)", p, p, p)
+  buf.writeln("until __ok%d or __res%d ~= %d", p, p, __again)
+  buf.writeln("if not __ok%d then error(__res%d) end", p, p)
 end
 
 -- REPEAT (while true loop)
 form.REPEAT = function(buf, node, indent, add_return)
+  local p = Compiler.prog
+  Compiler.prog = Compiler.prog + 1
   buf.writeln()
   buf.indent(indent)
-  buf.writeln("APPLY(function() while true do")
+  buf.writeln("local __prog%d = function()", p)
   for i = 2, #node do
     buf.indent(indent + 1)
     print_node(buf, node[i], indent + 1, false)
     buf.writeln()
   end
   buf.writeln()
-  buf.indent(indent)
-  buf.writeln("end end)")
+  buf.writeln("error(%d) end", __again)
+  buf.writeln("local __ok%d, __res%d", p, p)
+  buf.writeln("repeat __ok%d, __res%d = pcall(__prog%d)", p, p, p)
+  buf.writeln("until __ok%d or __res%d ~= %d", p, p, __again)
+  buf.writeln("if not __ok%d then error(__res%d) end", p, p)
 end
 
 -- BUZZ
