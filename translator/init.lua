@@ -9,6 +9,8 @@ local file2 = assert(io.open("translator/LTGOLD/BASE.RUS", "r"))
 local en_ru = {}
 local base = {}
 
+compiler.base = base
+
 local function tohex(s)
     local t = {}
     for i = 1, #s do t[#t+1] = string.format("%02X", s:byte(i)) end
@@ -34,14 +36,16 @@ for line in file:lines() do
   -- if code and code:find('Z', 1, true) and code:find('N', 1, true) then
   --   print(word.." "..utils.decode(code, false))
   -- end
-  load.lingua(en_ru, line) 
+  load.lingua(en_ru, line)
 end
 for line in file2:lines() do 
   -- parse_lingua(base, line
   local word, code = line:match("^(.-)\x2a(.*)$")
   -- if code and code:byte(3) and (code:byte(3)&0x01)>0 and code:sub(1,1)=='N' then
-  -- if code and code:sub(1,1) == 'A' then-- and code:byte(4) == 0x80+19 then
-    -- print(tohex(code:sub(2)), utils.decode(word), code:sub(1,1))
+  -- if code and utils.decode(word) == 'человек' then --and code:sub(1,1) == 'N' and code:byte(4)==0x81 then
+  -- if code and code:sub(1,1)=='N' and (code:byte(4) or 0)==0x80+23 then
+  -- if code and code:sub(1,1)=='N' and (code:byte(3) or 0)&0x4==04 then
+  --   print(tohex(code:sub(2)), utils.decode(word), code:sub(1,1))
     -- print(tohex(code:sub(2,5)), utils.decode(code:sub(2)))
   -- end
   if code then
@@ -59,13 +63,13 @@ file2:close()
 --   return nil
 -- end
 
-
 -- print(utils.debug(en_ru.transfer.speed))
 -- print(utils.debug(en_ru.restore))
 
+print("Input: You turn off bright light")
 local s, e = parser.collect(--"{subject} {verb} {object}", 
 -- utils.tokenize("You restore my bright light", en_ru))
-  utils.tokenize("You restore my tiny hope", en_ru))
+  utils.tokenize("You turn off bright light", en_ru))
 
 if e then print(e) end
 
