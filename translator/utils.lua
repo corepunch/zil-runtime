@@ -52,7 +52,7 @@ function utils.tokenize(s, en_ru)
     local word, punct = words[i]:match("(%w+)([,%!%.;:]?)")
     word = word:lower()
     if not prev then
-      table.insert(tbl, en_ru[word] and en_ru[word].__lex or {word})
+      table.insert(tbl, en_ru[word] and en_ru[word].__lex or {'~'..word})
       prev, last = en_ru[word], i
       if punct ~= "" then
         table.insert(tbl, {punct})

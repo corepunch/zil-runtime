@@ -86,10 +86,10 @@ local printers = {
     return utils.decode(_u:sub(1,#_u-2))..u[e.plural and 4 or (e.gender+1)]
   end,
   T = function() return "" end,
-  X = function() return "" end,
-  [" "] = function (t, _) return utils.decode(t, true) end,
-  C = function (t, _) return utils.decode(t, true) end,
-  D = function (t, _) return utils.decode(t:sub(2), false) end,
+  X = function() return "-" end,
+  [" "] = function (t) return utils.decode(t, true) end,
+  C = function (t) return utils.decode(t, true) end,
+  D = function (t) return utils.decode(t:sub(2), false) end,
 }
 
 printers.V = printers.Z
@@ -102,7 +102,6 @@ function compiler.compile(s)
   -- for i, w in ipairs(s) do print(utils.decode(w)) end
 
   for i, w in ipairs(s) do
-    -- print(w)
     if w:match"[,%!%.;:]" then
       if #c > 0 then c[#c] = c[#c]..w
       else table.insert(c, w) end
@@ -110,7 +109,9 @@ function compiler.compile(s)
       local func = printers[w:sub(1,1)]
       local ok, res = pcall(func, w, e, s, i)
       local s = ok and res or utils.decode(w, true)..'*'
-      if #s > 0 then table.insert(c, s) end
+      if #s > 0 then 
+        table.insert(c, s:find("~") and s:sub(2,#s-1) or s) 
+      end
       if not ok then print(res) end
     end
   end

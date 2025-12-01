@@ -42,7 +42,7 @@ end
 
 -- глагол после местоимения
 local function verb(t, p, i)
-	return is(p, "RN") and find(t[i], "VZG") or adj(t, p, i)
+	return is(p, "RN~") and find(t[i], "VZGX") or adj(t, p, i)
 end
 
 -- местоимение

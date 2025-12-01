@@ -70,9 +70,9 @@ file2:close()
 --   return nil
 -- end
 
--- print(tohex(base["есть"]))
+-- print(tohex(base["быть"]))
 -- print(tohex(base["выключить"]))
--- print(utils.debug(en_ru['and']))
+-- print(utils.debug(en_ru['is']))
 -- print(utils.debug(en_ru.restore))
 
 local s, e = parser.collect(--"{subject} {verb} {object}", 
