@@ -35,11 +35,11 @@ end
 function utils.debug(w, t, i)
   t = t or {}
   i = i or 0
-  if type(w) == 'string' then table.insert(t, string.rep(" ",i)..utils.decode(w)) return end
+  if type(w) == 'string' then table.insert(t, string.rep(" ", i)..utils.decode(w)) return end
   for k, v in pairs(w) do 
-    table.insert(t, string.rep(" ",i)..k..": \n") 
+    table.insert(t, string.rep(" ",i)..k..": ") 
     utils.debug(type(v) == 'table' and v or tostring(v), t, i+1)
-    table.insert(t, "\n") 
+    table.insert(t, "\n")
   end
   return table.concat(t, " ")
 end
@@ -52,7 +52,13 @@ function utils.tokenize(s, en_ru)
     local word, punct = words[i]:match("(%w+)([,%!%.;:]?)")
     word = word:lower()
     if not prev then
-      table.insert(tbl, en_ru[word] and en_ru[word].__lex or {'~'..word})
+      if en_ru[word] then
+        table.insert(tbl, en_ru[word].__lex)
+      -- elseif word:sub(#word) == "s" and en_ru[word:sub(1,#word-1)] then
+      --   table.insert(tbl, en_ru[word:sub(1,#word-1)].__lex)
+      else
+        table.insert(tbl, {'~'..word})
+      end
       prev, last = en_ru[word], i
       if punct ~= "" then
         table.insert(tbl, {punct})

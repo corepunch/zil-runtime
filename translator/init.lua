@@ -71,9 +71,11 @@ file2:close()
 -- end
 
 -- print(tohex(base["быть"]))
--- print(tohex(base["выключить"]))
--- print(utils.debug(en_ru['is']))
--- print(utils.debug(en_ru.restore))
+-- print(tohex(base["видеть"]))
+-- print(tohex(base["видеть"]))
+
+print(utils.debug(en_ru.seen))
+-- print(utils.debug(en_ru.ever))
 
 local s, e = parser.collect(--"{subject} {verb} {object}", 
 -- utils.tokenize("You restore my bright light", en_ru))
@@ -82,8 +84,8 @@ local s, e = parser.collect(--"{subject} {verb} {object}",
   -- utils.tokenize("with a boarded front door", en_ru))
 
   -- utils.tokenize("WELCOME TO ZORK!", en_ru))
-  utils.tokenize("ZORK is a game of adventure, danger, and low cunning.", en_ru))
-  -- utils.tokenize("In it you will explore some of the most amazing territory ever seen by mortals.", en_ru))
+  -- utils.tokenize("ZORK is a game of adventure, danger, and low cunning.", en_ru))
+  utils.tokenize("In it you will explore some of the most amazing territory ever seen by mortals.", en_ru))
   -- utils.tokenize("No computer should be without one!", en_ru))
 
 if e then print(e) end

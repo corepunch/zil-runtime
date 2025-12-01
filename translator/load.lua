@@ -10,7 +10,11 @@ local function extract_phrase(prefix, input, out)
   -- for word in input:gmatch("([%a ][0-9]*[\127-\255]+)") do
   --   table.insert(result, word)
   -- end
-  out[prefix ~= '' and prefix:sub(1,1) or "N"] = input
+  -- if prefix == '' then
+    out[input:find("N") and "N" or "A"] = input
+  -- else
+  --   out[prefix:sub(1,1)] = input
+  -- end  
 end
 
 local function extract_translation(input, result)

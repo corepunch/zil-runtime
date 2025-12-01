@@ -86,14 +86,30 @@ local printers = {
     return utils.decode(_u:sub(1,#_u-2))..u[e.plural and 4 or (e.gender+1)]
   end,
   T = function() return "" end,
-  X = function() return "-" end,
   [" "] = function (t) return utils.decode(t, true) end,
   C = function (t) return utils.decode(t, true) end,
   D = function (t) return utils.decode(t:sub(2), false) end,
 }
 
+printers.S = printers.A
 printers.V = printers.Z
 printers.G = printers.Z
+printers.F = function(t, e)
+  e.past = true
+  e.passive = true
+  return printers.Z(t, e)
+end
+printers.X = function(t, e)
+  if t:match("%d+") == "003" then
+    e.infinitive = true
+    return "-"
+  else
+    local p = printers.V(t, e)
+    e.infinitive = true
+    return p
+  end
+end
+
 
 function compiler.compile(s)
   local e = { plural = false, gender = 1, person = 3, form = 1, imperative = false }
@@ -112,7 +128,7 @@ function compiler.compile(s)
       if #s > 0 then 
         table.insert(c, s:find("~") and s:sub(2,#s-1) or s) 
       end
-      if not ok then print(res) end
+      if not ok then print(string.format("%s: %s", utils.decode(w), res)) end
     end
   end
   print("")

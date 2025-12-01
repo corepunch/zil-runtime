@@ -353,6 +353,8 @@ paradigms.verbs = {
  { 04, "обью обьешь обьет обьем обьете обьют бейте бил бив - - бивший битый" }, -- отбить
 }
 
+local past_verb = { "о", "", "а", "и", "и", "и", }
+
 paradigms.noun_gender = function(code) return code:byte(3)&3 end
 
 local function cut(word, ending)
@@ -373,18 +375,28 @@ function paradigms.noun(base, table_id, e)
   return utils.decode(ext:sub(1, #ext-len), true)..suffix
 end
 
-function paradigms.adjective(base, table_id, e)
+function paradigms.adjective(base, table_id, e, utf8)
   local ext = utils.extract(base)
   local selected = paradigms.adjectives[e.gender+1][table_id+1]
   local suffix = word_at(selected, e.form)
-  return utils.decode(ext:sub(1, math.max(2, #ext-2)), true)..suffix
+  return utils.decode(ext:sub(1, math.max(2, #ext-(utf8 and 4 or 2))), true)..suffix
 end
 
 function paradigms.verb(base, table_id, e)
   local extracted = utils.extract(base)
   local len, str = table.unpack(paradigms.verbs[table_id+1])
   local index = (e.plural and 3 or 0) + e.person
-  return utils.decode(cut(extracted, len), true)..word_at(str, index)
+  if e.past then
+    if e.passive then
+      local p = cut(extracted, len)..word_at(str, 13)
+      return paradigms.adjective(p, 0, e, true)
+      -- return utils.decode(cut(extracted, len), true)..word_at(str, 13)
+    else
+      return utils.decode(cut(extracted, len), true)..word_at(str, 8)..past_verb[index+1]
+    end
+  else
+    return utils.decode(cut(extracted, len), true)..word_at(str, index)
+  end
 end
 
 return paradigms
