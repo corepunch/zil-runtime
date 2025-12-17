@@ -246,7 +246,7 @@ table.insert(rules, {
   { 0x0007, "[VZ]BY", "Vb" },
   { 0x0007, "[VZ]<({}#)>B<dD\"'>[VZ]", "V$b$V" },
   { 0x0007, "VBY[VZ]", "Vb V" },
-  { "V<SRMTAO#Nw\"K>B<D\">[VXYZ]", "", 0x0006 },
+  { 0x0006, "V<SRMTAO#Nw\"K>B<D\">[VXYZ]", "" },
   { 0x0008, "E<SRMTAO#Nw\"K>B<D\">[VXYZ]", "@$b" },
   { 0x0029, "[EV]<TAO>[#N]Z", ".$.V" },
   { 0x0008, "E[RM][VZ]", "@MV" },

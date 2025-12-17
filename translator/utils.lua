@@ -56,7 +56,7 @@ function utils.tokenize(s, en_ru)
         table.insert(tbl, en_ru[word].__lex)
       -- elseif word:sub(#word) == "s" and en_ru[word:sub(1,#word-1)] then
       --   table.insert(tbl, en_ru[word:sub(1,#word-1)].__lex)
-      else table.insert(tbl, {'#'..word}) end
+      else table.insert(tbl, {['#']='#'..word}) end
       prev, last = en_ru[word], i
       if punct ~= "" then table.insert(tbl, punct)
       else prev, last = en_ru[word], i end

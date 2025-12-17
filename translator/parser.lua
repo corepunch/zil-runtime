@@ -33,15 +33,21 @@ end
 
 local function find(t, s, neg)
 	if not t then return false end
-	s = s:gsub("Z", "VNA")
 	if type(t) == 'string' then t = { [t:sub(1,1)] = t } end
-	for i = 1, #s do if t[s:sub(i,i)] then return t[s:sub(i,i)] end end
-	if s:find('F') then return find(t, 'A') end
+	local ret = nil
+	for i = 1, #s do
+		if s:sub(i,i) == 'Z' then ret = find(t,'N') and find(t,'V')
+		elseif t[s:sub(i,i)] then ret = t[s:sub(i,i)] end
+	end
+	if s:find'F' then ret = find(t, 'A') end
+	return ret
 end
 
 local function find_and_replace(ts, j, s, neg)
-	local a = find(ts[j], s, neg)
-	if a then ts[j] = a end
+	print(s, utils.debug(ts[j]) or utils.decode(ts[j]))
+	if find(ts[j], s, neg) then 
+		ts[j] = find(ts[j], s, neg) 
+	end
 end
 
 local choose
@@ -139,7 +145,7 @@ end
 
 local function replace(ts, j, m, t, s)
 	if s == ' ' then ts[j] = ' '
-	elseif m:find'*' and (j >= ts or j == 1) then
+	elseif m:find'*' and (j >= #ts or j == 1) then
 	elseif t == 'literal' then ts[j] = s
 	elseif s == '.' then
 	elseif (s == '@' or s == '$') then find_and_replace(ts, j, m)
@@ -156,8 +162,7 @@ local function try_match_pattern(ts, m, j, f, replace)
 	local fallback = nil
 	for t, v, i in m do
 		::restart::
-		if not ts[j] then
-			return false
+		if not ts[j] then return false
 		elseif t == 'wildcard' and xor(i,j==1 or j>#ts) then eat('@', f())
 		elseif t == 'select' and xor(i, find(ts[j],v)) then j=replace(ts,j,v,f())
 		elseif t == 'any' then
@@ -168,8 +173,7 @@ local function try_match_pattern(ts, m, j, f, replace)
 		elseif t == 'literal' and xor(i, ts[j].__word == v) then j=replace(ts,j,v,f())
 		elseif t == 'char' and xor(i, find(ts[j], v)) then j=replace(ts,j,v,f())
 		elseif fallback and fallback(j) then goto restart
-		else return false
-		end
+		else return false end
 	end
 	return true
 end
@@ -177,6 +181,7 @@ end
 local function match_pattern(ts, m, r)
 	for i = 1, #ts do
 		if try_match_pattern(ts, pattern_tokens(m), i, replacement_tokens(r), nop) then
+			print("Applying rule "..m, r)
 			try_match_pattern(ts, pattern_tokens(m), i, replacement_tokens(r), replace)
 			return true
 		end
@@ -200,7 +205,12 @@ end
 
 function parser.collect(ts)
 	loop(ts)
-	for _, n in ipairs(ts) do echo('blue', "%s", type(n)=='table' and utils.debug(n) or utils.decode(n)) end
+	for i, n in ipairs(ts) do
+		if type(n) == 'table' then
+			for k, v in pairs(n) do if k ~= "__word" then ts[i] = v n = v break end end
+		end
+		echo('blue', "%s", type(n)=='table' and utils.debug(n) or utils.decode(n))
+	end
 	return ts
   -- local out, prev = {}, nil
   -- for i = 1, #ts do

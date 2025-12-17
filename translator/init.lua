@@ -74,7 +74,7 @@ file2:close()
 -- print(utils.decode(base["перспектива"]))
 
 -- print(utils.debug(en_ru.during))
--- print(utils.debug(en_ru['cost'].__lex))
+-- print(utils.debug(en_ru['is'].__lex))
 -- print(utils.debug(en_ru.ever))
 
 local s, e = parser.collect(--"{subject} {verb} {object}", 
@@ -84,14 +84,14 @@ local s, e = parser.collect(--"{subject} {verb} {object}",
   -- utils.tokenize("with a boarded front door", en_ru))
 
   -- utils.tokenize("WELCOME TO ZORK!", en_ru))
-  -- utils.tokenize("ZORK is a game of adventure, danger, and low cunning.", en_ru))
+  utils.tokenize("ZORK is a game of adventure, danger, and low cunning.", en_ru))
   -- utils.tokenize("In it you will explore some of the most amazing territory ever seen by mortals.", en_ru))
   -- utils.tokenize("No computer should be without one!", en_ru))
   -- utils.tokenize("A battery-powered brass lantern is on the trophy case.", en_ru))
   -- utils.tokenize("the most amazing territory ever seen by mortals", en_ru))
   -- utils.tokenize("No, I am not", en_ru))
   -- utils.tokenize("Make thing promising", en_ru))
-  utils.tokenize("However, if true then", en_ru))
+  -- utils.tokenize("However, if true then", en_ru))
 
 if e then print(e) end
 

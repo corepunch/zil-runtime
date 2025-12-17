@@ -145,9 +145,9 @@ function compiler.compile(s)
     else
       local func = printers[w:sub(1,1)]
       local ok, res = pcall(func, w, e, s, i)
-      local s = ok and res or utils.decode(w, true)..'*'
-      if #s > 0 then table.insert(c, s:find('#') and s:sub(2,#s-1) or s) end
-      if not ok then print(string.format("%s: %s", utils.decode(w), res)) end
+      local s = ok and res or utils.decode(w, true)--..'*'
+      if #s > 0 then table.insert(c, s:find('#') and s:sub(2) or s) end
+      -- if not ok then print(string.format("%s: %s", utils.decode(w), res)) end
       e.word = e.word + 1
     end
   end
