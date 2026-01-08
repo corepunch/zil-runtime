@@ -1,0 +1,28 @@
+name: Run Tests
+
+on:
+  pull_request:
+    branches: [ main, master ]
+  push:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Install Lua
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y lua5.4
+    
+    - name: Run basic tests
+      run: lua tests/run_tests.lua tests/zork1_basic.lua
+    
+    - name: Run extended tests
+      run: lua tests/run_tests.lua tests/zork1_extended.lua
