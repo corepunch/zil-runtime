@@ -66,11 +66,13 @@ local function run_test_file(test_file_path)
 	
 	-- Load bootstrap
 	local file = assert(io.open("zil/bootstrap.lua", "r"))
-	if not execute(file:read("*a"), 'bootstrap', game) then
+	local bootstrap_code = file:read("*a")
+	file:close()
+	
+	if not execute(bootstrap_code, 'bootstrap', game) then
 		print("Failed to load bootstrap")
 		return false
 	end
-	file:close()
 	
 	-- Load ZIL files
 	local files = test_config.files or {
