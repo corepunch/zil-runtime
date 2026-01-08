@@ -440,26 +440,34 @@ function GET(s, i)
 	-- return GETB(s, i * 2) | (GETB(s, i * 2 + 1) << 8)
 end
 
--- local test = {
--- 	-- "walk north",
--- 	-- "walk south",
--- 	"open mailbox",
--- 	"take leaflet",
--- 	"read"
--- }
+-- Test commands queue (populated externally for testing)
+TEST_COMMANDS = TEST_COMMANDS or {}
+local test_index = 1
 
-local test = {
-	"examine mailbox",
-	-- "walk north",
-	-- "walk north",
-	-- "walk up",
-	-- "examine nest",
-}
 function READ(inbuf, parse)
-	-- local s = table.remove(test, 1) 
-	-- if not s then os.exit(0) end
-	-- print(s)
-	local s = io.read()
+	local s
+	
+	-- Check if we're in test mode (commands available)
+	if #TEST_COMMANDS > 0 and test_index <= #TEST_COMMANDS then
+		s = TEST_COMMANDS[test_index]
+		test_index = test_index + 1
+		print("> " .. s)  -- Echo command in test mode
+		
+		-- Exit when all test commands are done
+		if test_index > #TEST_COMMANDS then
+			-- Signal that we're done with tests
+			if _G.ON_TEST_COMPLETE then
+				_G.ON_TEST_COMPLETE()
+			end
+		end
+	else
+		-- Interactive mode - read from stdin
+		s = io.read()
+		if not s then
+			os.exit(0)
+		end
+	end
+	
 	local p = {}
 	for pos, word in s:gmatch("()(%S+)") do
 		local index = cache.words[word:lower()] or 0
