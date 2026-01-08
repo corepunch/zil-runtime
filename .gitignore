@@ -3,3 +3,5 @@ DerivedData/
 *.user
 *.xcuserstate
 **/xcuserdata/
+zil_*.lua
+
