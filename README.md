@@ -76,9 +76,15 @@ See `tests/README.md` for detailed information on writing and running tests.
   - `compiler.lua` - ZIL to Lua compiler
   - `evaluate.lua` - Expression evaluator
 - `tests/` - Test framework and test files
-  - `run_tests.lua` - Test runner
-  - `zork1_basic.lua` - Basic tests
-  - `zork1_extended.lua` - Extended tests
+  - `run_tests.lua` - Integration test runner
+  - `zork1_basic.lua` - Basic integration tests
+  - `zork1_extended.lua` - Extended integration tests
+  - `unit/` - Unit tests directory
+    - `test_framework.lua` - Unit testing framework
+    - `test_parser.lua` - Parser unit tests
+    - `test_compiler.lua` - Compiler unit tests
+    - `test_runtime.lua` - Runtime unit tests
+    - `run_all.lua` - Unit test runner
 - `zork1/` - Zork 1 game files (git submodule)
 - `adventure/` - Additional adventure files
 
@@ -100,6 +106,15 @@ local files = {
 You can modify this list to load different ZIL files or create your own adventure.
 
 ## Development
+
+### Code Quality
+
+The ZIL runtime codebase is structured for testability and maintainability:
+
+- **Modular Design**: Parser, compiler, and runtime are separate modules with clear interfaces
+- **Unit Testing**: 120+ unit tests cover core functionality
+- **Integration Testing**: Full end-to-end tests validate game execution
+- **Error Handling**: Proper error reporting for parsing, compilation, and runtime errors
 
 ### Adding New Tests
 
