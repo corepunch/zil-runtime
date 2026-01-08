@@ -2,14 +2,14 @@ local parser = require 'zil.parser'
 local compiler = require 'zil.compiler'
 
 local files = {
-  "/Users/igor/Developer/zork1-main/globals.zil",
-  "/Users/igor/Developer/zork1-main/parser.zil",
-  "/Users/igor/Developer/zork1-main/verbs.zil",
-  -- "/Users/igor/Developer/zork1-main/actions.zil",
-  "/Users/igor/Developer/zork1-main/syntax.zil",
-  -- "/Users/igor/Developer/zork1-main/dungeon.zil",
-  "/Users/igor/Developer/zork1-main/_test.zil",
-  "/Users/igor/Developer/zork1-main/main.zil",
+  "zork1/globals.zil",
+  "zork1/parser.zil",
+  "zork1/verbs.zil",
+  -- "zork1/actions.zil",
+  "zork1/syntax.zil",
+  -- "zork1/dungeon.zil",
+  "adventure/horror.zil",
+  "zork1/main.zil",
 }
 
 local game = { 
@@ -71,7 +71,7 @@ end
 
 execute("GO()", 'main')
 
--- local ast = parser.parse_file "/Users/igor/Developer/zork1-main/actions.zil"
+-- local ast = parser.parse_file "zork1-main/actions.zil"
 -- local result = compiler.compile(ast)
 
 -- print(parser.view(ast, 0))
