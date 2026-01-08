@@ -76,7 +76,14 @@ function M.load_zil_files(files, env, options)
 	options = options or {}
 	
 	for _, f in ipairs(files) do
-		local ast = parser.parse_file(f)
+		local ast, err = parser.parse_file(f)
+		if not ast then
+			if not options.silent then
+				print("Failed to parse " .. f .. ": " .. (err or "unknown error"))
+			end
+			return false
+		end
+		
 		local result = compiler.compile(ast)
 		local basename = 'zil_'..(f:match("^.+[/\\](.+)$") or f):gsub(".zil", ".lua")
 		
