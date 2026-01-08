@@ -51,10 +51,6 @@ lua tests/unit/test_runtime.lua
 
 Integration tests test the full ZIL runtime using the Zork1 adventure game.
 
-### Integration Tests
-
-Integration tests test the full ZIL runtime using the Zork1 adventure game.
-
 ## Running Integration Tests
 
 To run all tests in a test file:
