@@ -456,8 +456,8 @@ function READ(inbuf, parse)
 		-- Exit when all test commands are done
 		if test_index > #TEST_COMMANDS then
 			-- Signal that we're done with tests
-			if _G.ON_TEST_COMPLETE then
-				_G.ON_TEST_COMPLETE()
+			if ON_TEST_COMPLETE then
+				ON_TEST_COMPLETE()
 			end
 		end
 	else
