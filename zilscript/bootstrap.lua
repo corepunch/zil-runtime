@@ -148,8 +148,9 @@ local function add_items(room)
 		end
 		local words = {}
 		for word in item:gmatch("%S+") do
-			table.insert(words, word:sub(1,1):upper() .. word:sub(2):lower())
+			table.insert(words, word:lower())
 		end
+		if words[1] then words[1] = words[1]:sub(1,1):upper() .. words[1]:sub(2) end
 		table.insert(items, {table.concat(words, " "), unique_verbs, add_items(obj)})
 	end
 	return items
