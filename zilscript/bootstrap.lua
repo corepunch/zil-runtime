@@ -172,6 +172,17 @@ local function add_exits(room)
 	return exits
 end
 
+local function is_room_name(text)
+	if not text then return false end
+	text = tostring(text):gsub("^%s+", ""):gsub("%s+$", "")
+	for room = 1, _obj_count do
+		if GETP(room, PQLOC) == ROOMS and GETP(room, PQDESC) == text then
+			return true
+		end
+	end
+	return false
+end
+
 local function encode_fptr(n)
   return string.format("<@F:%X>", n)
 end
@@ -381,7 +392,27 @@ end
 local routes = {
 	['room-items'] = add_items,
 	['room-exits'] = add_exits,
+	['room-name?'] = is_room_name,
 }
+
+local function route_response(input)
+	local route = routes[input]
+	if route then
+		return true, route(HERE)
+	end
+
+	if type(input) ~= "string" then
+		return false
+	end
+
+	local route_name, arg = input:match("^([^:]+):(.*)$")
+	route = routes[route_name]
+	if route then
+		return true, route(arg)
+	end
+
+	return false
+end
 
 -- Modified READ to yield with output
 function READ(inbuf, parse)
@@ -392,8 +423,9 @@ function READ(inbuf, parse)
 	-- Yield with accumulated output, get input back
 	local s = coroutine.yield(io_flush())
 	::restart_read::
-	if routes[s] then
-		s = coroutine.yield(routes[s](HERE))
+	local handled, response = route_response(s)
+	if handled then
+		s = coroutine.yield(response)
 		goto restart_read
 	end
 	-- Handle nil input (e.g., EOF)
