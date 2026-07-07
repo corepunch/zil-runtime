@@ -212,7 +212,7 @@ function Forms.createHandlers(compiler, printNode)
   -- RETURN
   form.RETURN = function(buf, node, indent)
     if node[1] then
-      buf.write("error(")
+      buf.write("ZIL_RETURN(")
       printNode(buf, node[1], indent + 1)
       buf.write(")")
     else

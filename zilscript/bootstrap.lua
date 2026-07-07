@@ -330,6 +330,23 @@ ZPROB = PROB
 
 -- At the top of bootstrap, add output buffer
 local output_buffer = {}
+local zil_nil_return = {}
+
+function ZIL_RETURN(value)
+	if value == nil then
+		error(zil_nil_return)
+	end
+
+	error(value)
+end
+
+function ZIL_UNWRAP_RETURN(value)
+	if value == zil_nil_return then
+		return nil
+	end
+
+	return value
+end
 
 local function io_write(...)
 	-- Check if io_write was overridden globally (for tests)

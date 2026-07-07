@@ -187,7 +187,8 @@ end
 -- Load and execute the bootstrap file
 -- Returns true on success, false on failure
 function M.init(env, silent)
-	local file = assert(io.open("zilscript/bootstrap.lua", "r"))
+	local path = package.searchpath("zilscript.bootstrap", package.path)
+	local file = assert(io.open(path, "r"))
 	local bootstrap_code = file:read("*a")
 	file:close()
 	return M.execute(bootstrap_code, 'bootstrap', env, silent)

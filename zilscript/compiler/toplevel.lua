@@ -125,7 +125,7 @@ function TopLevel.compileRoutine(decl, body, node, compiler, printNode)
   end
   decl.writeln("\t return __tmp end)")
   decl.writeln("\tif __ok or type(__res) ~= 'string' then")
-  decl.writeln("return __res")
+  decl.writeln("return ZIL_UNWRAP_RETURN(__res)")
   decl.writeln(string.format("\telse error(__res and '%s\\n'..__res or '%s') end", name, name))
   decl.writeln("end")
 
