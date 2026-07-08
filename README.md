@@ -7,6 +7,8 @@ A Lua-based compiler and runtime for the Zork Implementation Language (ZIL).
 
 This project provides a runtime environment for executing ZIL programs, including the classic Zork adventure games.
 
+For a repo-level system summary, see [ARCHITECTURE.md](ARCHITECTURE.md). Agent-specific guidance lives in [AGENTS.md](AGENTS.md).
+
 ## Features
 
 - **ZIL to Lua Compilation**: Compiles ZIL source code to Lua for execution
