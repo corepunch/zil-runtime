@@ -188,7 +188,7 @@ ZIL is parenthesis-heavy. One missing `)` or `>` breaks parsing silently.
 
 **Solution:** Run the test after every batch of changes:
 ```bash
-lua5.4 run-zil-test.lua books.blackwood.walkthrough
+lua5.4 run-zil-test.lua books.blackwood-horror.walkthrough
 ```
 The parser will report the first syntax error with a line number.
 

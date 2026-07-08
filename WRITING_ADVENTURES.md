@@ -64,7 +64,7 @@ Practical structure to reuse for any new game or engine:
 - **Content layer**: rooms, item descriptions, puzzle-specific logic. This is where the "writing" happens, and it should be as declarative as possible — describing what's true, not how the engine works.
 - **Parser layer**: strictly separate from both. Its job is turning "put the cube in the bag" into a verb + object references the world model understands. It should never contain puzzle logic.
 
-In AdventureArena this separation is already made for you: the engine (parser, verbs, syntax, clock, globals, main) lives in `books/zork1/`; your `dungeon.zil` is the declarative content layer; your `actions.zil` holds only the per-object overrides. Keep puzzle logic out of the engine files, and keep the generic model out of your game.
+In AdventureArena this separation is already made for you: the engine (parser, verbs, syntax, clock, globals, main) lives in `infocom/zork1/`; your `dungeon.zil` is the declarative content layer; your `actions.zil` holds only the per-object overrides. Keep puzzle logic out of the engine files, and keep the generic model out of your game.
 
 ## 3. Puzzle design is adversarial and collaborative
 
@@ -110,7 +110,7 @@ And the pragmatic reason underneath the artistic one: a compiled, engine-agnosti
 
 1. **Premise** — one paragraph: world, what's wrong, what the player wants.
 2. **World inventory** — list locations, key objects, characters, and what's broken about each, in plain prose, before any data structures.
-3. **World model** — generic object/location/container model with uniform verbs. (In AdventureArena this is already the `books/zork1/` engine — you skip straight to content.)
+3. **World model** — generic object/location/container model with uniform verbs. (In AdventureArena this is already the `infocom/zork1/` engine — you skip straight to content.)
 4. **Puzzle logic as overrides** — puzzles are implemented as exceptions or special handlers layered on top of the generic model, not as changes to the generic model itself.
 5. **For each puzzle**, before moving on: write the intended solution; write 3–5 plausible wrong attempts and their specific rejections; get a second read (a second person, or a second LLM pass with no knowledge of the intended solution) to attempt it cold.
 6. **Systems interaction pass** — list every global mechanic (timers, magic, hazards, day/night, hunger) and check each pair for unintended interaction, the way the Gurgoyle/time-stop bug crossed with scheduled hazards.
@@ -268,14 +268,14 @@ The walkthrough (`walkthrough.zil`) also serves as the entry point that wires th
 
 ```zil
 ; books/<name>/walkthrough.zil
-<INSERT-FILE "books/zork1/globals">
-<INSERT-FILE "books/zork1/clock">
+<INSERT-FILE "infocom/zork1/globals">
+<INSERT-FILE "infocom/zork1/clock">
 <INSERT-FILE "books/<name>/dungeon">
 <INSERT-FILE "books/<name>/actions">
-<INSERT-FILE "books/zork1/parser">
-<INSERT-FILE "books/zork1/verbs">
-<INSERT-FILE "books/zork1/syntax">
-<INSERT-FILE "books/zork1/main">
+<INSERT-FILE "infocom/zork1/parser">
+<INSERT-FILE "infocom/zork1/verbs">
+<INSERT-FILE "infocom/zork1/syntax">
+<INSERT-FILE "infocom/zork1/main">
 
 <GLOBAL CO <CO-CREATE GO>>
 
@@ -1443,14 +1443,14 @@ A walkthrough test is itself a ZIL file. It includes the standard engine files a
 
 ```zil
 ; books/<name>/walkthrough.zil
-<INSERT-FILE "books/zork1/globals">
-<INSERT-FILE "books/zork1/clock">
+<INSERT-FILE "infocom/zork1/globals">
+<INSERT-FILE "infocom/zork1/clock">
 <INSERT-FILE "books/<name>/dungeon">
 <INSERT-FILE "books/<name>/actions">
-<INSERT-FILE "books/zork1/parser">
-<INSERT-FILE "books/zork1/verbs">
-<INSERT-FILE "books/zork1/syntax">
-<INSERT-FILE "books/zork1/main">
+<INSERT-FILE "infocom/zork1/parser">
+<INSERT-FILE "infocom/zork1/verbs">
+<INSERT-FILE "infocom/zork1/syntax">
+<INSERT-FILE "infocom/zork1/main">
 
 <GLOBAL CO <CO-CREATE GO>>
 

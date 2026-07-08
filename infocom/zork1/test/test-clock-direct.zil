@@ -1,7 +1,7 @@
-<INSERT-FILE "books/zork1/globals">
-<INSERT-FILE "books/zork1/clock">
-<INSERT-FILE "books/zork1/verbs">
-<INSERT-FILE "books/zork1/main">
+<INSERT-FILE "infocom/zork1/globals">
+<INSERT-FILE "infocom/zork1/clock">
+<INSERT-FILE "infocom/zork1/verbs">
+<INSERT-FILE "infocom/zork1/main">
 
 <DIRECTIONS NORTH SOUTH>
 <CONSTANT RELEASEID 1>

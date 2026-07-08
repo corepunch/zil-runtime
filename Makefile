@@ -56,50 +56,50 @@ test-integration: test-zork1 test-parser test-horror-all
 
 test-zork1:
 	@echo "Running Zork1 integration tests..."
-	@lua5.4 run-zil-test.lua books/zork1/test/zork1-walkthrough
+	@lua5.4 run-zil-test.lua infocom/zork1/test/zork1-walkthrough
 
 test-parser: test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-simple-new test-insert-file test-let test-save
 	@echo "All parser/runtime tests completed!"
 
 test-containers:
 	@echo "Running container tests..."
-	@lua5.4 run-zil-test.lua books/zork1/test/test-containers
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-containers
 
 test-directions:
 	@echo "Running direction tests..."
-	@lua5.4 run-zil-test.lua books/zork1/test/test-directions
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-directions
 
 test-light:
 	@echo "Running light tests..."
-	@lua5.4 run-zil-test.lua books/zork1/test/test-light
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-light
 
 test-pronouns:
 	@echo "Running pronoun tests..."
-	@lua5.4 run-zil-test.lua books/zork1/test/test-pronouns
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-pronouns
 
 test-take:
 	@echo "Running take command tests..."
-	@lua5.4 run-zil-test.lua books/zork1/test/test-take
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-take
 
 test-turnbit:
 	@echo "Running TURNBIT flag tests..."
-	@lua5.4 run-zil-test.lua books/zork1/test/test-turnbit
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-turnbit
 
 test-clock:
 	@echo "Running clock system tests..."
-	@lua5.4 run-zil-test.lua books/zork1/test/test-clock
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-clock
 
 test-clock-direct:
 	@echo "Running clock system direct tests..."
-	@lua5.4 run-zil-test.lua books/zork1/test/test-clock-direct
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-clock-direct
 
 test-assertions:
 	@echo "Running assertion tests..."
-	@lua5.4 run-zil-test.lua books/zork1/test/test-assertions
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-assertions
 
 test-check-commands:
 	@echo "Running check commands tests..."
-	@lua5.4 run-zil-test.lua books/zork1/test/test-check-commands
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-check-commands
 
 test-simple-new:
 	@echo "Running simple assertion tests..."
@@ -119,15 +119,15 @@ test-save:
 
 test-horror-helpers:
 	@echo "Running horror test helpers..."
-	@lua5.4 run-zil-test.lua books/blackwood/test/test-helpers
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-helpers
 
 test-horror:
 	@echo "Running horror complete walkthrough tests..."
-	lua5.4 run-zil-test.lua books/blackwood/test/test-walkthrough
+	lua5.4 run-zil-test.lua books/blackwood-horror/test/test-walkthrough
 
 test-horror-failures:
 	@echo "Running horror failing conditions tests..."
-	@lua5.4 run-zil-test.lua books/blackwood/test/test-failures
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-failures
 
 test-horror-all: test-horror-helpers test-horror-partial test-horror-failures test-horror
 	@echo "All horror tests completed!"
@@ -137,17 +137,17 @@ test-pure-zil:
 	@lua5.4 run-zil-test.lua zil/test-simple-new
 	@lua5.4 run-zil-test.lua zil/test-insert-file
 	@lua5.4 run-zil-test.lua zil/test-let
-	@lua5.4 run-zil-test.lua books/zork1/test/test-containers
-	@lua5.4 run-zil-test.lua books/zork1/test/test-directions
-	@lua5.4 run-zil-test.lua books/zork1/test/test-light
-	@lua5.4 run-zil-test.lua books/zork1/test/test-pronouns
-	@lua5.4 run-zil-test.lua books/zork1/test/test-take
-	@lua5.4 run-zil-test.lua books/zork1/test/test-turnbit
-	@lua5.4 run-zil-test.lua books/zork1/test/test-clock
-	@lua5.4 run-zil-test.lua books/zork1/test/test-clock-direct
-	@lua5.4 run-zil-test.lua books/zork1/test/test-assertions
-	@lua5.4 run-zil-test.lua books/zork1/test/test-check-commands
-	@lua5.4 run-zil-test.lua books/blackwood/test/test-helpers
-	@lua5.4 run-zil-test.lua books/blackwood/test/test-failures
-	@lua5.4 run-zil-test.lua books/zork1/test/zork1-walkthrough
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-containers
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-directions
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-light
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-pronouns
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-take
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-turnbit
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-clock
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-clock-direct
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-assertions
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-check-commands
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-helpers
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-failures
+	@lua5.4 run-zil-test.lua infocom/zork1/test/zork1-walkthrough
 	@echo "All pure ZIL tests completed!"

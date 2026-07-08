@@ -173,7 +173,7 @@ test.describe("Compiler - Local Variable Naming", function(t)
 	end)
 	
 	t.it("should resolve function/local variable naming conflicts", function(assert)
-		-- This tests the issue from books/zork1/actions.zil line 3991
+		-- This tests the issue from infocom/zork1/actions.zil line 3991
 		local code = [[
 			<ROUTINE PROB (N) <RETURN .N>>
 			<ROUTINE ROB ("OPTIONAL" (PROB <>)) <COND (<PROB .PROB> <RETURN T>)>>
