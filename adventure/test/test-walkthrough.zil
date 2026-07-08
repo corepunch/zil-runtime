@@ -1,6 +1,8 @@
 <INSERT-FILE "zork1/globals">
 <INSERT-FILE "zork1/clock">
-<INSERT-FILE "adventure/horror">
+<INSERT-FILE "adventure/actions">
+<INSERT-FILE "adventure/dungeon">
+<INSERT-FILE "adventure/actions">
 <INSERT-FILE "zork1/parser">
 <INSERT-FILE "zork1/verbs">
 <INSERT-FILE "zork1/syntax">

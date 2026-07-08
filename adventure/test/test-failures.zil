@@ -1,6 +1,7 @@
 <INSERT-FILE "zork1/globals">
 <INSERT-FILE "zork1/clock">
-<INSERT-FILE "adventure/horror">
+<INSERT-FILE "adventure/dungeon">
+<INSERT-FILE "adventure/actions">
 <INSERT-FILE "zork1/parser">
 <INSERT-FILE "zork1/verbs">
 <INSERT-FILE "zork1/syntax">
@@ -11,7 +12,7 @@
 <GLOBAL CO <CO-CREATE GO>>
 
 <ROUTINE RUN-TEST ()
-    <TELL "Testing horror.zil failing conditions..." CR CR>
+    <TELL "Testing failing conditions..." CR CR>
     
     ;"Test 1: Drawer cannot be opened without unlocking first"
     ;"Start at Reception Room"
@@ -28,7 +29,7 @@
         <CO-RESUME ,CO "take key" T> 
         <==? <LOC ,BRASS-KEY> ,ADVENTURER>>
     
-    ;"In horror.zil, the 'unlock' command both unlocks AND opens the drawer (sets OPENBIT)"
+    ;"The 'unlock' command both unlocks AND opens the drawer (sets OPENBIT)"
     <ASSERT "Unlock drawer with key (opens it)" 
         <CO-RESUME ,CO "unlock drawer with key" T> 
         <FSET? ,BOTTOM-DRAWER ,OPENBIT>>
@@ -48,4 +49,4 @@
         <CO-RESUME ,CO "take plaque" T> 
         <==? <LOC ,BRASS-PLAQUE> ,ADVENTURER>>
     
-    <TELL CR "All horror failing conditions tests completed!" CR>>
+    <TELL CR "All failing conditions tests completed!" CR>>

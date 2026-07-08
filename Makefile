@@ -119,15 +119,15 @@ test-save:
 
 test-horror-helpers:
 	@echo "Running horror test helpers..."
-	@lua5.4 run-zil-test.lua zil/test-horror-helpers
+	@lua5.4 run-zil-test.lua adventure/test/test-helpers
 
 test-horror:
 	@echo "Running horror complete walkthrough tests..."
-	lua5.4 run-zil-test.lua zil/horror-walkthrough
+	lua5.4 run-zil-test.lua adventure/test/test-walkthrough
 
 test-horror-failures:
 	@echo "Running horror failing conditions tests..."
-	@lua5.4 run-zil-test.lua zil/test-horror-failures
+	@lua5.4 run-zil-test.lua adventure/test/test-failures
 
 test-horror-all: test-horror-helpers test-horror-partial test-horror-failures test-horror
 	@echo "All horror tests completed!"
@@ -147,7 +147,7 @@ test-pure-zil:
 	@lua5.4 run-zil-test.lua zil/test-clock-direct
 	@lua5.4 run-zil-test.lua zil/test-assertions
 	@lua5.4 run-zil-test.lua zil/test-check-commands
-	@lua5.4 run-zil-test.lua zil/test-horror-helpers
-	@lua5.4 run-zil-test.lua zil/test-horror-failures
+	@lua5.4 run-zil-test.lua adventure/test/test-helpers
+	@lua5.4 run-zil-test.lua adventure/test/test-failures
 	@lua5.4 run-zil-test.lua zil/zork1-walkthrough
 	@echo "All pure ZIL tests completed!"
