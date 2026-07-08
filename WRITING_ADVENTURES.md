@@ -64,7 +64,7 @@ Practical structure to reuse for any new game or engine:
 - **Content layer**: rooms, item descriptions, puzzle-specific logic. This is where the "writing" happens, and it should be as declarative as possible — describing what's true, not how the engine works.
 - **Parser layer**: strictly separate from both. Its job is turning "put the cube in the bag" into a verb + object references the world model understands. It should never contain puzzle logic.
 
-In AdventureArena this separation is already made for you: the engine (parser, verbs, syntax, clock, globals, main) lives in `zork1/`; your `dungeon.zil` is the declarative content layer; your `actions.zil` holds only the per-object overrides. Keep puzzle logic out of the engine files, and keep the generic model out of your game.
+In AdventureArena this separation is already made for you: the engine (parser, verbs, syntax, clock, globals, main) lives in `books/zork1/`; your `dungeon.zil` is the declarative content layer; your `actions.zil` holds only the per-object overrides. Keep puzzle logic out of the engine files, and keep the generic model out of your game.
 
 ## 3. Puzzle design is adversarial and collaborative
 
@@ -110,7 +110,7 @@ And the pragmatic reason underneath the artistic one: a compiled, engine-agnosti
 
 1. **Premise** — one paragraph: world, what's wrong, what the player wants.
 2. **World inventory** — list locations, key objects, characters, and what's broken about each, in plain prose, before any data structures.
-3. **World model** — generic object/location/container model with uniform verbs. (In AdventureArena this is already the `zork1/` engine — you skip straight to content.)
+3. **World model** — generic object/location/container model with uniform verbs. (In AdventureArena this is already the `books/zork1/` engine — you skip straight to content.)
 4. **Puzzle logic as overrides** — puzzles are implemented as exceptions or special handlers layered on top of the generic model, not as changes to the generic model itself.
 5. **For each puzzle**, before moving on: write the intended solution; write 3–5 plausible wrong attempts and their specific rejections; get a second read (a second person, or a second LLM pass with no knowledge of the intended solution) to attempt it cold.
 6. **Systems interaction pass** — list every global mechanic (timers, magic, hazards, day/night, hunger) and check each pair for unintended interaction, the way the Gurgoyle/time-stop bug crossed with scheduled hazards.
@@ -245,10 +245,10 @@ The working materials are the design; the **walkthrough test** (`walkthrough.zil
 
 ## Game Structure
 
-An adventure lives in its own folder under `new-adventure/` (replace "new-adventure" with actual adventure name). The folder contains all related files — source, test, cover, copy, and metadata — so everything ships together:
+An adventure lives in its own folder under `books/<name>/` (replace `<name>` with the actual adventure name). The folder contains all related files — source, test, cover, copy, and metadata — so everything ships together:
 
 ```
-new-adventure/
+books/<name>/
   dungeon.zil        # rooms, objects, global flags
   actions.zil        # routines (action handlers, clock daemons, GO entry point)
   walkthrough.zil    # walkthrough test (required — see Testing section)
@@ -267,15 +267,15 @@ This mirrors the Zork I source split: `dungeon.zil` holds static world data (roo
 The walkthrough (`walkthrough.zil`) also serves as the entry point that wires the engine to your game. It assembles everything via `INSERT-FILE`:
 
 ```zil
-; new-adventure/walkthrough.zil
-<INSERT-FILE "zork1/globals">
-<INSERT-FILE "zork1/clock">
-<INSERT-FILE "new-adventure/dungeon">
-<INSERT-FILE "new-adventure/actions">
-<INSERT-FILE "zork1/parser">
-<INSERT-FILE "zork1/verbs">
-<INSERT-FILE "zork1/syntax">
-<INSERT-FILE "zork1/main">
+; books/<name>/walkthrough.zil
+<INSERT-FILE "books/zork1/globals">
+<INSERT-FILE "books/zork1/clock">
+<INSERT-FILE "books/<name>/dungeon">
+<INSERT-FILE "books/<name>/actions">
+<INSERT-FILE "books/zork1/parser">
+<INSERT-FILE "books/zork1/verbs">
+<INSERT-FILE "books/zork1/syntax">
+<INSERT-FILE "books/zork1/main">
 
 <GLOBAL CO <CO-CREATE GO>>
 
@@ -1408,7 +1408,7 @@ Here's a minimal but complete adventure demonstrating all major features:
 
 ## Testing Your Adventure
 
-Every adventure must ship with a walkthrough test. It lives at `new-adventure/walkthrough.zil` — in the same folder as all other adventure files.
+Every adventure must ship with a walkthrough test. It lives at `books/<name>/walkthrough.zil` — in the same folder as all other adventure files.
 
 ### Why Walkthrough Tests
 
@@ -1442,15 +1442,15 @@ A walkthrough test is itself a ZIL file. It includes the standard engine files a
 ### Walkthrough Test Structure
 
 ```zil
-; new-adventure/walkthrough.zil
-<INSERT-FILE "zork1/globals">
-<INSERT-FILE "zork1/clock">
-<INSERT-FILE "new-adventure/dungeon">
-<INSERT-FILE "new-adventure/actions">
-<INSERT-FILE "zork1/parser">
-<INSERT-FILE "zork1/verbs">
-<INSERT-FILE "zork1/syntax">
-<INSERT-FILE "zork1/main">
+; books/<name>/walkthrough.zil
+<INSERT-FILE "books/zork1/globals">
+<INSERT-FILE "books/zork1/clock">
+<INSERT-FILE "books/<name>/dungeon">
+<INSERT-FILE "books/<name>/actions">
+<INSERT-FILE "books/zork1/parser">
+<INSERT-FILE "books/zork1/verbs">
+<INSERT-FILE "books/zork1/syntax">
+<INSERT-FILE "books/zork1/main">
 
 <GLOBAL CO <CO-CREATE GO>>
 
@@ -1474,7 +1474,7 @@ A walkthrough test is itself a ZIL file. It includes the standard engine files a
 
 ```bash
 # Run your walkthrough test
-lua5.4 run-zil-test.lua adventure.new-adventure.walkthrough
+lua5.4 run-zil-test.lua books.<name>.walkthrough
 
 # Run all ZIL tests
 lua5.4 run-zil-test.lua tests.run_all
@@ -1495,8 +1495,8 @@ You don't need to test every verb on every object — focus on the path that win
 ### Checklist Item
 
 Add to your per-adventure checklist:
-- [ ] Walkthrough test exists at `adventure/<name>/walkthrough.zil`
-- [ ] Test runs green: `lua5.4 run-zil-test.lua adventure.<name>.walkthrough`
+- [ ] Walkthrough test exists at `books/<name>/walkthrough.zil`
+- [ ] Test runs green: `lua5.4 run-zil-test.lua books.<name>.walkthrough`
 - [ ] Test covers the complete critical path from start to victory
 
 ---
@@ -1639,8 +1639,8 @@ Use this checklist before submitting your adventure:
 - [ ] All strings end with `CR` when they should produce a newline
 
 ### Testing
-- [ ] `adventure/<name>/walkthrough.zil` exists and assembles dungeon + actions via INSERT-FILE
-- [ ] Test runs green: `lua5.4 run-zil-test.lua adventure.<name>.walkthrough`
+- [ ] `books/<name>/walkthrough.zil` exists and assembles dungeon + actions via INSERT-FILE
+- [ ] Test runs green: `lua5.4 run-zil-test.lua books.<name>.walkthrough`
 - [ ] Test covers the complete critical path from start to victory
 
 ### Copy & Assets

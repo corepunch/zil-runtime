@@ -1,11 +1,11 @@
-<INSERT-FILE "zork1/globals">
-<INSERT-FILE "zork1/clock">
-<INSERT-FILE "zork1/parser">
-<INSERT-FILE "zork1/verbs">
-<INSERT-FILE "zork1/actions">
-<INSERT-FILE "zork1/syntax">
-<INSERT-FILE "zork1/dungeon">
-<INSERT-FILE "zork1/main">
+<INSERT-FILE "books/zork1/globals">
+<INSERT-FILE "books/zork1/clock">
+<INSERT-FILE "books/zork1/parser">
+<INSERT-FILE "books/zork1/verbs">
+<INSERT-FILE "books/zork1/actions">
+<INSERT-FILE "books/zork1/syntax">
+<INSERT-FILE "books/zork1/dungeon">
+<INSERT-FILE "books/zork1/main">
 
 <DIRECTIONS NORTH SOUTH>
 <CONSTANT RELEASEID 1>

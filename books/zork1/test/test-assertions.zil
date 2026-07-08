@@ -1,10 +1,11 @@
-<INSERT-FILE "zork1/globals">
-<INSERT-FILE "zork1/clock">
-<INSERT-FILE "adventure/horror">
-<INSERT-FILE "zork1/parser">
-<INSERT-FILE "zork1/verbs">
-<INSERT-FILE "zork1/syntax">
-<INSERT-FILE "zork1/main">
+<INSERT-FILE "books/zork1/globals">
+<INSERT-FILE "books/zork1/clock">
+<INSERT-FILE "books/horror/dungeon">
+<INSERT-FILE "books/horror/actions">
+<INSERT-FILE "books/zork1/parser">
+<INSERT-FILE "books/zork1/verbs">
+<INSERT-FILE "books/zork1/syntax">
+<INSERT-FILE "books/zork1/main">
 
 <CONSTANT RELEASEID 1>
 

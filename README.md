@@ -100,8 +100,8 @@ For integration test documentation, see **[tests/TESTS.md](tests/TESTS.md)**.
     - `test_compiler.lua` - Compiler unit tests
     - `test_runtime.lua` - Runtime unit tests
     - `run_all.lua` - Unit test runner
-- `zork1/` - Zork 1 game files (git submodule)
-- `adventure/` - Additional adventure files
+- `books/zork1/` - Zork 1 game files
+- `books/horror/` - Additional adventure files
 
 ## Configuring ZIL Files
 
@@ -109,12 +109,12 @@ The list of ZIL files to compile is specified in `main.lua`:
 
 ```lua
 local files = {
-  "zork1/globals.zil",
-  "zork1/parser.zil",
-  "zork1/verbs.zil",
-  "zork1/syntax.zil",
-  "adventure/horror.zil",
-  "zork1/main.zil",
+  "books/zork1/globals.zil",
+  "books/zork1/parser.zil",
+  "books/zork1/verbs.zil",
+  "books/zork1/syntax.zil",
+  "books/horror/horror.zil",
+  "books/zork1/main.zil",
 }
 ```
 
@@ -131,8 +131,8 @@ The ZIL runtime now supports a require-based loading system similar to [moonscri
 require "zil"
 
 -- Now you can require .zil files just like Lua modules
--- This will automatically compile and load zork1/actions.zil
-local actions = require "zork1.actions"
+-- This will automatically compile and load books/zork1/actions.zil
+local actions = require "books.zork1.actions"
 ```
 
 ### How It Works

@@ -2,15 +2,15 @@ local runtime = require 'zilscript.runtime'
 local test_format = require 'zilscript.test_format'
 
 local modules = {
-  "zork1.globals",
-  "zork1.clock",
-  "zork1.parser",
-  "zork1.verbs",
-  "zork1.actions",
-  "zork1.syntax",
-  "zork1.dungeon",
-  -- "adventure.horror",
-  "zork1.main",
+  "books.zork1.globals",
+  "books.zork1.clock",
+  "books.zork1.parser",
+  "books.zork1.verbs",
+  "books.zork1.actions",
+  "books.zork1.syntax",
+  "books.zork1.dungeon",
+  -- "books.horror",
+  "books.zork1.main",
 }
 
 -- Create game environment
@@ -76,7 +76,7 @@ repeat
 	io.write("\n")
 until not input or not game:is_running()
 
--- local ast = parser.parse_file "zork1/actions.zil"
+-- local ast = parser.parse_file "books/zork1/actions.zil"
 -- local res = compiler.compile(ast)
 
 -- print(parser.view(ast, 0))

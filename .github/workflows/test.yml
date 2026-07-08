@@ -25,16 +25,16 @@ jobs:
       run: lua5.4 tests/run_all.lua
     
     - name: Run Zork1 walkthrough tests
-      run: lua5.4 run-zil-test.lua zil/zork1-walkthrough
+      run: lua5.4 run-zil-test.lua books/zork1/test/zork1-walkthrough
 
     - name: Run Horror walkthrough tests
-      run: lua5.4 run-zil-test.lua zil/horror-walkthrough
+      run: lua5.4 run-zil-test.lua books/horror/test/test-walkthrough
 
     - name: Run horror failing conditions tests
-      run: lua5.4 run-zil-test.lua zil/test-horror-failures
+      run: lua5.4 run-zil-test.lua books/horror/test/test-failures
 
     - name: Run horror test helpers
-      run: lua5.4 run-zil-test.lua zil/test-horror-helpers
+      run: lua5.4 run-zil-test.lua books/horror/test/test-helpers
 
     - name: Run parser/runtime tests - simple assertions
       run: lua5.4 run-zil-test.lua zil/test-simple-new
@@ -46,31 +46,31 @@ jobs:
       run: lua5.4 run-zil-test.lua zil/test-let
 
     - name: Run parser/runtime tests - directions
-      run: lua5.4 run-zil-test.lua zil/test-directions
+      run: lua5.4 run-zil-test.lua books/zork1/test/test-directions
     
     - name: Run parser/runtime tests - take
-      run: lua5.4 run-zil-test.lua zil/test-take
+      run: lua5.4 run-zil-test.lua books/zork1/test/test-take
     
     - name: Run parser/runtime tests - containers
-      run: lua5.4 run-zil-test.lua zil/test-containers
+      run: lua5.4 run-zil-test.lua books/zork1/test/test-containers
     
     - name: Run parser/runtime tests - light
-      run: lua5.4 run-zil-test.lua zil/test-light
+      run: lua5.4 run-zil-test.lua books/zork1/test/test-light
     
     - name: Run parser/runtime tests - pronouns
-      run: lua5.4 run-zil-test.lua zil/test-pronouns
+      run: lua5.4 run-zil-test.lua books/zork1/test/test-pronouns
 
     - name: Run parser/runtime tests - turnbit
-      run: lua5.4 run-zil-test.lua zil/test-turnbit
+      run: lua5.4 run-zil-test.lua books/zork1/test/test-turnbit
     
     - name: Run parser/runtime tests - clock
-      run: lua5.4 run-zil-test.lua zil/test-clock
+      run: lua5.4 run-zil-test.lua books/zork1/test/test-clock
     
     - name: Run parser/runtime tests - clock direct
-      run: lua5.4 run-zil-test.lua zil/test-clock-direct
+      run: lua5.4 run-zil-test.lua books/zork1/test/test-clock-direct
     
     - name: Run test assertion tests
-      run: lua5.4 run-zil-test.lua zil/test-assertions
+      run: lua5.4 run-zil-test.lua books/zork1/test/test-assertions
     
     - name: Run test check commands tests
-      run: lua5.4 run-zil-test.lua zil/test-check-commands
+      run: lua5.4 run-zil-test.lua books/zork1/test/test-check-commands
