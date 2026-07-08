@@ -12,28 +12,86 @@ This guide covers everything needed to create a text adventure game in ZIL forma
 4. [Crafting Great Adventures](#crafting-great-adventures)
 5. [Complete Example](#complete-example)
 6. [Testing Your Adventure](#testing-your-adventure)
-7. [Checklist](#checklist)
+7. [Adventure Folder Files](#adventure-folder-files)
+8. [Checklist](#checklist)
 
 ---
 
 ## Game Structure
 
-A game is a single `.zil` file containing these elements in order:
+An adventure lives in its own folder under `new-adventure/` (replace "new-adventure" with actual adventure name). The folder contains all related files — source, test, cover, copy, and metadata — so everything ships together:
+
+```
+new-adventure/
+  dungeon.zil        # rooms, objects, global flags
+  actions.zil        # routines (action handlers, clock daemons, GO entry point)
+  walkthrough.zil    # walkthrough test (required — see Testing section)
+  COVER.md           # prompt for cover art generation
+  TAGLINE.md         # one-liner for game lists
+  SYNOPSIS.md        # full description for the game detail page
+  REVIEWS.md         # sample reviews (feeds Games.json)
+  METADATA.md        # title, genre, author, year, rating — populates Games.json
+
+```
+
+This mirrors the Zork I source split: `dungeon.zil` holds static world data (rooms and objects), `actions.zil` holds all code (routines, clock daemons, globals, and the `GO` entry point). Keep the split clean — no routines in `dungeon.zil`, no room/object definitions in `actions.zil`.
+
+### Entry file (walkthrough + dev runner)
+
+The walkthrough (`walkthrough.zil`) also serves as the entry point that wires the engine to your game. It assembles everything via `INSERT-FILE`:
+
+```zil
+; new-adventure/walkthrough.zil
+<INSERT-FILE "zork1/globals">
+<INSERT-FILE "zork1/clock">
+<INSERT-FILE "new-adventure/dungeon">
+<INSERT-FILE "new-adventure/actions">
+<INSERT-FILE "zork1/parser">
+<INSERT-FILE "zork1/verbs">
+<INSERT-FILE "zork1/syntax">
+<INSERT-FILE "zork1/main">
+
+<GLOBAL CO <CO-CREATE GO>>
+
+<ROUTINE RUN-TEST ()
+    ...>
+```
+
+### dungeon.zil structure
 
 ```zil
 <DIRECTIONS NORTH EAST WEST SOUTH NE NW SE SW UP DOWN IN OUT LAND>
 <VERSION ZIP>
 <CONSTANT RELEASEID 1>
 
+; Global flags (state tracking)
+<GLOBAL DOOR-UNLOCKED <>>
+<GLOBAL LAMP-LIT <>>
+
 ; Rooms
 ; Objects
-; Routines (action handlers)
-; Global flags
-; Clock-driven events (optional)
-; GO routine (game entry point)
 ```
 
-The engine automatically loads the shared Zork1 library files (parser, verbs, syntax, clock, globals, main) before your game file. Your game only needs to define its own rooms, objects, routines, flags, and the `GO` entry point.
+### actions.zil structure
+
+```zil
+; Routines (action handlers)
+; Clock daemons (I- prefix)
+; GO entry point
+
+<ROUTINE GO ()
+    <SETG HERE ,STARTING-ROOM>
+    <SETG LIT T>
+    <SETG WINNER ,ADVENTURER>
+    <SETG PLAYER ,WINNER>
+    <MOVE ,WINNER ,HERE>
+    <QUEUE I-WIND 6>
+    <V-LOOK>
+    <MAIN-LOOP>
+    <AGAIN>>
+```
+
+The engine (parser, verbs, syntax, clock, globals, main) is loaded by the walkthrough's `INSERT-FILE` chain — your game files do not need to include it themselves.
 
 ---
 
@@ -1124,13 +1182,7 @@ Here's a minimal but complete adventure demonstrating all major features:
 
 ## Testing Your Adventure
 
-Every adventure must ship with a walkthrough test. The test file lives **in the same folder as your game** — all adventure data stays together.
-
-```
-adventure/
-  my-adventure.zil       # game source
-  my-adventure-walkthrough.zil  # walkthrough test (required)
-```
+Every adventure must ship with a walkthrough test. It lives at `new-adventure/walkthrough.zil` — in the same folder as all other adventure files.
 
 ### Why Walkthrough Tests
 
@@ -1164,10 +1216,11 @@ A walkthrough test is itself a ZIL file. It includes the standard engine files a
 ### Walkthrough Test Structure
 
 ```zil
-; my-adventure-walkthrough.zil
+; new-adventure/walkthrough.zil
 <INSERT-FILE "zork1/globals">
 <INSERT-FILE "zork1/clock">
-<INSERT-FILE "adventure/my-adventure">   ; your game file
+<INSERT-FILE "new-adventure/dungeon">
+<INSERT-FILE "new-adventure/actions">
 <INSERT-FILE "zork1/parser">
 <INSERT-FILE "zork1/verbs">
 <INSERT-FILE "zork1/syntax">
@@ -1195,7 +1248,7 @@ A walkthrough test is itself a ZIL file. It includes the standard engine files a
 
 ```bash
 # Run your walkthrough test
-lua5.4 run-zil-test.lua adventure.my-adventure-walkthrough
+lua5.4 run-zil-test.lua adventure.new-adventure.walkthrough
 
 # Run all ZIL tests
 lua5.4 run-zil-test.lua tests.run_all
@@ -1216,9 +1269,111 @@ You don't need to test every verb on every object — focus on the path that win
 ### Checklist Item
 
 Add to your per-adventure checklist:
-- [ ] Walkthrough test exists at `adventure/<name>-walkthrough.zil`
-- [ ] Test runs green with `lua5.4 run-zil-test.lua adventure.<name>-walkthrough`
+- [ ] Walkthrough test exists at `adventure/<name>/walkthrough.zil`
+- [ ] Test runs green: `lua5.4 run-zil-test.lua adventure.<name>.walkthrough`
 - [ ] Test covers the complete critical path from start to victory
+
+---
+
+## Adventure Folder Files
+
+Every adventure folder contains the following files. All are required before the adventure ships.
+
+### dungeon.zil
+
+Rooms, objects, and global flags — static world data only. No routines here.
+
+### actions.zil
+
+All ZIL routines: action handlers, clock daemons (`I-` prefix), and the `GO` entry point.
+
+### walkthrough.zil
+
+Walkthrough test and engine entry point. See [Testing Your Adventure](#testing-your-adventure).
+
+### COVER.md
+
+A prompt for ChatGPT (or another image model) to generate the cover art. Format: **2:3 portrait** — think book cover or movie poster, not a square thumbnail.
+
+```markdown
+# Cover Art Prompt
+
+Generate a cover image for a text adventure game called "[Title]".
+
+**Format:** Portrait, 2:3 ratio (e.g. 800×1200px)
+**Style:** [e.g. "pulp horror paperback cover, 1950s illustration style"]
+**Scene:** [Describe the key image — one strong visual moment or location]
+**Mood:** [e.g. dread, wonder, mystery]
+**Color palette:** [e.g. deep blues and sickly greens, muted sepia tones]
+**Typography area:** Leave the top 20% clear for the game title and bottom 15% for author credit.
+**Logo/title text:** "[Game Title]" (large, at top) — "[Author]" (small, at bottom)
+
+Additional details:
+- [Any key visual element from the game worth featuring]
+- [Style reference if helpful: "like a Penguin crime paperback", "like a 1980s Infocom box"]
+```
+
+### TAGLINE.md
+
+One sentence — punchy, evocative, suitable for a game list card. This becomes `shortDescription` in Games.json.
+
+```markdown
+A lighthouse keeper races against the storm to relight the lamp before a ship is lost at sea.
+```
+
+### SYNOPSIS.md
+
+Two to four paragraphs shown on the game detail page. Sets the scene, hints at the central conflict, and sells the experience without spoiling puzzles. This becomes `description` in Games.json.
+
+```markdown
+The old lighthouse has been dark for three days. Somewhere out in the storm, the crew of the
+*Mara's Hope* is navigating by dead reckoning toward a reef they don't know is there.
+
+You are the relief keeper, arrived too late to relieve anyone. The previous keeper is gone.
+The lamp mechanism is cold. And the storm is getting worse.
+
+*The Lighthouse* is a short mystery adventure for one player, playable in about an hour.
+```
+
+### REVIEWS.md
+
+Three to five sample reviews. These are AI-generated for new adventures and feed the `reviews` array in Games.json. Use a mix of ratings (mostly 4–5 stars) and perspectives.
+
+```markdown
+---
+author: "NightOwlGamer"
+rating: 5
+title: "Best short adventure I've played"
+body: "The atmosphere is incredible. Every room feels dangerous. Solved it in one sitting and immediately wanted to replay."
+---
+author: "PuzzleFan42"
+rating: 4
+title: "Clever puzzles, great pacing"
+body: "The combination puzzle with the oil and matches was exactly the right difficulty. Docked one star because I wanted it to be longer."
+---
+author: "RetroIF"
+rating: 5
+title: "Feels authentically Infocom"
+body: "Whoever wrote this knows their ZIL. The atmosphere, the verb responses, the economy of the prose — all excellent."
+```
+
+### METADATA.md
+
+All structured fields needed to create the Games.json entry. Use YAML front-matter style for machine readability.
+
+```markdown
+---
+id: new-adventure
+title: "The Lighthouse"
+shortDescription: "A lighthouse keeper races against the storm..."
+genre: Mystery
+author: "Your Name"
+year: 2025
+rating: 4.7
+reviewCount: 84
+coverImageName: lighthouse-cover
+---
+```
 
 ---
 
@@ -1258,9 +1413,16 @@ Use this checklist before submitting your adventure:
 - [ ] All strings end with `CR` when they should produce a newline
 
 ### Testing
-- [ ] Walkthrough test exists at `adventure/<name>-walkthrough.zil` (same folder as the game)
-- [ ] Test runs green: `lua5.4 run-zil-test.lua adventure.<name>-walkthrough`
+- [ ] `adventure/<name>/walkthrough.zil` exists and assembles dungeon + actions via INSERT-FILE
+- [ ] Test runs green: `lua5.4 run-zil-test.lua adventure.<name>.walkthrough`
 - [ ] Test covers the complete critical path from start to victory
+
+### Copy & Assets
+- [ ] `COVER.md` — cover art generation prompt (2:3 portrait, book/movie poster style)
+- [ ] `TAGLINE.md` — one-liner for game lists (`shortDescription` in Games.json)
+- [ ] `SYNOPSIS.md` — full description for the game detail page
+- [ ] `REVIEWS.md` — sample reviews (author, rating, title, body; feeds `reviews` array)
+- [ ] `METADATA.md` — title, genre, author, year, rating (all fields needed for Games.json)
 
 ---
 
