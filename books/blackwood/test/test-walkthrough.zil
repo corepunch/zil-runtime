@@ -1,8 +1,8 @@
 <INSERT-FILE "books/zork1/globals">
 <INSERT-FILE "books/zork1/clock">
-<INSERT-FILE "books/horror/actions">
-<INSERT-FILE "books/horror/dungeon">
-<INSERT-FILE "books/horror/actions">
+<INSERT-FILE "books/blackwood/actions">
+<INSERT-FILE "books/blackwood/dungeon">
+<INSERT-FILE "books/blackwood/actions">
 <INSERT-FILE "books/zork1/parser">
 <INSERT-FILE "books/zork1/verbs">
 <INSERT-FILE "books/zork1/syntax">

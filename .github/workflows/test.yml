@@ -28,13 +28,13 @@ jobs:
       run: lua5.4 run-zil-test.lua books/zork1/test/zork1-walkthrough
 
     - name: Run Horror walkthrough tests
-      run: lua5.4 run-zil-test.lua books/horror/test/test-walkthrough
+      run: lua5.4 run-zil-test.lua books/blackwood/test/test-walkthrough
 
     - name: Run horror failing conditions tests
-      run: lua5.4 run-zil-test.lua books/horror/test/test-failures
+      run: lua5.4 run-zil-test.lua books/blackwood/test/test-failures
 
     - name: Run horror test helpers
-      run: lua5.4 run-zil-test.lua books/horror/test/test-helpers
+      run: lua5.4 run-zil-test.lua books/blackwood/test/test-helpers
 
     - name: Run parser/runtime tests - simple assertions
       run: lua5.4 run-zil-test.lua zil/test-simple-new

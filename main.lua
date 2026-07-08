@@ -9,7 +9,7 @@ local modules = {
   "books.zork1.actions",
   "books.zork1.syntax",
   "books.zork1.dungeon",
-  -- "books.horror",
+  -- "books.blackwood",
   "books.zork1.main",
 }
 

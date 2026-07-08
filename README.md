@@ -101,7 +101,7 @@ For integration test documentation, see **[tests/TESTS.md](tests/TESTS.md)**.
     - `test_runtime.lua` - Runtime unit tests
     - `run_all.lua` - Unit test runner
 - `books/zork1/` - Zork 1 game files
-- `books/horror/` - Additional adventure files
+- `books/blackwood/` - Additional adventure files
 
 ## Configuring ZIL Files
 
@@ -113,7 +113,7 @@ local files = {
   "books/zork1/parser.zil",
   "books/zork1/verbs.zil",
   "books/zork1/syntax.zil",
-  "books/horror/horror.zil",
+  "books/blackwood/horror.zil",
   "books/zork1/main.zil",
 }
 ```

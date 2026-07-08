@@ -119,15 +119,15 @@ test-save:
 
 test-horror-helpers:
 	@echo "Running horror test helpers..."
-	@lua5.4 run-zil-test.lua books/horror/test/test-helpers
+	@lua5.4 run-zil-test.lua books/blackwood/test/test-helpers
 
 test-horror:
 	@echo "Running horror complete walkthrough tests..."
-	lua5.4 run-zil-test.lua books/horror/test/test-walkthrough
+	lua5.4 run-zil-test.lua books/blackwood/test/test-walkthrough
 
 test-horror-failures:
 	@echo "Running horror failing conditions tests..."
-	@lua5.4 run-zil-test.lua books/horror/test/test-failures
+	@lua5.4 run-zil-test.lua books/blackwood/test/test-failures
 
 test-horror-all: test-horror-helpers test-horror-partial test-horror-failures test-horror
 	@echo "All horror tests completed!"
@@ -147,7 +147,7 @@ test-pure-zil:
 	@lua5.4 run-zil-test.lua books/zork1/test/test-clock-direct
 	@lua5.4 run-zil-test.lua books/zork1/test/test-assertions
 	@lua5.4 run-zil-test.lua books/zork1/test/test-check-commands
-	@lua5.4 run-zil-test.lua books/horror/test/test-helpers
-	@lua5.4 run-zil-test.lua books/horror/test/test-failures
+	@lua5.4 run-zil-test.lua books/blackwood/test/test-helpers
+	@lua5.4 run-zil-test.lua books/blackwood/test/test-failures
 	@lua5.4 run-zil-test.lua books/zork1/test/zork1-walkthrough
 	@echo "All pure ZIL tests completed!"
