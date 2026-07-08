@@ -7,7 +7,8 @@
       (DESC "Sanitarium Gate")
       (LDESC "You stand before the rusted iron gates of an abandoned sanitarium. The structure looms against the darkening sky, its windows like hollow eye sockets. Weeds choke the gravel path leading north to the entrance.")
       (NORTH TO SANITARIUM-ENTRANCE)
-      (FLAGS RLANDBIT ONBIT)>
+      (FLAGS RLANDBIT ONBIT)
+      (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)>
 <OBJECT BRASS-PLAQUE
         (IN SANITARIUM-GATE)
         (SYNONYM PLAQUE BRASS SIGN)
@@ -26,7 +27,8 @@
       (NORTH TO OPERATING-THEATER)
       (EAST TO PATIENT-WARD)
       (DOWN TO BASEMENT-STAIRS)
-      (FLAGS RLANDBIT ONBIT)>
+      (FLAGS RLANDBIT ONBIT)
+      (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)>
 
 <OBJECT WALLPAPER
         (IN SANITARIUM-ENTRANCE)
@@ -35,12 +37,25 @@
         (DESC "peeling wallpaper")
         (LDESC "Peeling wallpaper reveals water-stained plaster beneath.")
         (TEXT "Victorian-era wallpaper depicting pastoral scenes, now grotesquely warped by moisture and black mold.")>
+<ROUTINE NEST-PSEUDO ()
+    <COND (<VERB? EXAMINE>
+           <TELL "An old bird's nest tucked into the fireplace grate. Long abandoned -- like everything else here." CR>)>
+    <RTRUE>>
+
+<ROUTINE ASHES-PSEUDO ()
+    <COND (<VERB? EXAMINE>
+           <TELL "Cold grey ashes. Nothing of value." CR>)
+          (<VERB? SEARCH>
+           <TELL "You sift through the ashes. Just soot and old char." CR>)>
+    <RTRUE>>
+
 <ROOM RECEPTION-ROOM
       (IN ROOMS)
       (DESC "Reception Room")
       (LDESC "This cramped room once served as the sanitarium's reception. Filing cabinets line the opposite wall, their drawers hanging open like gaping mouths. Something glints among the papers scattered on the floor. A doorway to the east opens back to the entrance hall.")
       (EAST TO SANITARIUM-ENTRANCE)
-      (FLAGS RLANDBIT ONBIT)>
+      (FLAGS RLANDBIT ONBIT)
+      (PSEUDO "NEST" NEST-PSEUDO "ASHES" ASHES-PSEUDO "ASH" ASHES-PSEUDO)>
 <ROUTINE DESK-F ()
          <COND (<VERB? EXAMINE LOOK-INSIDE>
                 <TELL "The desk has three drawers. The top two are broken and empty. The bottom drawer is intact but locked." CR>
@@ -201,7 +216,8 @@
       (DESC "Morgue")
       (LDESC "The temperature drops as you enter the morgue. Medical instruments hang on the wall. This place feels wrong, as though something lingers here still. The only exit is a passage leading south to the patient ward.")
       (SOUTH TO PATIENT-WARD)
-      (FLAGS RLANDBIT ONBIT)>
+      (FLAGS RLANDBIT ONBIT)
+      (VALUE 10)>
 <ROUTINE DRAWERS-F ()
          <COND (<VERB? EXAMINE LOOK-INSIDE>
                 <TELL "The refrigeration units line both walls. Most drawers are empty or contain only bones. One drawer is slightly ajar, a faint luminescent glow emanating from within." CR>
@@ -303,6 +319,7 @@
         (SYNONYM BOILER FURNACE)
         (ADJECTIVE IRON MASSIVE)
         (DESC "iron boiler")
+        (FDESC "The room's centerpiece is a massive iron boiler, cold and silent as a tomb. Its hulking form crouches in the darkness like some dormant beast.")
         (LDESC "A massive iron boiler dominates the room, cold and silent.")
         (FLAGS CONTBIT OPENBIT)
         (ACTION BOILER-F)>
@@ -475,7 +492,8 @@
       (LDESC "Small cells line both sides of a narrow corridor. Scratches cover the walls—thousands of them, as if someone counted the days. The corridor continues north to the electroshock theater.")
       (SOUTH TO FLOODING-CHAMBER)
       (NORTH TO ELECTROSHOCK-THEATER)
-      (FLAGS RLANDBIT)>
+      (FLAGS RLANDBIT)
+      (VALUE 5)>
 <ROUTINE CELL-DOORS-F ()
          <COND (<VERB? EXAMINE LOOK-INSIDE>
                 <TELL "Each door is solid metal with a small barred window. The cells beyond are empty save for scratches covering every surface. Someone marked time here, day after agonizing day." CR>
@@ -495,7 +513,7 @@
                 <TELL "You run your fingers over the scratches. They're deep—gouged by fingernails over years of desperation." CR>
                 <RTRUE>)
                (<VERB? READ>
-                <TELL "Among the chaos of scratches, you can make out words: 'HELP ME' 'NO MORE' 'PLEASE'. The largest message reads: 'PATIENT 189 STILL ALIVE IN THE CHAPEL'." CR>
+                <TELL "Among the chaos of scratches, you can make out words: 'HELP ME' 'NO MORE' 'PLEASE'. The largest message reads: 'PATIENT 189 STILL ALIVE IN THE CHAPEL'. And then, in a corner you nearly missed — scratched in handwriting that looks disturbingly like your own: 'YOU ARE 189. YOU ALWAYS WERE.'" CR>
                 <RTRUE>)>>
 <OBJECT WALL-SCRATCHES
         (IN ISOLATION-WARD)
@@ -511,7 +529,8 @@
       (SOUTH TO ISOLATION-WARD)
       (EAST TO OBSERVATION-DECK)
       (WEST TO PADDED-CELL)
-      (FLAGS RLANDBIT)>
+      (FLAGS RLANDBIT)
+      (VALUE 8)>
 <ROUTINE SHOCK-CHAIR-F ()
          <COND (<VERB? EXAMINE>
                 <TELL "The chair is bolted to the floor. Leather restraints hang from the arms and legs. Electrodes are positioned where they would contact a victim's temples. You feel sick looking at it." CR>
@@ -533,6 +552,7 @@
         (SYNONYM CHAIR)
         (ADJECTIVE SHOCK ELECTRIC METAL)
         (DESC "electroshock chair")
+        (FDESC "In the center of the room, bolted to the floor, sits the chair. Leather restraints dangle from every joint. You know immediately what this is, and your stomach turns.")
         (LDESC "A chair is bolted to the floor in the center of the room.")
         (ACTION SHOCK-CHAIR-F)>
 <ROUTINE SHOCK-MACHINE-F ()
@@ -557,7 +577,8 @@
       (DESC "Padded Cell")
       (LDESC "The small room reeks of decay. Something has been written on the walls in what looks like dried blood. The only way out is through the door to the east, leading to the electroshock theater.")
       (EAST TO ELECTROSHOCK-THEATER)
-      (FLAGS RLANDBIT)>
+      (FLAGS RLANDBIT)
+      (VALUE 5)>
 <ROUTINE PADDING-F ()
          <COND (<VERB? EXAMINE READ>
                 <TELL "The padding is torn and moldering. On one wall, written in what appears to be dried blood, are the words: 'THE CHAPEL BEYOND THE GARDEN. HE WAITS THERE. PATIENT 189.'." CR>
@@ -580,7 +601,10 @@
         (ACTION PADDING-F)>
 <ROUTINE STRAITJACKET-F ()
          <COND (<VERB? EXAMINE>
-                <TELL "A heavy canvas straitjacket with multiple leather buckles and straps. Dark stains cover the fabric." CR>
+                <TELL "A heavy canvas straitjacket with multiple leather buckles and straps. Dark stains cover the fabric. And on the collar — a name tag. Your name. YOUR name is on this straitjacket." CR>
+                <RTRUE>)
+               (<VERB? READ>
+                <TELL "The tag reads a name you know. Your name. Dated 1947. Five years before the sanitarium closed." CR>
                 <RTRUE>)
                (<VERB? WEAR>
                 <TELL "You'd rather not." CR>
@@ -597,7 +621,8 @@
         (ADJECTIVE STRAIT)
         (DESC "straitjacket")
         (LDESC "A straitjacket lies in the corner.")
-        (FLAGS TAKEBIT)
+        (FLAGS TAKEBIT READBIT)
+        (TEXT "The tag reads a name you know. Your name. Dated 1947. Five years before the sanitarium closed.")
         (SIZE 15)
         (ACTION STRAITJACKET-F)>
 <ROOM OBSERVATION-DECK
@@ -659,8 +684,38 @@
       (FLAGS RLANDBIT ONBIT)>
 <ROUTINE MASSIVE-DESK-F ()
          <COND (<VERB? EXAMINE LOOK-INSIDE>
-                <TELL "The desk is made of dark wood, highly polished. The drawers contain mostly empty folders and pens. A hidden compartment in the top drawer holds a key." CR>
+                <TELL "The desk is made of dark wood, highly polished. The drawers contain mostly empty folders and pens." CR>
                 <RTRUE>)>>
+
+<ROUTINE HOLLOW-BOOK-F ()
+         <COND (<AND <VERB? EXAMINE>
+                     <NOT <FSET? ,HOLLOW-BOOK ,OPENBIT>>>
+                <TELL "A red leather tome with a blank spine where all others are labeled. It has a small brass latch on the edge, not a proper binding." CR>
+                <RTRUE>)
+               (<AND <VERB? EXAMINE>
+                     <FSET? ,HOLLOW-BOOK ,OPENBIT>>
+                <TELL "The book is open, its pages glued together to form a hollow cavity. " <COND (<IN? ,SAFE-KEY ,HOLLOW-BOOK> <TELL "Inside rests a small key.">)(<ELSE> <TELL "The cavity is empty.">)> CR>
+                <RTRUE>)
+               (<AND <VERB? OPEN>
+                     <NOT <FSET? ,HOLLOW-BOOK ,OPENBIT>>>
+                <TELL "You flip the brass latch and open the book. The pages are glued solid—it's not a book at all, but a hollow hiding place. Inside you find a small key." CR>
+                <FSET ,HOLLOW-BOOK ,OPENBIT>
+                <RTRUE>)
+               (<VERB? READ>
+                <TELL "The pages are glued together. It's a hollow hiding place, not a real book." CR>
+                <RTRUE>)>>
+
+<OBJECT HOLLOW-BOOK
+        (IN DIRECTORS-OFFICE)
+        (SYNONYM BOOK TOME VOLUME)
+        (ADJECTIVE RED LEATHER HOLLOW)
+        (DESC "red leather book")
+        (FDESC "Among the medical texts, one book stands out -- a red leather tome, its spine blank where all others are labeled.")
+        (LDESC "A red leather book with a blank spine sits among the medical volumes.")
+        (FLAGS CONTBIT OPENABLEBIT TAKEBIT)
+        (CAPACITY 5)
+        (SIZE 6)
+        (ACTION HOLLOW-BOOK-F)>
 <OBJECT MASSIVE-DESK
         (IN DIRECTORS-OFFICE)
         (SYNONYM DESK)
@@ -765,7 +820,8 @@
       (LDESC "Broken benches lie among the overgrowth. A stone path, barely visible, leads to a small chapel to the north. South returns to the cafeteria.")
       (SOUTH TO CAFETERIA)
       (NORTH TO CHAPEL IF CHAPEL-UNLOCKED)
-      (FLAGS RLANDBIT ONBIT)>
+      (FLAGS RLANDBIT ONBIT)
+      (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)>
 <ROUTINE DEAD-GARDEN-F ()
          <COND (<VERB? EXAMINE SEARCH>
                 <TELL "The garden has been dead for decades. Thorny vines choke what remains of flower beds. Among the weeds, you can see broken stone benches and a crumbling fountain." CR>
@@ -824,12 +880,21 @@
         (DESC "chapel door")
         (LDESC "The chapel door is secured with a heavy lock.")
         (ACTION CHAPEL-DOOR-F)>
+<ROUTINE CHAPEL-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <COND (,GAME-WON
+                  <TELL "The chapel is just a room now. The candles are dark. The altar is bare. Whatever was here is gone -- and so is whatever held you." CR>)
+                 (T
+                  <TELL "The chapel is small and suffocating. Cold green light from unnatural candles makes everything look like a corpse. At the far end, before the altar, something stands perfectly still." CR>)>
+           <RTRUE>)>>
+
 <ROOM CHAPEL
       (IN ROOMS)
       (DESC "Chapel")
-      (LDESC "The chapel is small and dark. The air is thick and cold. South lies the exit.")
+      (ACTION CHAPEL-FCN)
       (SOUTH TO OVERGROWN-GARDEN)
-      (FLAGS RLANDBIT ONBIT)>
+      (FLAGS RLANDBIT ONBIT)
+      (VALUE 15)>
 <ROUTINE PEWS-F ()
          <COND (<VERB? EXAMINE>
                 <TELL "The PEWS are ancient and rotting. Strange symbols are carved into the wood—symbols that hurt to look at." CR>
@@ -936,9 +1001,23 @@
                 <TELL "You cannot bring yourself to approach it. Some primal instinct holds you back." CR>
                 <RTRUE>)
                (<VERB? HELLO>
-                <TELL "The figure tilts its head slightly. A voice like wind through dead leaves whispers: 'Free... at last... thank... you...' Then it turns to ash and crumbles to the floor. The green flames extinguish. Whatever held it here is finally broken." CR>
-                <REMOVE ,PATIENT-189>
-                <RTRUE>)
+                <COND (<NOT <IN? ,ANCIENT-RELIC ,WINNER>>
+                       <TELL "Patient 189 tilts its head. Green light flares in its eyes. Something cold reaches into your chest. You are not ready." CR>
+                       <RTRUE>)
+                      (<AND <IN? ,ANCIENT-RELIC ,WINNER>
+                            <OR <NOT <IN? ,STRANGE-SERUM ,WINNER>>
+                                <NOT <IN? ,SYRINGE ,WINNER>>>>
+                       <TELL "The relic glows warm. Patient 189 shivers, eyes flickering. But something still binds it. The serum—if returned to its source..." CR>
+                       <RTRUE>)
+                      (<AND <IN? ,ANCIENT-RELIC ,WINNER>
+                            <IN? ,STRANGE-SERUM ,WINNER>
+                            <IN? ,SYRINGE ,WINNER>>
+                       <TELL "You hold out the relic. Patient 189 stills completely. You draw the serum into the syringe and step forward—every instinct screaming—and inject it." CR>
+                       <TELL "The green light in its eyes gutters. Patient 189 shudders, mouth opening in a soundless cry. The green flames around the chapel gutter and die. Then it speaks, in a voice like someone remembering how: 'I remember... who I was.'" CR>
+                       <TELL "It crumbles to ash. The candles go out. The air suddenly smells like rain and grass—ordinary, living air. You're free." CR>
+                       <SETG GAME-WON T>
+                       <REMOVE ,PATIENT-189>
+                       <RTRUE>)>)
                (<VERB? RUB>
                 <TELL "You reach toward Patient 189, but stop yourself. The air around it feels wrong—cold and electric." CR>
                 <RTRUE>)
@@ -950,6 +1029,7 @@
         (SYNONYM PATIENT FIGURE BEING)
         (ADJECTIVE PATIENT 189)
         (DESC "Patient 189")
+        (FDESC "Something is standing at the altar. It doesn't move. It doesn't breathe. But somehow, horribly, you know it knows you're here.")
         (LDESC "A figure stands motionless at the altar. It turns to face you—its eyes glow faintly in the darkness. This is Patient 189, if you can still call it that.")
         (FLAGS ACTORBIT)
         (ACTION PATIENT-189-F)>
@@ -1191,7 +1271,7 @@
                 <TELL "A small brass key with a tag reading 'S-001'. It looks like a safe key." CR>
                 <RTRUE>)>>
 <OBJECT SAFE-KEY
-        (IN MASSIVE-DESK)
+        (IN HOLLOW-BOOK)
         (SYNONYM KEY)
         (ADJECTIVE SAFE SMALL)
         (DESC "safe key")
@@ -1261,10 +1341,47 @@
         (FLAGS TAKEBIT)
         (SIZE 2)
         (ACTION BELL-F)>
+; === LOCAL-GLOBALS (objects visible from multiple rooms) ===
+
+<ROUTINE SANITARIUM-BUILDING-F ()
+    <COND (<VERB? EXAMINE>
+           <COND (,CHAPEL-UNLOCKED
+                  <TELL "The sanitarium looms against the darkened sky. Now that you've been deep inside -- seen what lurks in the chapel -- the building feels different. Less abandoned. More watchful." CR>)
+                 (T
+                  <TELL "The sanitarium's Victorian facade is crumbling but still imposing. Rows of broken windows stare down like hollow eye sockets. Whatever happened here, the building seems reluctant to forget it." CR>)>
+           <RTRUE>)>>
+
+<OBJECT SANITARIUM-BUILDING
+    (IN LOCAL-GLOBALS)
+    (SYNONYM BUILDING SANITARIUM STRUCTURE FACADE)
+    (ADJECTIVE ABANDONED VICTORIAN)
+    (DESC "sanitarium building")
+    (FLAGS NDESCBIT)
+    (ACTION SANITARIUM-BUILDING-F)>
+
+<ROUTINE DEAD-OAK-TREE-F ()
+    <COND (<VERB? EXAMINE>
+           <TELL "A massive dead oak, leafless and grey, its bark bleached to bone. Its branches claw at the sky like desperate hands. Crows shift silently in the upper reaches." CR>
+           <RTRUE>)
+          (<VERB? CLIMB>
+           <TELL "The lower branches are too high to reach, and you have no desire to scramble up a dead tree in an abandoned sanitarium grounds." CR>
+           <RTRUE>)
+          (<VERB? LISTEN>
+           <TELL "The crows in the upper branches are utterly silent. They watch you." CR>
+           <RTRUE>)>>
+
+<OBJECT DEAD-OAK-TREE
+    (IN LOCAL-GLOBALS)
+    (SYNONYM TREE OAK CROWS)
+    (ADJECTIVE DEAD BARE)
+    (DESC "dead oak tree")
+    (FLAGS NDESCBIT)
+    (ACTION DEAD-OAK-TREE-F)>
+
 ; Clock-driven atmospheric routines (I- style demons and interrupts)
 <ROUTINE I-WHISPER ()
 	<COND (<EQUAL? ,HERE ,SANITARIUM-ENTRANCE ,PATIENT-WARD ,MORGUE ,CHAPEL>
-	       <TELL "You hear a faint, anguished whisper echoing through the halls..." CR>)>
+	       <TELL <PICK-ONE ,WHISPER-TABLE> CR>)>
 	<RTRUE>>
 
 <ROUTINE I-FOOTSTEPS ()
@@ -1283,6 +1400,11 @@
 	       <TELL "A cold draft makes you shiver, though there are no open windows." CR>)>
 	<RTRUE>>
 
+<ROUTINE I-CREAKING ()
+    <COND (<EQUAL? ,HERE ,OPERATING-THEATER ,PATIENT-WARD ,ELECTROSHOCK-THEATER>
+           <TELL "The building settles with a deep structural groan, as if exhaling." CR>)>
+    <RTRUE>>
+
 ; Initialize clock-driven demons for atmospheric effects in GO routine
 <ROUTINE GO ()
 	<SETG HERE ,SANITARIUM-GATE>
@@ -1295,6 +1417,7 @@
 	<QUEUE I-FOOTSTEPS 12>
 	<QUEUE I-FLICKERING 10>
 	<QUEUE I-COLD-DRAFT 15>
+	<QUEUE I-CREAKING 9>
       <V-LOOK>
       <MAIN-LOOP>
 	<AGAIN>>
@@ -1303,3 +1426,10 @@
 <GLOBAL LANTERN-LIT-FLAG <>>
 <GLOBAL CHAPEL-UNLOCKED <>>
 <GLOBAL CHAINS-CUT-FLAG <>>
+<GLOBAL GAME-WON <>>
+<GLOBAL WHISPER-TABLE
+    <LTABLE 0
+        "A voice, barely audible, rasps: 'help... me...'"
+        "You hear your name whispered -- impossible, you never told anyone you were coming."
+        "A child's voice whispers something in a language you don't recognize."
+        "The walls seem to breathe a single word: 'run.'">>

@@ -10,8 +10,9 @@ This is a complete walkthrough for the horror.zil adventure game - an expansion 
 
 ## Statistics
 
-- **Total Rooms:** 22 (6 original + 16 new)
-- **Total Objects:** 57 (18 original + 39 new)
+- **Total Rooms:** 22
+- **Total Objects:** 59 (added HOLLOW-BOOK, SANITARIUM-BUILDING, DEAD-OAK-TREE)
+- **Win condition:** Relic + Serum + Syringe — say hello to Patient 189 while holding all three
 - **Verbs Used:** Only standard Zork1 verbs
 
 ## Complete Room List
@@ -51,8 +52,8 @@ This is a complete walkthrough for the horror.zil adventure game - an expansion 
 4. `examine wallpaper` - Notice the Victorian-era decay
 5. `west` - Go to Reception Room
 6. `take key` (brass key) - Find it among scattered papers
-7. `examine desk` - Notice the bottom drawer is locked
-8. `examine drawer` - See the locked drawer with keyhole marked "3"
+7. `examine desk` - Heavy oak desk; drawers mostly empty
+8. `examine drawer` - See the locked bottom drawer with keyhole marked "3"
 9. `unlock drawer` or `open drawer` (while holding brass key) - Unlock bottom drawer with brass key #3
 10. `take file` (patient file) - Take Patient 189 confidential file from drawer
 11. `read file` - Learn about Patient 189's transfer to isolation and experimental treatment
@@ -120,50 +121,61 @@ This is a complete walkthrough for the horror.zil adventure game - an expansion 
 65. `examine machine` - Electroshock equipment
 66. `west` - Enter Padded Cell
 67. `examine padding` or `read padding` - Blood message: "THE CHAPEL BEYOND THE GARDEN. HE WAITS THERE. PATIENT 189."
-68. `take jacket` (straitjacket - optional)
-69. `east` - Return to Electroshock Theater
+68. `take jacket` (straitjacket)
+69. `examine jacket` - **Identity twist:** your name is on the collar tag
+70. `read jacket` - Tag dated 1947, five years before the sanitarium closed
+71. `examine scratches` (if not done in Isolation Ward) - READ reveals "YOU ARE 189. YOU ALWAYS WERE." in your own handwriting
+72. `drop jacket`
+73. `east` - Return to Electroshock Theater
 
 ### Act 3: Administrative Wing and Final Confrontation
 
-70. `east` - Climb to Observation Deck
-71. `examine mirror` - One-way mirror overlooking theater
-72. `take logbook` (observation logbook)
-73. `read logbook` - Learn about Patient 189's treatment (Session 47)
-74. `north` - Enter Administrative Wing
-75. `examine papers` or `search papers` - Find memo about Patient 189 and chapel
-76. `east` - Enter Director's Office
-77. `examine portrait` - See Dr. Heinrich Mordecai's portrait
-78. `examine desk` - Find hidden compartment
-79. `take key` (safe key)
-80. `examine safe` - Notice wall safe behind painting
-81. `unlock safe` or `open safe` (with safe key) - Access contents
-82. `take notes` (Dr. Mordecai's private notes)
-83. `read notes` - Learn Patient 189 "transcended death itself"
-84. `take key` (chapel key - iron key with cross)
-85. `west` - Return to Administrative Wing
-86. `north` - Enter Staff Quarters
-87. `examine lockers` or `search lockers` - Find personal items
-88. `take photograph` - Staff photo from 1950
-89. `examine photograph` - See the sanitarium staff
-90. `west` - Enter Cafeteria
-91. `examine counter` - Old service area
-92. `take bell` (service bell - optional)
-93. `north` - Enter Overgrown Garden
-94. `examine garden` - Wild tangle of dead plants
-95. `examine door` (chapel door) - Reads "HE WHO ENTERS ABANDONS HOPE"
-96. `unlock door` or `open door` (with chapel key) - Final area accessible!
-97. `north` - Enter Chapel (Final Location)
+74. `east` - Climb to Observation Deck
+75. `examine mirror` - One-way mirror overlooking theater
+76. `take logbook` (observation logbook)
+77. `read logbook` - Learn about Patient 189's treatment (Session 47)
+78. `north` - Enter Administrative Wing
+79. `examine papers` or `search papers` - Find memo about Patient 189 and chapel
+80. `east` - Enter Director's Office
+81. `examine portrait` - See Dr. Heinrich Mordecai's portrait
+82. `examine book` - Notice the red leather tome with a blank spine (HOLLOW-BOOK)
+83. `open book` - It's a hollow hiding place, not a real book; reveals the safe key inside
+84. `take key` (safe key)
+85. `examine safe` - Notice wall safe behind painting
+86. `unlock safe` or `open safe` (with safe key) - Access contents
+87. `take notes` (Dr. Mordecai's private notes)
+88. `read notes` - Learn Patient 189 "transcended death itself"
+89. `take key` (chapel key - iron key with cross)
+90. `west` - Return to Administrative Wing
+91. `north` - Enter Staff Quarters
+92. `examine lockers` or `search lockers` - Find personal items
+93. `take photograph` - Staff photo from 1950
+94. `examine photograph` - See the sanitarium staff
+95. `west` - Enter Cafeteria
+96. `examine counter` - Old service area
+97. `take bell` (service bell - optional)
+98. `north` - Enter Overgrown Garden
+99. `examine garden` - Wild tangle of dead plants
+100. `examine door` (chapel door) - Reads "HE WHO ENTERS ABANDONS HOPE"
+101. `unlock door` or `open door` (with chapel key) - Final area accessible!
+102. `north` - Enter Chapel (Final Location)
 
 ### Final Confrontation
 
-98. `examine pews` - Strange carved symbols
-99. `examine candles` - Unnatural green flames
-100. `examine box` (wooden box) - Small wooden box beneath altar with disturbing symbols
-101. `open box` - Use scalpel (if still carrying) to pry open rusted clasp
-102. `take relic` (ancient relic) - Ancient silver cross with writhing symbols
-103. `examine relic` - Tarnished cross radiating strange warmth
-104. `examine patient` or `examine figure` - Patient 189, Dr. Mordecai's greatest achievement and horror
-105. `hello` - **Win condition!** Patient 189 speaks, thanks you for freeing it, and crumbles to ash. The experiment is finally over.
+103. `examine pews` - Strange carved symbols
+104. `examine candles` - Unnatural green flames
+105. `examine box` (wooden box) - Small wooden box beneath altar with disturbing symbols
+106. `open box` - Use scalpel (if still carrying) to pry open rusted clasp
+107. `take relic` (ancient relic) - Ancient silver cross with writhing symbols
+108. `examine relic` - Tarnished cross radiating strange warmth
+
+**Required before winning — confirm you are holding:**
+- The ancient relic (from wooden box)
+- The strange serum / Compound 237 (from morgue refrigerated drawers)
+- The syringe (from hydrotherapy medicine cabinet)
+
+109. `examine patient` or `examine figure` - Patient 189, Dr. Mordecai's greatest achievement and horror
+110. `hello` - **Win condition!** With relic, serum, and syringe in hand — you inject the serum, the green light dies, Patient 189 whispers "I remember who I was" and crumbles to ash. The chapel goes dark. You're free.
 
 ## Puzzle Elements
 
@@ -178,27 +190,33 @@ This is a complete walkthrough for the horror.zil adventure game - an expansion 
 
 4. **Chain Cutting:** Use scalpel to cut through chains blocking the Morgue
 
-5. **Safe Puzzle:** Find safe key in desk drawer to unlock wall safe containing chapel key
+5. **Safe Puzzle:** Find safe key hidden in hollow red leather book (Director's Office) to unlock wall safe containing chapel key
 
-6. **Container Puzzles:** Objects within objects
+6. **Earned Ending:** Say hello to Patient 189 while holding all three items: ancient relic + strange serum + syringe. Partial combinations give staged rejections — no relic: "You are not ready"; relic only: "The serum — if returned to its source..."
+
+7. **Container Puzzles:** Objects within objects
    - Medical bag (in shelves) contains bandages and morphine vial
    - Desk drawer (locked with brass key #3) contains Patient 189 file
+   - Hollow book (in Director's Office, open it) contains safe key
    - Wooden box (in chapel, requires scalpel) contains ancient silver relic
 
-7. **Story Clues:** Progressive revelation through documents:
+8. **Identity Twist:** The straitjacket in the padded cell has your name on the collar tag, dated 1947. The wall scratches in the isolation ward READ (not just EXAMINE) reveal "YOU ARE 189. YOU ALWAYS WERE." in your own handwriting.
+
+9. **Story Clues:** Progressive revelation through documents:
    - Patient file mentions Patient 189's transfer to isolation
    - Dr. Mordecai's journal reveals experiments
-   - Wall scratches point to Patient 189 in chapel
+   - Wall scratches point to Patient 189 in chapel — and point back at you
    - Medical records show patient resistance to treatment
 
 ## Atmospheric Events
 
 The game features dynamic, clock-driven atmospheric events that occur periodically as you explore:
 
-- **Whispers:** Faint, anguished whispers echo through the halls (Entrance, Patient Ward, Morgue, Chapel)
-- **Footsteps:** Distant footsteps from unseen sources above (Entrance, Reception, Operating Theater)
-- **Flickering Shadows:** Shadows that move of their own accord in lit dark areas (Basement Stairs, Boiler Room, Morgue)
-- **Cold Drafts:** Unnatural cold drafts despite no open windows (Morgue, Chapel, Patient Ward)
+- **Whispers** (every 8 turns): Rotates through 4 distinct messages — "help... me...", your name whispered impossibly, a child's voice in an unknown language, the walls breathing "run." (Entrance, Patient Ward, Morgue, Chapel)
+- **Footsteps** (every 12 turns): Distant footsteps from unseen sources above (Entrance, Reception, Operating Theater)
+- **Flickering Shadows** (every 10 turns): Shadows that move of their own accord in lit dark areas (Basement Stairs, Boiler Room, Morgue)
+- **Cold Drafts** (every 15 turns): Unnatural cold drafts despite no open windows (Morgue, Chapel, Patient Ward)
+- **Creaking** (every 9 turns): Deep structural groans, as if the building is exhaling (Operating Theater, Patient Ward, Electroshock Theater)
 
 These events fire at different intervals throughout gameplay, enhancing immersion and horror atmosphere.
 
@@ -217,7 +235,8 @@ The adventure unfolds the dark history of Blackwood Sanitarium through environme
 - **The Setting:** A Victorian-era abandoned sanitarium (1898-1952) with Gothic atmosphere
 - **The Mystery:** Two interconnected patient stories (Patient 237 and Patient 189)
 - **The Horror:** Medical experiments that went beyond the boundaries of science and morality
-- **The Resolution:** Freeing Patient 189 from decades of torment, providing narrative closure
+- **The Identity:** The player may be Patient 189 — the straitjacket bears your name, dated years before the closure
+- **The Resolution:** Freeing Patient 189 by returning the serum to its source — providing narrative closure and escape
 
 ### Key Story Elements
 

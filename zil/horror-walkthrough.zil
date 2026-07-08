@@ -84,8 +84,10 @@
 	<ASSERT-TEXT "voltage" <CO-RESUME ,CO "examine machine">> ;"Electroshock equipment"
 	<ASSERT "Enter Padded Cell" <CO-RESUME ,CO "walk west" T> <==? ,HERE ,PADDED-CELL>>
 	<ASSERT-TEXT "189" <CO-RESUME ,CO "examine padding">> ;"Blood message about chapel and Patient 189"
-	<ASSERT "Take straitjacket (optional)" <CO-RESUME ,CO "take jacket" T> <==? <LOC ,STRAITJACKET> ,ADVENTURER>>
-	<ASSERT "Drop straitjacket (optional item, not needed)" <CO-RESUME ,CO "drop jacket" T> <N==? <LOC ,STRAITJACKET> ,ADVENTURER>>
+	<ASSERT "Take straitjacket" <CO-RESUME ,CO "take jacket" T> <==? <LOC ,STRAITJACKET> ,ADVENTURER>>
+	<ASSERT-TEXT "your name" <CO-RESUME ,CO "examine jacket">> ;"Identity twist -- your name is on the tag"
+	<ASSERT-TEXT "1947" <CO-RESUME ,CO "read jacket">> ;"Tag dated 1947, five years before closure"
+	<ASSERT "Drop straitjacket (no longer needed)" <CO-RESUME ,CO "drop jacket" T> <N==? <LOC ,STRAITJACKET> ,ADVENTURER>>
 	<ASSERT "Return to Electroshock Theater" <CO-RESUME ,CO "walk east" T> <==? ,HERE ,ELECTROSHOCK-THEATER>>
 	<ASSERT "Climb to Observation Deck" <CO-RESUME ,CO "walk east" T> <==? ,HERE ,OBSERVATION-DECK>>
 	<ASSERT-TEXT "theater" <CO-RESUME ,CO "examine mirror">> ;"One-way mirror overlooking theater"
@@ -96,8 +98,9 @@
 	<ASSERT-TEXT "189" <CO-RESUME ,CO "examine papers">> ;"Find memo about Patient 189 and chapel"
 	<ASSERT "Enter Director's Office" <CO-RESUME ,CO "walk east" T> <==? ,HERE ,DIRECTORS-OFFICE>>
 	<ASSERT-TEXT "mordecai" <CO-RESUME ,CO "examine portrait">> ;"See Dr. Heinrich Mordecai's portrait"
-	<ASSERT-TEXT "key" <CO-RESUME ,CO "examine desk">> ;"Find hidden compartment"
-	<ASSERT "Take safe key" <CO-RESUME ,CO "take key" T> <==? <LOC ,SAFE-KEY> ,ADVENTURER>>
+	<ASSERT-TEXT "blank" <CO-RESUME ,CO "examine book">> ;"Notice the red leather book with blank spine"
+	<ASSERT "Open hollow book to reveal safe key" <CO-RESUME ,CO "open book"> <FSET? ,HOLLOW-BOOK ,OPENBIT>>
+	<ASSERT "Take safe key from hollow book" <CO-RESUME ,CO "take key" T> <==? <LOC ,SAFE-KEY> ,ADVENTURER>>
 	<ASSERT-TEXT "locked" <CO-RESUME ,CO "examine safe">> ;"Notice wall safe"
 	<ASSERT "Open safe with safe key" <CO-RESUME ,CO "unlock safe with key"> <FSET? ,WALL-SAFE ,OPENBIT>>
 	<ASSERT "Drop safe key (no longer needed)" <CO-RESUME ,CO "drop key" T> <N==? <LOC ,SAFE-KEY> ,ADVENTURER>>
@@ -125,9 +128,9 @@
 	<ASSERT-TEXT "altar" <CO-RESUME ,CO "examine box">> ;"Wooden box beneath altar"
 	<ASSERT "Pry open box with scalpel" <CO-RESUME ,CO "open box"> <FSET? ,WOODEN-BOX ,OPENBIT>>
 	<ASSERT "Take ancient silver relic from box" <CO-RESUME ,CO "take relic" T> <==? <LOC ,ANCIENT-RELIC> ,ADVENTURER>>
-	<ASSERT-TEXT "symbols" <CO-RESUME ,CO "examine relic">> ;"Cross with writhing symbols"
-	<ASSERT "Drop relic (optional item)" <CO-RESUME ,CO "drop relic" T> <N==? <LOC ,ANCIENT-RELIC> ,ADVENTURER>>
-	<ASSERT "Drop scalpel (no longer needed)" <CO-RESUME ,CO "drop scalpel" T> <N==? <LOC ,SCALPEL> ,ADVENTURER>>
+	<ASSERT-TEXT "symbols" <CO-RESUME ,CO "examine relic">> ;"Cross with writhing symbols, keep it"
 	<ASSERT-TEXT "189" <CO-RESUME ,CO "examine patient">> ;"Patient 189 - Dr. Mordecai's achievement"
-	<ASSERT "WIN CONDITION - Patient 189 speaks and crumbles to ash" <CO-RESUME ,CO "hello" T> ,GAME-WON-FLAG>
+	<ASSERT-TEXT "glowing" <CO-RESUME ,CO "examine serum">> ;"Confirm serum still accessible"
+	<ASSERT-TEXT "needle" <CO-RESUME ,CO "examine syringe">> ;"Confirm syringe still accessible"
+	<ASSERT "WIN - freed with relic and serum and syringe" <CO-RESUME ,CO "hello" T> ,GAME-WON>
 >

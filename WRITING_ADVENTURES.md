@@ -2,20 +2,246 @@
 
 This guide covers everything needed to create a text adventure game in ZIL format for the AdventureArena engine. The runtime uses the zilscript Lua interpreter, which supports a subset of ZIL (Zork Implementation Language) — the same language used by Infocom to create Zork, Planetfall, Hitchhiker's Guide, and dozens of other classic interactive fiction titles.
 
+It is a single manual in two halves. **Part I — The Craft** is the artistic side: how to design a game that is worth playing, distilled from how Infocom actually worked. **Part II — The Manual** is the technical side: the exact ZIL you write and the files you ship. Between them sits a section on **working materials** — the maps, ledgers, and charts you should keep beside the code, the same "sheets of paper" Infocom's writers covered their desks with, adapted so an LLM can navigate the ZIL it is writing.
+
+Read Part I before you invent anything. Keep the working materials open while you code. Reach for Part II for syntax.
+
 ---
 
 ## Table of Contents
 
-1. [Game Structure](#game-structure)
-2. [ZIL Syntax Reference](#zil-syntax-reference)
-3. [Advanced Techniques (from Zork I)](#advanced-techniques-from-zork-i)
-4. [Crafting Great Adventures](#crafting-great-adventures)
-5. [Complete Example](#complete-example)
-6. [Testing Your Adventure](#testing-your-adventure)
-7. [Adventure Folder Files](#adventure-folder-files)
-8. [Checklist](#checklist)
+**Part I — The Craft (design before code)**
+
+1. [Start With the Story, Not the Code](#1-start-with-the-story-not-the-code)
+2. [Separate World, Prose, and Parser](#2-separate-the-world-model-from-the-prose-from-the-parser)
+3. [Puzzle Design Is Adversarial and Collaborative](#3-puzzle-design-is-adversarial-and-collaborative)
+4. [Distrust Your Own Systems](#4-distrust-your-own-systems-test-for-interaction-bugs)
+5. [Text Is a Design Choice](#5-text-is-a-design-choice)
+6. [Crafting Great Adventures (Infocom lessons)](#crafting-great-adventures)
+7. [Suggested Build Order](#suggested-build-order)
+
+**Working Materials — Navigating the ZIL You Write**
+
+8. [Working Materials: The Sheets of Paper on Infocom's Desks](#working-materials-the-sheets-of-paper-on-infocoms-desks)
+
+**Part II — The Manual (the ZIL you write)**
+
+9. [Game Structure](#game-structure)
+10. [ZIL Syntax Reference](#zil-syntax-reference)
+11. [Advanced Techniques (from Zork I)](#advanced-techniques-from-zork-i)
+12. [Complete Example](#complete-example)
+13. [Testing Your Adventure](#testing-your-adventure)
+14. [Adventure Folder Files](#adventure-folder-files)
+15. [Checklist](#checklist)
 
 ---
+
+# Part I — The Craft
+
+> Source for much of this part: Dave Lebling (Infocom), interviewed on BBC's *Micro Live*, 1985, during development of *Spellbreaker*, together with the accounts of Infocom's own Implementors ("Imps") in *The New Zork Times* and the histories collected at the [Digital Antiquarian](https://www.filfre.net/) and the [IF Archive](https://www.ifarchive.org/indexes/if-archive/infocom/). Infocom's practices still hold up as the clearest known model for how to build a text adventure that is fair, coherent, and worth playing.
+
+Before touching a parser, an object model, or a scripting language, design the game. Puzzles derived from code are arbitrary; puzzles derived from a world are fair. The sections below are written for an LLM (or a human) building a new game or engine.
+
+## 1. Start with the story, not the code
+
+> "It's almost like writing a book. You come up with a plot... and then you start thinking of logic puzzles and things which will advance the plot and at the same time provide intellectual stimulation for the people who are playing it." — Dave Lebling
+
+- Write the premise as prose first. One paragraph is enough: what is the world, what changed, what does the player want.
+- Derive puzzles *from* the plot's internal logic, not the other way around. A puzzle should feel like it was always true about this world, not bolted on to gate progress.
+- Do not start with "what puzzles should I put in a dungeon." Start with "what is broken in this world, and what would someone who lived here actually need to do about it."
+
+**For an LLM:** when asked to build a game, resist jumping straight to room lists and item tables. Produce a one-paragraph premise, then a short list of "things that are wrong in this world," and only then break those into concrete puzzles. Treat the premise as the spec the puzzles must serve.
+
+## 2. Separate the world model from the prose from the parser
+
+Infocom's language, ZIL, existed specifically so that writers didn't have to reimplement object/container/character logic every time:
+
+> "The language itself knows a lot about interactive fiction... built into the language are a lot of tools for manipulating objects and characters, so each writer doesn't have to start from scratch... writers and programmers aren't necessarily the same sort of creatures, and you really want to give the writers the best tools you can." — Dave Lebling
+
+Practical structure to reuse for any new game or engine:
+
+- **World model layer**: objects, locations, containment, ownership, state flags. Generic verbs (take, open, put X in Y, examine) operate here and should work correctly for *any* object without per-object code, unless the object explicitly overrides behavior.
+- **Content layer**: rooms, item descriptions, puzzle-specific logic. This is where the "writing" happens, and it should be as declarative as possible — describing what's true, not how the engine works.
+- **Parser layer**: strictly separate from both. Its job is turning "put the cube in the bag" into a verb + object references the world model understands. It should never contain puzzle logic.
+
+In AdventureArena this separation is already made for you: the engine (parser, verbs, syntax, clock, globals, main) lives in `zork1/`; your `dungeon.zil` is the declarative content layer; your `actions.zil` holds only the per-object overrides. Keep puzzle logic out of the engine files, and keep the generic model out of your game.
+
+## 3. Puzzle design is adversarial and collaborative
+
+The mouth-of-the-idol puzzle in the Lebling interview is the clearest example:
+
+> "I invented the idol, I invented its mouth, so I thought about it for a while, I couldn't come up with an answer, so I talked to the other writers and got, as it turned out, some very good suggestions." — Dave Lebling
+
+And the punchline: even the designer who invented the puzzle got the solution *wrong* when trying to solve his own game live on camera.
+
+- **The person who designs a puzzle is not automatically the person who can validate it.** Designing a fair obstacle and solving it fresh are different skills. Get a second and third opinion on every puzzle before considering it finished.
+- **A puzzle should have a solution that follows from stated facts, not from guessing the author's intent.** Lebling's idol puzzle worked because the solution ("animate the idol so it yawns") followed logically from established facts already in the world: there's an animation spell, mouths open when you yawn, stone can be animated. It wasn't arbitrary.
+- **Expect and design for multiple attempted solutions.** In the transcript the player tries: take it, hit it with a knife, use a general "open" spell, check for a hinge. A well-built puzzle needs sensible, in-world rejection responses for the plausible wrong answers, not just silence or a generic failure message. Write the "reasonable failures" as carefully as the win condition.
+
+**For an LLM:** when generating a puzzle, don't stop at the solution. Also generate the 3–5 most likely wrong attempts a reasonable player would try, and write a specific, in-character response for each. If you can't think of plausible wrong attempts, the puzzle is probably too obscure or too easy. Record these in the puzzle chart (see [Working Materials](#working-materials-the-sheets-of-paper-on-infocoms-desks)).
+
+## 4. Distrust your own systems: test for interaction bugs
+
+The Gurgoyle spell bug from the interview is the most technically instructive part:
+
+> "It's called Gurgoyle, and what it does is stop time... the status line updates, everything still happens to you, because time is subjective in this game... the problem is the interrupt routines — things that run periodically, like a million tons of rock falling on your head — have to stop." — Dave Lebling
+
+This is a *systems interaction* bug, not a content bug: a subjective clock and a scheduled/periodic event system were each individually correct but broke when combined. A second bug shows up on stream — a direction-listing routine that never terminates ("south south south... forever") — a plain infinite-loop regression from a rewrite.
+
+Build these checks in from the start, not at the end:
+
+- Any time you add a mechanic that changes global state (time, physics, "the rules"), explicitly enumerate every other system that reads or depends on that state, and check what happens when your new mechanic is active. Don't assume independence between systems. In ZIL, the usual culprits are `QUEUE`d daemons (see the [Daemon schedule](#6-daemon--clock-schedule) working material).
+- Scheduled/periodic events (timers, hazards, NPC movement) are the most common source of these bugs. Whenever you add a new global effect, ask: "what does this do to things that are scheduled to happen regardless of player action?"
+- Any generated procedural text (loops over directions, exits, inventory) needs an explicit, tested termination condition — don't trust that a loop bound is correct just because it compiled.
+- Budget real adversarial testing time. Infocom didn't treat this as an afterthought — one game generated **250+ pages of logged bugs** from dedicated testers whose entire job was to break it.
+
+**For an LLM:** after implementing a puzzle or mechanic, explicitly simulate the "wrong" or "edge" interactions before declaring it done: what happens if the player triggers it twice, out of order, mid-way through another timed event, or in a state you didn't originally imagine.
+
+## 5. Text is a design choice
+
+> "I think there are no graphics in our interactive fiction for the same reason that most novels don't have graphics either — the goal is for you to use your imagination... especially since most of the stories are imaginative fiction anyway." — Dave Lebling
+
+And the pragmatic reason underneath the artistic one: a compiled, engine-agnostic story format (ZIL → portable Z-code bytecode) meant one game could ship on every home computer of the era just by writing a small new interpreter per machine.
+
+- Decide *deliberately* what your medium is asking the player to supply with their own imagination, and lean into it rather than fighting it.
+- Separate your "content"/story format from your "runtime"/interpreter the same way Infocom separated compiled Z-code from the per-platform interpreter. AdventureArena inherits this: your `.zil` is portable content; the Lua interpreter is the runtime. You can extend or fix the runtime without touching every story.
+
+## Suggested build order
+
+1. **Premise** — one paragraph: world, what's wrong, what the player wants.
+2. **World inventory** — list locations, key objects, characters, and what's broken about each, in plain prose, before any data structures.
+3. **World model** — generic object/location/container model with uniform verbs. (In AdventureArena this is already the `zork1/` engine — you skip straight to content.)
+4. **Puzzle logic as overrides** — puzzles are implemented as exceptions or special handlers layered on top of the generic model, not as changes to the generic model itself.
+5. **For each puzzle**, before moving on: write the intended solution; write 3–5 plausible wrong attempts and their specific rejections; get a second read (a second person, or a second LLM pass with no knowledge of the intended solution) to attempt it cold.
+6. **Systems interaction pass** — list every global mechanic (timers, magic, hazards, day/night, hunger) and check each pair for unintended interaction, the way the Gurgoyle/time-stop bug crossed with scheduled hazards.
+7. **Adversarial testing pass** — try to break termination conditions on any generated/looped text, try commands out of expected order, try re-triggering one-time events.
+8. **Only then**, presentation layer (parser vocabulary, formatting, packaging/extras) — polish, not foundation.
+
+**One-line summary:** Write the story first, build a strict and reusable world model under it, treat every puzzle as something that must survive someone else trying to break it, and test system *interactions*, not just individual features — because the bugs that actually ship are the ones where two correct things meet.
+
+---
+
+## Working Materials: The Sheets of Paper on Infocom's Desks
+
+Infocom's Implementors did not hold a whole game in their heads. They surrounded themselves with paper. The historical record is explicit about this:
+
+- **Hand-drawn maps and design notebooks.** Steve Meretzky's design papers — now [archived at Stanford University Libraries](https://oac.cdlib.org/findaid/ark:/13030/c8862jnz/) — include hand-drawn room maps, object lists, and puzzle notes made *before and during* coding. His internal design bible had the self-deprecating title *"Everything You Always Wanted to Know About Writing Interactive Fiction But Couldn't Find Anyone Still Working Here to Ask."*
+- **A running changelog inside the game itself.** During Zork's development the team placed a *"U.S. News and Dungeon Report"* in one of the first rooms, detailing the latest changes and additions so their network of testers always knew what was new.
+- **Teaching documents.** Marc Blank's *ZIL Course* (1982) and Meretzky's *Learning ZIL* (1989) codified the process; the *MDL Programming Language Primer* did the same for the earlier engine.
+- **Maps as shipped artifacts.** The Zork Users Group sold maps; InvisiClues hint books contained maps; and several games shipped map/chart "feelies" (Starcross's Mass Detector chart, Suspended's Underground Complex map, Deadline's casebook). Players, in turn, "kept copious notes as they went along."
+
+An LLM writing ZIL has the same problem the Imps had — the world is bigger than working memory — and the same solution: **keep intermediate artifacts beside the code and update them as you go.** Do not try to emit a large `.zil` file in one pass and hope it is consistent. Emit these markdown working files first (or alongside), reconcile the ZIL against them, and use them as your map when editing.
+
+Keep them in the adventure folder as a single `DESIGN.md` (or a `notes/` subfolder). They are not shipped to players, but they are what make the `.zil` navigable. Below are the seven that matter most, each mapped to the Infocom artifact it replaces.
+
+### 1. World map (the graph-paper map)
+
+The single most important artifact. A room adjacency table plus a diagram. It catches one-way exits, missing return paths, and orphaned rooms *before* you write a single `(NORTH TO ...)`.
+
+Keep it as a table:
+
+| Room | N | S | E | W | U | D | Special |
+|------|---|---|---|---|---|---|---------|
+| LIGHTHOUSE-BASE | LIGHTHOUSE-INTERIOR* | — | COASTAL-PATH | — | — | — | *N only if TOWER-UNLOCKED |
+| COASTAL-PATH | OLD-BRIDGE | — | — | LIGHTHOUSE-BASE | — | — | |
+
+…and as a diagram so the shape is visible at a glance:
+
+```mermaid
+graph LR
+  BASE[Lighthouse Base] -- E --> PATH[Coastal Path]
+  PATH -- W --> BASE
+  PATH -- N --> BRIDGE[Old Bridge]
+  BRIDGE -- S --> PATH
+  BASE -. "N if TOWER-UNLOCKED" .-> INT[Lighthouse Interior]
+```
+
+**Rule enforced by this artifact:** every exit is bidirectional unless the design says otherwise, and every "otherwise" is written in the Special column with its reason.
+
+### 2. Object ledger (the object list)
+
+Every object on one line. This is what keeps synonyms unique, flags correct, and containment sane. Regenerate it from the `.zil` after edits and diff against your intent.
+
+| Object | Starts in | Flags | Synonyms / Adjectives | Size | Action |
+|--------|-----------|-------|-----------------------|------|--------|
+| IRON-KEY | KEEPERS-COTTAGE | TAKEBIT | KEY / IRON HEAVY | 4 | — |
+| IRON-DOOR | LIGHTHOUSE-BASE | — | DOOR / IRON RUSTED TOWER | — | IRON-DOOR-F |
+| OIL-CAN | LIGHTHOUSE-INTERIOR | TAKEBIT | CAN OIL / OIL | 5 | — |
+
+**Rules enforced:** takeable things have `TAKEBIT`; containers have `CONTBIT`; no two objects reachable in the same room share an ambiguous synonym without a distinguishing adjective; every object with custom behavior has an `ACTION` routine that exists.
+
+### 3. Flag / state ledger (guards the Gurgoyle bug)
+
+Every `GLOBAL` flag: what it means, who sets it, who reads it. This is the artifact that prevents systems-interaction bugs (§4). If a flag is set but never read — or read but never set — it shows up here immediately.
+
+| Flag | Meaning | Set by | Read by |
+|------|---------|--------|---------|
+| TOWER-UNLOCKED | Iron door open | IRON-DOOR-F | LIGHTHOUSE-BASE exit (N) |
+| LAMP-LIT | Fresnel lens burning | LENS-F | LENS-F examine, ending check |
+
+### 4. Puzzle dependency graph (the puzzle chart)
+
+The spine of the game: which puzzle gates which. Shows dead-ends and unreachable solutions. Each node also carries its intended solution and the plausible wrong attempts from §3.
+
+```mermaid
+graph TD
+  MATCHES[Find matchbook<br/>on bridge] --> LAMP
+  OILCAN[Find oil can<br/>in interior] --> LAMP
+  KEY[Find iron key<br/>in cottage] --> DOOR[Unlock iron door<br/>sets TOWER-UNLOCKED]
+  DOOR --> INTERIOR[Reach interior]
+  INTERIOR --> OILCAN
+  INTERIOR --> LAMP[Light the lens<br/>sets LAMP-LIT = win]
+```
+
+For each puzzle node keep a short block:
+
+```
+Puzzle: Light the lens
+  Gate: requires OIL-CAN and MATCHES in inventory, player in LAMP-ROOM
+  Solution: TURN ON LENS (or LIGHT LENS) with both items
+  Wrong attempts to answer in-world:
+    - light lens with only matches  -> "A flame without fuel won't do much good."
+    - light lens with only oil       -> "You have oil, but nothing to ignite it with."
+    - examine lens before lit         -> hint that oil + flame are needed
+```
+
+### 5. Verb × object matrix (the response grid)
+
+A grid of which objects deliberately respond to which non-default verbs. Blank cells fall through to the engine default. This is how you guarantee "the game responds to everything reasonable" (Part II, *Verb Responses*) instead of discovering gaps at test time.
+
+| Object | EXAMINE | OPEN/UNLOCK | TURN/LIGHT | SEARCH |
+|--------|---------|-------------|------------|--------|
+| IRON-DOOR | ✓ | ✓ | — | — |
+| FRESNEL-LENS | ✓ | — | ✓ | — |
+| FIREPLACE | ✓ | — | — | ✓ |
+
+### 6. Daemon / clock schedule
+
+Every `QUEUE`d routine, its interval, and — critically — every global flag it reads. This is the checklist for the systems-interaction pass in §4: cross every daemon against every flag in the state ledger and ask "what happens when this fires while that flag is set?"
+
+| Daemon | Interval | Fires when | Reads |
+|--------|----------|-----------|-------|
+| I-WAVES | 5 | HERE in {COASTAL-PATH, OLD-BRIDGE, LIGHTHOUSE-BASE} | HERE |
+| I-WIND | 8 | HERE in {LAMP-ROOM, OLD-BRIDGE} | HERE |
+
+### 7. Dungeon report (the changelog)
+
+Infocom's *"U.S. News and Dungeon Report."* A running, dated list of what changed each build, kept at the top of `DESIGN.md`. For an LLM working across turns or sessions this is memory: it records what was added, what broke, and what still needs a response written. Keep it terse.
+
+```
+## Dungeon Report
+- Added LAMP-ROOM and Fresnel lens puzzle; LAMP-LIT wins the game.
+- TODO: no response yet for POUR OIL ON LENS (players will try it).
+- Fixed: iron door could be unlocked without the key in inventory.
+```
+
+### How the walkthrough closes the loop
+
+The working materials are the design; the **walkthrough test** (`walkthrough.zil`, see [Testing Your Adventure](#testing-your-adventure)) is the executable proof that the design holds together. The critical path in the puzzle graph (§4) *is* the script of the walkthrough. When they disagree, one of them is wrong — reconcile before shipping. This is the LLM's stand-in for Infocom's room full of testers.
+
+---
+
+# Part II — The Manual
 
 ## Game Structure
 
