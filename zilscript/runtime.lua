@@ -296,8 +296,19 @@ function M.create_game(env, silent)
 		-- Start the game by calling GO()
 		-- Returns true on success, false on failure
 		coroutine = coroutine.create(function()
-			if type(env.GO) ~= "function" then
-				error("Failed to start game: GO() not defined or failed")
+			-- Check if we're restoring from a save (LLM mode)
+			local restored = rawget(_G, "_LLM_RESTORED")
+			if restored then
+				-- Skip GO() initialization, go directly to MAIN_LOOP
+				local success = M.execute("MAIN_LOOP()", 'main', env, silent)
+				if not success then
+					error("Failed to start game: MAIN_LOOP() not defined or failed")
+				end
+			else
+				-- Normal game start
+				if type(env.GO) ~= "function" then
+					error("Failed to start game: GO() not defined or failed")
+				end
 			end
 
 			while true do

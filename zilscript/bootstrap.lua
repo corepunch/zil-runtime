@@ -1344,5 +1344,9 @@ function RESTORE(filename)
 	return true
 end
 
+-- === LLM Mode Support ===
+-- Flag to indicate game was restored and should skip GO() initialization
+_LLM_RESTORED = false
+
 -- === Done ===
 print("ZIL runtime initialized.")

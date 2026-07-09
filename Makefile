@@ -1,9 +1,11 @@
 # Targets
-.PHONY: test test-all test-unit test-integration test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-pure-zil test-simple-new test-insert-file test-let test-save help
+.PHONY: test test-all test-unit test-integration test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-pure-zil test-simple-new test-insert-file test-let test-save help llm-new llm-look
 
 help:
 	@echo "Available targets:"
 	@echo "  run-text          - Run the game in text mode"
+	@echo "  llm-new           - Start a new LLM game session"
+	@echo "  llm-look          - Look around in LLM mode"
 	@echo ""
 	@echo "Test targets:"
 	@echo "  test              - Run all tests (unit + integration)"
@@ -40,6 +42,13 @@ help:
 
 run-text:
 	lua main.lua
+
+# LLM mode targets
+llm-new:
+	@lua5.4 llm.lua --new-game --save savefile.sav
+
+llm-look:
+	@lua5.4 llm.lua --action "look" --save savefile.sav
 
 # Test targets
 test: test-unit test-integration

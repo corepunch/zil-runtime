@@ -643,3 +643,183 @@ The generic runner already overrides `RANDOM(max)` deterministically.
 ### A transcript test is too long to debug
 
 Split it into thematic chunks or add intermediate `HERE`, `LOC`, and flag assertions around the puzzle transitions.
+
+### Missing Dependencies
+- Run `git submodule update --init --recursive` for game dependencies
+- Install Lua 5.4: `sudo apt-get install lua5.4`
+
+## How to Play
+
+These are classic text adventure (interactive fiction) games. You type commands in plain English and the game responds.
+
+### Movement
+
+```
+go north        (or just: north, n)
+go south        (or just: south, s)
+go east         (or just: east, e)
+go west         (or just: west, w)
+go up           (or just: up, u)
+go down         (or just: down, d)
+```
+
+### Looking Around
+
+```
+look            # Describe current room
+examine lamp    # Look closely at an object (also: x lamp)
+```
+
+### Inventory
+
+```
+inventory       # What am I carrying? (also: i)
+```
+
+### Taking and Dropping
+
+```
+take lamp       # Pick up an object (also: get lamp)
+drop lamp       # Put down an object
+```
+
+### Using Objects
+
+```
+open mailbox
+close door
+unlock chest with key
+put lamp on table
+read leaflet
+```
+
+### Common Verbs
+
+| Verb | Example | Description |
+|------|---------|-------------|
+| look | `look` | Describe the room |
+| examine | `examine tree` | Inspect something closely |
+| take | `take key` | Pick up an object |
+| drop | `drop key` | Put down an object |
+| open | `open door` | Open something |
+| close | `open door` | Close something |
+| inventory | `inventory` | List carried items |
+| go | `go north` | Move in a direction |
+| use | `use key` | Use an object |
+| read | `read sign` | Read text |
+| turn | `turn valve` | Turn/rotate something |
+
+### Tips
+
+- Be specific: "open small mailbox" may work better than "open mailbox"
+- Try different verbs if one doesn't work
+- Examine everything to find hidden items and clues
+- Some puzzles require combining objects or sequences of actions
+- The game remembers previous actions (state persists between commands in LLM mode)
+
+## LLM Mode
+
+LLM Mode allows language models to interact with the game programmatically. Each invocation loads a save, executes one command, captures the response, and saves the state.
+
+### Quick Start
+
+```bash
+# Start a new game
+make llm-new
+
+# Or directly
+lua5.4 llm.lua --new-game --save game.sav
+
+# Execute a command
+lua5.4 llm.lua --action "look" --save game.sav
+lua5.4 llm.lua --action "open mailbox" --save game.sav
+lua5.4 llm.lua --action "go north" --save game.sav
+```
+
+### Command Line Options
+
+| Option | Description |
+|--------|-------------|
+| `--action, -a "cmd"` | Execute this command |
+| `--save, -s file` | Save/restore state from this file (default: `savefile.sav`) |
+| `--game, -g name` | Game to play (default: `zork1`) |
+| `--new-game` | Start fresh, ignoring existing save |
+| `--help, -h` | Show help |
+
+### Output Format
+
+Returns JSON to stdout:
+
+```json
+{
+  "ok": true,
+  "output": "West of House\nYou are standing in an open field...",
+  "room": "West of House",
+  "savefile": "game.sav",
+  "restored": true
+}
+```
+
+Fields:
+- `ok` - Whether the command succeeded
+- `output` - Game response text (ANSI codes stripped)
+- `room` - Current room name (if available)
+- `savefile` - Path to saved state
+- `restored` - Whether this was a restored game
+
+### Example Session
+
+```bash
+# Start new game
+lua5.4 llm.lua --new-game --save zork1.sav
+# => {"ok":true,"output":"ZORK I: The Great Underground Empire\n...","savefile":"zork1.sav","new_game":true}
+
+# Look around
+lua5.4 llm.lua --action "look" --save zork1.sav
+# => {"ok":true,"output":"West of House\n...","savefile":"zork1.sav","restored":true}
+
+# Open something
+lua5.4 llm.lua --action "open mailbox" --save zork1.sav
+# => {"ok":true,"output":"Opening the small mailbox reveals a leaflet.\n","savefile":"zork1.sav","restored":true}
+
+# Move
+lua5.4 llm.lua --action "go north" --save zork1.sav
+# => {"ok":true,"output":"North of House\n...","savefile":"zork1.sav","restored":true}
+```
+
+### LLM Integration Example
+
+```python
+import subprocess, json
+
+def game_action(command, savefile="game.sav"):
+    result = subprocess.run(
+        ["lua5.4", "llm.lua", "--action", command, "--save", savefile],
+        capture_output=True, text=True
+    )
+    return json.loads(result.stdout)
+
+# Start game
+state = game_action(None, "game.sav")  # Use --new-game for first call
+
+# Play
+response = game_action("look", "game.sav")
+print(response["output"])
+
+response = game_action("take lamp", "game.sav")
+print(response["output"])
+```
+
+### How It Works
+
+1. **New Game**: Starts coroutine, captures initial output, saves state
+2. **Restore**: Loads save file, sets `_LLM_RESTORED` flag to skip GO() initialization
+3. **Execute**: Passes command to game coroutine, captures response
+4. **Save**: Persists updated state for next invocation
+
+### Notes
+
+- Each invocation is a separate process (no persistent Lua state)
+- Game state persists via save file between invocations
+- Parser is case-sensitive: use "open mailbox" not "open Mailbox"
+- ANSI escape codes are stripped from output
