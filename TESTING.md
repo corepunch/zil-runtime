@@ -717,6 +717,50 @@ read leaflet
 - Some puzzles require combining objects or sequences of actions
 - The game remembers previous actions (state persists between commands in LLM mode)
 
+## Playing Games
+
+### Prerequisites
+
+1. Check Lua is installed:
+
+```bash
+lua5.4 -v
+```
+
+2. Check game files exist (example for Zork I):
+
+```bash
+ls infocom/zork1/zork1.zil
+```
+
+### Start a game
+
+```bash
+make run-text
+```
+
+Or directly:
+
+```bash
+lua main.lua
+```
+
+By default this loads Zork I. To load a different game, pass the module name:
+
+```bash
+lua main.lua infocom.zork2.zork2
+```
+
+### First actions (Zork I)
+
+Once the game starts, you are standing outside a house. Try:
+
+```
+open mailbox
+read leaflet
+go south
+```
+
 ## LLM Mode
 
 LLM Mode allows language models to interact with the game programmatically. Each invocation loads a save, executes one command, captures the response, and saves the state.
