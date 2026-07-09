@@ -376,32 +376,6 @@ local function io_flush()
 	return text
 end
 
-local SNAPSHOT_EXCLUDED_GLOBALS = {
-	_G = true,
-	_LOADED = true,
-	assert = true,
-	coroutine = true,
-	debug = true,
-	error = true,
-	getmetatable = true,
-	ipairs = true,
-	io = true,
-	math = true,
-	next = true,
-	os = true,
-	package = true,
-	pairs = true,
-	pcall = true,
-	print = true,
-	select = true,
-	setmetatable = true,
-	string = true,
-	table = true,
-	tostring = true,
-	tonumber = true,
-	type = true,
-}
-
 local function is_control_signal(signal, kind)
 	if kind then
 		return signal == ZIL_CONTROL_SIGNALS[kind]
@@ -413,78 +387,54 @@ function IS_ZIL_CONTROL_SIGNAL(signal, kind)
 	return is_control_signal(signal, kind)
 end
 
-local function clone_value(value, seen)
-	local value_type = type(value)
-	if value_type ~= "table" then
-		return value
-	end
-
-	seen = seen or {}
-	if seen[value] then
-		return seen[value]
-	end
-
-	local copy = {}
-	seen[value] = copy
-	for key, nested_value in pairs(value) do
-		copy[clone_value(key, seen)] = clone_value(nested_value, seen)
-	end
-
-	local mt = getmetatable(value)
-	if mt then
-		setmetatable(copy, clone_value(mt, seen))
-	end
-
-	return copy
-end
-
-local function should_snapshot_global(name, value)
-	if SNAPSHOT_EXCLUDED_GLOBALS[name] then
-		return false
-	end
-
+local function is_state_global(value)
 	local value_type = type(value)
 	return value_type == "number"
 		or value_type == "boolean"
 		or value_type == "string"
-		or value_type == "table"
 end
 
-local function capture_globals_snapshot()
-	local snapshot = {}
-	for name, value in pairs(_G) do
-		if should_snapshot_global(name, value) then
-			snapshot[name] = clone_value(value)
-		end
-	end
-	return snapshot
-end
-
-local function restore_table(target, source)
-	for key in pairs(target) do
-		target[key] = nil
-	end
-	for key, value in pairs(source) do
-		target[key] = clone_value(value)
-	end
-
-	local mt = getmetatable(source)
-	if mt or getmetatable(target) then
-		setmetatable(target, mt and clone_value(mt) or nil)
-	end
-end
-
-function CAPTURE_RESTART_STATE()
-	restart_snapshot = {
+local function capture_game_state()
+	local state = {
 		mem_size = mem.size,
 		mem_bytes = {},
-		globals = capture_globals_snapshot(),
+		globals = {},
 	}
 
 	for i = 1, mem.size do
-		restart_snapshot.mem_bytes[i] = mem[i]
+		state.mem_bytes[i] = mem[i]
+	end
+	for name, value in pairs(_G) do
+		if is_state_global(value) then
+			state.globals[name] = value
+		end
 	end
 
+	return state
+end
+
+local function restore_game_state(state)
+	for name, value in pairs(_G) do
+		if is_state_global(value) and state.globals[name] == nil then
+			_G[name] = nil
+		end
+	end
+	for name, value in pairs(state.globals) do
+		_G[name] = value
+	end
+
+	for i = state.mem_size + 1, mem.size do
+		mem[i] = nil
+	end
+	for i = 1, state.mem_size do
+		mem[i] = state.mem_bytes[i]
+	end
+	mem.size = state.mem_size
+	output_buffer = {}
+end
+
+function CAPTURE_RESTART_STATE()
+	restart_snapshot = capture_game_state()
 	return true
 end
 
@@ -501,29 +451,7 @@ function RESTART()
 		return false
 	end
 
-	for name, value in pairs(_G) do
-		if should_snapshot_global(name, value) and restart_snapshot.globals[name] == nil then
-			_G[name] = nil
-		end
-	end
-
-	for name, value in pairs(restart_snapshot.globals) do
-		if type(_G[name]) == "table" and type(value) == "table" then
-			restore_table(_G[name], value)
-		else
-			_G[name] = clone_value(value)
-		end
-	end
-
-	for i = restart_snapshot.mem_size + 1, mem.size do
-		mem[i] = nil
-	end
-	for i = 1, restart_snapshot.mem_size do
-		mem[i] = restart_snapshot.mem_bytes[i]
-	end
-	mem.size = restart_snapshot.mem_size
-	output_buffer = {}
-
+	restore_game_state(restart_snapshot)
 	error(ZIL_CONTROL_SIGNALS.restart, 0)
 end
 
