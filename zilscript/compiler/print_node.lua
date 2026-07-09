@@ -131,6 +131,10 @@ end
 function PrintNode.createPrintNode(compiler, form_handlers)
   local function printNode(buf, node, indent)
     indent = indent or 0
+    if not node then
+      buf.write("nil")
+      return true
+    end
     
     -- Track source location for diagnostics and source mapping
     local meta = getmetatable(node)
@@ -141,6 +145,14 @@ function PrintNode.createPrintNode(compiler, form_handlers)
     if node.type == "expr" then
       if #node.name == 0 then buf.write("nil")  return true  end
       
+      -- Visitor pattern: check for specialized handler
+      local handler = form_handlers[node.name]
+      if handler then
+        -- Delegate to specialized handler (visitor callback)
+        handler(buf, node, indent)
+        return true
+      end
+
       -- Check if this is a macro call that needs expansion
       local macro = compiler.macros[node.name]
       if macro then
@@ -152,12 +164,7 @@ function PrintNode.createPrintNode(compiler, form_handlers)
         end
       end
       
-      -- Visitor pattern: check for specialized handler
-      local handler = form_handlers[node.name]
-      if handler then
-        -- Delegate to specialized handler (visitor callback)
-        handler(buf, node, indent)
-      else
+      do
         -- Default handler for generic function calls
         if indent == 1 then buf.indent(indent) end
         if node.name == 'VERB?' then 

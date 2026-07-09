@@ -93,10 +93,12 @@ local function compileLogical(buf, node, indent, op, compiler, printNode)
   if indent == 1 then buf.indent(indent) end
   buf.write("PASS(")
   for i = 1, #node do
-    if utils.isCond(node[i]) then
+    local cond_node = utils.isCond(node[i]) and node[i]
+      or (node[i].type == "placeholder" and utils.isCond(node[i][1]) and node[i][1])
+    if cond_node then
       buf.write("APPLY(function() ")
-      printNode(buf, node[i], indent + 1)
-      buf.write(" end)")
+      printNode(buf, cond_node, indent + 1)
+      buf.write(" return __tmp end)")
     else
       printNode(buf, node[i], indent + 1)
     end
@@ -142,6 +144,33 @@ function Forms.createHandlers(compiler, printNode)
     compileSet(buf, node, indent, compiler, printNode)
   end
   form.SETG = form.SET
+
+  form.PROB = function(buf, node, indent)
+    buf.write("ZPROB(")
+    if node[1] then
+      printNode(buf, node[1], indent + 1)
+    else
+      buf.write("0")
+    end
+    buf.write(")")
+  end
+
+  form.TELL = function(buf, node, indent)
+    buf.write("TELL(")
+    for i = 1, #node do
+      local cond_node = utils.isCond(node[i]) and node[i]
+        or (node[i].type == "placeholder" and utils.isCond(node[i][1]) and node[i][1])
+      if cond_node then
+        buf.write("APPLY(function() ")
+        printNode(buf, cond_node, indent + 1)
+        buf.write(" return __tmp end)")
+      else
+        printNode(buf, node[i], indent + 1)
+      end
+      if i < #node then buf.write(", ") end
+    end
+    buf.write(")")
+  end
 
   -- LET - Local variable bindings
   form.LET = function(buf, node, indent)
@@ -298,6 +327,11 @@ function Forms.createHandlers(compiler, printNode)
       i = compiler.printSyntaxObject(buf, node, i, "SUBJECT")
     end
     
+    -- Skip modifier keywords (like TEXT) between JOIN/OBJECT and =
+    while utils.safeget(node[i], 'value') ~= "OBJECT" and node[i].value ~= "=" and utils.safeget(node[i], 'value') do
+      i = i + 1
+    end
+    
     if utils.safeget(node[i], 'value') == "=" then
       buf.writeln("\tACTION = \"%s\",", compiler.value(node[i + 1]))
 
@@ -320,8 +354,13 @@ function Forms.createHandlers(compiler, printNode)
   end
 
   form.ITABLE = function(buf, node)
-    local num = node[1].value == "NONE" and node[2].value or node[1].value
-    buf.write("ITABLE(%s)", num)
+    buf.write("ITABLE(")
+    if utils.safeget(node[1], "value") == "NONE" and node[2] then
+      printNode(buf, node[2], 0)
+    else
+      printNode(buf, node[1], 0)
+    end
+    buf.write(")")
   end
 
   -- AND/OR
@@ -355,9 +394,11 @@ function Forms.createHandlers(compiler, printNode)
   form["INSERT-FILE"] = function(buf, node, indent)
     -- Generate INSERT_FILE call with the filename
     if node[1] and node[1].type == "string" then
-      buf.write('INSERT_FILE("%s")', node[1].value)
+      local meta = getmetatable(node)
+      local source = meta and meta.source and meta.source.filename or ""
+      buf.write('INSERT_FILE("%s", "%s")', node[1].value, source:gsub("\\", "\\\\"):gsub('"', '\\"'))
     else
-      buf.write('INSERT_FILE("")')
+      buf.write('INSERT_FILE("", "")')
     end
   end
 

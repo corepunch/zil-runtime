@@ -1,17 +1,7 @@
 local runtime = require 'zilscript.runtime'
 local test_format = require 'zilscript.test_format'
 
-local modules = {
-  "infocom.zork1.globals",
-  "infocom.zork1.clock",
-  "infocom.zork1.parser",
-  "infocom.zork1.verbs",
-  "infocom.zork1.actions",
-  "infocom.zork1.syntax",
-  "infocom.zork1.dungeon",
-  -- "books.blackwood-horror",
-  "infocom.zork1.main",
-}
+local story_module = arg[1] or "infocom.zork1.zork1"
 
 -- Create game environment
 local env = runtime.create_game_env()
@@ -23,24 +13,28 @@ end
 
 -- Install ZIL support and load modules
 env.require('zilscript')
-if not runtime.load_modules(env, modules, {save_lua = true}) then
+if not runtime.load_modules(env, { story_module }, {save_lua = true}) then
 	os.exit(1)
 end
 
 local esc = "\27["
 
 local function highlight(text)
-  for _, dir in ipairs(env.DESCS) do
-    local fmt = esc .. "1;32m%s" .. esc .. "0m"
-    local cap = dir:sub(1,1):upper() .. dir:sub(2)
-    text = text:gsub("(%f[%a]" .. dir .. "%f[%A])", function(m) return fmt:format(m) end)
-    text = text:gsub("(%f[%a]" .. cap .. "%f[%A])", function(m) return fmt:format(m) end)
+  if type(env.DESCS) == "table" then
+    for _, dir in ipairs(env.DESCS) do
+      local fmt = esc .. "1;32m%s" .. esc .. "0m"
+      local cap = dir:sub(1,1):upper() .. dir:sub(2)
+      text = text:gsub("(%f[%a]" .. dir .. "%f[%A])", function(m) return fmt:format(m) end)
+      text = text:gsub("(%f[%a]" .. cap .. "%f[%A])", function(m) return fmt:format(m) end)
+    end
   end
-  for _, dir in ipairs(env.DIRS) do
-    local fmt = esc .. "1;36m%s" .. esc .. "0m"
-    local cap = dir:sub(1,1):upper() .. dir:sub(2)
-    text = text:gsub("(%f[%a]" .. dir .. "%f[%A])", function(m) return fmt:format(m) end)
-    text = text:gsub("(%f[%a]" .. cap .. "%f[%A])", function(m) return fmt:format(m) end)
+  if type(env.DIRS) == "table" then
+    for _, dir in ipairs(env.DIRS) do
+      local fmt = esc .. "1;36m%s" .. esc .. "0m"
+      local cap = dir:sub(1,1):upper() .. dir:sub(2)
+      text = text:gsub("(%f[%a]" .. dir .. "%f[%A])", function(m) return fmt:format(m) end)
+      text = text:gsub("(%f[%a]" .. cap .. "%f[%A])", function(m) return fmt:format(m) end)
+    end
   end
   return text
 end

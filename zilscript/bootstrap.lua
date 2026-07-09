@@ -29,6 +29,14 @@ P1QVERB=1
 P1QADJECTIVE=2
 P1QDIRECTION=3
 
+SH=128
+SC=64
+SIR=32
+SOG=16
+STAKE=8
+SMANY=4
+SHAVE=2
+
 -- === Register globals ===
 for i, flag in ipairs(ZIL_ObjectFlags) do
   _G[flag] = i
@@ -67,6 +75,11 @@ PRSA = nil
 PRSO = nil
 PRSI = nil
 
+local ZIL_CONTROL_SIGNALS = {
+	quit = {},
+	restart = {},
+}
+
 M_FATAL = 2
 M_HANDLED = 1
 M_NOT_HANDLED = nil
@@ -82,6 +95,7 @@ local mem
 local _obj_count = 0  -- number of declared objects; object IDs are 1.._obj_count
 local _act_count = 0  -- number of registered actions; action IDs are 1.._act_count
 local _act_fn_to_id = {}  -- build-time reverse-lookup: fn_idx -> action_id
+local restart_snapshot
 local suggestions = {
 	READBIT = "READ",
 	TAKEBIT = "TAKE",
@@ -237,7 +251,7 @@ mem = setmetatable({size=0},{__index={
 		return string.char(table.unpack(bytes))
 	end,
 
-	byte = function(self, idx) return self[idx+1] end,
+	byte = function(self, idx) return self[idx+1] or 0 end,
 	word = function(self, ptr) return self:byte(ptr)|(self:byte(ptr+1)<<8) end,
 	dword = function(self, ptr) return self:byte(ptr)|(self:byte(ptr+1)<<8)|(self:byte(ptr+2)<<16)|(self:byte(ptr+3)<<24) end,
 	qword = function(self, ptr) return self:byte(ptr)|(self:byte(ptr+1)<<8)|(self:byte(ptr+2)<<16)|(self:byte(ptr+3)<<24)|(self:byte(ptr+4)<<32)|(self:byte(ptr+5)<<40)|(self:byte(ptr+6)<<48)|(self:byte(ptr+7)<<56) end,
@@ -370,6 +384,85 @@ local function io_flush()
 	return text
 end
 
+local function is_control_signal(signal, kind)
+	if kind then
+		return signal == ZIL_CONTROL_SIGNALS[kind]
+	end
+	return signal == ZIL_CONTROL_SIGNALS.quit or signal == ZIL_CONTROL_SIGNALS.restart
+end
+
+function IS_ZIL_CONTROL_SIGNAL(signal, kind)
+	return is_control_signal(signal, kind)
+end
+
+local function is_state_global(value)
+	local value_type = type(value)
+	return value_type == "number"
+		or value_type == "boolean"
+		or value_type == "string"
+end
+
+local function capture_game_state()
+	local state = {
+		mem_size = mem.size,
+		mem_bytes = {},
+		globals = {},
+	}
+
+	for i = 1, mem.size do
+		state.mem_bytes[i] = mem[i]
+	end
+	for name, value in pairs(_G) do
+		if is_state_global(value) then
+			state.globals[name] = value
+		end
+	end
+
+	return state
+end
+
+local function restore_game_state(state)
+	for name, value in pairs(_G) do
+		if is_state_global(value) and state.globals[name] == nil then
+			_G[name] = nil
+		end
+	end
+	for name, value in pairs(state.globals) do
+		_G[name] = value
+	end
+
+	for i = state.mem_size + 1, mem.size do
+		mem[i] = nil
+	end
+	for i = 1, state.mem_size do
+		mem[i] = state.mem_bytes[i]
+	end
+	mem.size = state.mem_size
+	output_buffer = {}
+end
+
+function CAPTURE_RESTART_STATE()
+	restart_snapshot = capture_game_state()
+	return true
+end
+
+function VERIFY()
+	return true
+end
+
+function QUIT()
+	error(ZIL_CONTROL_SIGNALS.quit, 0)
+end
+
+function RESTART()
+	if not restart_snapshot then
+		return false
+	end
+
+	restore_game_state(restart_snapshot)
+	error(ZIL_CONTROL_SIGNALS.restart, 0)
+end
+
 function TELL(...)
 	local object = false
 	for i = 1, select("#", ...) do
@@ -398,6 +491,7 @@ end
 function PRINTI(n) io_write(tostring(n)) return true end
 function PRINTN(n) io_write(tostring(n)) return true end
 function PRINTC(ch) io_write(string.char(ch)) return true end
+function PRINC(n) io_write(tostring(n)) return true end
 function CRLF() io_write("\n") return true end
 
 function JIGS_UP(msg)
@@ -452,7 +546,9 @@ function READ(inbuf, parse)
 	
 	local p = {}
 	for pos, word in s:gmatch("()(%S+)") do
-		local index = cache.words[word:lower()] or 0
+		-- Z-machine truncates dictionary words to 6 characters
+		local truncated = word:lower():sub(1, 6)
+		local index = cache.words[truncated] or 0
 		table.insert(p, makeword(index).. string.char(#word, pos&0xff))
 	end
 	mem:write(s: lower()..'\0', inbuf+1)
@@ -467,13 +563,20 @@ function BOR(a, b) return a | b end
 function BTST(a, b) return (a & b) == b end
 
 -- Arithmetic / comparison
-function EQUALQ(a, ...) 
+function EQUALQ(a, ...)
 	for i = 1, select("#", ...) do
-    if (a or 0) == (select(i, ...) or 0) then return true end
-  end
-  return false
+		local b = select(i, ...)
+		if (a or 0) == (b or 0) then return true end
+		if type(a) == 'number' and type(b) == 'function' then
+			for n, ff in ipairs(FUNCTIONS) do if b == ff then if a == n then return true end; break end end
+		elseif type(a) == 'function' and type(b) == 'number' then
+			for n, ff in ipairs(FUNCTIONS) do if a == ff then if b == n then return true end; break end end
+		end
+	end
+	return false
 end
-function NEQUALQ(a, b) return (a or 0) ~= (b or 0) end
+function GASSIGNEDQ(name) return rawget(_G, tostring(name)) ~= nil end
+function NEQUALQ(a, b) return not EQUALQ(a, b) end
 function GQ(a, b) return (a or 0) > (b or 0) end
 function LQ(a, b) return (a or 0) < (b or 0) end
 function GEQ(a, b) return (a or 0) >= (b or 0) end
@@ -540,26 +643,31 @@ local function learn(word, atom, value)
 	}
 	if not word then return 0 end
 	word = word:lower()
+	-- Z-machine truncates dictionary words to 6 characters
+	local word_key = word:sub(1, 6)
 	if type(value) == 'table' then value = register(value, word) end
-	if cache.words[word] then
-		local index = cache.words[word]
-		local ent = mem:read(7, cache.words[word])
+	if cache.words[word_key] then
+		local index = cache.words[word_key]
+		local ent = mem:read(7, cache.words[word_key])
 		local new = string.char(0,0,0,0,ent:byte(5)|atom,ent:byte(6),value or OQANY)
 		mem:write(new, index)
 	else
 		local enc = string.char(0,0,0,0,atom|prim[atom],value or OQANY,0)
 		local pos = mem:write(enc)
-		cache.words[word] = pos
-		_G['WQ'..upper2(word)] = enc
+		cache.words[word_key] = pos
+		_G['WQ'..upper2(word)] = pos
 	end
-	for _, syn in ipairs(cache.synonyms[word] or {}) do
-		mem:write(mem:read(8, cache.words[word]), cache.words[syn:lower()])
+	for _, syn in ipairs(cache.synonyms[word_key] or {}) do
+		local syn_key = syn:lower():sub(1, 6)
+		if cache.words[syn_key] then
+			mem:write(mem:read(8, cache.words[word_key]), cache.words[syn_key])
+		end
 	end
 	
 	-- Special handling for PREPOSITIONS: populate array format immediately
 	if atom == PSQPREPOSITION and value and type(value) == 'number' then
-		local word_ptr = cache.words[word]
-		if word_ptr and PREPOSITIONS._hash[word] then
+		local word_ptr = cache.words[word_key]
+		if word_ptr and PREPOSITIONS._hash[word_key] then
 			-- Add to array format: [0]=count, [1]=word_ptr1, [2]=index1, [3]=word_ptr2, [4]=index2, ...
 			local count = PREPOSITIONS[0]
 			PREPOSITIONS[count * 2 + 1] = word_ptr
@@ -568,7 +676,7 @@ local function learn(word, atom, value)
 		end
 	end
 	
-	return value or cache.words[word]
+	return value or cache.words[word_key]
 end
 
 
@@ -667,6 +775,16 @@ function DECL_OBJECT()
 end
 
 function OBJECT(object)
+	local function resolve_global(value)
+		if type(value) == "string" then
+			return rawget(_G, value) or value
+		end
+		return value
+	end
+	local function function_prop(value)
+		value = resolve_global(value)
+		return type(value) == 'function' and mem:stringprop(fn(value)) or '\0\0'
+	end
 	local function makeprop(body, name)
 		local num = register(PROPERTIES, name)
 		if not _G["PQ"..name] then _G["PQ"..name] = num end
@@ -709,23 +827,36 @@ function OBJECT(object)
 			table.insert(t, makeprop(makebyte(loc_value), k))
 		-- using PQACTION for ACTION property, commented out original function support
 		elseif k == "ACTION" or k == "DESCFCN" then 
-			table.insert(t, makeprop(type(v) == 'function' and mem:stringprop(fn(v)) or '\0\0', k))
+			table.insert(t, makeprop(function_prop(v), k))
 		elseif type(v) == 'string' then table.insert(t, makeprop(mem:stringprop(v), k))
 		elseif type(v) == 'number' then table.insert(t, makeprop(makebyte(v), k))
 		elseif type(v) == 'function' then table.insert(t, makeprop(mem:stringprop(fn(v)), k))
-		elseif _DIRECTIONS[k] then			
+		elseif _DIRECTIONS[k] or (type(v) == "table" and (v.per or v[1] ~= nil)) then
+			if not _DIRECTIONS[k] then DIRECTIONS(k) end
 			local str
-			if v.per then
-				str = makeword(fn(v.per))..string.char(0) -- FEXIT = 3
+			if type(v) == 'number' then
+				-- UEXIT: bare number from compiler (e.g., SOUTH = ROOM_ID)
+				str = string.char(v)
+			elseif type(v) == 'string' then
+				-- NEXIT: bare string from compiler (e.g., OUT = "message")
+				str = mem:write(v.."\0")
+			elseif v.per then
+				local per = resolve_global(v.per)
+				str = makeword(fn(per))..string.char(0) -- FEXIT = 3
 			elseif type(v[1]) == 'string' then
 				str = mem:write(v[1].."\0") -- NEXIT = 2
 			else
+				if v[1] == nil then
+					error(string.format("Unresolved exit target for %s.%s", tostring(object.NAME), tostring(k)))
+				end
 				str = string.char(v[1]) -- UEXIT = 1
 				local say = v.say and mem:write(v.say.."\0") or 0
-				if v.door then
-					str = str..string.char(v.door)..makeword(say)..string.char(0) -- DEXIT = 5
-				elseif v.flag then
-					str = str..string.char(v.flag)..makeword(say) -- CEXIT = 4
+				if v.door ~= nil then
+					local door = type(v.door) == "boolean" and (v.door and 1 or 0) or v.door
+					str = str..string.char(door)..makeword(say)..string.char(0) -- DEXIT = 5
+				elseif v.flag ~= nil then
+					local flag = type(v.flag) == "boolean" and (v.flag and 1 or 0) or v.flag
+					str = str..string.char(flag)..makeword(say) -- CEXIT = 4
 				end
 			end
 			table.insert(t, makeprop(str, k))
@@ -799,9 +930,7 @@ function GET(s, i)
 	end
 	if not i then return 0 end
 	if type(s) == 'number' then
-		if not GETB(s,i*2) then print("First argument NULL in GET at",i,": ", debug.traceback()) end
-		if not GETB(s,i*2+1) then print("Second argument NULL in GET at",i,": ", debug.traceback()) end
-		return GETB(s,i*2)|(GETB(s,i*2+1)<<8)
+		return (GETB(s,i*2) or 0)|((GETB(s,i*2+1) or 0)<<8)
 	end
 	assert(type(s) == 'table', "GET requires a table")
 	return i == 0 and #s or s[i]
@@ -812,7 +941,7 @@ end
 function DIRECTIONS(...)
 	for _, dir in ipairs {...} do
 		_DIRECTIONS[dir] = learn(dir, PSQDIRECTION, PROPERTIES)
-		if dir ~= "IN" and dir ~= "OUT" then
+		if type(DIRS) == "table" and dir ~= "IN" and dir ~= "OUT" then
 			table.insert(DIRS, dir:lower())
 		end
 	end
@@ -846,6 +975,9 @@ function SYNTAX(syn)
 		PREACTIONS = mem:write(string.rep('\0\0', 256))
 	end
 	local name = syn.VERB:lower()
+	if not syn.ACTION then
+		error(string.format("SYNTAX for verb '%s' is missing ACTION", syn.VERB))
+	end
 	local action = action_id(fn(_G[syn.ACTION]))
 	local function encode(s)
 		return string.char(
@@ -880,26 +1012,31 @@ end
 function BUZZ(...)
 	for _, buzz in ipairs {...} do
 		learn(buzz, PSQBUZZ_WORD, nil)
-		_G['WQ'..buzz:upper()] = cache.words[buzz:lower()]
+		_G['WQ'..buzz:upper()] = cache.words[buzz:lower():sub(1, 6)]
 	end
 end
 
 function SYNONYM(verb, ...)
-	verb = verb:lower()
+	verb = verb:lower():sub(1, 6)
 	cache.synonyms[verb] = {...}
   for _, syn in ipairs {...} do
+		-- Truncate to 6 chars (Z-machine dictionary convention)
+		local syn_key = syn:lower():sub(1, 6)
 		if cache.words[verb] then
-			cache.words[syn:lower()] = mem:write(mem:read(8, cache.words[verb]))
+			cache.words[syn_key] = mem:write(mem:read(8, cache.words[verb]))
 		else
-			cache.words[syn:lower()] = mem:write(string.rep('\0', 8))
+			cache.words[syn_key] = mem:write(string.rep('\0', 8))
 		end
-		_G['WQ'..syn:upper()] = cache.words[syn:lower()]
+		_G['WQ'..syn:upper()] = cache.words[syn_key]
   end
 end
 
 ROOM = OBJECT
 
-function ITABLE(size)
+function ITABLE(size, maybe_size)
+	if size == nil and type(maybe_size) == "number" then
+		size = maybe_size
+	end
 	local address = mem:write_word(size)
 	mem:write(string.rep("\0", size))
 	return address
@@ -919,8 +1056,9 @@ function TABLE(...)
 end
 
 function LTABLE(...)
+	local n = select("#", ...)
 	local tbl = {}
-	for i = 1, select("#", ...) do
+	for i = 1, n do
     local v = select(i, ...)
 		if type(v) == 'string' then table.insert(tbl, makeword(mem:writestring2(v)))
 		elseif type(v) == 'number' then table.insert(tbl, makeword(v))
@@ -928,7 +1066,7 @@ function LTABLE(...)
 		else error("LTABLE: Unsupported type "..type(v))
 		end
 	end
-	local address = mem:write_word((#{...}))
+	local address = mem:write_word(n)
 	mem:write(table.concat(tbl))
 	return address
 end
@@ -959,13 +1097,29 @@ function OPENABLEQ(OBJ)
 end
 
 function CO_CREATE(func)
-	local co = coroutine.create(func)
+	local co = coroutine.create(function(...)
+		while true do
+			local ok, result = pcall(func, ...)
+			if ok then
+				return result
+			end
+			if is_control_signal(result, "restart") then
+				-- Restart reruns the entry routine from the captured initial state.
+			elseif is_control_signal(result, "quit") then
+				return
+			else
+				error(result, 0)
+			end
+		end
+	end)
 	coroutine.resume(co)  -- Start the coroutine
 	return co
 end
 
  -- if only_flag is true, return only success flag, for chaining of arguments
 function CO_RESUME(co, param, only_flag)
+	_G.TEST_BREADCRUMB_STEP = (_G.TEST_BREADCRUMB_STEP or 0) + 1
+	_G.TEST_BREADCRUMB_COMMAND = param
 	local ok, err = coroutine.resume(co, param)
 	if only_flag then
 		return ok
@@ -974,38 +1128,66 @@ function CO_RESUME(co, param, only_flag)
 	end
 end
 
+local function dirname(path)
+	return path and path:match("^(.*)[/\\][^/\\]*$") or nil
+end
+
+local function try_open(path)
+	local file = io.open(path, "r")
+	if file then return file, path end
+	local lower = path:lower()
+	if lower ~= path then
+		file = io.open(lower, "r")
+		if file then return file, lower end
+	end
+	return nil, nil
+end
+
 -- INSERT_FILE loads and executes a ZIL file
 -- This is used by INSERT-FILE directive to include other files
-function INSERT_FILE(filename)
+function INSERT_FILE(filename, source_filename)
 	-- Convert module-style filename (e.g., "zork1.globals") to file path
 	local name_path = filename:gsub("%.", "/")
 	local file, filepath
+
+	local function try_candidate(path)
+		if not path or path == "" then return nil end
+		file, filepath = try_open(path)
+		if file then return true end
+		if not path:match("%.zil$") then
+			file, filepath = try_open(path .. ".zil")
+			if file then return true end
+		end
+		return false
+	end
+
+	local base_dir = dirname(source_filename)
+	if base_dir and not name_path:match("^/") and try_candidate(base_dir .. "/" .. name_path) then
+		-- Found relative to including file.
+	end
 	
 	-- Search for the file using package.zilpath if available
-	if package and package.zilpath then
+	if not file and package and package.zilpath then
 		for path_pattern in package.zilpath:gmatch("[^;]+") do
-			filepath = path_pattern:gsub("?", name_path)
-			file = io.open(filepath, "r")
-			if file then
+			if try_candidate(path_pattern:gsub("?", name_path):gsub("%.zil$", "")) then
 				break
 			end
 		end
 	end
 	
 	-- If not found, try direct path with .zil extension
-	if not file then
-		filepath = name_path .. ".zil"
-		file = io.open(filepath, "r")
-	end
+	if not file then try_candidate(name_path) end
 	
 	-- If still not found, try the filename as-is
-	if not file then
-		filepath = filename
-		file = io.open(filepath, "r")
+	if not file then try_candidate(filename) end
+	
+	-- Final fallback: try infocom/zork1/ as substrate
+	if not file and not name_path:match("infocom/zork[123][/\\]") then
+		try_candidate("infocom/zork1/" .. name_path)
 	end
 	
 	if not file then
-		error(string.format("INSERT_FILE: Cannot open file '%s' (tried package.zilpath and direct paths)", filename))
+		error(string.format("INSERT_FILE: Cannot open '%s' (resolved to '%s', tried package.zilpath and direct paths)", filename, name_path))
 	end
 	
 	local content = file:read("*all")
@@ -1014,23 +1196,24 @@ function INSERT_FILE(filename)
 	-- Parse and compile the ZIL content
 	local parser = require 'zilscript.parser'
 	local compiler = require 'zilscript.compiler'
+	local sourcemap = require 'zilscript.sourcemap'
 	
-	local ok, ast = pcall(parser.parse, content, filename)
+	local ok, ast = pcall(parser.parse, content, filepath)
 	if not ok then
-		error(string.format("INSERT_FILE: Failed to parse '%s': %s", filename, ast))
+		error(string.format("%s: Failed to parse: %s", filepath, ast))
 	end
 	
-	local result = compiler.compile(ast, filename .. ".lua")
+	local result = compiler.compile(ast, filepath .. ".lua")
 	
 	-- Execute the compiled code in the current environment
-	local chunk, load_err = load(result.combined, "@" .. filename  .. '.zil', "t", _G)
+	local chunk, load_err = load(result.combined, "@" .. filepath, "t", _G)
 	if not chunk then
-		error(string.format("INSERT_FILE: Failed to load '%s': %s", filename, load_err))
+		error(string.format("%s: Failed to load: %s", filepath, sourcemap.translate(load_err)))
 	end
 	
 	local exec_ok, exec_err = pcall(chunk)
 	if not exec_ok then
-		error(string.format("INSERT_FILE: Failed to execute '%s': %s", filename, exec_err))
+		error(string.format("%s: Failed to execute: %s", filepath, sourcemap.translate(exec_err)))
 	end
 end
 

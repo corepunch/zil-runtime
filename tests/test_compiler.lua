@@ -24,7 +24,7 @@ test.describe("Compiler - Basic Compilation", function(t)
 		local result = compiler.compile(ast)
 		
 		assert.assert_match(result.declarations, "HELLO = function")
-		assert.assert_match(result.declarations, "error%(1%)")
+		assert.assert_match(result.declarations, "error%(__res and 'HELLO")
 	end)
 	
 	t.it("should compile routine with parameters", function(assert)

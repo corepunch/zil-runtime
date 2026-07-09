@@ -1,10 +1,21 @@
-local ZORK_NUMBER = 1
-  
 -- Evaluation for conditional compilation
+local compile_time_globals = {}
+
+local function get_zork_number()
+	if compile_time_globals.ZORK_NUMBER then
+		return compile_time_globals.ZORK_NUMBER
+	end
+	local ok, val = pcall(function() return _G.ZORK_NUMBER end)
+	if ok and type(val) == "number" then
+		return val
+	end
+	return 1
+end
+
 local function get_number(node)
 	if not node or node.type ~= "number" then
 		if node and node.type == "symbol" and node.value == ",ZORK-NUMBER" then
-			return ZORK_NUMBER
+			return get_zork_number()
 		end
 		return nil
 	end

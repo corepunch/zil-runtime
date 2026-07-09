@@ -9,29 +9,52 @@ local NEUTRAL = "\27[36m"
 local RESET = "\27[0m"
 
 local success = true
+local TEST_FAILURE_PREFIX = "__ZIL_TEST_FAILURE__:"
+
+local function breadcrumb_label()
+	local step = rawget(_G, "TEST_BREADCRUMB_STEP")
+	local command = rawget(_G, "TEST_BREADCRUMB_COMMAND")
+	if type(step) == "number" and type(command) == "string" and command ~= "" then
+		command = command:match("^%s*(.-)%s*$")
+		return string.format("[step %d] %s", step, command)
+	end
+	return nil
+end
+
+local function format_assertion(message)
+	local breadcrumb = breadcrumb_label()
+	if breadcrumb then
+		return breadcrumb .. " => " .. message
+	end
+	return message
+end
+
+local function fail_fast(message)
+	success = false
+	error(TEST_FAILURE_PREFIX .. (message or "Assertion failed"), 0)
+end
 
 -- ASSERT that checks condition and prints [PASS] or [FAIL]
 function ASSERT(msg, ...)
 	for _, condition in ipairs {...} do
 		if condition then
-			print(GREEN .. "[PASS] " .. (msg or "Assertion passed") .. RESET)
+			print(GREEN .. "[PASS] " .. format_assertion(msg or "Assertion passed") .. RESET)
 			return true
 		else
-			success = false
-			print(RED .. "[FAIL] " .. (msg or "Assertion failed") .. RESET)
-			return false
+			print(RED .. "[FAIL] " .. format_assertion(msg or "Assertion failed") .. RESET)
+			fail_fast(msg)
 		end
 	end
 end
 
 function ASSERT_TEXT(expected, ok, actual)
+	local label = format_assertion(expected)
 	if ok and actual:lower():find(expected:lower(), 1, true) then
-		print(GREEN .. "[PASS] " .. expected .. RESET)
+		print(GREEN .. "[PASS] " .. label .. RESET)
 		return true
 	else
-		success = false
-		print(RED .. "[FAIL] " .. expected .. '\n' .. actual .. RESET)
-		return false
+		print(RED .. "[FAIL] " .. label .. '\n' .. actual .. RESET)
+		fail_fast(expected)
 	end
 end
 
@@ -64,8 +87,21 @@ end
 print("Running ZIL test: " .. test_module)
 require(test_module)
 
+if type(CAPTURE_RESTART_STATE) == "function" then
+	CAPTURE_RESTART_STATE()
+end
+
 -- Run the RUN_TEST routine
-RUN_TEST()
+local ok, err = pcall(RUN_TEST)
+
+if not ok then
+	local err_text = tostring(err)
+	if err_text:find(TEST_FAILURE_PREFIX, 1, true) then
+		-- Assertion details were already printed at the failure site.
+	else
+		error(err, 0)
+	end
+end
 
 -- Flush any remaining output
 io.flush()

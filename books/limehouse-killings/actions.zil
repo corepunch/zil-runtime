@@ -807,7 +807,7 @@
            <RTRUE>)>>
 
 <ROUTINE V-INVENTORY ()
-    <TELL "You are carrying:" CR
+    <TELL "You are carrying:" CR>
     <COND (<FIRST? ,WINNER>
            <PRINT-CONTENTS ,WINNER>
            <RTRUE>)
@@ -817,7 +817,7 @@
 
 <ROUTINE V-LOOK ()
     <TELL <GETP ,HERE ,P?DESC> CR>
-    <TELL CR "Exits: "
+    <TELL CR "Exits: ">
     <COND (<==? ,HERE ,ASHWORTH-MANOR-GATE>
            <TELL "NORTH">)
           (<==? ,HERE ,ASHWORTH-ENTRANCE-HALL>
@@ -924,5 +924,16 @@
           (,GAME-LOST
            <TELL CR "The case remains unsolved. Better luck next time." CR>
            <QUIT>)
-          (T
-           <RTRUE>)>>
+           (T
+            <RTRUE>)>>
+
+; === GAME ENTRY ===
+
+<ROUTINE GO ()
+	<SETG HERE ,ASHWORTH-MANOR-GATE>
+	<SETG LIT T>
+	<SETG WINNER ,ADVENTURER>
+	<SETG PLAYER ,WINNER>
+	<MOVE ,WINNER ,HERE>
+	<V-LOOK>
+	<MAIN-LOOP>>

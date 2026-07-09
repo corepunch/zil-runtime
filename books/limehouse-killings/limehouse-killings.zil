@@ -1,15 +1,8 @@
-;"ZORK1 for
-	        Zork I: The Great Underground Empire
-	(c) Copyright 1983 Infocom, Inc.  All Rights Reserved."
-
-;"Settings"
+"The Limehouse Killings - A Victorian Mystery Zork Adventure"
 
 <CONSTANT RELEASEID 1>
 <VERSION ZIP>
 <FREQUENT-WORDS?>
-<SETG ZORK-NUMBER 1>
-
-;"Default Property Values"
 
 <PROPDEF SIZE 5>
 <PROPDEF CAPACITY 0>
@@ -26,7 +19,7 @@
 <INSERT-FILE "verbs">
 <INSERT-FILE "globals">
 
-;"Script"
+;"Book-specific overrides"
 
 <INSERT-FILE "dungeon">
 <INSERT-FILE "actions">
