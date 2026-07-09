@@ -1,13 +1,17 @@
 "TEST-zork3.ZIL - Auto-generated test from transcript"
 
-<INSERT-FILE "infocom/zork3/gglobals">
-<INSERT-FILE "infocom/zork3/gclock">
+<INSERT-FILE "infocom/zork3/gmacros">
 <INSERT-FILE "infocom/zork3/gparser">
-<INSERT-FILE "infocom/zork3/gverbs">
-<INSERT-FILE "infocom/zork3/3actions">
+<INSERT-FILE "infocom/zork3/gclock">
+<INSERT-FILE "infocom/zork3/gmain">
 <INSERT-FILE "infocom/zork3/gsyntax">
 <INSERT-FILE "infocom/zork3/3dungeon">
-<INSERT-FILE "infocom/zork3/gmain">
+<INSERT-FILE "infocom/zork3/gglobals">
+<INSERT-FILE "infocom/zork3/gverbs">
+<INSERT-FILE "infocom/zork3/3actions">
+<INSERT-FILE "infocom/zork3/demons">
+<INSERT-FILE "infocom/zork3/shadow">
+<INSERT-FILE "infocom/zork3/tm">
 <CONSTANT RELEASEID 1>
 
 <GLOBAL CO <CO-CREATE GO>>
