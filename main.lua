@@ -20,17 +20,21 @@ end
 local esc = "\27["
 
 local function highlight(text)
-  for _, dir in ipairs(env.DESCS) do
-    local fmt = esc .. "1;32m%s" .. esc .. "0m"
-    local cap = dir:sub(1,1):upper() .. dir:sub(2)
-    text = text:gsub("(%f[%a]" .. dir .. "%f[%A])", function(m) return fmt:format(m) end)
-    text = text:gsub("(%f[%a]" .. cap .. "%f[%A])", function(m) return fmt:format(m) end)
+  if type(env.DESCS) == "table" then
+    for _, dir in ipairs(env.DESCS) do
+      local fmt = esc .. "1;32m%s" .. esc .. "0m"
+      local cap = dir:sub(1,1):upper() .. dir:sub(2)
+      text = text:gsub("(%f[%a]" .. dir .. "%f[%A])", function(m) return fmt:format(m) end)
+      text = text:gsub("(%f[%a]" .. cap .. "%f[%A])", function(m) return fmt:format(m) end)
+    end
   end
-  for _, dir in ipairs(env.DIRS) do
-    local fmt = esc .. "1;36m%s" .. esc .. "0m"
-    local cap = dir:sub(1,1):upper() .. dir:sub(2)
-    text = text:gsub("(%f[%a]" .. dir .. "%f[%A])", function(m) return fmt:format(m) end)
-    text = text:gsub("(%f[%a]" .. cap .. "%f[%A])", function(m) return fmt:format(m) end)
+  if type(env.DIRS) == "table" then
+    for _, dir in ipairs(env.DIRS) do
+      local fmt = esc .. "1;36m%s" .. esc .. "0m"
+      local cap = dir:sub(1,1):upper() .. dir:sub(2)
+      text = text:gsub("(%f[%a]" .. dir .. "%f[%A])", function(m) return fmt:format(m) end)
+      text = text:gsub("(%f[%a]" .. cap .. "%f[%A])", function(m) return fmt:format(m) end)
+    end
   end
   return text
 end

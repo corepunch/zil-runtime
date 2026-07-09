@@ -57,18 +57,16 @@ function SourceMap.translate(stack)
   stack = stack:gsub("%[C%]: in function '[^']+'\n?%s*", "")
   stack = stack:gsub("\t", "  ") -- replace tabs with spaces for consistency
 
-  -- Pattern to match Lua file references in stack
-  -- Matches: zil_*.lua files or paths containing zil_*.lua
-  -- We need to handle tabs/spaces before filenames in stack traces
-  local result = stack:gsub("([@%s]*)([^%s:]*zil_[^%s:]+%.lua):(%d+):", function(prefix, file, line)
-    -- Try to find source mapping
+  -- Pattern to match Lua file references in stack traces.
+  -- Matches any .lua file reference; looks up the sourcemap to translate
+  -- back to the original ZIL source location.
+  -- This handles both zil_*.lua (from load_modules) and <path>.zil.lua (from INSERT_FILE).
+  local result = stack:gsub("([@%s]*)([^%s:]+%.lua):(%d+):", function(prefix, file, line)
     local source = SourceMap.get_source(file, tonumber(line))
     
     if source and source.file and source.line then
-      -- Replace with ZIL source location, preserve prefix (spaces/tabs/@)
       return prefix .. string.format("%s:%d:", source.file, source.line)
     else
-      -- Keep original if no mapping found
       return prefix .. file .. ":" .. line .. ":"
     end
   end)

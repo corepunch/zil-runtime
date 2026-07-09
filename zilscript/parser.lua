@@ -258,11 +258,11 @@ function ZIL.parser(stream_or_string, filename)
   
   -- Error on unmatched closing delimiters
   parsers[">"] = function(src)
-    error(("Unexpected '>' at line %d"):format(src.line))
+    error(("%s:%d: Unexpected '>'"):format(src.file or "?", src.line))
   end
   
   parsers[")"] = function(src)
-    error(("Unexpected ')' at line %d"):format(src.line))
+    error(("%s:%d: Unexpected ')'"):format(src.file or "?", src.line))
   end
   
   -- String literals: "..."

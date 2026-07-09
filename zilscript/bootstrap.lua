@@ -1179,7 +1179,7 @@ function INSERT_FILE(filename, source_filename)
 	if not file then try_candidate(filename) end
 	
 	if not file then
-		error(string.format("INSERT_FILE: Cannot open file '%s' (tried package.zilpath and direct paths)", filename))
+		error(string.format("INSERT_FILE: Cannot open '%s' (resolved to '%s', tried package.zilpath and direct paths)", filename, name_path))
 	end
 	
 	local content = file:read("*all")
@@ -1188,10 +1188,11 @@ function INSERT_FILE(filename, source_filename)
 	-- Parse and compile the ZIL content
 	local parser = require 'zilscript.parser'
 	local compiler = require 'zilscript.compiler'
+	local sourcemap = require 'zilscript.sourcemap'
 	
 	local ok, ast = pcall(parser.parse, content, filepath)
 	if not ok then
-		error(string.format("INSERT_FILE: Failed to parse '%s': %s", filename, ast))
+		error(string.format("%s: Failed to parse: %s", filepath, ast))
 	end
 	
 	local result = compiler.compile(ast, filepath .. ".lua")
@@ -1199,12 +1200,12 @@ function INSERT_FILE(filename, source_filename)
 	-- Execute the compiled code in the current environment
 	local chunk, load_err = load(result.combined, "@" .. filepath, "t", _G)
 	if not chunk then
-		error(string.format("INSERT_FILE: Failed to load '%s': %s", filename, load_err))
+		error(string.format("%s: Failed to load: %s", filepath, sourcemap.translate(load_err)))
 	end
 	
 	local exec_ok, exec_err = pcall(chunk)
 	if not exec_ok then
-		error(string.format("INSERT_FILE: Failed to execute '%s': %s", filename, exec_err))
+		error(string.format("%s: Failed to execute: %s", filepath, sourcemap.translate(exec_err)))
 	end
 end
 

@@ -106,7 +106,7 @@ function M.create_env_require(env)
 		env._G = env
 		local chunk, err = load(code, '@'..filepath, 't', env)
 		if not chunk then
-			error("Error loading module '" .. modname .. "': " .. err)
+			error("Error loading module '" .. modname .. "': " .. sourcemap.translate(err))
 		end
 		
 		local ok, result = pcall(chunk)
