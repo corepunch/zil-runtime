@@ -1,5 +1,5 @@
 # Targets
-.PHONY: test test-all test-unit test-integration test-zork1 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-pure-zil test-simple-new test-insert-file test-let test-save help
+.PHONY: test test-all test-unit test-integration test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-pure-zil test-simple-new test-insert-file test-let test-save help
 
 help:
 	@echo "Available targets:"
@@ -11,6 +11,7 @@ help:
 	@echo "  test-unit         - Run unit tests only"
 	@echo "  test-integration  - Run all integration tests"
 	@echo "  test-zork1        - Run Zork1 integration tests"
+	@echo "  test-zork2        - Run Zork2 integration tests"
 	@echo "  test-parser       - Run all parser/runtime tests"
 	@echo "  test-pure-zil     - Run pure ZIL tests (using ASSERT functions)"
 	@echo ""
@@ -51,12 +52,16 @@ test-unit:
 	@echo "Running unit tests..."
 	lua tests/run_all.lua
 
-test-integration: test-zork1 test-parser test-horror-all
+test-integration: test-zork1 test-zork2 test-parser test-horror-all
 	@echo "All integration tests completed!"
 
 test-zork1:
 	@echo "Running Zork1 integration tests..."
 	@lua5.4 run-zil-test.lua infocom/zork1/test/zork1-walkthrough
+
+test-zork2:
+	@echo "Running Zork2 integration tests..."
+	@lua5.4 run-zil-test.lua infocom/zork2/test/test-auto-generated
 
 test-parser: test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-simple-new test-insert-file test-let test-save
 	@echo "All parser/runtime tests completed!"
@@ -150,4 +155,5 @@ test-pure-zil:
 	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-helpers
 	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-failures
 	@lua5.4 run-zil-test.lua infocom/zork1/test/zork1-walkthrough
+	@lua5.4 run-zil-test.lua infocom/zork2/test/test-auto-generated
 	@echo "All pure ZIL tests completed!"

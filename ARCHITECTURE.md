@@ -158,6 +158,32 @@ Recommended edit strategy:
 - Imported Infocom directories are vendored directly in the repository rather than managed as git submodules.
 - Skills and adventure-process guidance live under [skills](/Users/ICHERNA/Developer/adventure-arena/External/zilscript/skills).
 
+## Reference Documentation
+
+The [docs](/Users/ICHERNA/Developer/adventure-arena/External/zilscript/docs) directory contains reference PDFs for the ZIL language and Z-machine architecture:
+
+- [Internal_Secrets_Ko_2019.pdf](/Users/ICHERNA/Developer/adventure-arena/External/zilscript/docs/Internal_Secrets_Ko_2019.pdf): Comprehensive guide to how Infocom's ZIL language was implemented and how the Z-machine works internally. Covers object properties, dictionary format, clock/interrupt system, and memory layout.
+- [ZILF Reference Guide.pdf](/Users/ICHERNA/Developer/adventure-arena/External/zilscript/docs/ZILF%20Reference%20Guide.pdf): Modern ZILF compiler reference. Documents ZIL syntax, standard forms, compile-time evaluation (`%<COND ...>`), macros, property/flag semantics, and the DIRECTIONS/SYNTAX/OBJECT system.
+
+These documents are the authoritative references when implementing or debugging ZIL language features in the compiler and runtime.
+
+## Known Engine Constraints
+
+### Compile-time Evaluation
+
+The parser evaluates `%<COND ...>` at parse time using [zilscript/evaluate.lua](/Users/ICHERNA/Developer/adventure-arena/External/zilscript/zilscript/evaluate.lua). This currently supports `ZORK-NUMBER` checks (reading from `_G.ZORK_NUMBER` at parse time) and `GASSIGNED?` (always true). The `<SETG ZORK-NUMBER N>` at the top of a test file must execute at runtime *before* `INSERT_FILE` calls that contain compile-time conditionals.
+
+### Module Load Order
+
+Because `INSERT_FILE` parses, compiles, and executes each file sequentially at runtime, forward references between files matter:
+
+- Direction properties (`PQNORTH`, `PQSE`, etc.) are assigned when the first `ROOM` with that exit is created via `OBJECT()`. Code that references these values (like `TABLE(PQNORTH, ...)`) must load *after* the `DIRECTIONS` directive and room definitions.
+- For Zork II specifically, the `EIGHT-DIRECTIONS` table in `2actions.zil` references direction properties that don't exist until `2dungeon.zil` loads. The test file re-creates this table after all modules load as a workaround.
+
+### Clock/Interrupt System
+
+The CLOCKER in `gclock.zil` uses memory-based vectors (`C-TABLE`, `REST`, `GET`, `PUT`) to track timed events. `QUEUE(routine, ticks)` schedules an interrupt; `CLOCKER` decrements ticks each turn and fires the routine when tick reaches 1. Some game mechanics (balloon, wizard appearances) depend on interrupts firing at the right time relative to the deterministic RANDOM sequence in tests.
+
 ## Minimal Mental Model
 
 If you only need the shortest useful model for this repo, use this:

@@ -95,6 +95,33 @@ test.describe("Runtime - Bootstrap Loading", function(t)
 		-- Bootstrap should define some ZIL runtime functions
 		assert.assert_type(env, "table")
 	end)
+
+	t.it("should expose control opcodes", function(assert)
+		local env = runtime.create_game_env()
+		runtime.init(env, true)
+
+		assert.assert_type(env.QUIT, "function")
+		assert.assert_type(env.RESTART, "function")
+		assert.assert_type(env.VERIFY, "function")
+	end)
+
+	t.it("should restore captured state on restart", function(assert)
+		local env = runtime.create_game_env()
+		runtime.init(env, true)
+
+		env.TEST_COUNTER = 1
+		env.TEST_STATE = {value = 10}
+		env.CAPTURE_RESTART_STATE()
+
+		env.TEST_COUNTER = 99
+		env.TEST_STATE.value = 42
+
+		local ok, signal = pcall(env.RESTART)
+		assert.assert_false(ok)
+		assert.assert_true(env.IS_ZIL_CONTROL_SIGNAL(signal, "restart"))
+		assert.assert_equal(env.TEST_COUNTER, 1)
+		assert.assert_equal(env.TEST_STATE.value, 10)
+	end)
 end)
 
 test.describe("Runtime - ZIL File Loading", function(t)
@@ -146,6 +173,41 @@ test.describe("Runtime - Game Startup", function(t)
 		game:resume()
 		
 		assert.assert_equal(env.game_started, true)
+	end)
+
+	t.it("should restart the game loop when RESTART is raised", function(assert)
+		local env = runtime.create_game_env()
+		runtime.init(env, true)
+
+		local attempts = 0
+		env.CAPTURE_RESTART_STATE()
+		env.GO = function()
+			attempts = attempts + 1
+			if attempts == 1 then
+				env.RESTART()
+			end
+			coroutine.yield("after restart")
+		end
+
+		local game = runtime.create_game(env, true)
+		local response = game:resume()
+
+		assert.assert_equal(response, "after restart")
+		assert.assert_equal(attempts, 2)
+	end)
+
+	t.it("should stop cleanly when QUIT is raised", function(assert)
+		local env = runtime.create_game_env()
+		runtime.init(env, true)
+		env.GO = function()
+			env.QUIT()
+		end
+
+		local game = runtime.create_game(env, true)
+		local response = game:resume()
+
+		assert.assert_nil(response)
+		assert.assert_false(game:is_running())
 	end)
 end)
 

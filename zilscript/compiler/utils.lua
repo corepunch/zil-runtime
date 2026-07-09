@@ -22,6 +22,7 @@ function Utils.normalizeIdentifier(str)
     :gsub("^[,.]+", "")        -- Remove leading commas/dots
     :gsub("[,.]", "")          -- Remove internal commas/dots
     :gsub("%-", "_")           -- Replace - with _
+    :gsub("&", "_")            -- Replace & with _ (e.g. GO&LOOK -> GO_LOOK)
     :gsub("%?", "Q")           -- Question mark to Q
     :gsub("\\", "/")           -- Backslash to forward slash
 end
@@ -40,7 +41,7 @@ function Utils.normalizeFunctionName(name)
     ["0?"] = "ZEROQ",
     ["1?"] = "ONEQ",
   }
-  return OPERATOR_MAP[name] or name:gsub("%-", "_"):gsub("%?", "Q")
+  return OPERATOR_MAP[name] or name:gsub("%-", "_"):gsub("&", "_"):gsub("%?", "Q")
 end
 
 -- Check if node is a COND expression

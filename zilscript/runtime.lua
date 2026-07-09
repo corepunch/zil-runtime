@@ -173,7 +173,10 @@ function M.execute(code, name, env, silent)
 	
 	local ok, run_err = pcall(chunk)
 	if not ok then
-		-- Translate the error traceback to use ZIL source locations
+		if type(env.IS_ZIL_CONTROL_SIGNAL) == "function" 
+			and env.IS_ZIL_CONTROL_SIGNAL(run_err) then
+			error(run_err, 0)
+		end
 		local translated_err = sourcemap.translate(tostring(run_err))
 		-- if not silent then
 			print("Runtime error: " .. translated_err)
@@ -239,6 +242,10 @@ function M.load_zil_files(files, env, options)
 			return false
 		end
 	end
+
+	if type(env.CAPTURE_RESTART_STATE) == "function" then
+		env.CAPTURE_RESTART_STATE()
+	end
 		
 	return true
 end
@@ -268,6 +275,10 @@ function M.load_modules(env, modules, options)
 			return false
 		end
 	end
+
+	if type(env.CAPTURE_RESTART_STATE) == "function" then
+		env.CAPTURE_RESTART_STATE()
+	end
 	
 	-- REMOVED: FINALIZE_PREPOSITIONS call - prepositions now use pre-allocated array format
 	-- M.execute("if FINALIZE_PREPOSITIONS then FINALIZE_PREPOSITIONS() end", 'finalize', env, options.silent)
@@ -282,12 +293,31 @@ function M.create_game(env, silent)
 		-- Start the game by calling GO()
 		-- Returns true on success, false on failure
 		coroutine = coroutine.create(function()
-			local success = M.execute("GO()", 'main', env, silent)
-			if not success then
+			if type(env.GO) ~= "function" then
 				error("Failed to start game: GO() not defined or failed")
 			end
-			if not silent then
-				print("\n*** Game has ended ***\n")
+
+			while true do
+				local ok, result = pcall(env.GO)
+				if ok then
+					if not silent then
+						print("\n*** Game has ended ***\n")
+					end
+					return result
+				end
+
+				if type(env.IS_ZIL_CONTROL_SIGNAL) == "function"
+					and env.IS_ZIL_CONTROL_SIGNAL(result, "restart") then
+					-- RESTART restores captured state and re-enters GO().
+				elseif type(env.IS_ZIL_CONTROL_SIGNAL) == "function"
+					and env.IS_ZIL_CONTROL_SIGNAL(result, "quit") then
+					if not silent then
+						print("\n*** Game has ended ***\n")
+					end
+					return
+				else
+					error(tostring(result), 0)
+				end
 			end
 		end),
 		-- Resume the game coroutine with input

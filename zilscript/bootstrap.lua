@@ -67,6 +67,11 @@ PRSA = nil
 PRSO = nil
 PRSI = nil
 
+local ZIL_CONTROL_SIGNALS = {
+	quit = {},
+	restart = {},
+}
+
 M_FATAL = 2
 M_HANDLED = 1
 M_NOT_HANDLED = nil
@@ -82,6 +87,7 @@ local mem
 local _obj_count = 0  -- number of declared objects; object IDs are 1.._obj_count
 local _act_count = 0  -- number of registered actions; action IDs are 1.._act_count
 local _act_fn_to_id = {}  -- build-time reverse-lookup: fn_idx -> action_id
+local restart_snapshot
 local suggestions = {
 	READBIT = "READ",
 	TAKEBIT = "TAKE",
@@ -237,7 +243,7 @@ mem = setmetatable({size=0},{__index={
 		return string.char(table.unpack(bytes))
 	end,
 
-	byte = function(self, idx) return self[idx+1] end,
+	byte = function(self, idx) return self[idx+1] or 0 end,
 	word = function(self, ptr) return self:byte(ptr)|(self:byte(ptr+1)<<8) end,
 	dword = function(self, ptr) return self:byte(ptr)|(self:byte(ptr+1)<<8)|(self:byte(ptr+2)<<16)|(self:byte(ptr+3)<<24) end,
 	qword = function(self, ptr) return self:byte(ptr)|(self:byte(ptr+1)<<8)|(self:byte(ptr+2)<<16)|(self:byte(ptr+3)<<24)|(self:byte(ptr+4)<<32)|(self:byte(ptr+5)<<40)|(self:byte(ptr+6)<<48)|(self:byte(ptr+7)<<56) end,
@@ -370,6 +376,157 @@ local function io_flush()
 	return text
 end
 
+local SNAPSHOT_EXCLUDED_GLOBALS = {
+	_G = true,
+	_LOADED = true,
+	assert = true,
+	coroutine = true,
+	debug = true,
+	error = true,
+	getmetatable = true,
+	ipairs = true,
+	io = true,
+	math = true,
+	next = true,
+	os = true,
+	package = true,
+	pairs = true,
+	pcall = true,
+	print = true,
+	select = true,
+	setmetatable = true,
+	string = true,
+	table = true,
+	tostring = true,
+	tonumber = true,
+	type = true,
+}
+
+local function is_control_signal(signal, kind)
+	if kind then
+		return signal == ZIL_CONTROL_SIGNALS[kind]
+	end
+	return signal == ZIL_CONTROL_SIGNALS.quit or signal == ZIL_CONTROL_SIGNALS.restart
+end
+
+function IS_ZIL_CONTROL_SIGNAL(signal, kind)
+	return is_control_signal(signal, kind)
+end
+
+local function clone_value(value, seen)
+	local value_type = type(value)
+	if value_type ~= "table" then
+		return value
+	end
+
+	seen = seen or {}
+	if seen[value] then
+		return seen[value]
+	end
+
+	local copy = {}
+	seen[value] = copy
+	for key, nested_value in pairs(value) do
+		copy[clone_value(key, seen)] = clone_value(nested_value, seen)
+	end
+
+	local mt = getmetatable(value)
+	if mt then
+		setmetatable(copy, clone_value(mt, seen))
+	end
+
+	return copy
+end
+
+local function should_snapshot_global(name, value)
+	if SNAPSHOT_EXCLUDED_GLOBALS[name] then
+		return false
+	end
+
+	local value_type = type(value)
+	return value_type == "number"
+		or value_type == "boolean"
+		or value_type == "string"
+		or value_type == "table"
+end
+
+local function capture_globals_snapshot()
+	local snapshot = {}
+	for name, value in pairs(_G) do
+		if should_snapshot_global(name, value) then
+			snapshot[name] = clone_value(value)
+		end
+	end
+	return snapshot
+end
+
+local function restore_table(target, source)
+	for key in pairs(target) do
+		target[key] = nil
+	end
+	for key, value in pairs(source) do
+		target[key] = clone_value(value)
+	end
+
+	local mt = getmetatable(source)
+	if mt or getmetatable(target) then
+		setmetatable(target, mt and clone_value(mt) or nil)
+	end
+end
+
+function CAPTURE_RESTART_STATE()
+	restart_snapshot = {
+		mem_size = mem.size,
+		mem_bytes = {},
+		globals = capture_globals_snapshot(),
+	}
+
+	for i = 1, mem.size do
+		restart_snapshot.mem_bytes[i] = mem[i]
+	end
+
+	return true
+end
+
+function VERIFY()
+	return true
+end
+
+function QUIT()
+	error(ZIL_CONTROL_SIGNALS.quit, 0)
+end
+
+function RESTART()
+	if not restart_snapshot then
+		return false
+	end
+
+	for name, value in pairs(_G) do
+		if should_snapshot_global(name, value) and restart_snapshot.globals[name] == nil then
+			_G[name] = nil
+		end
+	end
+
+	for name, value in pairs(restart_snapshot.globals) do
+		if type(_G[name]) == "table" and type(value) == "table" then
+			restore_table(_G[name], value)
+		else
+			_G[name] = clone_value(value)
+		end
+	end
+
+	for i = restart_snapshot.mem_size + 1, mem.size do
+		mem[i] = nil
+	end
+	for i = 1, restart_snapshot.mem_size do
+		mem[i] = restart_snapshot.mem_bytes[i]
+	end
+	mem.size = restart_snapshot.mem_size
+	output_buffer = {}
+
+	error(ZIL_CONTROL_SIGNALS.restart, 0)
+end
+
 function TELL(...)
 	local object = false
 	for i = 1, select("#", ...) do
@@ -398,6 +555,7 @@ end
 function PRINTI(n) io_write(tostring(n)) return true end
 function PRINTN(n) io_write(tostring(n)) return true end
 function PRINTC(ch) io_write(string.char(ch)) return true end
+function PRINC(n) io_write(tostring(n)) return true end
 function CRLF() io_write("\n") return true end
 
 function JIGS_UP(msg)
@@ -452,7 +610,9 @@ function READ(inbuf, parse)
 	
 	local p = {}
 	for pos, word in s:gmatch("()(%S+)") do
-		local index = cache.words[word:lower()] or 0
+		-- Z-machine truncates dictionary words to 6 characters
+		local truncated = word:lower():sub(1, 6)
+		local index = cache.words[truncated] or 0
 		table.insert(p, makeword(index).. string.char(#word, pos&0xff))
 	end
 	mem:write(s: lower()..'\0', inbuf+1)
@@ -467,13 +627,19 @@ function BOR(a, b) return a | b end
 function BTST(a, b) return (a & b) == b end
 
 -- Arithmetic / comparison
-function EQUALQ(a, ...) 
+function EQUALQ(a, ...)
 	for i = 1, select("#", ...) do
-    if (a or 0) == (select(i, ...) or 0) then return true end
-  end
-  return false
+		local b = select(i, ...)
+		if (a or 0) == (b or 0) then return true end
+		if type(a) == 'number' and type(b) == 'function' then
+			for n, ff in ipairs(FUNCTIONS) do if b == ff then if a == n then return true end; break end end
+		elseif type(a) == 'function' and type(b) == 'number' then
+			for n, ff in ipairs(FUNCTIONS) do if a == ff then if b == n then return true end; break end end
+		end
+	end
+	return false
 end
-function NEQUALQ(a, b) return (a or 0) ~= (b or 0) end
+function NEQUALQ(a, b) return not EQUALQ(a, b) end
 function GQ(a, b) return (a or 0) > (b or 0) end
 function LQ(a, b) return (a or 0) < (b or 0) end
 function GEQ(a, b) return (a or 0) >= (b or 0) end
@@ -540,26 +706,31 @@ local function learn(word, atom, value)
 	}
 	if not word then return 0 end
 	word = word:lower()
+	-- Z-machine truncates dictionary words to 6 characters
+	local word_key = word:sub(1, 6)
 	if type(value) == 'table' then value = register(value, word) end
-	if cache.words[word] then
-		local index = cache.words[word]
-		local ent = mem:read(7, cache.words[word])
+	if cache.words[word_key] then
+		local index = cache.words[word_key]
+		local ent = mem:read(7, cache.words[word_key])
 		local new = string.char(0,0,0,0,ent:byte(5)|atom,ent:byte(6),value or OQANY)
 		mem:write(new, index)
 	else
 		local enc = string.char(0,0,0,0,atom|prim[atom],value or OQANY,0)
 		local pos = mem:write(enc)
-		cache.words[word] = pos
-		_G['WQ'..upper2(word)] = enc
+		cache.words[word_key] = pos
+		_G['WQ'..upper2(word)] = pos
 	end
-	for _, syn in ipairs(cache.synonyms[word] or {}) do
-		mem:write(mem:read(8, cache.words[word]), cache.words[syn:lower()])
+	for _, syn in ipairs(cache.synonyms[word_key] or {}) do
+		local syn_key = syn:lower():sub(1, 6)
+		if cache.words[syn_key] then
+			mem:write(mem:read(8, cache.words[word_key]), cache.words[syn_key])
+		end
 	end
 	
 	-- Special handling for PREPOSITIONS: populate array format immediately
 	if atom == PSQPREPOSITION and value and type(value) == 'number' then
-		local word_ptr = cache.words[word]
-		if word_ptr and PREPOSITIONS._hash[word] then
+		local word_ptr = cache.words[word_key]
+		if word_ptr and PREPOSITIONS._hash[word_key] then
 			-- Add to array format: [0]=count, [1]=word_ptr1, [2]=index1, [3]=word_ptr2, [4]=index2, ...
 			local count = PREPOSITIONS[0]
 			PREPOSITIONS[count * 2 + 1] = word_ptr
@@ -568,7 +739,7 @@ local function learn(word, atom, value)
 		end
 	end
 	
-	return value or cache.words[word]
+	return value or cache.words[word_key]
 end
 
 
@@ -713,9 +884,15 @@ function OBJECT(object)
 		elseif type(v) == 'string' then table.insert(t, makeprop(mem:stringprop(v), k))
 		elseif type(v) == 'number' then table.insert(t, makeprop(makebyte(v), k))
 		elseif type(v) == 'function' then table.insert(t, makeprop(mem:stringprop(fn(v)), k))
-		elseif _DIRECTIONS[k] then			
+		elseif _DIRECTIONS[k] then
 			local str
-			if v.per then
+			if type(v) == 'number' then
+				-- UEXIT: bare number from compiler (e.g., SOUTH = ROOM_ID)
+				str = string.char(v)
+			elseif type(v) == 'string' then
+				-- NEXIT: bare string from compiler (e.g., OUT = "message")
+				str = mem:write(v.."\0")
+			elseif v.per then
 				str = makeword(fn(v.per))..string.char(0) -- FEXIT = 3
 			elseif type(v[1]) == 'string' then
 				str = mem:write(v[1].."\0") -- NEXIT = 2
@@ -799,9 +976,7 @@ function GET(s, i)
 	end
 	if not i then return 0 end
 	if type(s) == 'number' then
-		if not GETB(s,i*2) then print("First argument NULL in GET at",i,": ", debug.traceback()) end
-		if not GETB(s,i*2+1) then print("Second argument NULL in GET at",i,": ", debug.traceback()) end
-		return GETB(s,i*2)|(GETB(s,i*2+1)<<8)
+		return (GETB(s,i*2) or 0)|((GETB(s,i*2+1) or 0)<<8)
 	end
 	assert(type(s) == 'table', "GET requires a table")
 	return i == 0 and #s or s[i]
@@ -880,20 +1055,22 @@ end
 function BUZZ(...)
 	for _, buzz in ipairs {...} do
 		learn(buzz, PSQBUZZ_WORD, nil)
-		_G['WQ'..buzz:upper()] = cache.words[buzz:lower()]
+		_G['WQ'..buzz:upper()] = cache.words[buzz:lower():sub(1, 6)]
 	end
 end
 
 function SYNONYM(verb, ...)
-	verb = verb:lower()
+	verb = verb:lower():sub(1, 6)
 	cache.synonyms[verb] = {...}
   for _, syn in ipairs {...} do
+		-- Truncate to 6 chars (Z-machine dictionary convention)
+		local syn_key = syn:lower():sub(1, 6)
 		if cache.words[verb] then
-			cache.words[syn:lower()] = mem:write(mem:read(8, cache.words[verb]))
+			cache.words[syn_key] = mem:write(mem:read(8, cache.words[verb]))
 		else
-			cache.words[syn:lower()] = mem:write(string.rep('\0', 8))
+			cache.words[syn_key] = mem:write(string.rep('\0', 8))
 		end
-		_G['WQ'..syn:upper()] = cache.words[syn:lower()]
+		_G['WQ'..syn:upper()] = cache.words[syn_key]
   end
 end
 
@@ -919,8 +1096,9 @@ function TABLE(...)
 end
 
 function LTABLE(...)
+	local n = select("#", ...)
 	local tbl = {}
-	for i = 1, select("#", ...) do
+	for i = 1, n do
     local v = select(i, ...)
 		if type(v) == 'string' then table.insert(tbl, makeword(mem:writestring2(v)))
 		elseif type(v) == 'number' then table.insert(tbl, makeword(v))
@@ -928,7 +1106,7 @@ function LTABLE(...)
 		else error("LTABLE: Unsupported type "..type(v))
 		end
 	end
-	local address = mem:write_word((#{...}))
+	local address = mem:write_word(n)
 	mem:write(table.concat(tbl))
 	return address
 end
@@ -959,13 +1137,29 @@ function OPENABLEQ(OBJ)
 end
 
 function CO_CREATE(func)
-	local co = coroutine.create(func)
+	local co = coroutine.create(function(...)
+		while true do
+			local ok, result = pcall(func, ...)
+			if ok then
+				return result
+			end
+			if is_control_signal(result, "restart") then
+				-- Restart reruns the entry routine from the captured initial state.
+			elseif is_control_signal(result, "quit") then
+				return
+			else
+				error(result, 0)
+			end
+		end
+	end)
 	coroutine.resume(co)  -- Start the coroutine
 	return co
 end
 
  -- if only_flag is true, return only success flag, for chaining of arguments
 function CO_RESUME(co, param, only_flag)
+	_G.TEST_BREADCRUMB_STEP = (_G.TEST_BREADCRUMB_STEP or 0) + 1
+	_G.TEST_BREADCRUMB_COMMAND = param
 	local ok, err = coroutine.resume(co, param)
 	if only_flag then
 		return ok
