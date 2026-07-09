@@ -327,6 +327,11 @@ function Forms.createHandlers(compiler, printNode)
       i = compiler.printSyntaxObject(buf, node, i, "SUBJECT")
     end
     
+    -- Skip modifier keywords (like TEXT) between JOIN/OBJECT and =
+    while utils.safeget(node[i], 'value') ~= "OBJECT" and node[i].value ~= "=" and utils.safeget(node[i], 'value') do
+      i = i + 1
+    end
+    
     if utils.safeget(node[i], 'value') == "=" then
       buf.writeln("\tACTION = \"%s\",", compiler.value(node[i + 1]))
 
