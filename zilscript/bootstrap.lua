@@ -827,10 +827,12 @@ function OBJECT(object)
 			else
 				str = string.char(v[1]) -- UEXIT = 1
 				local say = v.say and mem:write(v.say.."\0") or 0
-				if v.door then
-					str = str..string.char(v.door)..makeword(say)..string.char(0) -- DEXIT = 5
-				elseif v.flag then
-					str = str..string.char(v.flag)..makeword(say) -- CEXIT = 4
+				if v.door ~= nil then
+					local door = type(v.door) == "boolean" and (v.door and 1 or 0) or v.door
+					str = str..string.char(door)..makeword(say)..string.char(0) -- DEXIT = 5
+				elseif v.flag ~= nil then
+					local flag = type(v.flag) == "boolean" and (v.flag and 1 or 0) or v.flag
+					str = str..string.char(flag)..makeword(say) -- CEXIT = 4
 				end
 			end
 			table.insert(t, makeprop(str, k))
@@ -915,7 +917,7 @@ end
 function DIRECTIONS(...)
 	for _, dir in ipairs {...} do
 		_DIRECTIONS[dir] = learn(dir, PSQDIRECTION, PROPERTIES)
-		if dir ~= "IN" and dir ~= "OUT" then
+		if type(DIRS) == "table" and dir ~= "IN" and dir ~= "OUT" then
 			table.insert(DIRS, dir:lower())
 		end
 	end
@@ -1004,7 +1006,10 @@ end
 
 ROOM = OBJECT
 
-function ITABLE(size)
+function ITABLE(size, maybe_size)
+	if size == nil and type(maybe_size) == "number" then
+		size = maybe_size
+	end
 	local address = mem:write_word(size)
 	mem:write(string.rep("\0", size))
 	return address

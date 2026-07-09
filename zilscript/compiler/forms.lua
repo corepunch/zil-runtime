@@ -320,8 +320,13 @@ function Forms.createHandlers(compiler, printNode)
   end
 
   form.ITABLE = function(buf, node)
-    local num = node[1].value == "NONE" and node[2].value or node[1].value
-    buf.write("ITABLE(%s)", num)
+    buf.write("ITABLE(")
+    if utils.safeget(node[1], "value") == "NONE" and node[2] then
+      printNode(buf, node[2], 0)
+    else
+      printNode(buf, node[1], 0)
+    end
+    buf.write(")")
   end
 
   -- AND/OR

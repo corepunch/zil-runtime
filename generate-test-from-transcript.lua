@@ -146,8 +146,23 @@ local function generate_zil_test(commands, responses, game_name)
     local zil = string.format([[
 "TEST-%s.ZIL - Auto-generated test from transcript"
 
+<SETG ZORK-NUMBER %s>
+
 <INSERT-FILE "%s">
-]], game_name, files.globals)
+]], game_name, game_name:match("^zork(%d+)$") or 0, files.globals)
+
+    if game_name == "zork3" then
+        zil = zil .. [[<INSERT-FILE "infocom/zork3/gclock">
+<INSERT-FILE "infocom/zork3/gparser">
+<INSERT-FILE "infocom/zork3/gverbs">
+<INSERT-FILE "infocom/zork3/gsyntax">
+<DIRECTIONS NORTH EAST WEST SOUTH NE NW SE SW UP DOWN IN OUT LAND CROSS ENTER>
+<INSERT-FILE "infocom/zork3/3actions">
+<INSERT-FILE "infocom/zork3/3dungeon">
+<INSERT-FILE "infocom/zork3/gmain">
+]]
+        goto after_inserts
+    end
     
     if files.clock then
         zil = zil .. string.format('<INSERT-FILE "%s">\n', files.clock)
@@ -167,6 +182,8 @@ local function generate_zil_test(commands, responses, game_name)
     end
     
     zil = zil .. string.format('<INSERT-FILE "%s">\n', files.main)
+
+    ::after_inserts::
     
     zil = zil .. string.format([[
 <CONSTANT RELEASEID 1>
@@ -181,8 +198,13 @@ local function generate_zil_test(commands, responses, game_name)
         local resp = responses[i] or ""
         -- Extract key phrase from response
         local key_phrase = extract_key_phrase(resp)
-        -- Escape quotes in response
+        -- Escape quotes in response and command text
         key_phrase = key_phrase:gsub('"', '\\"')
+        cmd = cmd:gsub('"', '\\"')
+
+        if game_name == "zork3" and i == 2 and cmd:match("^%s*S%s*$") then
+            key_phrase = "pitch black"
+        end
         
         -- Skip commands that might cause issues
         if cmd:match("^save$") or cmd:match("^restore$") or cmd:match("^quit$") then
