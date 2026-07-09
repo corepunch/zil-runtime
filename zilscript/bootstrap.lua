@@ -95,6 +95,7 @@ local mem
 local _obj_count = 0  -- number of declared objects; object IDs are 1.._obj_count
 local _act_count = 0  -- number of registered actions; action IDs are 1.._act_count
 local _act_fn_to_id = {}  -- build-time reverse-lookup: fn_idx -> action_id
+local _pending_syntax = {}  -- SYNTAX entries deferred until action functions are defined
 local restart_snapshot
 local suggestions = {
 	READBIT = "READ",
@@ -974,6 +975,11 @@ function SYNTAX(syn)
 	if not syn.ACTION then
 		error(string.format("SYNTAX for verb '%s' is missing ACTION", syn.VERB))
 	end
+	-- Defer if the action function isn't defined yet (e.g., syntax.zil loaded before verbs.zil)
+	if _G[syn.ACTION] == nil then
+		table.insert(_pending_syntax, syn)
+		return
+	end
 	local action = action_id(fn(_G[syn.ACTION]))
 	local function encode(s)
 		return string.char(
@@ -1002,6 +1008,15 @@ function SYNTAX(syn)
 	_G[syn.ACTION:gsub("_", "Q", 1)] = action
 	if syn.PREACTION then 
 		mem:write(makeword(fn(_G[syn.PREACTION])), PREACTIONS + action * 2)
+	end
+end
+
+function FINALIZE_SYNTAX()
+	if #_pending_syntax == 0 then return end
+	local pending = _pending_syntax
+	_pending_syntax = {}
+	for _, syn in ipairs(pending) do
+		SYNTAX(syn)
 	end
 end
 
