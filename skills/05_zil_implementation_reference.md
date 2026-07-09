@@ -23,6 +23,16 @@ Implement game logic in ZIL with clean split between world data and routines.
 - Puzzle state changes are explicit and traceable.
 - Dynamic text and clock events are deterministic enough to test.
 
+## Design-Critical Implementation Reminders
+
+These are implementation-level constraints that protect the intended Infocom-style player experience.
+
+- Implement generous command vocabulary and abbreviations (`n/s/e/w/u/d`, `i`, `x`, `g`, `wait`, `again`) so parser friction does not become the puzzle.
+- Prefer in-world failure responses over generic parse failures for obvious attempts.
+- Keep first-visit descriptions evocative and revisit descriptions short/stateful.
+- Expose concrete progress signals (score/rank/chapter flags/objective milestones).
+- Ensure dangerous systems are telegraphed in text and testable through transcripts.
+
 ## Primary Source Coverage
 - `ZIL_TEXT_ADVENTURE_AGENTS.md`: section 4
 - `WRITING_ADVENTURES.md`: Game Structure, ZIL Syntax Reference, Advanced Techniques, Complete Example

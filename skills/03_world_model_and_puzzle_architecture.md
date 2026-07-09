@@ -19,6 +19,15 @@ Translate design docs into a coherent simulation plan before full implementation
 4. Validate dependency graph and prevent softlocks.
 5. Define default response strategy and custom overrides for likely wrong attempts.
 
+## Infocom-Quality Simulation Checks
+- Build a command matrix for each major puzzle with at least ten likely player attempts; implement useful responses for the top attempts.
+- Ensure common parser verbs and synonyms are covered (`look`, `examine`, `open`, `close`, `take/get`, `drop`, `read`, `put`, `unlock`, `attack`, `listen`, `smell`, `wait`, `again`, inventory shortcuts).
+- Keep the puzzle challenge in idea-space, not wording-space; avoid single exact-verb bottlenecks.
+- Ensure world state is physical and persistent (object movement, room state changes, blocked/unblocked routes, timed hazards).
+- Preserve challenge while reducing accidental cruelty (telegraphed danger, recoverable mistakes, explicit unwinnable-risk handling).
+- Prefer meaningful mazes over filler mazes; if maze-like areas exist, provide landmarks or distinct mechanics.
+- Support optional mastery with alternate/risky/clever solutions where feasible.
+
 ## Outputs
 - Updated puzzle dependency graph
 - Object/verb response matrix
@@ -28,6 +37,8 @@ Translate design docs into a coherent simulation plan before full implementation
 - No puzzle depends on inaccessible prerequisites.
 - Reasonable command attempts have authored responses.
 - Defaults are overridden where narrative/puzzle intent requires.
+- Navigation model supports player mapping and repeat travel without confusion.
+- At least one long-loop puzzle requires carrying knowledge or objects between distant locations.
 
 ## Primary Source Coverage
 - `ZIL_TEXT_ADVENTURE_AGENTS.md`: sections 3, 4, 5

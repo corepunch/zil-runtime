@@ -13,6 +13,13 @@ Create the design artifacts that externalize world structure and puzzle logic.
 4. Build `STORY_STATE.md` with globals, counters, milestones.
 5. Build `TRANSCRIPT_TESTS.md` with golden path and failure-path plans.
 6. Keep a dungeon report/changelog for iterative memory.
+7. Add an opening-scene spec to `DESIGN.md`/`MAP.md` (landmark, object, blocker, first reward).
+8. Annotate `MAP.md` with hubs, loops, landmarks, and any one-way/non-Euclidean transitions.
+9. Tag each important object with at least two roles: practical use, clue, worldbuilding, joke, risk, score marker.
+10. Record at least one alternate or fallback approach for major puzzles when feasible.
+11. Add explicit unwinnable-state prevention notes to puzzle and state docs.
+12. Define progress structure (score/chapter/rank/objective milestones) in `STORY_STATE.md`.
+13. Add co-play and discussion surfaces (shared vocabulary, parent hints, printable notes/log prompts).
 
 ## Outputs
 - `MAP.md`
@@ -25,6 +32,9 @@ Create the design artifacts that externalize world structure and puzzle logic.
 - Every room has a role.
 - Every puzzle has clue chain and reasonable-failure responses.
 - Every critical state transition is represented in `STORY_STATE.md`.
+- Geography is mostly mappable and room naming is consistent enough for player notes.
+- Opening setup is concrete and testable in under one minute of play.
+- Object and puzzle docs support both mastery play and hint-assisted completion.
 
 ## Primary Source Coverage
 - `ZIL_TEXT_ADVENTURE_AGENTS.md`: section 1, sections 2.3-2.4, section 5.3

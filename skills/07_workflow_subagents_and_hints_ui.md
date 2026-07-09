@@ -19,6 +19,13 @@ Operationalize iterative development with specialized passes and parent-child hi
    - avoid full verb dumps
    - expose progressive hints
    - keep wrong attempts playful and informative
+4. Use layered affordances instead of full command menus:
+   - story text (what to notice)
+   - soft verb hints (few broad actions)
+   - parent/narrator hint (private guidance)
+   - progressive command hint (only after repeated failure)
+5. Preserve mystery while reducing stall-outs; hints should extend play, not skip play.
+6. Design for social solving: puzzle prompts and room/object naming should be easy to discuss out loud.
 
 ## Outputs
 - Review findings per specialist pass
@@ -29,6 +36,8 @@ Operationalize iterative development with specialized passes and parent-child hi
 - Hints are progressive and contextual.
 - Review passes produce concrete fixes.
 - Workflow remains slice-based, not big-bang rewrites.
+- Hint UI avoids replacing parser agency with exhaustive action lists.
+- Co-play flow supports parent guidance without immediate spoilers.
 
 ## Primary Source Coverage
 - `ZIL_TEXT_ADVENTURE_AGENTS.md`: sections 9, 11, 13

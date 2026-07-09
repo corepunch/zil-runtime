@@ -14,6 +14,14 @@ Define what game is being built before coding.
 4. State constraints that affect design fairness and parser guessability.
 5. Confirm this stage does not create ZIL code yet.
 
+## Infocom Praise Alignment
+- Treat text as the rendering engine: descriptions should be compact, concrete, and spatial.
+- Define a memorable opening with one landmark, one visible object, one blocker, and one quick reward.
+- Make the high concept explicit beyond "a text adventure" (explorer, wizard, detective, co-play bedtime mystery, etc.).
+- Lock in tone early: clear prose, dry humor, real danger, and occasional absurdity.
+- Decide challenge policy now: reasoning difficulty stays high, accidental cruelty stays low.
+- Plan for optional progressive hints and social/co-play discussion from day one.
+
 ## Output
 - `DESIGN.md`
 
@@ -22,6 +30,8 @@ Define what game is being built before coding.
 - Win condition is concrete and testable.
 - Tone and target audience are explicit.
 - No puzzle or prose contradicts world rules.
+- Opening scene is instantly actionable and teaches parser play naturally.
+- Core fantasy and emotional target are strong enough to pitch in one sentence.
 
 ## Primary Source Coverage
 - `ZIL_TEXT_ADVENTURE_AGENTS.md`: sections 0, 1.1, 2.1, 2.2

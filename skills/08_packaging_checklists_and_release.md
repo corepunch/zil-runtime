@@ -17,6 +17,10 @@ Prepare final adventure package and verify definition-of-done criteria.
    - `METADATA.md`
 3. Confirm walkthrough test location and command remain valid.
 4. Ensure final copy/style consistency with target tone and audience.
+5. Include modern "feelies" equivalents where appropriate (printable map, in-world letters, logs, clue cards).
+6. Verify progress communication is legible (score/rank/chapter/objective summaries).
+7. If producing episodic content, design ending/start transition for narrative continuity even without save import.
+8. Confirm optional accessibility supports for modern play (transcript visibility, note surfaces, hint controls).
 
 ## Outputs
 - Release-ready adventure folder
@@ -25,6 +29,8 @@ Prepare final adventure package and verify definition-of-done criteria.
 ## Acceptance Checks
 - Definition of done satisfied for room/object/puzzle/game levels.
 - Packaging files present and coherent with game content.
+- Supplemental artifacts support immersion and optional hinting, not just decoration.
+- Episode hooks and transition text preserve emotional continuity.
 
 ## Primary Source Coverage
 - `ZIL_TEXT_ADVENTURE_AGENTS.md`: section 12
