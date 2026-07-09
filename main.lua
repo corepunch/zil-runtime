@@ -40,34 +40,24 @@ local function highlight(text)
 end
 
 -- Create env as a coroutine
-local game, input = runtime.create_game(env), nil
+local game = runtime.create_game(env)
+-- Start the game and get initial output
+local res = game:start()
+io.write(highlight(res))
+
+local input
 repeat
-	local res = game:resume(input)
-  
-	-- Check if result is a test response (table with status)
-	if type(res) == "table" and res.status then
-		io.write(test_format.format_test_result(res) .. "\n")
-	else
-		io.write(highlight(res))
-	end
-	-- if res.items then
-	--   print("\nItems:")
-	--   for item, verbs in pairs(res.items) do
-	--     if #verbs > 0 then
-	--       print(string.format("  %s (%s)", item:upper(), table.concat(verbs, ', ')))
-	--     else
-	--       print(string.format("  %s", item:upper()))
-	--     end
-	--   end
-	-- end
-	-- if res.exits then
-	--   print("\nExits:")
-	--   for exit, desc in pairs(res.exits) do
-	--     print(string.format("  %s -> %s", exit, desc))
-	--   end
-	-- end
 	input = io.read()
-	io.write("\n")
+	if input then
+		io.write("\n")
+		res = game:resume(input)
+		-- Check if result is a test response (table with status)
+		if type(res) == "table" and res.status then
+			io.write(test_format.format_test_result(res) .. "\n")
+		else
+			io.write(highlight(res))
+		end
+	end
 until not input or not game:is_running()
 
 -- local ast = parser.parse_file "infocom/zork1/actions.zil"

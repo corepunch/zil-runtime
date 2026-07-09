@@ -93,6 +93,17 @@ The compiler lives under [zilscript/compiler](/Users/ICHERNA/Developer/adventure
 
 The compiler is designed to keep parsing, lowering, and diagnostics loosely coupled. For changes to emitted Lua, start in the most specific emitter module rather than editing the parser or runtime first.
 
+### ZIL-to-Lua name conventions
+
+ZIL identifiers are transformed when compiled to Lua ([zilscript/compiler/utils.lua:24-27](/Users/ICHERNA/Developer/adventure-arena/External/zilscript/zilscript/compiler/utils.lua)):
+
+- `-` → `_` (hyphens become underscores)
+- `&` → `_` (ampersands become underscores)
+- `?` → `Q` (question marks become Q, e.g. `FSET?` → `FSETQ`, `FIRST?` → `FIRSTQ`)
+- `\` → `/` (backslashes become forward slashes)
+
+These conventions apply everywhere ZIL names are used as Lua identifiers: routine names, global names, property names, and object names.
+
 ## Source Mapping And Error Translation
 
 [zilscript/sourcemap.lua](/Users/ICHERNA/Developer/adventure-arena/External/zilscript/zilscript/sourcemap.lua) translates generated Lua failures back to ZIL source locations. Both the loader path and runtime execution path use source-map translation, so debugging should usually be done from the ZIL source location that appears in errors, not from generated `.zil.lua` output.

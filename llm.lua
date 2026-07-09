@@ -43,7 +43,7 @@ Usage:
 
 Options:
   --action, -a "cmd"   Execute this command and exit
-  --save, -s file      Save/restore game state from this file
+    --save, -s file      Restore from this memory dump file and keep action history in file.actions
   --game, -g name      Game to play (default: zork1)
   --new-game           Start a new game (even if save file exists)
   --help, -h           Show this help
@@ -53,6 +53,7 @@ Output: JSON with fields:
   - output: string (game response text)
   - room: string (current room name, if available)
   - savefile: string (path to saved state)
+    - historyfile: string (path to the action backlog)
   - error: string (error message, if failed)
 
 Examples:
@@ -168,6 +169,48 @@ local function json_escape(s)
     return '"' .. s .. '"'
 end
 
+local function json_unescape(s)
+    s = s:gsub('\\n', '\n')
+    s = s:gsub('\\r', '\r')
+    s = s:gsub('\\t', '\t')
+    s = s:gsub('\\"', '"')
+    s = s:gsub('\\\\', '\\')
+    return s
+end
+
+local function current_working_dir()
+    local pipe = io.popen("pwd", "r")
+    if not pipe then
+        return nil
+    end
+    local path = pipe:read("*l")
+    pipe:close()
+    return path
+end
+
+local function normalize_path(path)
+    if not path or path == "" then
+        return path
+    end
+    if path:sub(1, 1) == "/" then
+        return path
+    end
+    local cwd = current_working_dir()
+    if not cwd or cwd == "" then
+        return path
+    end
+    return cwd .. "/" .. path
+end
+
+local restore
+
+local function write_error_and_exit(message)
+    restore()
+    message = tostring(message):gsub('\27%[[0-9;]*m', '')
+    io.write(string.format('{"ok":false,"error":%s}\n', json_escape(message)))
+    os.exit(1)
+end
+
 -- Helper to get current room name
 local function get_room_name(env)
     local ok, result = pcall(function()
@@ -188,62 +231,143 @@ local function get_room_name(env)
 end
 
 -- Main logic
-local restore = setup_capture(env)
+restore = setup_capture(env)
 
--- Try to restore from savefile if it exists and we're not starting a new game
-local savefile = args.savefile or "savefile.sav"
-local restored = false
+local savefile = normalize_path(args.savefile or "savefile.sav")
+local historyfile = savefile .. ".actions"
+local game_started = false
+local resumed_from_dump = false
+local resumed_from_history = false
+
+local function file_exists(path, mode)
+    local file = io.open(path, mode or "r")
+    if not file then
+        return false
+    end
+    file:close()
+    return true
+end
+
+local function read_action_history(path)
+    local actions = {}
+    local file = io.open(path, "r")
+    if not file then
+        return actions
+    end
+    for line in file:lines() do
+        if line ~= "" then
+            local entry = { action = line }
+            local encoded_time, encoded_game, encoded_action = line:match('^%{"time":(%d+),"game":"(.*)","action":"(.*)"%}$')
+            if encoded_action then
+                entry = {
+                    time = tonumber(encoded_time),
+                    game = json_unescape(encoded_game),
+                    action = json_unescape(encoded_action),
+                }
+            else
+                local legacy_time, legacy_action = line:match('^%{"time":(%d+),"action":"(.*)"%}$')
+                if legacy_action then
+                    entry = {
+                        time = tonumber(legacy_time),
+                        action = json_unescape(legacy_action),
+                    }
+                end
+            end
+            actions[#actions + 1] = entry
+        end
+    end
+    file:close()
+    return actions
+end
+
+local function reset_action_history(path)
+    local file, err = io.open(path, "w")
+    if not file then
+        return false, err
+    end
+    file:close()
+    return true
+end
+
+local function append_action_history(path, action)
+    local file, err = io.open(path, "a")
+    if not file then
+        return false, err
+    end
+    file:write(string.format('{"time":%d,"game":%s,"action":%s}\n', os.time(), json_escape(game_name), json_escape(action)))
+    file:close()
+    return true
+end
+
+local function start_game()
+    local output = game:start()
+    if resumed_from_dump then
+        _G._LLM_RESTORED = nil
+    end
+    game_started = true
+    return output
+end
+
+local function resume_action(action)
+    local ok, result = pcall(function()
+        return game:resume(action)
+    end)
+    if not ok then
+        error(tostring(result))
+    end
+    if type(result) == "string" then
+        return result
+    elseif type(result) == "table" and result.status then
+        return string.format("[%s] %s", result.status, result.message or "")
+    end
+    return ""
+end
+
+local function replay_action_history(path)
+    local actions = read_action_history(path)
+    if #actions == 0 then
+        return false
+    end
+    for _, entry in ipairs(actions) do
+        if entry.game and entry.game ~= game_name then
+            error(string.format("History file belongs to game '%s', not '%s'", entry.game, game_name))
+        end
+    end
+    start_game()
+    for _, entry in ipairs(actions) do
+        resume_action(entry.action)
+    end
+    return true
+end
 
 if not args.new_game then
-    local file = io.open(savefile, "rb")
-    if file then
-        file:close()
-        -- Restore game state
-        local ok, err = pcall(function()
+    if file_exists(savefile, "rb") then
+        local ok, restore_err = pcall(function()
             env.RESTORE(savefile)
         end)
         if ok then
-            restored = true
-            _G._LLM_RESTORED = true  -- Tell GO() to skip initialization
+            _G._LLM_RESTORED = true
+            resumed_from_dump = true
+        else
+            _G._LLM_RESTORED = nil
         end
+    end
+
+    if not resumed_from_dump and file_exists(historyfile, "r") then
+        local ok, replayed_or_err = pcall(replay_action_history, historyfile)
+        if not ok then
+            write_error_and_exit(replayed_or_err)
+        end
+        resumed_from_history = replayed_or_err and true or false
     end
 end
 
 -- Helper to execute an action and get output
 local function execute_action(action)
-    -- For restored games, we need two resumes:
-    -- 1. First resume(nil) to start MAIN_LOOP and reach READ()
-    -- 2. Second resume(action) to pass the action
-    if restored then
-        -- Start MAIN_LOOP (will yield at READ with empty output)
-        local ok, result = pcall(function()
-            return game:resume(nil)
-        end)
-        if not ok then
-            error("Failed to start MAIN_LOOP: " .. tostring(result))
-        end
-        restored = false  -- Only need to do this once
+    if not game_started then
+        start_game()
     end
-    
-    -- Execute the action
-    local ok, result = pcall(function()
-        return game:resume(action)
-    end)
-    
-    if not ok then
-        error(tostring(result))
-    end
-    
-    -- Get the output
-    local output = ""
-    if type(result) == "string" then
-        output = result
-    elseif type(result) == "table" and result.status then
-        -- Test result format
-        output = string.format("[%s] %s", result.status, result.message or "")
-    end
-    
-    return output
+    return resume_action(action)
 end
 
 -- If we have an action, execute it
@@ -251,26 +375,24 @@ if args.action then
     local ok, output = pcall(execute_action, args.action)
     
     if not ok then
-        restore()
-        local error_msg = tostring(output)
-        -- Clean up error message
-        error_msg = error_msg:gsub('\27%[[0-9;]*m', '')
-        io.write(string.format('{"ok":false,"error":%s}\n', json_escape(error_msg)))
-        os.exit(1)
+        write_error_and_exit(output)
     end
     
     -- Get room name
     local room = get_room_name(env)
     
     -- Save game state
-    local save_ok = false
     local save_err = nil
+    local history_err = nil
     local ok, err = pcall(function()
         env.SAVE(savefile)
-        save_ok = true
     end)
     if not ok then
         save_err = tostring(err)
+    end
+    local history_ok, history_write_err = append_action_history(historyfile, args.action)
+    if not history_ok then
+        history_err = tostring(history_write_err)
     end
     
     restore()
@@ -281,10 +403,14 @@ if args.action then
         output = output,
         room = room,
         savefile = savefile,
-        restored = restored,
+        historyfile = historyfile,
+        restored = resumed_from_dump or resumed_from_history,
     }
     if save_err then
         response.save_error = save_err
+    end
+    if history_err then
+        response.history_error = history_err
     end
     
     -- Simple JSON serialization
@@ -293,24 +419,22 @@ if args.action then
     io.write('"output":' .. json_escape(response.output) .. ',')
     io.write('"room":' .. json_escape(response.room) .. ',')
     io.write('"savefile":' .. json_escape(response.savefile) .. ',')
+    io.write('"historyfile":' .. json_escape(response.historyfile) .. ',')
     io.write('"restored":' .. tostring(response.restored))
     if response.save_error then
         io.write(',"save_error":' .. json_escape(response.save_error))
+    end
+    if response.history_error then
+        io.write(',"history_error":' .. json_escape(response.history_error))
     end
     io.write("}\n")
     
 elseif args.new_game then
     -- Start a new game and get initial output
-    local ok, result = pcall(function()
-        return game:resume(nil)
-    end)
+    local ok, result = pcall(start_game)
     
     if not ok then
-        restore()
-        local error_msg = tostring(result)
-        error_msg = error_msg:gsub('\27%[[0-9;]*m', '')
-        io.write(string.format('{"ok":false,"error":%s}\n', json_escape(error_msg)))
-        os.exit(1)
+        write_error_and_exit(result)
     end
     
     local output = ""
@@ -320,13 +444,16 @@ elseif args.new_game then
     
     local room = get_room_name(env)
     
-    -- Save initial state
-    _G._LLM_RESTORED = false
-    local save_ok = false
+    local history_err = nil
+    local history_ok, history_reset_err = reset_action_history(historyfile)
+    if not history_ok then
+        history_err = tostring(history_reset_err)
+    end
+
+    -- Save initial state as a raw memory dump. The action history remains available as a backlog and fallback path.
     local save_err = nil
     local ok, err = pcall(function()
         env.SAVE(savefile)
-        save_ok = true
     end)
     if not ok then
         save_err = tostring(err)
@@ -339,14 +466,16 @@ elseif args.new_game then
     io.write('"output":' .. json_escape(output) .. ',')
     io.write('"room":' .. json_escape(room) .. ',')
     io.write('"savefile":' .. json_escape(savefile) .. ',')
+    io.write('"historyfile":' .. json_escape(historyfile) .. ',')
     io.write('"new_game":true')
     if save_err then
         io.write(',"save_error":' .. json_escape(save_err))
     end
+    if history_err then
+        io.write(',"history_error":' .. json_escape(history_err))
+    end
     io.write("}\n")
     
 else
-    restore()
-    io.write('{"ok":false,"error":"No action specified. Use --action or --new-game"}\n')
-    os.exit(1)
+    write_error_and_exit("No action specified. Use --action or --new-game")
 end

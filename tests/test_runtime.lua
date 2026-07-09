@@ -127,6 +127,23 @@ test.describe("Runtime - Bootstrap Loading", function(t)
 		assert.assert_equal(env.TEST_NAME, "start")
 		assert.assert_nil(env.TEST_NEW_COUNTER)
 	end)
+
+	t.it("should persist string globals across save and restore", function(assert)
+		local env = runtime.create_game_env()
+		runtime.init(env, true)
+
+		local filename = "test-runtime-save.tmp"
+		env.TEST_STRING = "alpha"
+		assert.assert_true(env.SAVE(filename))
+
+		env.TEST_STRING = "beta"
+		env.TEST_STALE = "stale"
+		assert.assert_true(env.RESTORE(filename))
+
+		assert.assert_equal(env.TEST_STRING, "alpha")
+		assert.assert_nil(env.TEST_STALE)
+		os.remove(filename)
+	end)
 end)
 
 test.describe("Runtime - ZIL File Loading", function(t)
@@ -160,8 +177,8 @@ test.describe("Runtime - Game Startup", function(t)
 		-- Don't load bootstrap, so GO() is not defined
 		local game = runtime.create_game(env, true)
 		
-		-- Try to resume - should fail because GO is not defined
-		local success = pcall(function() game:resume() end)
+		-- Try to start - should fail because GO is not defined
+		local success = pcall(function() game:start() end)
 		assert.assert_false(success)
 	end)
 	
@@ -175,7 +192,7 @@ test.describe("Runtime - Game Startup", function(t)
 		end
 		
 		local game = runtime.create_game(env, true)
-		game:resume()
+		game:start()
 		
 		assert.assert_equal(env.game_started, true)
 	end)
@@ -195,7 +212,7 @@ test.describe("Runtime - Game Startup", function(t)
 		end
 
 		local game = runtime.create_game(env, true)
-		local response = game:resume()
+		local response = game:start()
 
 		assert.assert_equal(response, "after restart")
 		assert.assert_equal(attempts, 2)
@@ -209,7 +226,7 @@ test.describe("Runtime - Game Startup", function(t)
 		end
 
 		local game = runtime.create_game(env, true)
-		local response = game:resume()
+		local response = game:start()
 
 		assert.assert_nil(response)
 		assert.assert_false(game:is_running())

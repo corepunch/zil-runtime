@@ -446,10 +446,6 @@ function CAPTURE_RESTART_STATE()
 	return true
 end
 
-function VERIFY()
-	return true
-end
-
 function QUIT()
 	error(ZIL_CONTROL_SIGNALS.quit, 0)
 end
@@ -1220,7 +1216,8 @@ end
 -- === Save / Restore game state ===
 -- The save file contains: mem (which holds object properties, locations, and FLAGS),
 
-local SAVE_MAGIC = "ZILSAVE\1"
+local SAVE_MAGIC_V1 = "ZILSAVE\1"
+local SAVE_MAGIC_V2 = "ZILSAVE\2"
 local SAVE_CHUNK_SIZE = 4096  -- Write mem to file in chunks to avoid table.unpack limits
 
 -- Write a 4-byte little-endian integer into file
@@ -1255,7 +1252,7 @@ function SAVE(filename)
 	end
 
 	-- Header
-	file:write(SAVE_MAGIC)
+	file:write(SAVE_MAGIC_V2)
 
 	-- mem: size (4 bytes LE) + raw bytes written in chunks
 	local size = mem.size
@@ -1270,10 +1267,22 @@ function SAVE(filename)
 	end
 
 	-- ZIL globals: count (2 bytes LE) + name-length-prefixed name + typed value
+	-- Save from both _G and the game environment (env) since some globals
+	-- like VERBS, ROOMS, PROPERTIES live in env, not _G
 	local to_save = {}
+	local seen = {}
 	for name, val in pairs(_G) do
-		if type(val) == 'number' or type(val) == 'boolean' then
+		if is_state_global(val) then
 			table.insert(to_save, {name, val})
+			seen[name] = true
+		end
+	end
+	-- Also save env globals (accessible as _G inside the bootstrap)
+	local game_env = _G
+	for name, val in pairs(game_env) do
+		if is_state_global(val) and not seen[name] then
+			table.insert(to_save, {name, val})
+			seen[name] = true
 		end
 	end
 	file:write(makeword(#to_save))
@@ -1284,10 +1293,26 @@ function SAVE(filename)
 		if type(val) == 'number' then
 			file:write(string.char(1))  -- type 1 = number
 			write_int64(file, val)
-		else
+		elseif type(val) == 'boolean' then
 			file:write(string.char(2))  -- type 2 = boolean
 			file:write(string.char(val and 1 or 0))
+		else
+			file:write(string.char(3))  -- type 3 = string
+			write_int32(file, #val)
+			file:write(val)
 		end
+	end
+
+	-- Save cache.words (vocabulary lookup table) as a special entry
+	-- Type 4 = cache_words: count(2) + pairs of (namelen(1) + name + address(8))
+	local cw_count = 0
+	for _ in pairs(cache.words) do cw_count = cw_count + 1 end
+	file:write(string.char(4))  -- type 4 = cache_words
+	file:write(makeword(cw_count))
+	for word, addr in pairs(cache.words) do
+		local namelen = math.min(#word, 255)
+		file:write(string.char(namelen) .. word)
+		write_int64(file, addr)
 	end
 
 	file:close()
@@ -1303,8 +1328,8 @@ function RESTORE(filename)
 	end
 
 	-- Verify header
-	local magic = file:read(#SAVE_MAGIC)
-	if magic ~= SAVE_MAGIC then
+	local magic = file:read(#SAVE_MAGIC_V2)
+	if magic ~= SAVE_MAGIC_V1 and magic ~= SAVE_MAGIC_V2 then
 		TELL("Invalid save file.", CR)
 		file:close()
 		return false
@@ -1320,6 +1345,7 @@ function RESTORE(filename)
 	mem.size = size
 
 	-- Restore ZIL globals
+	local restored_globals = {}
 	local gc = file:read(2)
 	if gc and #gc >= 2 then
 		local num_globals = gc:byte(1) | (gc:byte(2) << 8)
@@ -1332,11 +1358,51 @@ function RESTORE(filename)
 			if not gtype then break end
 			if gtype:byte() == 1 then
 				local vb = file:read(8)
-				if vb and #vb >= 8 then _G[name] = read_int64(vb) end
+				if vb and #vb >= 8 then
+					_G[name] = read_int64(vb)
+					restored_globals[name] = true
+				end
 			elseif gtype:byte() == 2 then
 				local vb = file:read(1)
-				if vb then _G[name] = vb:byte() ~= 0 end
+				if vb then
+					_G[name] = vb:byte() ~= 0
+					restored_globals[name] = true
+				end
+			elseif gtype:byte() == 3 then
+				local len_bytes = file:read(4)
+				if not len_bytes or #len_bytes < 4 then break end
+				local len = read_int32(len_bytes)
+				local vb = file:read(len)
+				if vb and #vb >= len then
+					_G[name] = vb
+					restored_globals[name] = true
+				end
+			elseif gtype:byte() == 4 then
+				-- type 4 = cache_words: count(2) + pairs of (namelen(1) + name + address(8))
+				local count_bytes = file:read(2)
+				if count_bytes and #count_bytes >= 2 then
+					local cw_count = count_bytes:byte(1) | (count_bytes:byte(2) << 8)
+					for _ = 1, cw_count do
+						local nl = file:read(1)
+						if not nl then break end
+						local wname = file:read(nl:byte())
+						if not wname then break end
+						local addr_bytes = file:read(8)
+						if addr_bytes and #addr_bytes >= 8 then
+							cache.words[wname] = read_int64(addr_bytes)
+						end
+					end
+				end
 			end
+		end
+	end
+
+	-- Clean up state globals in the game environment (env) that weren't in the save file.
+	-- _G inside the bootstrap IS the env table (env._G = env).
+	local game_env = _G
+	for name, value in pairs(game_env) do
+		if is_state_global(value) and not restored_globals[name] then
+			game_env[name] = nil
 		end
 	end
 

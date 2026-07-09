@@ -785,7 +785,7 @@ lua5.4 llm.lua --action "go north" --save game.sav
 | Option | Description |
 |--------|-------------|
 | `--action, -a "cmd"` | Execute this command |
-| `--save, -s file` | Save/restore state from this file (default: `savefile.sav`) |
+| `--save, -s file` | Restore from this memory dump file and keep action history in `file.actions` (default: `savefile.sav`) |
 | `--game, -g name` | Game to play (default: `zork1`) |
 | `--new-game` | Start fresh, ignoring existing save |
 | `--help, -h` | Show help |
@@ -800,6 +800,7 @@ Returns JSON to stdout:
   "output": "West of House\nYou are standing in an open field...",
   "room": "West of House",
   "savefile": "game.sav",
+   "historyfile": "game.sav.actions",
   "restored": true
 }
 ```
@@ -809,6 +810,7 @@ Fields:
 - `output` - Game response text (ANSI codes stripped)
 - `room` - Current room name (if available)
 - `savefile` - Path to saved state
+- `historyfile` - Path to the append-only action history file
 - `restored` - Whether this was a restored game
 
 ### Example Session
@@ -857,13 +859,14 @@ print(response["output"])
 ### How It Works
 
 1. **New Game**: Starts coroutine, captures initial output, saves state
-2. **Restore**: Loads save file, sets `_LLM_RESTORED` flag to skip GO() initialization
+2. **Resume**: Restores from `savefile` when present, or replays `savefile.actions` as a fallback
 3. **Execute**: Passes command to game coroutine, captures response
-4. **Save**: Persists updated state for next invocation
+4. **Save**: Writes a raw memory dump to `savefile` and appends a JSONL history entry with `time`, `game`, and `action` to `savefile.actions`
 
 ### Notes
 
 - Each invocation is a separate process (no persistent Lua state)
-- Game state persists via save file between invocations
+- Cross-process continuity prefers restoring from `savefile`
+- `savefile.actions` is preserved as a newline-delimited JSON backlog tagged with the game name and can rebuild state if the dump is unavailable
 - Parser is case-sensitive: use "open mailbox" not "open Mailbox"
 - ANSI escape codes are stripped from output

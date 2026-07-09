@@ -292,52 +292,60 @@ end
 -- Create a coroutine for the game that yields on input
 -- Returns a coroutine object
 function M.create_game(env, silent)
-	return {
-		-- Start the game by calling GO()
-		-- Returns true on success, false on failure
-		coroutine = coroutine.create(function()
-			-- Check if we're restoring from a save (LLM mode)
-			local restored = rawget(_G, "_LLM_RESTORED")
-			if restored then
-				-- Skip GO() initialization, go directly to MAIN_LOOP
-				local success = M.execute("MAIN_LOOP()", 'main', env, silent)
-				if not success then
-					error("Failed to start game: MAIN_LOOP() not defined or failed")
+	local co
+	co = coroutine.create(function()
+		-- Check if we're restoring from a save (LLM mode)
+		local restored = rawget(_G, "_LLM_RESTORED")
+		if restored then
+			-- Skip GO() initialization, go directly to MAIN_LOOP
+			local success = M.execute("MAIN_LOOP()", 'main', env, silent)
+			if not success then
+				error("Failed to start game: MAIN_LOOP() not defined or failed")
+			end
+		else
+			-- Normal game start
+			if type(env.GO) ~= "function" then
+				error("Failed to start game: GO() not defined or failed")
+			end
+		end
+
+		while true do
+			local ok, result = pcall(env.GO)
+			if ok then
+				if not silent then
+					print("\n*** Game has ended ***\n")
 				end
+				return result
+			end
+
+			if type(env.IS_ZIL_CONTROL_SIGNAL) == "function"
+				and env.IS_ZIL_CONTROL_SIGNAL(result, "restart") then
+				-- RESTART restores captured state and re-enters GO().
+			elseif type(env.IS_ZIL_CONTROL_SIGNAL) == "function"
+				and env.IS_ZIL_CONTROL_SIGNAL(result, "quit") then
+				if not silent then
+					print("\n*** Game has ended ***\n")
+				end
+				return
 			else
-				-- Normal game start
-				if type(env.GO) ~= "function" then
-					error("Failed to start game: GO() not defined or failed")
-				end
+				error(tostring(result), 0)
 			end
-
-			while true do
-				local ok, result = pcall(env.GO)
-				if ok then
-					if not silent then
-						print("\n*** Game has ended ***\n")
-					end
-					return result
-				end
-
-				if type(env.IS_ZIL_CONTROL_SIGNAL) == "function"
-					and env.IS_ZIL_CONTROL_SIGNAL(result, "restart") then
-					-- RESTART restores captured state and re-enters GO().
-				elseif type(env.IS_ZIL_CONTROL_SIGNAL) == "function"
-					and env.IS_ZIL_CONTROL_SIGNAL(result, "quit") then
-					if not silent then
-						print("\n*** Game has ended ***\n")
-					end
-					return
-				else
-					error(tostring(result), 0)
-				end
+		end
+	end)
+	return {
+		coroutine = co,
+		-- Start the game coroutine (run until it yields at READ)
+		-- Returns the initial output (room description etc.)
+		start = function(self)
+			local ok, output = coroutine.resume(self.coroutine)
+			if not ok then
+				error(output)
 			end
-		end),
+			return output
+		end,
 		-- Resume the game coroutine with input
 		-- Returns: status (boolean), result (any value or error message)
-		-- resume = function (self, input) return coroutine.resume(self.coroutine, input) end,
-		resume = function (self, input) 
+		resume = function (self, input)
 			local ok, response = coroutine.resume(self.coroutine, input)
 			if not ok then
 				error(response)
