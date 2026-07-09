@@ -23,7 +23,7 @@ local test_zil = [[
   <PRINC "Starting test">
   <PRINC "Line 4">
   <PRINC "Line 5">
-  <+ 1 UNDEFINED-VAR>
+  <ERROR "test error">
 >
 ]]
 
