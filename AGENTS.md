@@ -21,6 +21,10 @@ Start with [ARCHITECTURE.md](ARCHITECTURE.md). It is the canonical high-level su
 5. When debugging ZIL-related failures, prefer adding temporary `TELL`/print commands directly in the relevant ZIL routines to expose values, branch choices, and object locations while narrowing the problem. Remove or clearly quarantine this instrumentation before finishing unless it is intentionally part of a test.
 6. Validate with the smallest relevant target from [Makefile](Makefile); for broad gameplay regressions, use `make test-pure-zil`.
 
+## Playing Games
+
+To play a game programmatically (e.g. to test playability or run a walkthrough), see [PLAYING.md](PLAYING.md). It documents `llm.lua` for one-command-at-a-time game interaction.
+
 ## Current Repo Notes
 
 - Imported Infocom materials are vendored as regular folders, not git submodules.
