@@ -12,3 +12,6 @@ lib/openai/api_key.lua
 # Save game files created by tests
 *.sav
 *.tmp
+
+# Archive files
+*.zip
