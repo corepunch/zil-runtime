@@ -102,6 +102,28 @@ function ZIL.parser(stream_or_string, filename)
     end
     return table.concat(chars)
   end
+
+  local function read_atom()
+    local chars = {}
+    while not stream.at_end() do
+      local ch = stream.peek()
+      if ch:match("%s") or ch:match("[<>\"();]") then
+        break
+      end
+      if ch == "!" then
+        table.insert(chars, stream.getchar())
+        if stream.peek() == "\\" then
+          table.insert(chars, stream.getchar())
+        end
+        if not stream.at_end() then
+          table.insert(chars, stream.getchar())
+        end
+      else
+        table.insert(chars, stream.getchar())
+      end
+    end
+    return table.concat(chars)
+  end
   
   local function classify_atom(text, source)
     if not text or text == "" then return Ident("", source) end
@@ -174,6 +196,15 @@ function ZIL.parser(stream_or_string, filename)
     
     stream.ungetchar()
     return nil -- Continue to atom parsing
+  end
+
+  parsers["!"] = function(src)
+    stream.getchar()
+    if stream.peek() == "<" or stream.peek() == "(" or stream.peek() == '"' then
+      return parse_form()
+    end
+    stream.ungetchar()
+    return nil
   end
   
   -- Angle bracket expressions: <...>
@@ -270,9 +301,7 @@ function ZIL.parser(stream_or_string, filename)
     end
     
     -- Parse atom (identifier, number, or symbol)
-    local atom = read_while(function(ch)
-      return not (ch:match("%s") or ch:match("[<>\"();]"))
-    end)
+    local atom = read_atom()
     
     return classify_atom(atom, src)
   end

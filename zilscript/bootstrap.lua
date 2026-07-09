@@ -29,6 +29,14 @@ P1QVERB=1
 P1QADJECTIVE=2
 P1QDIRECTION=3
 
+SH=128
+SC=64
+SIR=32
+SOG=16
+STAKE=8
+SMANY=4
+SHAVE=2
+
 -- === Register globals ===
 for i, flag in ipairs(ZIL_ObjectFlags) do
   _G[flag] = i
@@ -567,6 +575,7 @@ function EQUALQ(a, ...)
 	end
 	return false
 end
+function GASSIGNEDQ(name) return rawget(_G, tostring(name)) ~= nil end
 function NEQUALQ(a, b) return not EQUALQ(a, b) end
 function GQ(a, b) return (a or 0) > (b or 0) end
 function LQ(a, b) return (a or 0) < (b or 0) end
@@ -766,6 +775,16 @@ function DECL_OBJECT()
 end
 
 function OBJECT(object)
+	local function resolve_global(value)
+		if type(value) == "string" then
+			return rawget(_G, value) or value
+		end
+		return value
+	end
+	local function function_prop(value)
+		value = resolve_global(value)
+		return type(value) == 'function' and mem:stringprop(fn(value)) or '\0\0'
+	end
 	local function makeprop(body, name)
 		local num = register(PROPERTIES, name)
 		if not _G["PQ"..name] then _G["PQ"..name] = num end
@@ -808,11 +827,12 @@ function OBJECT(object)
 			table.insert(t, makeprop(makebyte(loc_value), k))
 		-- using PQACTION for ACTION property, commented out original function support
 		elseif k == "ACTION" or k == "DESCFCN" then 
-			table.insert(t, makeprop(type(v) == 'function' and mem:stringprop(fn(v)) or '\0\0', k))
+			table.insert(t, makeprop(function_prop(v), k))
 		elseif type(v) == 'string' then table.insert(t, makeprop(mem:stringprop(v), k))
 		elseif type(v) == 'number' then table.insert(t, makeprop(makebyte(v), k))
 		elseif type(v) == 'function' then table.insert(t, makeprop(mem:stringprop(fn(v)), k))
-		elseif _DIRECTIONS[k] then
+		elseif _DIRECTIONS[k] or (type(v) == "table" and (v.per or v[1] ~= nil)) then
+			if not _DIRECTIONS[k] then DIRECTIONS(k) end
 			local str
 			if type(v) == 'number' then
 				-- UEXIT: bare number from compiler (e.g., SOUTH = ROOM_ID)
@@ -821,10 +841,14 @@ function OBJECT(object)
 				-- NEXIT: bare string from compiler (e.g., OUT = "message")
 				str = mem:write(v.."\0")
 			elseif v.per then
-				str = makeword(fn(v.per))..string.char(0) -- FEXIT = 3
+				local per = resolve_global(v.per)
+				str = makeword(fn(per))..string.char(0) -- FEXIT = 3
 			elseif type(v[1]) == 'string' then
 				str = mem:write(v[1].."\0") -- NEXIT = 2
 			else
+				if v[1] == nil then
+					error(string.format("Unresolved exit target for %s.%s", tostring(object.NAME), tostring(k)))
+				end
 				str = string.char(v[1]) -- UEXIT = 1
 				local say = v.say and mem:write(v.say.."\0") or 0
 				if v.door ~= nil then
@@ -1101,35 +1125,58 @@ function CO_RESUME(co, param, only_flag)
 	end
 end
 
+local function dirname(path)
+	return path and path:match("^(.*)[/\\][^/\\]*$") or nil
+end
+
+local function try_open(path)
+	local file = io.open(path, "r")
+	if file then return file, path end
+	local lower = path:lower()
+	if lower ~= path then
+		file = io.open(lower, "r")
+		if file then return file, lower end
+	end
+	return nil, nil
+end
+
 -- INSERT_FILE loads and executes a ZIL file
 -- This is used by INSERT-FILE directive to include other files
-function INSERT_FILE(filename)
+function INSERT_FILE(filename, source_filename)
 	-- Convert module-style filename (e.g., "zork1.globals") to file path
 	local name_path = filename:gsub("%.", "/")
 	local file, filepath
+
+	local function try_candidate(path)
+		if not path or path == "" then return nil end
+		file, filepath = try_open(path)
+		if file then return true end
+		if not path:match("%.zil$") then
+			file, filepath = try_open(path .. ".zil")
+			if file then return true end
+		end
+		return false
+	end
+
+	local base_dir = dirname(source_filename)
+	if base_dir and not name_path:match("^/") and try_candidate(base_dir .. "/" .. name_path) then
+		-- Found relative to including file.
+	end
 	
 	-- Search for the file using package.zilpath if available
-	if package and package.zilpath then
+	if not file and package and package.zilpath then
 		for path_pattern in package.zilpath:gmatch("[^;]+") do
-			filepath = path_pattern:gsub("?", name_path)
-			file = io.open(filepath, "r")
-			if file then
+			if try_candidate(path_pattern:gsub("?", name_path):gsub("%.zil$", "")) then
 				break
 			end
 		end
 	end
 	
 	-- If not found, try direct path with .zil extension
-	if not file then
-		filepath = name_path .. ".zil"
-		file = io.open(filepath, "r")
-	end
+	if not file then try_candidate(name_path) end
 	
 	-- If still not found, try the filename as-is
-	if not file then
-		filepath = filename
-		file = io.open(filepath, "r")
-	end
+	if not file then try_candidate(filename) end
 	
 	if not file then
 		error(string.format("INSERT_FILE: Cannot open file '%s' (tried package.zilpath and direct paths)", filename))
@@ -1142,15 +1189,15 @@ function INSERT_FILE(filename)
 	local parser = require 'zilscript.parser'
 	local compiler = require 'zilscript.compiler'
 	
-	local ok, ast = pcall(parser.parse, content, filename)
+	local ok, ast = pcall(parser.parse, content, filepath)
 	if not ok then
 		error(string.format("INSERT_FILE: Failed to parse '%s': %s", filename, ast))
 	end
 	
-	local result = compiler.compile(ast, filename .. ".lua")
+	local result = compiler.compile(ast, filepath .. ".lua")
 	
 	-- Execute the compiled code in the current environment
-	local chunk, load_err = load(result.combined, "@" .. filename  .. '.zil', "t", _G)
+	local chunk, load_err = load(result.combined, "@" .. filepath, "t", _G)
 	if not chunk then
 		error(string.format("INSERT_FILE: Failed to load '%s': %s", filename, load_err))
 	end

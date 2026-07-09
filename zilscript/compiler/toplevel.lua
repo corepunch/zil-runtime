@@ -161,7 +161,7 @@ function TopLevel.compileObject(decl, body, node, compiler)
         fields.writeNav(body, field, compiler)
         body.writeln(",")
       elseif field_value == "PER" then
-        body.writeln("\t%s = { per = %s },", field_name, compiler.value(field[3]))
+        body.writeln("\t%s = { per = \"%s\" },", field_name, compiler.value(field[3]))
       else
         local prop = normalizeProperty(field_name)
         body.write("\t%s = ", prop)

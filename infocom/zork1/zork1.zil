@@ -18,13 +18,13 @@
 
 ;"Substrate"
 
-<INSERT-FILE "../zork-substrate/main">
-<INSERT-FILE "../zork-substrate/clock">
-<INSERT-FILE "../zork-substrate/parser">
-<INSERT-FILE "../zork-substrate/syntax">
-<INSERT-FILE "../zork-substrate/macros">
-<INSERT-FILE "../zork-substrate/verbs">
-<INSERT-FILE "../zork-substrate/globals">
+<INSERT-FILE "main">
+<INSERT-FILE "clock">
+<INSERT-FILE "parser">
+<INSERT-FILE "syntax">
+<INSERT-FILE "macros">
+<INSERT-FILE "verbs">
+<INSERT-FILE "globals">
 
 ;"Script"
 
