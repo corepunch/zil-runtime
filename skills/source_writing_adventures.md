@@ -1613,6 +1613,8 @@ Use this checklist before submitting your adventure:
 - [ ] Every direction connection is bidirectional (if A goes NORTH to B, B goes SOUTH to A)
 - [ ] A `GO` routine exists as the entry point
 - [ ] `GO` sets `HERE`, `LIT`, `WINNER`, `PLAYER`, moves `WINNER`, calls `V-LOOK` then `MAIN-LOOP`
+- [ ] **No `<SYNTAX ...>` in dungeon.zil** — SYNTAX comes from substrate
+- [ ] **No `<ROUTINE V-LOOK ...>` in actions.zil** — V-LOOK comes from substrate
 
 ### Objects
 - [ ] Every object has `(IN location)`, `(SYNONYM ...)`, `(DESC ...)`
@@ -1628,7 +1630,8 @@ Use this checklist before submitting your adventure:
 - [ ] Global flags track state for conditional exits and multi-step puzzles
 
 ### Verbs
-- [ ] Only use verbs from the standard Zork1 syntax file (no custom SYNTAX definitions needed)
+- [ ] **CRITICAL: No `<SYNTAX ...>` forms in dungeon.zil** — all SYNTAX comes from the substrate (`infocom/zork1/syntax.zil`). Adding your own will cause conflicts and broken commands.
+- [ ] **CRITICAL: No `<ROUTINE V-LOOK ...>` in actions.zil** — V-LOOK is provided by the substrate. Your GO routine calls it. Redefining it breaks room descriptions.
 - [ ] Common verbs handled: EXAMINE, TAKE, DROP, OPEN, CLOSE, UNLOCK, READ, LOOK-INSIDE
 - [ ] Object routines end with `<RTRUE>` to signal they handled the action
 
@@ -1654,7 +1657,9 @@ Use this checklist before submitting your adventure:
 
 ## Available Verbs (from Zork1 Syntax)
 
-These verbs are pre-defined and ready to use in your `<VERB? ...>` checks:
+**IMPORTANT: These verbs are pre-defined in the substrate. Do NOT add `<SYNTAX ...>` forms for them.**
+
+These verbs are ready to use in your `<VERB? ...>` checks:
 
 **Movement:** WALK, NORTH/S/E/W/NE/NW/SE/SW/UP/DOWN, ENTER, EXIT, CLIMB, BOARD, DISEMBARK, FOLLOW, BACK, LEAVE, CROSS, SWIM, JUMP, LAUNCH
 
@@ -1687,5 +1692,12 @@ When prompting an LLM to generate an adventure from this format:
 3. **Specify scope:** number of rooms (8-20 recommended), estimated play time
 4. **Mention key puzzles you want:** "include a lock-and-key, a combination puzzle, and a timed element"
 5. **The LLM should produce a single `.zil` file** with all rooms, objects, routines, globals, and the GO entry point
+
+### Common LLM Mistakes to Watch For
+
+- **Redefining V-LOOK:** The substrate provides V-LOOK. If the LLM adds `<ROUTINE V-LOOK ...>`, it will break room descriptions. Delete it.
+- **Adding SYNTAX definitions:** The substrate provides all standard SYNTAX. If the LLM adds `<SYNTAX ...>` forms, delete them.
+- **Using P?DESC instead of P?LDESC:** Room descriptions use `P?LDESC`, not `P?DESC`. If the LLM writes custom V-LOOK with `P?DESC`, the room name shows instead of the description.
+- **Missing LDESC:** Every room must have `(LDESC "...")` for the description to display.
 
 The output file should compile and run without modification in the AdventureArena engine.

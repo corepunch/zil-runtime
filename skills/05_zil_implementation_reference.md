@@ -39,7 +39,53 @@ These are implementation-level constraints that protect the intended Infocom-sty
 
 ## Critical Implementation Rules
 
-These rules are derived from real bugs found when running book content through the zilscript engine. Violating them will cause parse errors, broken compilation, or silent failures.
+These rules are derived from real bugs found when running book content through the zilscript engine. Violating them will cause parse errors, broken compilation, or broken gameplay.
+
+### 0. NEVER redefine V-LOOK or SYNTAX — they come from the substrate
+
+The substrate (`infocom/zork1/`) provides V-LOOK and all SYNTAX definitions. **Do not add your own.**
+
+**V-LOOK is provided by the substrate.** It reads `P?LDESC` from the current room and prints exits. Your `GO` routine calls it automatically. If you redefine V-LOOK (as Limehouse Killings did), you will break room descriptions.
+
+**Wrong** (Limehouse Killings bug — redefines V-LOOK with wrong property):
+```zil
+; in actions.zil — DON'T DO THIS
+<ROUTINE V-LOOK ()
+    <TELL <GETP ,HERE ,P?DESC> CR>  ; P?DESC is room NAME, not description!
+    <TELL CR "Exits: ">
+    ...>
+```
+
+**Right** (let the substrate handle it):
+```zil
+; in actions.zil — V-LOOK is NOT defined here
+; GO calls V-LOOK which is provided by the substrate
+<ROUTINE GO ()
+    <SETG HERE ,STARTING-ROOM>
+    ...
+    <V-LOOK>      ; calls the substrate's V-LOOK
+    <MAIN-LOOP>>
+```
+
+**SYNTAX is provided by the substrate.** All standard verbs (LOOK, EXAMINE, TAKE, DROP, OPEN, etc.) are already defined in `infocom/zork1/syntax.zil`. Your `dungeon.zil` should NOT contain any `<SYNTAX ...>` forms.
+
+**Wrong** (Limehouse Killings bug — adds SYNTAX that conflicts):
+```zil
+; in dungeon.zil — DON'T DO THIS
+<SYNTAX LOOK = V-LOOK>
+<SYNTAX EXAMINE OBJECT = V-EXAMINE>
+<SYNTAX TAKE OBJECT = V-TAKE>
+```
+
+**Right** (dungeon.zil has no SYNTAX):
+```zil
+; in dungeon.zil — SYNTAX section does not exist
+<DIRECTIONS NORTH EAST WEST SOUTH ...>
+<ROOM ...>
+<OBJECT ...>
+```
+
+**Detection:** If your `dungeon.zil` contains `<SYNTAX` anywhere, remove it. If your `actions.zil` contains `<ROUTINE V-LOOK`, remove it.
 
 ### 1. Every `<TELL>` must close with `>` before the next form
 

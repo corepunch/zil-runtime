@@ -815,36 +815,6 @@
            <TELL "  nothing." CR>
            <RTRUE>)>>
 
-<ROUTINE V-LOOK ()
-    <TELL <GETP ,HERE ,P?DESC> CR>
-    <TELL CR "Exits: ">
-    <COND (<==? ,HERE ,ASHWORTH-MANOR-GATE>
-           <TELL "NORTH">)
-          (<==? ,HERE ,ASHWORTH-ENTRANCE-HALL>
-           <TELL "NORTH, SOUTH, EAST, WEST, DOWN">)
-          (<==? ,HERE ,STUDY>
-           <TELL "NORTH">)
-          (<==? ,HERE ,LIBRARY>
-           <TELL "WEST">)
-          (<==? ,HERE ,DINING-ROOM>
-           <TELL "EAST, NORTH">)
-          (<==? ,HERE ,KITCHEN>
-           <TELL "UP, WEST">)
-          (<==? ,HERE ,GARDEN>
-           <TELL "EAST, NORTH, SOUTH">)
-          (<==? ,HERE ,GREENHOUSE>
-           <TELL "SOUTH">)
-          (<==? ,HERE ,SERVANTS-QUARTERS>
-           <TELL "NORTH">)
-          (<==? ,HERE ,SECRET-PASSAGE>
-           <TELL "WEST, EAST">)
-          (<==? ,HERE ,PANTRY>
-           <TELL "SOUTH">)
-          (T
-           <TELL "none">)>
-    <TELL "." CR>
-    <RTRUE>>
-
 <ROUTINE V-SCORE ()
     <TELL "Evidence found: " N ,EVIDENCE-FOUND " of 5." CR>
     <TELL "Suspects interviewed: " N ,SUSPECTS-INTERVIEWED " of 3." CR>

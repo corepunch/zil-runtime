@@ -96,6 +96,18 @@ adventure-name/
 - Full source mirrors remain available for exact wording and complete reference.
 - The `work/`, `test/`, and `package/` subfolders keep adventures organized as they grow.
 
+## Critical Rules (from Real Bugs)
+
+**These caused broken games. Read before implementing.**
+
+1. **No `<SYNTAX ...>` in dungeon.zil** — SYNTAX comes from substrate (`infocom/zork1/syntax.zil`). Adding your own breaks commands.
+2. **No `<ROUTINE V-LOOK ...>` in actions.zil** — V-LOOK comes from substrate. Redefining it breaks room descriptions.
+3. **Room descriptions use `P?LDESC` not `P?DESC`** — `P?DESC` is the room name, `P?LDESC` is the full description.
+4. **Every `<TELL>` must close with `>`** — unclosed TELL swallows subsequent code.
+5. **GO must exist in actions.zil** — entry point for the game.
+
+See `05_zil_implementation_reference.md` for details.
+
 ## Critical: Room and Object Flags
 
 **This is a common source of bugs. Always set flags correctly.**
