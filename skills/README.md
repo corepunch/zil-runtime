@@ -105,6 +105,8 @@ adventure-name/
 3. **Room descriptions use `P?LDESC` not `P?DESC`** — `P?DESC` is the room name, `P?LDESC` is the full description.
 4. **Every `<TELL>` must close with `>`** — unclosed TELL swallows subsequent code.
 5. **GO must exist in actions.zil** — entry point for the game.
+6. **Room descriptions don't embed item descriptions** — items describe themselves via `FDESC`/`LDESC`/`DESCFCN`. This keeps content modular and lets items adapt to state changes.
+7. **Use dynamic descriptions for state-changing rooms** — rooms with open/closed, lit/unlit, or locked/unlocked elements should use an ACTION routine with `M-LOOK` to vary the description based on flags.
 
 See `05_zil_implementation_reference.md` for details.
 

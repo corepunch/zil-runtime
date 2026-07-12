@@ -777,9 +777,79 @@ Instead of static `LDESC`, a room can have an `ACTION` routine that generates de
 
 **Room action messages:**
 - `M-LOOK` — room is being described (return T to suppress default LDESC)
-- `M-ENTER` — player just entered this room
+- `M-ENTER` — player just entered the room
 - `M-BEG` — before any action is processed this turn
 - `M-END` — after all actions are processed this turn
+
+### When to Use Dynamic Descriptions
+
+Not every room needs an ACTION routine. Use one when the room has **elements that change state** and the description should reflect that. Static LDESC is fine for rooms with no mutable elements.
+
+**Use dynamic descriptions for:**
+- Rooms with doors/windows that can open/close
+- Rooms with lighting that changes (candles, lamps)
+- Rooms where objects appear/disappear based on puzzle state
+- Rooms with NPCs that move or change
+
+**Keep static LDESC for:**
+- Rooms with no interactable elements
+- Rooms where nothing changes after first visit
+- Simple connecting corridors
+
+**Example — Zork 1 window state:**
+```zil
+; The window's state affects the room description
+<ROUTINE EAST-HOUSE (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL
+"You are behind the white house. A path leads into the forest
+to the east. In one corner of the house there is a small window
+which is ">
+           <COND (<FSET? ,KITCHEN-WINDOW ,OPENBIT>
+                  <TELL "open.">)
+                 (T <TELL "slightly ajar.">)>
+           <CRLF>)>>
+```
+
+The window object itself handles OPEN/CLOSE actions. The room just reads the flag to describe the current state. This is the pattern: **objects own their state, rooms read it**.
+
+### Item Descriptions Belong to Items, Not Rooms
+
+Room descriptions should describe the **space**, not the objects in it. Each object describes itself via `FDESC` (first-time) or `LDESC` (static) or `DESCFCN` (dynamic).
+
+**Wrong** (room embeds item descriptions):
+```zil
+(LDESC "The kitchen has copper pots hanging from the ceiling.
+A bottle is sitting on the table. A nasty-looking knife lies
+near the sink.")
+```
+
+**Right** (room describes space, items describe themselves):
+```zil
+; room
+(LDESC "A cozy kitchen with copper pots hanging from the ceiling.
+The back door is to the north.")
+
+; objects
+<OBJECT BOTTLE
+    (IN KITCHEN)
+    (SYNONYM BOTTLE CONTAINER)
+    (DESC "glass bottle")
+    (FDESC "A bottle is sitting on the table.")
+    (FLAGS TAKEBIT)>
+
+<OBJECT NASTY-KNIFE
+    (IN KITCHEN)
+    (SYNONYM KNIFE BLADE)
+    (DESC "nasty knife")
+    (FDESC "On a table is a nasty-looking knife.")
+    (FLAGS TAKEBIT)>
+```
+
+**Why this matters:**
+1. **State changes**: If the bottle is taken, the room shouldn't still say "a bottle is sitting on the table." When items describe themselves, they disappear from the room description automatically (after TOUCHBIT is set).
+2. **Modularity**: Adding or removing items doesn't require rewriting room descriptions.
+3. **Dynamic state**: An item can change its own description based on flags (locked/unlocked, open/closed, full/empty).
 
 ### DESCFCN (Dynamic Object Descriptions)
 
@@ -1622,6 +1692,8 @@ Use this checklist before submitting your adventure:
 - [ ] Containers have `CONTBIT` (and `OPENBIT` if they start open)
 - [ ] Objects in containers are `(IN CONTAINER-NAME)`
 - [ ] Objects with custom behavior have an `(ACTION routine-name)` property
+- [ ] **Room descriptions do NOT embed item descriptions** — items describe themselves via `FDESC`, `LDESC`, or `DESCFCN`
+- [ ] Every visible object has an `FDESC` or `LDESC` so it appears in room descriptions
 
 ### Puzzles
 - [ ] Every locked gate has a solution reachable before it
@@ -1640,6 +1712,7 @@ Use this checklist before submitting your adventure:
 - [ ] No room has zero interactable objects
 - [ ] Atmospheric events use `<QUEUE routine interval>` for ambient flavor
 - [ ] All strings end with `CR` when they should produce a newline
+- [ ] **Rooms with state-changing elements use ACTION routine with M-LOOK** for dynamic descriptions (open/closed, lit/unlit, locked/unlocked)
 
 ### Testing
 - [ ] `books/<name>/walkthrough.zil` exists and assembles dungeon + actions via INSERT-FILE

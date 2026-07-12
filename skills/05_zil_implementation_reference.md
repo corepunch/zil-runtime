@@ -87,7 +87,45 @@ The substrate (`infocom/zork1/`) provides V-LOOK and all SYNTAX definitions. **D
 
 **Detection:** If your `dungeon.zil` contains `<SYNTAX` anywhere, remove it. If your `actions.zil` contains `<ROUTINE V-LOOK`, remove it.
 
-### 1. Every `<TELL>` must close with `>` before the next form
+### 1. Don't embed item descriptions in room descriptions — let items describe themselves
+
+Room descriptions (`LDESC`) should describe the **space**, not the objects in it. Objects describe themselves via `FDESC`, `LDESC`, or `DESCFCN`. This keeps content modular and lets objects adapt to state changes.
+
+**Wrong** (room description embeds items):
+```zil
+(LDESC "The study is a crime scene. A mahogany desk stands against the wall,
+its surface cluttered with papers. The fireplace contains cold ashes and
+a small locked box. A window looks out to the garden.")
+```
+
+**Right** (room describes the space, items describe themselves):
+```zil
+; room
+(LDESC "A crime scene. The chalk outline on the floor marks where the body
+lay. A window looks out to the garden, its latch rusted but intact. The air
+hangs heavy with the memory of violence.")
+
+; objects in dungeon.zil
+<OBJECT DESK
+    (IN STUDY)
+    (SYNONYM DESK TABLE)
+    (DESC "mahogany desk")
+    (FDESC "A mahogany desk stands against the wall, its surface cluttered with papers.")
+    (FLAGS SURFACEBIT CONTBIT OPENBIT)>
+
+<OBJECT FIREPLACE-ASHES
+    (IN STUDY)
+    (SYNONYM ASHES FIREPLACE)
+    (DESC "fireplace")
+    (FDESC "The fireplace contains cold ashes and a small locked box.")
+    (FLAGS NDESCBIT)>
+```
+
+**Why**: When items describe themselves, their descriptions can change with game state. A locked box can say "locked" or "open" depending on a flag. A window can say "slightly ajar" or "open" depending on whether the player opened it. If the room description hardcodes the state, you need an ACTION routine just to vary one sentence.
+
+**Detection**: Search your `LDESC` strings for object names that appear as objects elsewhere. If a room says "a desk" and there's an OBJECT DESK, the desk should describe itself.
+
+### 2. Every `<TELL>` must close with `>` before the next form
 
 The most common and hardest-to-spot bug. When a TELL form does not have a closing `>`, the parser treats everything after it as additional arguments to TELL—including entire COND forms, ROUTINEs, and subsequent top-level declarations.
 
@@ -119,7 +157,7 @@ The most common and hardest-to-spot bug. When a TELL form does not have a closin
 
 **Detection**: If a ROUTINE in the AST has more than ~5 children, a TELL bracket leak is almost certainly the cause.
 
-### 2. Define `ROUTINE GO ()` in actions.zil
+### 3. Define `ROUTINE GO ()` in actions.zil
 
 The game entry point must exist. Original zork1 defines GO in `dungeon.zil`, but when a book overrides dungeon.zil, the engine only loads the book's version. Put GO in `actions.zil` instead (as blackwood-horror does).
 
@@ -139,7 +177,7 @@ GO must set up initial state:
 
 **Detection**: Game loads without errors but prints "Failed to start game: GO() not defined or failed."
 
-### 3. Simplified SYNTAX uses `= ACTION`, not `ACTION` keyword
+### 4. Simplified SYNTAX uses `= ACTION`, not `ACTION` keyword
 
 The limehouse/blackwood books use a simplified SYNTAX format. Note the differences:
 
@@ -160,7 +198,7 @@ Key rules for the simplified format:
 - Modifier keywords like `TEXT` before `=` are supported
 - Use hyphenated names: `V-GO-NORTH` (not `V?GO-NORTH`)
 
-### 4. Bracket balance: every `<` needs a matching `>`
+### 5. Bracket balance: every `<` needs a matching `>`
 
 The parser uses `<...>` as expression boundaries. Common trouble spots:
 
@@ -168,7 +206,7 @@ The parser uses `<...>` as expression boundaries. Common trouble spots:
 - **`)>` at clause end**: `)` closes a COND clause list, `>` closes COND. Example: `(T <TELL "ok">)>`
 - **Nested TELL with COND**: If TELL contains COND as an argument, the first `>` encountered closes COND and the next `>` closes TELL. Make sure the outer form has enough `>` characters.
 
-### 5. `;` comment lines: first atom after `;` is skipped by the parser
+### 6. `;` comment lines: first atom after `;` is skipped by the parser
 
 The zilscript parser's `;` handler calls `parse_form()` once to skip the next form, then returns. Any remaining text on the same line becomes separate top-level atoms in the AST.
 
@@ -178,7 +216,7 @@ The zilscript parser's `;` handler calls `parse_form()` once to skip the next fo
 
 This produces three top-level Ident nodes: `HELPER`, `ROUTINES`, `===`. The compiler skips Ident nodes (they are not `"expr"` type), so they are harmless at runtime. But they pollute the AST. Keep comments to a single atom or use bare text without special characters.
 
-### 6. Entry point files: use local paths, engine falls back to infocom/zork1/
+### 7. Entry point files: use local paths, engine falls back to infocom/zork1/
 
 Each book needs its own entry `.zil` file (like `blackwood-horror.zil`). Use local relative paths—INSERT_FILE first tries relative to the including file, then falls back to `infocom/zork1/` for anything not found locally:
 
