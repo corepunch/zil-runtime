@@ -96,17 +96,33 @@ adventure-name/
 - Full source mirrors remain available for exact wording and complete reference.
 - The `work/`, `test/`, and `package/` subfolders keep adventures organized as they grow.
 
+## Non-Negotiable: Play As You Build
+
+Do not write the whole adventure and wait for Stage 6 to play it. Build vertical slices:
+
+1. Write the exact player commands for one room or puzzle in `TRANSCRIPT_TESTS.md`.
+2. Implement only that slice.
+3. Start a fresh game and execute those commands through `llm.lua`, one saved invocation per command.
+4. Test the obvious noun variants, wrong order, repeated action, inventory, and save/reload boundary.
+5. Add the successful commands to the automated parser-driven walkthrough.
+6. Continue only when the slice passes.
+
+The walkthrough grows with the game. At every commit-sized milestone, all implemented slices must still be playable from a fresh game.
+
 ## Critical Rules (from Real Bugs)
 
 **These caused broken games. Read before implementing.**
 
-1. **No `<SYNTAX ...>` in dungeon.zil** — SYNTAX comes from substrate (`infocom/zork1/syntax.zil`). Adding your own breaks commands.
+1. **No `<SYNTAX ...>` in dungeon.zil and no redefinition of standard syntax** — standard SYNTAX comes from substrate (`infocom/zork1/syntax.zil`). A genuinely new verb may add one narrow declaration in `actions.zil`.
 2. **No `<ROUTINE V-LOOK ...>` in actions.zil** — V-LOOK comes from substrate. Redefining it breaks room descriptions.
 3. **Room descriptions use `P?LDESC` not `P?DESC`** — `P?DESC` is the room name, `P?LDESC` is the full description.
 4. **Every `<TELL>` must close with `>`** — unclosed TELL swallows subsequent code.
 5. **GO must exist in actions.zil** — entry point for the game.
 6. **Room descriptions don't embed item descriptions** — items describe themselves via `FDESC`/`LDESC`/`DESCFCN`. This keeps content modular and lets items adapt to state changes.
 7. **Use dynamic descriptions for state-changing rooms** — rooms with open/closed, lit/unlit, or locked/unlocked elements should use an ACTION routine with `M-LOOK` to vary the description based on flags.
+8. **Object IDs and DESC text are not parser vocabulary** — every reachable object needs explicit `SYNONYM` nouns and `ADJECTIVE` modifiers matching the exact transcript commands, including hyphenated forms when used.
+9. **Opening a container must make contents reachable** — use container/search flags, set `OPENBIT`, and verify contents can be taken after a separate save/reload invocation.
+10. **Evidence and milestone counters must be idempotent** — guard one-time increments with per-clue flags so repeated EXAMINE/READ/TAKE cannot inflate progress.
 
 See `05_zil_implementation_reference.md` for details.
 

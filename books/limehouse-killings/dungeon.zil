@@ -11,6 +11,7 @@
 <GLOBAL SECRET-PASSAGE-FOUND <>>
 <GLOBAL SECRET-PASSAGE-OPEN <>>
 <GLOBAL CIPHER-SOLVED <>>
+<GLOBAL CIPHER-STAGE 0>
 <GLOBAL POISON-IDENTIFIED <>>
 <GLOBAL KILLER-ACCUSED <>>
 <GLOBAL CORRECT-ACCUSATION <>>
@@ -29,6 +30,7 @@
 <GLOBAL LOCKED-BOX-OPENED <>>
 <GLOBAL POISON-BOTTLE-FOUND <>>
 <GLOBAL SECRET-LEDGER-FOUND <>>
+<GLOBAL BANK-STATEMENT-FOUND <>>
 <GLOBAL PLAYER-HEALTH 3>
 
 ; === ROOMS ===
@@ -70,6 +72,7 @@
       (LDESC "Floor-to-ceiling bookshelves line the walls, their contents ranging from leather-bound classics to modern scientific texts. The fire is cold, but the room retains a scholarly warmth. A doorway leads west back to the entrance hall.")
       (WEST TO ASHWORTH-ENTRANCE-HALL)
       (EAST TO SECRET-PASSAGE IF CIPHER-SOLVED)
+      (SOUTH TO SECRET-PASSAGE IF CIPHER-SOLVED)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL BOOKSHELF READING-DESK FIREPLACE COLORED-MARKERS)>
 
@@ -145,7 +148,8 @@
       (DESC "unsent letter")
       (FDESC "A yellowed envelope lies among the papers on the desk, addressed in a shaking hand.")
       (LDESC "An unsent letter, its paper yellowed with age. The ink is faded but legible, the words a threat from one man to another. The seal is broken, the wax still bearing the initial 'M.'")
-      (SYNONYM LETTER NOTE PAPER)
+      (SYNONYM LETTER NOTE PAPER DEAD-LETTER)
+      (ADJECTIVE DEAD UNSENT)
       (FLAGS TAKEBIT READBIT)
       (ACTION DEAD-LETTER-F)>
 
@@ -154,7 +158,8 @@
       (DESC "blood-stained knife")
       (FDESC "Something glints in the branches near the fountain -- a knife, its blade dark with dried blood.")
       (LDESC "A sharp blade, its edge stained with dried blood. The handle bears the mark of a surgical instrument, the kind used by doctors and scientists.")
-      (SYNONYM KNIFE BLADE WEAPON)
+      (SYNONYM KNIFE BLADE WEAPON BLOOD-STAINED-KNIFE)
+      (ADJECTIVE BLOOD STAINED)
       (FLAGS TAKEBIT WEAPONBIT)
       (ACTION BLOOD-STAINED-KNIFE-F)>
 
@@ -164,7 +169,8 @@
       (FDESC "A small locked box sits among the cold ashes in the fireplace, its brass clasp gleaming dully.")
       (LDESC "A small ornate box, its surface carved with intricate patterns. A keyhole stares up at you, promising secrets within.")
       (SYNONYM BOX CASE CONTAINER)
-      (FLAGS CONTBIT)
+      (ADJECTIVE LOCKED)
+      (FLAGS CONTBIT SEARCHBIT)
       (ACTION LOCKED-BOX-F)>
 
 <OBJECT POISON-BOTTLE
@@ -172,7 +178,8 @@
       (DESC "poison bottle")
       (FDESC "A small glass bottle with a faded label sits on the mantelpiece, its contents clear and deadly.")
       (LDESC "A small glass bottle, its label reading 'Aconitum - Wolfsbane. Highly poisonous.' The liquid inside is clear, its lethality hidden in plain sight.")
-      (SYNONYM BOTTLE VIAL POISON)
+      (SYNONYM BOTTLE VIAL POISON-BOTTLE)
+      (ADJECTIVE POISON)
       (FLAGS TAKEBIT READBIT)
       (ACTION POISON-BOTTLE-F)>
 
@@ -182,6 +189,7 @@
       (FDESC "A leather-bound ledger lies open on the reading desk, its pages filled with coded entries.")
       (LDESC "A leather-bound book, its pages filled with numbers and names. Financial records that tell a story of debt and desperation.")
       (SYNONYM LEDGER BOOK ACCOUNT)
+      (ADJECTIVE SECRET)
       (FLAGS TAKEBIT READBIT)
       (ACTION SECRET-LEDGER-F)>
 
@@ -193,6 +201,7 @@
       (FDESC "A magnifying glass rests on the hall table, its brass handle worn smooth.")
       (LDESC "A brass magnifying glass, its lens clear and strong. Useful for examining small details that the naked eye might miss.")
       (SYNONYM GLASS LENS MAGNIFIER)
+      (ADJECTIVE MAGNIFYING)
       (FLAGS TAKEBIT)
       (ACTION MAGNIFYING-GLASS-F)>
 
@@ -201,7 +210,8 @@
       (DESC "lockpick set")
       (FDESC "A leather roll lies in the open drawer, its contents glinting steel.")
       (LDESC "A set of metal picks, their tips worn from use. Tools of the trade for those who need to open locked doors.")
-      (SYNONYM PICKS TOOLS)
+      (SYNONYM SET PICKS TOOLS LOCKPICK-SET)
+      (ADJECTIVE LOCKPICK)
       (FLAGS TAKEBIT TOOLBIT)
       (ACTION LOCKPICK-SET-F)>
 
@@ -218,7 +228,7 @@
       (IN MR-HUDSON)
       (DESC "keyring")
       (LDESC "A ring of keys, each one opening a different lock. The study key hangs among them, waiting to be used.")
-      (SYNONYM KEYS KEY)
+      (SYNONYM KEYRING KEYS KEY)
       (FLAGS TAKEBIT TOOLBIT)
       (ACTION KEYRING-F)>
 
@@ -229,7 +239,8 @@
       (DESC "torn page")
       (FDESC "A torn page lies on the reading desk, covered in handwritten notes.")
       (LDESC "A fragment of paper, its edges ragged. The text reads: 'Follow the rainbow order. Red, orange, yellow, green, blue, violet. Only then will the way open.'")
-      (SYNONYM PAGE FRAGMENT)
+      (SYNONYM PAGE FRAGMENT TORN-PAGE)
+      (ADJECTIVE TORN)
       (FLAGS TAKEBIT READBIT)
       (ACTION TORN-PAGE-F)>
 
@@ -238,6 +249,7 @@
       (DESC "colored markers")
       (LDESC "Small ribbons of color, tied to the bookshelves. Red, blue, green, and yellow markers suggest an organizational system.")
       (SYNONYM MARKERS RIBBONS TAGS)
+      (ADJECTIVE COLORED COLOURED)
       (FLAGS NDESCBIT)
       (ACTION COLORED-MARKERS-F)>
 
@@ -247,6 +259,7 @@
       (FDESC "A plaster cast of a footprint sits near the fountain, preserving the evidence.")
       (LDESC "A plaster cast of a boot print, size 10. Too large for Lady Ashworth, too small for Mr. Hudson.")
       (SYNONYM CAST MOLD FOOTPRINT)
+      (ADJECTIVE FOOTPRINT)
       (FLAGS TAKEBIT)
       (ACTION FOOTPRINT-CAST-F)>
 
@@ -255,7 +268,8 @@
       (DESC "wax seal")
       (FDESC "A crimson wax seal rests on the dining table, pressed with an unknown sigil.")
       (LDESC "A broken wax seal, its surface bearing the initial 'M.' The mark of Dr. Moriarty.")
-      (SYNONYM SEAL STAMP)
+      (SYNONYM SEAL STAMP WAX-SEAL)
+      (ADJECTIVE WAX)
       (FLAGS TAKEBIT)
       (ACTION WAX-SEAL-F)>
 
@@ -263,7 +277,8 @@
       (IN LOCKED-BOX)
       (DESC "bank statement")
       (LDESC "A financial statement showing Dr. Moriarty's account overdrawn. A large withdrawal for 'experimental supplies' catches your eye.")
-      (SYNONYM STATEMENT RECEIPT)
+      (SYNONYM STATEMENT RECEIPT BANK-STATEMENT)
+      (ADJECTIVE BANK)
       (FLAGS TAKEBIT READBIT)
       (ACTION BANK-STATEMENT-F)>
 
@@ -273,6 +288,8 @@
       (IN STUDY)
       (DESC "mahogany desk")
       (LDESC "A mahogany desk, its surface scarred with use. Three drawers, one locked, contain the remnants of Lord Ashworth's work.")
+      (SYNONYM DESK)
+      (ADJECTIVE MAHOGANY)
       (FLAGS NDESCBIT)
       (ACTION DESK-F)>
 
@@ -280,6 +297,7 @@
       (IN STUDY)
       (DESC "fireplace")
       (LDESC "A stone fireplace, its hearth cold. Ashes and a locked box remain from the last fire.")
+      (SYNONYM FIREPLACE HEARTH)
       (FLAGS NDESCBIT)
       (ACTION FIREPLACE-F)>
 
@@ -287,6 +305,7 @@
       (IN STUDY)
       (DESC "window")
       (LDESC "A tall window, its glass clouded with age. The latch is rusted but intact, looking out to the garden.")
+      (SYNONYM WINDOW GLASS LATCH)
       (FLAGS NDESCBIT)
       (ACTION WINDOW-F)>
 
@@ -294,6 +313,7 @@
       (IN LIBRARY)
       (DESC "bookshelf")
       (LDESC "Floor-to-ceiling shelves, filled with books of every description. Colored markers dot the spines, suggesting a hidden pattern.")
+      (SYNONYM BOOKSHELF SHELVES)
       (FLAGS NDESCBIT)
       (ACTION BOOKSHELF-F)>
 
@@ -301,13 +321,50 @@
       (IN LIBRARY)
       (DESC "reading desk")
       (LDESC "A wooden desk, its surface scattered with papers. A torn page lies among them, its message waiting to be read.")
+      (SYNONYM DESK)
+      (ADJECTIVE READING)
       (FLAGS NDESCBIT)
       (ACTION READING-DESK-F)>
+
+; Distinct marked books let the parser track the documented color sequence.
+<OBJECT RED-BOOK
+      (IN LIBRARY)
+      (DESC "red-marked book")
+      (SYNONYM BOOK)
+      (ADJECTIVE RED)
+      (FLAGS NDESCBIT)
+      (ACTION CIPHER-BOOK-F)>
+
+<OBJECT BLUE-BOOK
+      (IN LIBRARY)
+      (DESC "blue-marked book")
+      (SYNONYM BOOK)
+      (ADJECTIVE BLUE)
+      (FLAGS NDESCBIT)
+      (ACTION CIPHER-BOOK-F)>
+
+<OBJECT GREEN-BOOK
+      (IN LIBRARY)
+      (DESC "green-marked book")
+      (SYNONYM BOOK)
+      (ADJECTIVE GREEN)
+      (FLAGS NDESCBIT)
+      (ACTION CIPHER-BOOK-F)>
+
+<OBJECT YELLOW-BOOK
+      (IN LIBRARY)
+      (DESC "yellow-marked book")
+      (SYNONYM BOOK)
+      (ADJECTIVE YELLOW)
+      (FLAGS NDESCBIT)
+      (ACTION CIPHER-BOOK-F)>
 
 <OBJECT TABLE
       (IN DINING-ROOM)
       (DESC "dining table")
       (LDESC "A long dining table, set for two but used by only one. Wax seals and place settings tell a story of interrupted meals.")
+      (SYNONYM TABLE)
+      (ADJECTIVE DINING)
       (FLAGS NDESCBIT)
       (ACTION TABLE-F)>
 
@@ -315,6 +372,8 @@
       (IN DINING-ROOM)
       (DESC "wine cabinet")
       (LDESC "A glass-fronted cabinet, its shelves filled with fine wines and spirits. A lock secures its contents.")
+      (SYNONYM CABINET)
+      (ADJECTIVE WINE)
       (FLAGS NDESCBIT)
       (ACTION WINE-CABINET-F)>
 
@@ -322,6 +381,8 @@
       (IN KITCHEN)
       (DESC "copper pots")
       (LDESC "Copper pots, tarnished with age, hang from the kitchen ceiling. They have cooked many meals, but none recently.")
+      (SYNONYM POTS)
+      (ADJECTIVE COPPER)
       (FLAGS NDESCBIT)
       (ACTION POTS-F)>
 
@@ -329,6 +390,8 @@
       (IN KITCHEN)
       (DESC "cold hearth")
       (LDESC "A stone hearth, cold and empty. The last fire burned long ago.")
+      (SYNONYM HEARTH)
+      (ADJECTIVE COLD)
       (FLAGS NDESCBIT)
       (ACTION HEARTH-F)>
 
@@ -336,6 +399,8 @@
       (IN KITCHEN)
       (DESC "servant bell")
       (LDESC "A servant bell, its rope leading up to the servant's quarters. A pull summons the staff.")
+      (SYNONYM BELL ROPE)
+      (ADJECTIVE SERVANT)
       (FLAGS NDESCBIT)
       (ACTION SERVANT-BELL-F)>
 
@@ -343,13 +408,15 @@
       (IN KITCHEN)
       (DESC "drawer")
       (LDESC "A drawer in the counter, slightly open. It promises something useful inside.")
-      (FLAGS NDESCBIT)
+      (SYNONYM DRAWER)
+      (FLAGS NDESCBIT CONTBIT SEARCHBIT)
       (ACTION DRAWER-F)>
 
 <OBJECT FOUNTAIN
       (IN GARDEN)
       (DESC "fountain")
       (LDESC "A stone fountain, dry and silent. Coins lie at the bottom, wishes unfulfilled.")
+      (SYNONYM FOUNTAIN COINS)
       (FLAGS NDESCBIT)
       (ACTION FOUNTAIN-F)>
 
@@ -357,6 +424,7 @@
       (IN GARDEN)
       (DESC "hedge mazes")
       (LDESC "Tall hedges, their branches thick and tangled. They hide secrets in their shadows.")
+      (SYNONYM HEDGES HEDGE BUSHES)
       (FLAGS NDESCBIT)
       (ACTION HEDGES-F)>
 
@@ -364,6 +432,8 @@
       (IN GREENHOUSE)
       (DESC "exotic plants")
       (LDESC "Exotic plants from around the world, their leaves and flowers a splash of color in the gray manor.")
+      (SYNONYM PLANTS FLOWERS)
+      (ADJECTIVE EXOTIC)
       (FLAGS NDESCBIT)
       (ACTION PLANTS-F)>
 
@@ -371,6 +441,8 @@
       (IN GREENHOUSE)
       (DESC "plant labels")
       (LDESC "Small labels marking the plants. They identify species and their properties.")
+      (SYNONYM LABELS)
+      (ADJECTIVE PLANT)
       (FLAGS NDESCBIT)
       (ACTION LABELS-F)>
 
@@ -378,6 +450,8 @@
       (IN GREENHOUSE)
       (DESC "potting bench")
       (LDESC "A wooden potting bench, its surface covered in soil and tools. Labels identify the plants it tends.")
+      (SYNONYM BENCH)
+      (ADJECTIVE POTTING)
       (FLAGS NDESCBIT)
       (ACTION BENCH-F)>
 
@@ -385,6 +459,8 @@
       (IN SERVANTS-QUARTERS)
       (DESC "servant beds")
       (LDESC "Simple beds for the household staff, their sheets worn but clean.")
+      (SYNONYM BEDS BED)
+      (ADJECTIVE SERVANT)
       (FLAGS NDESCBIT)
       (ACTION BEDS-F)>
 
@@ -392,6 +468,7 @@
       (IN SERVANTS-QUARTERS)
       (DESC "trunk")
       (LDESC "A large wooden trunk, its lid heavy. It contains the servant's belongings and secrets.")
+      (SYNONYM TRUNK CHEST)
       (FLAGS NDESCBIT)
       (ACTION TRUNK-F)>
 
@@ -399,6 +476,8 @@
       (IN SERVANTS-QUARTERS)
       (DESC "servant uniforms")
       (LDESC "Servant uniforms, their fabric worn from use. They hang on hooks, waiting for their next wearer.")
+      (SYNONYM UNIFORMS CLOTHES)
+      (ADJECTIVE SERVANT)
       (FLAGS NDESCBIT)
       (ACTION UNIFORMS-F)>
 
@@ -406,24 +485,30 @@
       (IN SECRET-PASSAGE)
       (DESC "stone walls")
       (LDESC "Wet stone walls, slick with moisture. They have stood for centuries.")
+      (SYNONYM WALLS WALL)
+      (ADJECTIVE STONE)
       (FLAGS NDESCBIT)>
 
 <OBJECT COBWEBS
       (IN SECRET-PASSAGE)
       (DESC "cobwebs")
       (LDESC "Dusty cobwebs fill the air, undisturbed for years.")
+      (SYNONYM COBWEBS WEB WEBS)
       (FLAGS NDESCBIT)>
 
 <OBJECT DUST
       (IN SECRET-PASSAGE)
       (DESC "dust")
       (LDESC "A thick layer of dust covers everything. No one has been here in a long time.")
+      (SYNONYM DUST)
       (FLAGS NDESCBIT)>
 
 <OBJECT SHELVES
       (IN PANTRY)
       (DESC "pantry shelves")
       (LDESC "Shelves filled with food and wine. Some items are old, others relatively fresh.")
+      (SYNONYM SHELVES SHELF)
+      (ADJECTIVE PANTRY)
       (FLAGS NDESCBIT)
       (ACTION SHELVES-F)>
 
@@ -431,7 +516,7 @@
       (IN PANTRY)
       (DESC "foxglove")
       (LDESC "A bottle of foxglove, its label faded but legible. An antidote ingredient.")
-      (SYNONYM DIGITALIS)
+      (SYNONYM FOXGLOVE DIGITALIS)
       (FLAGS TAKEBIT)
       (ACTION FOXGLOVE-F)>
 
@@ -439,6 +524,7 @@
       (IN PANTRY)
       (DESC "charcoal")
       (LDESC "A container of charcoal, used for filtering poisons. An antidote ingredient.")
+      (SYNONYM CHARCOAL COAL)
       (FLAGS TAKEBIT)
       (ACTION CHARCOAL-F)>
 
@@ -485,7 +571,8 @@
       (IN SERVANTS-QUARTERS)
       (DESC "Mr. Hudson")
       (LDESC "Mr. Hudson, the butler, stands nervously in the servants' quarters. His expression is troubled, his hands fidgeting with a keyring.")
-      (SYNONYM HUDSON BUTLER)
+      (SYNONYM HUDSON BUTLER MR-HUDSON)
+      (ADJECTIVE MR MISTER)
       (FLAGS ACTORBIT NDESCBIT)
       (ACTION MR-HUDSON-F)>
 
@@ -493,7 +580,8 @@
       (IN DINING-ROOM)
       (DESC "Lady Ashworth")
       (LDESC "Lady Ashworth sits at the dining table, her expression cold and calculating. She watches you with sharp eyes.")
-      (SYNONYM LADY WIFE ASHWORTH)
+      (SYNONYM ASHWORTH WIFE LADY-ASHWORTH)
+      (ADJECTIVE LADY)
       (FLAGS ACTORBIT NDESCBIT)
       (ACTION LADY-ASHWORTH-F)>
 
@@ -501,7 +589,8 @@
       (IN LIBRARY)
       (DESC "Dr. Moriarty")
       (LDESC "Dr. Moriarty stands by the bookshelf, his expression arrogant and dismissive. He regards you with cool intelligence.")
-      (SYNONYM DOCTOR MORIARTY)
+      (SYNONYM MORIARTY DR-MORIARTY)
+      (ADJECTIVE DR DOCTOR)
       (FLAGS ACTORBIT NDESCBIT)
       (ACTION DR-MORIARTY-F)>
 
@@ -512,6 +601,41 @@
       (SYNONYM INSPECTOR LESTRADE)
       (FLAGS ACTORBIT NDESCBIT)
       (ACTION INSPECTOR-F)>
+
+; Conversation topics are global so ASK ... ABOUT ... can resolve them from
+; the listener's room without requiring the referenced person or clue nearby.
+<OBJECT MASTER-TOPIC
+      (IN GLOBAL-OBJECTS)
+      (DESC "master")
+      (SYNONYM MASTER)>
+<OBJECT ALIBI-TOPIC
+      (IN GLOBAL-OBJECTS)
+      (DESC "alibi")
+      (SYNONYM ALIBI)>
+<OBJECT KEY-TOPIC
+      (IN GLOBAL-OBJECTS)
+      (DESC "key")
+      (SYNONYM KEY)>
+<OBJECT MORIARTY-TOPIC
+      (IN GLOBAL-OBJECTS)
+      (DESC "Moriarty")
+      (SYNONYM MORIARTY)>
+<OBJECT MARRIAGE-TOPIC
+      (IN GLOBAL-OBJECTS)
+      (DESC "marriage")
+      (SYNONYM MARRIAGE)>
+<OBJECT EXPERIMENTS-TOPIC
+      (IN GLOBAL-OBJECTS)
+      (DESC "experiments")
+      (SYNONYM EXPERIMENTS RESEARCH)>
+<OBJECT POISON-TOPIC
+      (IN GLOBAL-OBJECTS)
+      (DESC "poison")
+      (SYNONYM POISON WOLFSBANE)>
+<OBJECT CASE-TOPIC
+      (IN GLOBAL-OBJECTS)
+      (DESC "case")
+      (SYNONYM CASE MURDER)>
 
 ; === STARTING LOCATION ===
 

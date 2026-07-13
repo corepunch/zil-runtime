@@ -66,6 +66,18 @@ test.describe("Compiler - Object Compilation", function(t)
 		assert.assert_match(result.body, 'DESCFCN = ROUTINE_REF%("HOUSE_D"%)')
 		assert.assert_match(result.body, 'per = ROUTINE_REF%("NORTH_F"%)')
 	end)
+
+	t.it("should preserve hyphens in player-facing vocabulary", function(assert)
+		local code = [[<OBJECT TORN-PAGE
+			(SYNONYM PAGE TORN-PAGE)
+			(ADJECTIVE HAND-WRITTEN)
+			(FLAGS TAKEBIT)>]]
+		local result = compiler.compile(parser.parse(code))
+
+		assert.assert_match(result.body, 'SYNONYM = {"PAGE", "TORN%-PAGE"}')
+		assert.assert_match(result.body, 'ADJECTIVE = {"HAND%-WRITTEN"}')
+		assert.assert_match(result.body, 'FLAGS = {"TAKEBIT"}')
+	end)
 end)
 
 test.describe("Compiler - Constants and Globals", function(t)

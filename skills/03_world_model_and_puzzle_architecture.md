@@ -18,6 +18,14 @@ Translate design docs into a coherent simulation plan before full implementation
    - guessable command vocabulary
 4. Validate dependency graph and prevent softlocks.
 5. Define default response strategy and custom overrides for likely wrong attempts.
+6. Audit every planned noun phrase before implementation:
+   - object identifiers and `DESC` do not automatically make words parseable;
+   - the head noun belongs in `SYNONYM`;
+   - modifiers belong in `ADJECTIVE`;
+   - exact hyphenated transcript spellings belong in `SYNONYM` when supported;
+   - two in-scope objects sharing a noun need distinguishing adjectives.
+7. Define container visibility transitions: where contents begin, which action sets `OPENBIT`, and which flags let the parser search inside.
+8. Define each one-time counter as `event flag -> guarded increment`, including which verbs can discover the same clue.
 
 ## Infocom-Quality Simulation Checks
 - Build a command matrix for each major puzzle with at least ten likely player attempts; implement useful responses for the top attempts.
@@ -39,6 +47,8 @@ Translate design docs into a coherent simulation plan before full implementation
 - Defaults are overridden where narrative/puzzle intent requires.
 - Navigation model supports player mapping and repeat travel without confusion.
 - At least one long-loop puzzle requires carrying knowledge or objects between distant locations.
+- The first vertical slice can be played with the exact planned commands before the next slice is implemented.
+- Repeating TAKE/READ/EXAMINE or opening an already-open object cannot duplicate progress or strand contents.
 
 ## Primary Source Coverage
 - `ZIL_TEXT_ADVENTURE_AGENTS.md`: sections 3, 4, 5

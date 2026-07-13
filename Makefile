@@ -1,5 +1,5 @@
 # Targets
-.PHONY: test test-all test-unit test-integration test-game-startup test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-read-mailbox test-walk-around-house test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look test-zilch test-flow-control
+.PHONY: test test-all test-unit test-integration test-game-startup test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-read-mailbox test-walk-around-house test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-limehouse-walkthrough test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look test-zilch test-flow-control
 
 help:
 	@echo "Available targets:"
@@ -36,6 +36,7 @@ help:
 	@echo "  test-let          - Run LET form tests"
 	@echo "  test-save         - Run save/restore tests"
 	@echo "  test-llm          - Run LLM persistence tests"
+	@echo "  test-limehouse-walkthrough - Run Limehouse golden-path LLM test"
 	@echo ""
 	@echo "Horror game tests:"
 	@echo "  test-horror-helpers - Run horror test helpers"
@@ -65,7 +66,7 @@ test-unit:
 	@echo "Running unit tests..."
 	lua tests/run_all.lua
 
-test-integration: test-zork1 test-zork2 test-game-startup test-parser test-horror-all
+test-integration: test-zork1 test-zork2 test-game-startup test-parser test-horror-all test-limehouse-walkthrough
 	@echo "All integration tests completed!"
 
 test-zork1:
@@ -150,6 +151,10 @@ test-save:
 test-llm:
 	@echo "Running LLM persistence tests..."
 	@lua tests/test_llm.lua
+
+test-limehouse-walkthrough:
+	@echo "Running Limehouse Killings golden-path walkthrough..."
+	@lua5.4 tests/test_limehouse_walkthrough.lua
 
 test-zilch:
 	@echo "Running ZILCH feature tests..."

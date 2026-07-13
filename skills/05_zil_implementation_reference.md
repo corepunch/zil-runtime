@@ -9,19 +9,24 @@ Implement game logic in ZIL with clean split between world data and routines.
 ## Required Actions
 1. Implement `dungeon.zil` for rooms, objects, and declarative world data.
 2. Implement `actions.zil` for routines, daemon/clock behavior, and `GO`.
-3. Implement `walkthrough.zil` as executable test entry file.
+3. Implement an executable walkthrough entry. If using `walkthrough.zil` with `run-zil-test.lua`, it must load prerequisites and expose `RUN_TEST`; also maintain a parser-driven cross-process walkthrough for release confidence.
 4. Use the engine include chain consistently.
 5. Apply advanced ZIL patterns where needed (GLOBAL objects, PSEUDO, FDESC/LDESC, PER exits, dynamic descriptions, transformations, daemons).
+6. Implement one playable vertical slice at a time. After each room, object, puzzle, or NPC interaction, play its exact transcript through `llm.lua` before adding the next slice.
+7. Grow a parser-driven walkthrough test alongside implementation; do not rely only on routines invoked directly with `PERFORM`.
 
 ## Outputs
 - `dungeon.zil`
 - `actions.zil`
 - `walkthrough.zil`
+- Parser-driven walkthrough test under `tests/` when the adventure is playable through `llm.lua`
 
 ## Acceptance Checks
 - Parser/object/room routines compile and run.
 - Puzzle state changes are explicit and traceable.
 - Dynamic text and clock events are deterministic enough to test.
+- Exact transcript noun phrases parse before and after a save/reload boundary.
+- Each completed slice is reachable from a fresh game and remains covered by the growing walkthrough.
 
 ## Design-Critical Implementation Reminders
 
@@ -41,9 +46,9 @@ These are implementation-level constraints that protect the intended Infocom-sty
 
 These rules are derived from real bugs found when running book content through the zilscript engine. Violating them will cause parse errors, broken compilation, or broken gameplay.
 
-### 0. NEVER redefine V-LOOK or SYNTAX — they come from the substrate
+### 0. Never redefine V-LOOK or standard SYNTAX
 
-The substrate (`infocom/zork1/`) provides V-LOOK and all SYNTAX definitions. **Do not add your own.**
+The substrate (`infocom/zork1/`) provides V-LOOK and the standard SYNTAX definitions. **Do not redefine those.**
 
 **V-LOOK is provided by the substrate.** It reads `P?LDESC` from the current room and prints exits. Your `GO` routine calls it automatically. If you redefine V-LOOK (as Limehouse Killings did), you will break room descriptions.
 
@@ -67,7 +72,15 @@ The substrate (`infocom/zork1/`) provides V-LOOK and all SYNTAX definitions. **D
     <MAIN-LOOP>>
 ```
 
-**SYNTAX is provided by the substrate.** All standard verbs (LOOK, EXAMINE, TAKE, DROP, OPEN, etc.) are already defined in `infocom/zork1/syntax.zil`. Your `dungeon.zil` should NOT contain any `<SYNTAX ...>` forms.
+**Standard SYNTAX is provided by the substrate.** LOOK, EXAMINE, TAKE, DROP, OPEN, and other standard verbs already exist in `infocom/zork1/syntax.zil`. Your `dungeon.zil` must not contain `<SYNTAX ...>` forms and `actions.zil` must not redefine standard entries.
+
+A genuinely new verb still needs one narrow syntax declaration in `actions.zil`, after its action routine is available:
+
+```zil
+<SYNTAX ACCUSE OBJECT (FIND ACTORBIT) (IN-ROOM) = V-ACCUSE>
+```
+
+After adding custom syntax, test the typed command through the parser. Calling `<PERFORM ,V?ACCUSE ...>` proves the routine, not the vocabulary or syntax.
 
 **Wrong** (Limehouse Killings bug — adds SYNTAX that conflicts):
 ```zil
@@ -85,7 +98,72 @@ The substrate (`infocom/zork1/`) provides V-LOOK and all SYNTAX definitions. **D
 <OBJECT ...>
 ```
 
-**Detection:** If your `dungeon.zil` contains `<SYNTAX` anywhere, remove it. If your `actions.zil` contains `<ROUTINE V-LOOK`, remove it.
+**Detection:** If `dungeon.zil` contains `<SYNTAX`, remove it. If `actions.zil` contains `<ROUTINE V-LOOK`, remove it. Review every `actions.zil` SYNTAX entry and keep only custom verbs absent from the substrate.
+
+### 0a. Make parser vocabulary explicit
+
+Object IDs and `DESC` strings are not automatically usable nouns. Every player-reachable object needs explicit vocabulary matching the transcript:
+
+```zil
+<OBJECT TORN-PAGE
+      (IN LIBRARY)
+      (DESC "torn page")
+      (SYNONYM PAGE FRAGMENT TORN-PAGE)
+      (ADJECTIVE TORN)
+      (FLAGS TAKEBIT READBIT)>
+```
+
+Rules:
+
+- Put head nouns and alternate nouns in `SYNONYM`.
+- Put modifiers in `ADJECTIVE`.
+- If a transcript types a hyphenated compound, include that exact spelling as a synonym.
+- Add canonical nouns even when they match the object ID (`FOXGLOVE` still needs `(SYNONYM FOXGLOVE ...)`).
+- Test both the documented form and a natural spaced variant.
+- Resolve same-room noun collisions with adjectives or different nouns.
+
+### 0b. Make containers reveal reachable contents
+
+A printed “open” response is not enough. The world model must change:
+
+```zil
+<OBJECT LOCKED-BOX
+      (IN STUDY)
+      (SYNONYM BOX)
+      (ADJECTIVE LOCKED)
+      (FLAGS CONTBIT SEARCHBIT)
+      (ACTION LOCKED-BOX-F)>
+
+; in successful OPEN/UNLOCK branch
+<FSET ,LOCKED-BOX ,OPENBIT>
+<MOVE ,BANK-STATEMENT ,LOCKED-BOX>
+```
+
+Immediately test `OPEN BOX`, then `TAKE STATEMENT` in the next `llm.lua` process. This catches both scope and save-state errors.
+
+### 0c. Guard one-time story progress
+
+If TAKE, READ, and EXAMINE can all reveal a clue, route them through one guarded transition:
+
+```zil
+<COND (<NOT ,LETTER-FOUND>
+       <SETG LETTER-FOUND T>
+       <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>)>
+```
+
+Test the verbs repeatedly and in different orders. Progress must increment once.
+
+### 0d. Implement ASK/TELL topics for this substrate
+
+The zork1 substrate treats `ASK` as a synonym of `TELL`; `ASK ACTOR ABOUT TOPIC` reaches the actor with the topic in `PRSI`. Actor routines that support ASK should therefore handle both verbs and inspect `PRSI`:
+
+```zil
+<COND (<VERB? ASK TELL>
+       <COND (<EQUAL? ,PRSI ,KEY-TOPIC>
+              ... )>)>
+```
+
+Define reusable topic objects in `GLOBAL-OBJECTS` so topic words resolve when the referenced clue/person is elsewhere. Guard interview counters, and ensure an NPC needed for a later command is physically or globally accessible at that point.
 
 ### 1. Don't embed item descriptions in room descriptions — let items describe themselves
 
@@ -177,26 +255,15 @@ GO must set up initial state:
 
 **Detection**: Game loads without errors but prints "Failed to start game: GO() not defined or failed."
 
-### 4. Simplified SYNTAX uses `= ACTION`, not `ACTION` keyword
+### 4. Custom SYNTAX uses `= V-ROUTINE`
 
-The limehouse/blackwood books use a simplified SYNTAX format. Note the differences:
+Only add syntax for verbs absent from the substrate. Use `= V-ROUTINE` at the end and include scope constraints when appropriate:
 
-**Simplified format** (books):
 ```zil
-<SYNTAX EXAMINE OBJECT = V-EXAMINE>
-<SYNTAX ASK OBJECT ABOUT TEXT = V-ASK>
+<SYNTAX ACCUSE OBJECT (FIND ACTORBIT) (IN-ROOM) = V-ACCUSE>
 ```
 
-**Infocom format** (zork1/2/3):
-```zil
-<SYNTAX EXAMINE OBJECT (MANY) = V-EXAMINE>
-<SYNTAX ATTACK OBJECT (FIND ACTORBIT) (ON-GROUND IN-ROOM) = V-ATTACK>
-```
-
-Key rules for the simplified format:
-- `= V-ROUTINE` at the end (not `ACTION V?ROUTINE`)
-- Modifier keywords like `TEXT` before `=` are supported
-- Use hyphenated names: `V-GO-NORTH` (not `V?GO-NORTH`)
+Do not copy standard LOOK/EXAMINE/TAKE/ASK entries into book content. Before adding a verb, search `infocom/zork1/syntax.zil`; after adding it, test the typed command rather than only calling its routine.
 
 ### 5. Bracket balance: every `<` needs a matching `>`
 

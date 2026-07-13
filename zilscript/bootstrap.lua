@@ -13,6 +13,7 @@ ZIL_ObjectFlags = {
 }
 
 D = 0xBAADF00D
+N = 0xBAADF00E
 
 OQANY=1
 
@@ -523,10 +524,13 @@ end
 
 function TELL(...)
 	local object = false
+	local number = false
 	for i = 1, select("#", ...) do
 		local v = select(i, ...)
 		if v == D then object = true
+		elseif v == N then number = true
 		elseif object then object = false io_write(GETP(v, _G["PQDESC"]))
+		elseif number then number = false io_write(tostring(v))
 		elseif type(v) == "number" then io_write(mem:string(v))
 		elseif v == '>' then -- skip
 		else io_write(tostring(v)) end
@@ -762,6 +766,7 @@ function GETPT(obj, prop)
 	end
 end
 function PTSIZE(ptr)
+	if not ptr then return 0 end
 	return mem:byte(ptr-1)
 end
 function PUTP(obj, prop, val)
@@ -1643,6 +1648,39 @@ function RESTORE(filename)
 					end
 				end
 			end
+		end
+	end
+
+	-- Version 2 saves append the vocabulary address map after the scalar globals.
+	-- Dictionary storage is rebuilt whenever a game process starts, and its
+	-- addresses are not guaranteed to match those in the process that wrote the
+	-- save.  Restore the saved map so READ and parser word lookups point into the
+	-- memory image we just loaded.
+	if magic == SAVE_MAGIC_V2 then
+		local section_type = file:read(1)
+		if section_type and section_type:byte() == 4 then
+			local count_bytes = file:read(2)
+			if not count_bytes or #count_bytes < 2 then
+				file:close()
+				return false
+			end
+			local cw_count = count_bytes:byte(1) | (count_bytes:byte(2) << 8)
+			local restored_words = {}
+			for _ = 1, cw_count do
+				local nl = file:read(1)
+				if not nl then
+					file:close()
+					return false
+				end
+				local word = file:read(nl:byte())
+				local addr_bytes = file:read(8)
+				if not word or not addr_bytes or #addr_bytes < 8 then
+					file:close()
+					return false
+				end
+				restored_words[word] = read_int64(addr_bytes)
+			end
+			cache.words = restored_words
 		end
 	end
 

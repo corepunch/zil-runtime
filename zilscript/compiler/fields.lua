@@ -30,6 +30,14 @@ local function writeListString(buf, node, compiler)
   end, compiler)
 end
 
+-- Vocabulary is player-facing text, not a Lua identifier. Preserve ZIL word
+-- spelling (notably hyphens) so commands such as "take torn-page" resolve.
+local function writeWordList(buf, node, compiler)
+  writeFormattedList(buf, node, function(child)
+    return string.format("%q", tostring(child.value))
+  end, compiler)
+end
+
 -- Write plain list
 local function writeList(buf, node, compiler)
   writeFormattedList(buf, node, nil, compiler)
@@ -86,8 +94,8 @@ end
 -- Field writer dispatch table
 Fields.FIELD_WRITERS = {
   FLAGS = writeListString,
-  SYNONYM = writeListString,
-  ADJECTIVE = writeListString,
+  SYNONYM = writeWordList,
+  ADJECTIVE = writeWordList,
   DESC = writeStringField,
   LDESC = writeStringField,
   FDESC = writeStringField,

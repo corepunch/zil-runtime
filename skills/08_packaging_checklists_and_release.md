@@ -21,6 +21,8 @@ Prepare final adventure package and verify definition-of-done criteria.
 6. Verify progress communication is legible (score/rank/chapter/objective summaries).
 7. If producing episodic content, design ending/start transition for narrative continuity even without save import.
 8. Confirm optional accessibility supports for modern play (transcript visibility, note surfaces, hint controls).
+9. Run the dedicated parser-driven walkthrough target from a fresh save and confirm final progress counters and win output.
+10. Run unit, LLM persistence, and broad pure-ZIL regressions after the final content change.
 
 ## Outputs
 - Release-ready adventure folder
@@ -31,6 +33,7 @@ Prepare final adventure package and verify definition-of-done criteria.
 - Packaging files present and coherent with game content.
 - Supplemental artifacts support immersion and optional hinting, not just decoration.
 - Episode hooks and transition text preserve emotional continuity.
+- The release walkthrough uses the exact commands published in testing/hint materials and passes across separate saved invocations.
 
 ## Primary Source Coverage
 - `ZIL_TEXT_ADVENTURE_AGENTS.md`: section 12

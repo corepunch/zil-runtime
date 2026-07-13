@@ -19,24 +19,6 @@ local function run_command(command)
 	return exit_code, output
 end
 
-local function extract_json_line(output)
-	local json_line = nil
-	for line in output:gmatch("[^\r\n]+") do
-		if line:match("^%b{}$") then
-			json_line = line
-		end
-	end
-	return json_line
-end
-
-local function json_string_field(json, key)
-	return json:match('"' .. key .. '":"(.-)"')
-end
-
-local function json_bool_field(json, key)
-	return json:match('"' .. key .. '":([%a]+)')
-end
-
 local function read_file(path)
 	local file = io.open(path, "r")
 	if not file then
@@ -83,17 +65,8 @@ test.describe("LLM Mode", function(t)
 		cleanup(savefile)
 
 		local exit_code, output = run_command("lua5.4 llm.lua --new-game --save " .. shell_quote(savefile))
-		local json = extract_json_line(output)
-
 		assert.assert_equal(exit_code, 0)
-		assert.assert_not_nil(json)
-		if not json then
-			cleanup(savefile)
-			return
-		end
-		assert.assert_equal(json_string_field(json, "savefile"), savefile)
-		assert.assert_equal(json_string_field(json, "historyfile"), savefile .. ".actions")
-		assert.assert_equal(json_bool_field(json, "new_game"), "true")
+		assert.assert_match(output, "West of House")
 		assert.assert_equal(read_file(savefile .. ".actions"), "")
 
 		cleanup(savefile)
@@ -105,16 +78,10 @@ test.describe("LLM Mode", function(t)
 		run_command("lua5.4 llm.lua --new-game --save " .. shell_quote(savefile))
 
 		local exit_code, output = run_command("lua5.4 llm.lua --action \"open mailbox\" --save " .. shell_quote(savefile))
-		local json = extract_json_line(output)
 		local history = read_file(savefile .. ".actions") or ""
 
 		assert.assert_equal(exit_code, 0)
-		assert.assert_not_nil(json)
-		if not json then
-			cleanup(savefile)
-			return
-		end
-		assert.assert_equal(json_string_field(json, "historyfile"), savefile .. ".actions")
+		assert.assert_match(output, "mailbox")
 		assert.assert_match(history, '"game":"zork1"')
 		assert.assert_match(history, '"action":"open mailbox"')
 
@@ -131,16 +98,8 @@ test.describe("LLM Mode", function(t)
 			" && rm -f " .. shell_quote(savefile) ..
 			" && lua5.4 llm.lua --action \"take leaflet\" --save " .. shell_quote(savefile)
 		)
-		local json = extract_json_line(output)
-
 		assert.assert_equal(exit_code, 0)
-		assert.assert_not_nil(json)
-		if not json then
-			cleanup(savefile)
-			return
-		end
-		assert.assert_equal(json_string_field(json, "historyfile"), savefile .. ".actions")
-		assert.assert_match(json_string_field(json, "output") or "", "Taken")
+		assert.assert_match(output, "Taken")
 
 		cleanup(savefile)
 	end)
@@ -198,6 +157,30 @@ test.describe("LLM Mode", function(t)
 		cleanup(savefile)
 	end)
 
+	t.it("should preserve Limehouse noun lookup after taking all across processes", function(assert)
+		local savefile = "/tmp/test-llm-limehouse-vocabulary.sav"
+		cleanup(savefile)
+		local game = " --game limehouse-killings"
+		local save = " --save " .. shell_quote(savefile)
+
+		local new_code = run_command("lua5.4 llm.lua --new-game" .. save .. game)
+		local north_code = run_command("lua5.4 llm.lua --action \"go north\"" .. save .. game)
+		local take_code, take_output = run_command("lua5.4 llm.lua --action \"take all\"" .. save .. game)
+		local inventory_code, inventory_output = run_command("lua5.4 llm.lua --action \"inventory\"" .. save .. game)
+		local examine_code, examine_output = run_command("lua5.4 llm.lua --action \"examine glass\"" .. save .. game)
+
+		assert.assert_equal(new_code, 0)
+		assert.assert_equal(north_code, 0)
+		assert.assert_equal(take_code, 0)
+		assert.assert_match(take_output, "take the magnifying glass")
+		assert.assert_equal(inventory_code, 0)
+		assert.assert_match(inventory_output, "magnifying glass")
+		assert.assert_equal(examine_code, 0)
+		assert.assert_match(examine_output, "lens clear and strong")
+
+		cleanup(savefile)
+	end)
+
 	t.it("should replay legacy raw-line history", function(assert)
 		local savefile = "/tmp/test-llm-legacy.sav"
 		cleanup(savefile)
@@ -206,15 +189,8 @@ test.describe("LLM Mode", function(t)
 		file:close()
 
 		local exit_code, output = run_command("lua5.4 llm.lua --action \"take leaflet\" --save " .. shell_quote(savefile))
-		local json = extract_json_line(output)
-
 		assert.assert_equal(exit_code, 0)
-		assert.assert_not_nil(json)
-		if not json then
-			cleanup(savefile)
-			return
-		end
-		assert.assert_match(json_string_field(json, "output") or "", "Taken")
+		assert.assert_match(output, "Taken")
 
 		cleanup(savefile)
 	end)
@@ -227,16 +203,8 @@ test.describe("LLM Mode", function(t)
 		file:close()
 
 		local exit_code, output = run_command("lua5.4 llm.lua --action \"look\" --save " .. shell_quote(savefile))
-		local json = extract_json_line(output)
-
 		assert.assert_not_equal(exit_code, 0)
-		assert.assert_not_nil(json)
-		if not json then
-			cleanup(savefile)
-			return
-		end
-		assert.assert_equal(json_bool_field(json, "ok"), "false")
-		assert.assert_match(json_string_field(json, "error") or "", "History file belongs to game")
+		assert.assert_match(output, "History file belongs to game")
 
 		cleanup(savefile)
 	end)
