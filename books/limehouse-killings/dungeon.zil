@@ -520,7 +520,6 @@
 <OBJECT PLAYER
       (IN ASHWORTH-MANOR-GATE)
       (DESC "you")
-      (LDESC "You are a private detective, hired to investigate the murder of Lord Ashworth.")
       (SYNONYM DETECTIVE YOU)
       (FLAGS ACTORBIT)
       (ACTION PLAYER-F)>

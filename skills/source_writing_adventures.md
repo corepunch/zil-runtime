@@ -1166,6 +1166,8 @@ Drop the player into something immediately interesting. Zork opens at a mysterio
 
 **Bad:** "Welcome to the game. You are an adventurer who has come to explore..."
 
+**Player identity:** Infocom never explicitly states who the player is in game text. Character identity (detective, explorer, etc.) belongs in SYNOPSIS.md and DESIGN.md, not in the PLAYER object's LDESC. The PLAYER object should have no LDESC — it's only used for EXAMINE ME, and players rarely use it. If they do, a generic response is fine. Infocom's Zork leaves the player's identity implicit; it's never stated in-game.
+
 #### 2. Environmental Storytelling
 
 Instead of telling the player the backstory, embed it in the world:
@@ -1694,6 +1696,7 @@ Use this checklist before submitting your adventure:
 - [ ] Objects with custom behavior have an `(ACTION routine-name)` property
 - [ ] **Room descriptions do NOT embed item descriptions** — items describe themselves via `FDESC`, `LDESC`, or `DESCFCN`
 - [ ] Every visible object has an `FDESC` or `LDESC` so it appears in room descriptions
+- [ ] **PLAYER object has NO LDESC** — player identity belongs in SYNOPSIS.md/DESIGN.md, not in-game text
 
 ### Puzzles
 - [ ] Every locked gate has a solution reachable before it

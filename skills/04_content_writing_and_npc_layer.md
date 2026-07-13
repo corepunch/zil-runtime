@@ -18,6 +18,7 @@ Write player-facing text and interactions that teach play and maintain tone.
 9. Add custom responses for obvious silly commands so humor is systemic, not just decorative.
 10. Ensure major objects act as more than props (tool, clue, world detail, joke, risk, trophy, or memory marker).
 11. Give key NPCs behavior loops (move, block, steal, help, react, change state), not only static dialogue.
+12. **Player identity belongs in SYNOPSIS.md/DESIGN.md, not in PLAYER object LDESC** — Infocom never explicitly states who the player is in game text.
 
 ## Outputs
 - Draft room and object prose set
