@@ -320,7 +320,7 @@
                   <TELL " A secret passage lies open to the east, its dark mouth beckoning.">)
                  (T
                   <TELL " A doorway leads west back to the entrance hall.">)>
-           <CR>)>>
+           <CRLF>)>>
 
 <ROUTINE KITCHEN-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
@@ -345,7 +345,7 @@
                   <TELL " The door to the south stands open, revealing the study beyond.">)
                  (T
                   <TELL " A door to the south stands locked.">)>
-           <CR>)>>
+           <CRLF>)>>
 
 ; --- Global Object Actions ---
 

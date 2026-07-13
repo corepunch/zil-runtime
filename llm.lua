@@ -84,14 +84,22 @@ local GAMES = {
     },
     spellbreaker = {
         modules = {"infocom.spellbreaker.z6"}
+    },
+    ["limehouse-killings"] = {
+        modules = {"books.limehouse-killings.limehouse-killings"}
+    },
+    ["blackwood-horror"] = {
+        modules = {"books.blackwood-horror.blackwood-horror"}
     }
 }
 
 local game_name = args.game or "zork1"
 local game_config = GAMES[game_name]
 if not game_config then
+    local available = {}
+    for k in pairs(GAMES or {}) do table.insert(available, k) end
     io.write(string.format('{"ok":false,"error":"Unknown game: %s. Available: %s"}\n',
-        game_name, table.concat(table.keys(GAMES or {}), ", ")))
+        game_name, table.concat(available, ", ")))
     os.exit(1)
 end
 
@@ -213,7 +221,7 @@ local restore
 local function write_error_and_exit(message)
     restore()
     message = tostring(message):gsub('\27%[[0-9;]*m', '')
-    io.write(string.format('{"ok":false,"error":%s}\n', json_escape(message)))
+    io.write("ERROR: " .. message .. "\n")
     os.exit(1)
 end
 
@@ -405,37 +413,9 @@ if args.action then
     
     restore()
     
-    -- Output JSON
-    local response = {
-        ok = true,
-        output = output,
-        room = room,
-        savefile = savefile,
-        historyfile = historyfile,
-        restored = resumed_from_dump or resumed_from_history,
-    }
-    if save_err then
-        response.save_error = save_err
-    end
-    if history_err then
-        response.history_error = history_err
-    end
-    
-    -- Simple JSON serialization
-    io.write("{")
-    io.write('"ok":' .. tostring(response.ok) .. ',')
-    io.write('"output":' .. json_escape(response.output) .. ',')
-    io.write('"room":' .. json_escape(response.room) .. ',')
-    io.write('"savefile":' .. json_escape(response.savefile) .. ',')
-    io.write('"historyfile":' .. json_escape(response.historyfile) .. ',')
-    io.write('"restored":' .. tostring(response.restored))
-    if response.save_error then
-        io.write(',"save_error":' .. json_escape(response.save_error))
-    end
-    if response.history_error then
-        io.write(',"history_error":' .. json_escape(response.history_error))
-    end
-    io.write("}\n")
+    -- Output plain text (exit 0 = success)
+    io.write(output)
+    os.exit(0)
     
 elseif args.new_game then
     -- Start a new game and get initial output
@@ -469,20 +449,9 @@ elseif args.new_game then
     
     restore()
     
-    io.write("{")
-    io.write('"ok":true,')
-    io.write('"output":' .. json_escape(output) .. ',')
-    io.write('"room":' .. json_escape(room) .. ',')
-    io.write('"savefile":' .. json_escape(savefile) .. ',')
-    io.write('"historyfile":' .. json_escape(historyfile) .. ',')
-    io.write('"new_game":true')
-    if save_err then
-        io.write(',"save_error":' .. json_escape(save_err))
-    end
-    if history_err then
-        io.write(',"history_error":' .. json_escape(history_err))
-    end
-    io.write("}\n")
+    -- Output plain text (exit 0 = success)
+    io.write(output)
+    os.exit(0)
     
 else
     write_error_and_exit("No action specified. Use --action or --new-game")

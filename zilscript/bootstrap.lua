@@ -1664,4 +1664,3 @@ end
 _LLM_RESTORED = false
 
 -- === Done ===
-print("ZIL runtime initialized.")
