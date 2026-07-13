@@ -1,5 +1,5 @@
 # Targets
-.PHONY: test test-all test-unit test-integration test-game-startup test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look test-zilch test-flow-control
+.PHONY: test test-all test-unit test-integration test-game-startup test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-read-mailbox test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look test-zilch test-flow-control
 
 help:
 	@echo "Available targets:"
@@ -29,6 +29,7 @@ help:
 	@echo "  test-clock-direct - Run clock system direct tests"
 	@echo "  test-assertions   - Run assertion tests"
 	@echo "  test-check-commands - Run check commands tests"
+	@echo "  test-read-mailbox - Run Zork I mailbox/read regression"
 	@echo "  test-simple-new   - Run simple assertion tests"
 	@echo "  test-insert-file  - Run INSERT-FILE tests"
 	@echo "  test-let          - Run LET form tests"
@@ -78,7 +79,7 @@ test-game-startup:
 	@echo "Running imported game startup tests..."
 	@lua5.4 tests/test_game_startup.lua
 
-test-parser: test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-simple-new test-insert-file test-let test-save
+test-parser: test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-read-mailbox test-simple-new test-insert-file test-let test-save
 	@echo "All parser/runtime tests completed!"
 
 test-containers:
@@ -120,6 +121,10 @@ test-assertions:
 test-check-commands:
 	@echo "Running check commands tests..."
 	@lua5.4 run-zil-test.lua infocom/zork1/test/test-check-commands
+
+test-read-mailbox:
+	@echo "Running Zork I mailbox/read regression..."
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-read-mailbox
 
 test-simple-new:
 	@echo "Running simple assertion tests..."
@@ -179,6 +184,7 @@ test-pure-zil:
 	@lua5.4 run-zil-test.lua infocom/zork1/test/test-clock-direct
 	@lua5.4 run-zil-test.lua infocom/zork1/test/test-assertions
 	@lua5.4 run-zil-test.lua infocom/zork1/test/test-check-commands
+	@lua5.4 run-zil-test.lua infocom/zork1/test/test-read-mailbox
 	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-helpers
 	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-failures
 	@lua5.4 run-zil-test.lua infocom/zork1/test/zork1-walkthrough

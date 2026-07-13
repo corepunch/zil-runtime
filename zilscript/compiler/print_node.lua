@@ -165,8 +165,12 @@ function PrintNode.createPrintNode(compiler, form_handlers)
       end
 
       -- Check if this is a macro call that needs expansion
+      local uses_builtin_predicate = node.name == 'VERB?'
+        or node.name == 'PRSO?'
+        or node.name == 'PRSI?'
+        or node.name == 'ROOM?'
       local macro = compiler.macros[node.name] or compiler.macros[utils.normalizeFunctionName(node.name)]
-      if macro then
+      if macro and not uses_builtin_predicate then
         -- Expand the macro by substituting parameters and emitting the body
         local expanded = expandMacro(node, macro, compiler)
         if expanded then

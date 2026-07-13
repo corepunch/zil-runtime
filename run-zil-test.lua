@@ -87,6 +87,9 @@ end
 print("Running ZIL test: " .. test_module)
 require(test_module)
 
+if type(FINALIZE_REFERENCES) == "function" then FINALIZE_REFERENCES() end
+if type(FINALIZE_SYNTAX) == "function" then FINALIZE_SYNTAX() end
+
 if type(CAPTURE_RESTART_STATE) == "function" then
 	CAPTURE_RESTART_STATE()
 end
