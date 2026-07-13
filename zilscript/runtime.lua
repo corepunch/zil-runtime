@@ -248,7 +248,7 @@ function M.load_zil_files(files, env, options)
 
 	-- Resolve any SYNTAX entries that were deferred because action functions
 	-- weren't defined yet (e.g., syntax.zil loaded before verbs.zil)
-	M.execute("if FINALIZE_SYNTAX then FINALIZE_SYNTAX() end", 'finalize-syntax', env, options.silent)
+	M.execute("if FINALIZE_REFERENCES then FINALIZE_REFERENCES() end; if FINALIZE_SYNTAX then FINALIZE_SYNTAX() end", 'finalize-syntax', env, options.silent)
 
 	if type(env.CAPTURE_RESTART_STATE) == "function" then
 		env.CAPTURE_RESTART_STATE()
@@ -285,7 +285,7 @@ function M.load_modules(env, modules, options)
 
 	-- Resolve any SYNTAX entries that were deferred because action functions
 	-- weren't defined yet (e.g., syntax.zil loaded before verbs.zil)
-	M.execute("if FINALIZE_SYNTAX then FINALIZE_SYNTAX() end", 'finalize-syntax', env, options.silent)
+	M.execute("if FINALIZE_REFERENCES then FINALIZE_REFERENCES() end; if FINALIZE_SYNTAX then FINALIZE_SYNTAX() end", 'finalize-syntax', env, options.silent)
 
 	if type(env.CAPTURE_RESTART_STATE) == "function" then
 		env.CAPTURE_RESTART_STATE()

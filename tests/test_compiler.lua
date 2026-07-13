@@ -133,6 +133,21 @@ test.describe("Compiler - Output Structure", function(t)
 end)
 
 test.describe("Compiler - Edge Cases", function(t)
+	t.it("should compile percent value escapes in object fields", function(assert)
+		local result = compiler.compile(parser.parse([[<OBJECT WALL (EXITS %,C-NORTH)>]]))
+		assert.assert_match(result.body, "EXITS = C_NORTH")
+	end)
+
+	t.it("should not treat the bare macro placeholder as octal", function(assert)
+		local result = compiler.compile(parser.parse([[<ROUTINE TEST ("OPTIONAL" (VALUE '*)) <RETURN .VALUE>>]]))
+		assert.assert_match(result.declarations, "m_VALUE")
+	end)
+
+	t.it("should emit escaped character atoms as character codes", function(assert)
+		local result = compiler.compile(parser.parse([[<ROUTINE TEST (CH) <EQUAL? .CH !\M>>]]))
+		assert.assert_match(result.declarations, "EQUALQ%(m_CH, 77%)")
+	end)
+
 	t.it("should handle empty AST", function(assert)
 		local ast = parser.parse("")
 		local result = compiler.compile(ast)

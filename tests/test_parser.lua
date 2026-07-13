@@ -149,6 +149,28 @@ test.describe("Parser - View Function", function(t)
 	end)
 end)
 
+test.describe("Parser - ZIL compiler escapes", function(t)
+	t.it("should preserve percent value escapes", function(assert)
+		local ast = parser.parse("<OBJECT WALL (EXITS %,C-NORTH)>")
+		local exits = ast[1][2]
+		assert.assert_equal(exits[2].type, "symbol")
+		assert.assert_equal(exits[2].value, ",C-NORTH")
+	end)
+
+	t.it("should parse escaped character atoms", function(assert)
+		local ast = parser.parse([[<EQUAL? .CH !\M>]])
+		assert.assert_equal(ast[1][2].type, "number")
+		assert.assert_equal(ast[1][2].value, string.byte("M"))
+	end)
+
+	t.it("should preserve values following structure type markers", function(assert)
+		local ast = parser.parse([[<TABLE #BYTE !\x #WORD 12>]])
+		assert.assert_equal(#ast[1], 2)
+		assert.assert_equal(ast[1][1].value, string.byte("x"))
+		assert.assert_equal(ast[1][2].value, 12)
+	end)
+end)
+
 -- Run tests and exit with appropriate code
 local success = test.summary()
 os.exit(success and 0 or 1)

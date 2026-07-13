@@ -29,10 +29,16 @@ end
 
 -- Helper: Generate a table constructor call (LTABLE, TABLE share same pattern)
 local function writeTableCall(buf, name, node, printNode)
-  local start = utils.safeget(node[1], 'type') == "list" and 2 or 1
+  local first_is_storage_spec = utils.safeget(node[1], 'type') == "list"
+  local start = first_is_storage_spec and 2 or 1
   buf.write("%s(", name)
   for i = start, #node do
-    printNode(buf, node[i], 0)
+    local child = node[i]
+    if child.type == "ident" or child.type == "symbol" then
+      buf.write('GLOBAL_REF("%s")', utils.normalizeIdentifier(child.value))
+    else
+      printNode(buf, child, 0)
+    end
     if i < #node then buf.write(",") end
   end
   buf.write(")")
@@ -113,11 +119,25 @@ function Forms.createHandlers(compiler, printNode)
 
   -- COND (if-elseif-else)
   form.COND = function(buf, node, indent)
+    if node[1] and utils.safeget(node[1][1], 'value') == "ELSE" then
+      for j = 2, #node[1] do
+        if j > 2 then
+          buf.writeln()
+          buf.indent(indent)
+        end
+        if utils.needReturn(node[1][j]) then buf.write("__tmp = ") end
+        printNode(buf, node[1][j], indent)
+      end
+      return
+    end
+
     for i, clause in ipairs(node) do
       buf.writeln()
       buf.indent(indent)
       if utils.safeget(clause[1], 'value') == "ELSE" then
-        buf.write("else ")
+        -- A COND whose earlier clauses were commented out can begin with ELSE.
+        -- In that case the clause is unconditional and needs no Lua keyword.
+        if i > 1 then buf.write("else ") end
       else
         buf.write(i == 1 and "if " or "elseif ")
         buf.write("APPLY(function() __tmp = ")
@@ -160,7 +180,10 @@ function Forms.createHandlers(compiler, printNode)
     for i = 1, #node do
       local cond_node = utils.isCond(node[i]) and node[i]
         or (node[i].type == "placeholder" and utils.isCond(node[i][1]) and node[i][1])
-      if cond_node then
+      if node[i].type == "placeholder" and node[i][1] and not cond_node then
+        buf.write("D, ")
+        printNode(buf, node[i][1], indent + 1)
+      elseif cond_node then
         buf.write("APPLY(function() ")
         printNode(buf, cond_node, indent + 1)
         buf.write(" return __tmp end)")
@@ -276,6 +299,46 @@ function Forms.createHandlers(compiler, printNode)
     buf.write("\terror(0x%X)", __again)
   end
 
+  -- Inclusive numeric loop: <DO (VAR START END [STEP]) body...>
+  form.DO = function(buf, node, indent)
+    local spec = node[1]
+    if not spec or spec.type ~= "list" or not spec[1] then
+      buf.write("true")
+      return
+    end
+    local saved_local_vars = {}
+    for k, v in pairs(compiler.local_vars) do saved_local_vars[k] = v end
+    compiler.registerLocalVar(spec[1])
+    local var = compiler.localVarName(spec[1])
+    buf.write("APPLY(function() for %s = ", var)
+    printNode(buf, spec[2], indent + 1)
+    buf.write(", ")
+    printNode(buf, spec[3], indent + 1)
+    if spec[4] then
+      buf.write(", ")
+      printNode(buf, spec[4], indent + 1)
+    end
+    buf.write(" do ")
+    -- Ordinary body forms run first. Parenthesized forms are DO iteration
+    -- clauses and run after the body on each pass.
+    for i = 2, #node do
+      if node[i].type ~= "list" and not (node[i].type == "expr" and (node[i].name or "") == "") then
+        printNode(buf, node[i], indent + 1)
+        buf.write("; ")
+      end
+    end
+    for i = 2, #node do
+      if node[i].type == "list" then
+        for _, child in ipairs(node[i]) do
+          printNode(buf, child, indent + 1)
+          buf.write("; ")
+        end
+      end
+    end
+    buf.write("end return true end)")
+    compiler.local_vars = saved_local_vars
+  end
+
   -- BUZZ and SYNONYM
   form.BUZZ = function(buf, node, indent)
     writeStringCall(buf, "BUZZ", node)
@@ -351,6 +414,14 @@ function Forms.createHandlers(compiler, printNode)
 
   form.TABLE = function(buf, node)
     writeTableCall(buf, "TABLE", node, printNode)
+  end
+
+  form.PTABLE = function(buf, node)
+    writeTableCall(buf, "TABLE", node, printNode)
+  end
+
+  form.PLTABLE = function(buf, node)
+    writeTableCall(buf, "LTABLE", node, printNode)
   end
 
   form.ITABLE = function(buf, node)

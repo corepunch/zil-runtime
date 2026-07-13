@@ -1,5 +1,5 @@
 # Targets
-.PHONY: test test-all test-unit test-integration test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look
+.PHONY: test test-all test-unit test-integration test-game-startup test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look
 
 help:
 	@echo "Available targets:"
@@ -14,6 +14,7 @@ help:
 	@echo "  test-integration  - Run all integration tests"
 	@echo "  test-zork1        - Run Zork1 integration tests"
 	@echo "  test-zork2        - Run Zork2 integration tests"
+	@echo "  test-game-startup - Start Lurking Horror and Spellbreaker"
 	@echo "  test-parser       - Run all parser/runtime tests"
 	@echo "  test-pure-zil     - Run pure ZIL tests (using ASSERT functions)"
 	@echo ""
@@ -62,7 +63,7 @@ test-unit:
 	@echo "Running unit tests..."
 	lua tests/run_all.lua
 
-test-integration: test-zork1 test-zork2 test-parser test-horror-all
+test-integration: test-zork1 test-zork2 test-game-startup test-parser test-horror-all
 	@echo "All integration tests completed!"
 
 test-zork1:
@@ -72,6 +73,10 @@ test-zork1:
 test-zork2:
 	@echo "Running Zork2 integration tests..."
 	@lua5.4 run-zil-test.lua infocom/zork2/test/test-auto-generated
+
+test-game-startup:
+	@echo "Running imported game startup tests..."
+	@lua5.4 tests/test_game_startup.lua
 
 test-parser: test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-simple-new test-insert-file test-let test-save
 	@echo "All parser/runtime tests completed!"

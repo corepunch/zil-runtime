@@ -95,8 +95,29 @@ function Compiler.compile(ast, lua_filename, options)
     if node.type == "expr" then
       local name = node.name or ""
       
+      local function mentions_zilch_test(test)
+        if not test then return false end
+        if test.type == "expr" and test.name == "GASSIGNED?"
+            and test[1] and test[1].value == "ZILCH" then
+          return true
+        end
+        if test.type == "expr" and test.name == "NOT" then
+          return mentions_zilch_test(test[1])
+        end
+        return false
+      end
+
+      -- Imported Infocom sources contain top-level MDL support branches guarded
+      -- by GASSIGNED? ZILCH. They define compiler macros and host-language
+      -- helpers, not game runtime code; emitting either branch as Lua produces
+      -- invalid nested declarations. Equivalent runtime helpers live in the
+      -- bootstrap, so omit these compiler-host branches.
+      local is_zilch_host_cond = name == "COND"
+        and node[1] and node[1].type == "list"
+        and mentions_zilch_test(node[1][1])
+
       -- Skip forms that don't generate output
-      if name == "GDECL" or name == "PROG" then
+      if name == "GDECL" or name == "PROG" or is_zilch_host_cond then
         -- Skip
       -- Direct statements (print to body directly)
       elseif toplevel.DIRECT_STATEMENTS[name] then

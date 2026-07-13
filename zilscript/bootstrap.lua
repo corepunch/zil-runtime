@@ -52,6 +52,9 @@ PROPERTIES = {}
 PREPOSITIONS = {[0] = 0}  -- Initialize with count = 0
 PREPOSITIONS._hash = {}   -- Helper hash for quick lookup during population
 ADJECTIVES = {}
+ADJ = "ADJ"
+ADJECTIVE = "ADJECTIVE"
+NOUN = "NOUN"
 -- ACTIONS/PREACTIONS: mem-allocated 256×2-byte dispatch tables, lazily initialized on first SYNTAX call.
 -- They are populated during loading (by SYNTAX) AND read at runtime on every command dispatch:
 -- the game's PERFORM routine calls <GET ,ACTIONS .A> and <GET ,PREACTIONS .A> to find and
@@ -289,6 +292,8 @@ function ROUTINE_NUM(f)
 	error("ROUTINE_NUM: expected function or number, got " .. type(f))
 end
 
+local learn
+
 local function register(tbl, value)
 	local n = 0
 	if type(value) == "string" then value = value:lower() end
@@ -316,6 +321,60 @@ end
 
 function VERBQ(...)
 	return EQUALQ(PRSA, ...)
+end
+
+function PRSOQ(...) return EQUALQ(PRSO, ...) end
+function PRSIQ(...) return EQUALQ(PRSI, ...) end
+function HEREQ(...) return EQUALQ(HERE, ...) end
+ROOMQ = HEREQ
+function WINNERQ(...) return EQUALQ(WINNER, ...) end
+function CONTEXTQ(...) return EQUALQ(RARG, ...) end
+RARGQ = CONTEXTQ
+
+-- Runtime equivalents of the compiler macros used by later Infocom sources.
+-- The original ZILCH expanded these at compile time; varargs preserve their
+-- observable behavior without requiring an MDL macro evaluator.
+function PQ(verb, object, indirect, winner)
+	return (winner == nil or winner == "*" or WINNERQ(winner))
+		and (verb == nil or verb == "*" or VERBQ(verb))
+		and (object == nil or object == "*" or PRSOQ(object))
+		and (indirect == nil or indirect == "*" or PRSIQ(indirect))
+end
+
+function BSET(object, ...)
+	for i = 1, select("#", ...) do FSET(object, select(i, ...)) end
+	return true
+end
+
+function BCLEAR(object, ...)
+	for i = 1, select("#", ...) do FCLEAR(object, select(i, ...)) end
+	return true
+end
+
+function BSETQ(object, ...)
+	for i = 1, select("#", ...) do
+		if FSETQ(object, select(i, ...)) then return true end
+	end
+	return false
+end
+
+function STRING(...)
+	local parts = {}
+	for i = 1, select("#", ...) do
+		local value = select(i, ...)
+		if type(value) == "number" then value = string.char(value) end
+		parts[#parts + 1] = tostring(value or "")
+	end
+	return table.concat(parts)
+end
+
+function USL() return true end
+
+function VOC(word, kind)
+	if kind == ADJ or kind == ADJECTIVE then
+		return learn(word, PSQADJECTIVE, ADJECTIVES)
+	end
+	return learn(word, PSQOBJECT, nil)
 end
 
 function RANDOM(base)
@@ -451,6 +510,8 @@ function QUIT()
 	error(ZIL_CONTROL_SIGNALS.quit, 0)
 end
 
+function VERIFY() return true end
+
 function RESTART()
 	if not restart_snapshot then
 		return false
@@ -555,9 +616,9 @@ end
 -- Logic / bitwise
 function NOT(a) return not a or a == 0 end
 function PASS(a) return a end
-function BAND(a, b) return a & b end
-function BOR(a, b) return a | b end
-function BTST(a, b) return (a & b) == b end
+function BAND(a, b) return (a or 0) & (b or 0) end
+function BOR(a, b) return (a or 0) | (b or 0) end
+function BTST(a, b) return ((a or 0) & (b or 0)) == (b or 0) end
 
 -- Arithmetic / comparison
 function EQUALQ(a, ...)
@@ -621,7 +682,7 @@ function NEXTQ(obj)
 	end
 end
 
-local function learn(word, atom, value)
+learn = function(word, atom, value)
 	local function upper2(word)
 		local specials = {
 			["."] = "PERIOD",
@@ -686,7 +747,8 @@ function FCLEAR(obj, flag)
 	assert(not FSETQ(obj, flag), string.format("Failed to clear flag %d on object %d", flag, obj))
 end
 function FSETQ(obj, flag)
-	return (GETP(obj, PQFLAGS) & (1 << flag)) ~= 0
+	if not obj or obj == 0 or not flag then return false end
+	return ((GETP(obj, PQFLAGS) or 0) & (1 << flag)) ~= 0
 end
 function GETPT(obj, prop)
 	local tbl = getobj(obj)
@@ -761,14 +823,32 @@ table.concat2 = function(t, fn)
 	return table.concat(tmp)
 end
 
-function DECL_OBJECT()
+local declared_objects = {}
+
+function DECL_OBJECT(name)
+	if name and declared_objects[name] then return declared_objects[name] end
 	if not _OTBL or _OTBL == 0 then
 		-- Allocate the 256×2-byte object pointer table on first use
 		_OTBL = mem:write(string.rep('\0\0', 256))
 	end
 	_obj_count = _obj_count + 1
 	assert(_obj_count <= 255, "Too many objects (max 255)")
+	if name then declared_objects[name] = _obj_count end
 	return _obj_count
+end
+
+function OBJECT_REF(name)
+	local value = rawget(_G, name)
+	if type(value) == "number" then return value end
+	value = DECL_OBJECT(name)
+	_G[name] = value
+	return value
+end
+
+function GLOBAL_REF(name)
+	local value = rawget(_G, name)
+	if value ~= nil then return value end
+	return {__global_ref = name}
 end
 
 function OBJECT(object)
@@ -791,11 +871,12 @@ function OBJECT(object)
 		table.insert(DESCS, object.DESC)
 		table.insert(DESCS, object.DESC:lower())
 	end
-	local n = _G[object.NAME]
-	local t = {string.char(#object.NAME), object.NAME}
-	assert(n, "DECL_OBJECT not called for "..object.NAME)
+	local object_name = object.ZIL_NAME or object.NAME
+	local n = _G[object_name]
+	local t = {string.char(#object_name), object_name}
+	assert(n, "DECL_OBJECT not called for "..tostring(object_name))
 	for k, v in pairs(object) do
-		if k == "NAME" then 
+		if k == "ZIL_NAME" then
 		elseif k == "SYNONYM" then
 			local body = table.concat2(v, function(syn)
 				return makeword(learn(syn, PSQOBJECT, nil))
@@ -844,7 +925,7 @@ function OBJECT(object)
 				str = mem:write(v[1].."\0") -- NEXIT = 2
 			else
 				if v[1] == nil then
-					error(string.format("Unresolved exit target for %s.%s", tostring(object.NAME), tostring(k)))
+					error(string.format("Unresolved exit target for %s.%s", tostring(object_name), tostring(k)))
 				end
 				str = string.char(v[1]) -- UEXIT = 1
 				local say = v.say and mem:write(v.say.."\0") or 0
@@ -1053,33 +1134,56 @@ function ITABLE(size, maybe_size)
 	return address
 end
 
+local pending_table_refs = {}
+
+local function table_word(value, pending, offset)
+	if type(value) == 'string' then return makeword(mem:writestring2(value)) end
+	if type(value) == 'number' then return makeword(value) end
+	if type(value) == 'nil' then return makeword(0) end
+	if type(value) == 'table' and value.__global_ref then
+		pending[#pending + 1] = {offset = offset, name = value.__global_ref}
+		return makeword(0)
+	end
+	error("TABLE: Unsupported type "..type(value))
+end
+
 function TABLE(...)
 	local tbl = {}
+	local pending = {}
 	for i = 1, select("#", ...) do
-    local v = select(i, ...)
-		if type(v) == 'string' then table.insert(tbl, makeword(mem:writestring2(v)))
-		elseif type(v) == 'number' then table.insert(tbl, makeword(v))
-		elseif type(v) == 'nil' then table.insert(tbl, makeword(0))
-		else error("LTABLE: Unsupported type "..type(v))
-		end
+		tbl[i] = table_word(select(i, ...), pending, (i - 1) * 2)
 	end
-	return mem:write(table.concat(tbl))
+	local address = mem:write(table.concat(tbl))
+	for _, ref in ipairs(pending) do
+		ref.address = address + ref.offset
+		pending_table_refs[#pending_table_refs + 1] = ref
+	end
+	return address
 end
 
 function LTABLE(...)
 	local n = select("#", ...)
 	local tbl = {}
+	local pending = {}
 	for i = 1, n do
-    local v = select(i, ...)
-		if type(v) == 'string' then table.insert(tbl, makeword(mem:writestring2(v)))
-		elseif type(v) == 'number' then table.insert(tbl, makeword(v))
-		elseif type(v) == 'nil' then table.insert(tbl, makeword(0))
-		else error("LTABLE: Unsupported type "..type(v))
-		end
+		tbl[i] = table_word(select(i, ...), pending, i * 2)
 	end
 	local address = mem:write_word(n)
 	mem:write(table.concat(tbl))
+	for _, ref in ipairs(pending) do
+		ref.address = address + ref.offset
+		pending_table_refs[#pending_table_refs + 1] = ref
+	end
 	return address
+end
+
+function FINALIZE_REFERENCES()
+	for _, ref in ipairs(pending_table_refs) do
+		local value = rawget(_G, ref.name)
+		assert(type(value) == "number", "Unresolved table reference: "..ref.name)
+		mem:write(makeword(value), ref.address)
+	end
+	pending_table_refs = {}
 end
 
 BUZZ(".", ",", "\"")

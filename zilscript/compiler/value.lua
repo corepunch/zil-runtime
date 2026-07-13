@@ -29,9 +29,14 @@ function Value.value(node, compiler)
     return string.format("\"%s\"", val)
   end
     
-  -- Octal numbers (starting with *)
-  if val:match("^%*") then
-    return tostring(tonumber(val:match("%d+"), 8))
+  -- Octal numbers are * followed by octal digits. A bare * is a common ZIL
+  -- macro placeholder and must remain an identifier.
+  local octal = val:match("^%*([0-7]+)%*$")
+  if octal then
+    return tostring(tonumber(octal, 8))
+  end
+  if val == "*" then
+    return '"*"'
   end
   
   -- Property references (,P?...)

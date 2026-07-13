@@ -146,9 +146,12 @@ end
 function TopLevel.compileObject(decl, body, node, compiler)
   local name = compiler.value(node[1])
 
-  decl.writeln('%s = DECL_OBJECT()', name)
+  decl.writeln('%s = DECL_OBJECT("%s")', name, name)
   body.writeln("%s {", node.name)
-  body.writeln("\tNAME = \"%s\",", name)
+  -- Keep the declaration identity separate from the ZIL NAME property. Later
+  -- Infocom games legitimately use (NAME 0), which otherwise overwrites the
+  -- object's identity in the generated Lua table.
+  body.writeln("\tZIL_NAME = \"%s\",", name)
   
   for i = 2, #node do
     local field = node[i]

@@ -78,6 +78,12 @@ local GAMES = {
             "infocom.zork1.dungeon",
             "infocom.zork1.main",
         }
+    },
+    lurkinghorror = {
+        modules = {"infocom.lurkinghorror.h1"}
+    },
+    spellbreaker = {
+        modules = {"infocom.spellbreaker.z6"}
     }
 }
 
@@ -222,6 +228,8 @@ local function get_room_name(env)
                 local desc = env.GETP and env.GETP(here, pqdesc)
                 if desc and type(desc) == "number" then
                     return env.mem and env.mem:string(desc)
+                elseif type(desc) == "string" then
+                    return desc
                 end
             end
         end

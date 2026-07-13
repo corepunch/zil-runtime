@@ -3,6 +3,14 @@ local utils = require 'zilscript.compiler.utils'
 
 local Fields = {}
 
+local function writeObjectRef(buf, node, compiler)
+  if node.type == "number" then
+    buf.write("%s", compiler.value(node))
+  else
+    buf.write('OBJECT_REF("%s")', compiler.value(node))
+  end
+end
+
 -- Helper: Write a list with optional formatting function
 local function writeFormattedList(buf, node, formatter, compiler)
   local list = {}
@@ -27,6 +35,15 @@ local function writeList(buf, node, compiler)
   writeFormattedList(buf, node, nil, compiler)
 end
 
+local function writeObjectList(buf, node, compiler)
+  buf.write("{")
+  for i = 2, #node do
+    if i > 2 then buf.write(", ") end
+    writeObjectRef(buf, node[i], compiler)
+  end
+  buf.write("}")
+end
+
 -- Write first child with optional quoting
 local function writeFirstChild(buf, node, quote_non_strings, compiler)
   if #node >= 2 then
@@ -49,6 +66,10 @@ local function writeValueField(buf, node, compiler)
   writeFirstChild(buf, node, false, compiler)
 end
 
+local function writeObjectField(buf, node, compiler)
+  if node[2] then writeObjectRef(buf, node[2], compiler) end
+end
+
 -- Field writer dispatch table
 Fields.FIELD_WRITERS = {
   FLAGS = writeListString,
@@ -58,8 +79,8 @@ Fields.FIELD_WRITERS = {
   LDESC = writeStringField,
   FDESC = writeStringField,
   ACTION = writeValueField,
-  IN = writeValueField,
-  GLOBAL = writeList,
+  IN = writeObjectField,
+  GLOBAL = writeObjectList,
 }
 
 -- Navigation direction writer
@@ -100,13 +121,13 @@ function Fields.writeNav(buf, node, compiler)
     local say = else_idx and parts[else_idx] and compiler.value(parts[else_idx]) or nil
     
     if say then
-      buf.write("{%s, %s, say = %s}", room, cond, say)
+      buf.write('{OBJECT_REF("%s"), %s, say = %s}', room, cond, say)
     else
-      buf.write("{%s, %s}", room, cond)
+      buf.write('{OBJECT_REF("%s"), %s}', room, cond)
     end
   elseif parts[2] then
     -- Simple navigation
-    buf.write(compiler.value(parts[2]))
+    writeObjectRef(buf, parts[2], compiler)
   elseif utils.safeget(parts[1], 'type') == "string" then
     buf.write("%s", compiler.value(parts[1]))
   else

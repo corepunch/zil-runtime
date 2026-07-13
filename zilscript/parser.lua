@@ -127,6 +127,13 @@ function ZIL.parser(stream_or_string, filename)
   
   local function classify_atom(text, source)
     if not text or text == "" then return Ident("", source) end
+
+    -- ZIL character atoms use !\X. They are numeric character values at
+    -- runtime, rather than identifiers containing punctuation.
+    local escaped_char = text:match("^!\\(.)$")
+    if escaped_char then
+      return Number(tostring(string.byte(escaped_char)), source)
+    end
     
     local first = text:sub(1, 1)
     if first:match("[,?.]") then
@@ -153,15 +160,26 @@ function ZIL.parser(stream_or_string, filename)
   
   parsers["#"] = function(src)
     stream.getchar()
-    parse_form()
-    parse_form()
-    return false
+    parse_form() -- BYTE/WORD/etc. describes storage, not a runtime value.
+    return parse_form()
   end
   
-  -- Conditional compilation: %COND
+  -- Percent introduces either a compile-time form (%<COND ...>) or a value
+  -- escape (%,NAME). The latter compiles exactly like the escaped value.
   parsers["%"] = function(src)
     stream.getchar()
-    return evaluate(parse_form())
+    local form = parse_form()
+    if form and form.type ~= "expr" then
+      return form
+    end
+    local result = evaluate(form)
+    if result then
+      return result
+    end
+    -- %<...> evaluated to nothing (e.g., non-debug code discarded)
+    -- Return a nil node to signal "no output"
+    local nil_node = {type = "expr", name = ""}
+    return nil_node
   end
   
   -- Placeholder/quote: '

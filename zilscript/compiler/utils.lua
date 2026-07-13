@@ -19,12 +19,16 @@ end
 -- Normalize identifier to Lua-safe name
 function Utils.normalizeIdentifier(str)
   return str
+    :gsub(":.*$", "")          -- Strip optional ZIL type annotation
     :gsub("^[,.]+", "")        -- Remove leading commas/dots
     :gsub("[,.]", "")          -- Remove internal commas/dots
     :gsub("%-", "_")           -- Replace - with _
     :gsub("&", "_")            -- Replace & with _ (e.g. GO&LOOK -> GO_LOOK)
     :gsub("%?", "Q")           -- Question mark to Q
-    :gsub("\\", "/")           -- Backslash to forward slash
+    :gsub("%$", "_DOLLAR_")    -- Dollar sign to _DOLLAR_
+    :gsub("!", "_BANG_")       -- MDL/ZIL atom escape marker
+    :gsub("/", "_")            -- Slash in compound identifiers
+    :gsub("\\", "_")           -- Backslash in compound identifiers
 end
 
 -- Convert ZIL function name to Lua function name
@@ -40,8 +44,10 @@ function Utils.normalizeFunctionName(name)
     ["N==?"] = "NEQUALQ",
     ["0?"] = "ZEROQ",
     ["1?"] = "ONEQ",
+    ["G=?"] = "GEQ",
+    ["L=?"] = "LEQ",
   }
-  return OPERATOR_MAP[name] or name:gsub("%-", "_"):gsub("&", "_"):gsub("%?", "Q")
+  return OPERATOR_MAP[name] or name:gsub(":.*$", ""):gsub("%-", "_"):gsub("&", "_"):gsub("%?", "Q"):gsub("%$", "_DOLLAR_"):gsub("!", "_BANG_"):gsub("/", "_"):gsub("\\", "_")
 end
 
 -- Check if node is a COND expression

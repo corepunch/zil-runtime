@@ -143,6 +143,17 @@ function PrintNode.createPrintNode(compiler, form_handlers)
     end
 
     if node.type == "expr" then
+      -- Handle numeric form names (ZIL <N LIST> = NTH(LIST,N) = GET(LIST,N))
+      if type(node.name) == "number" then
+        if indent == 1 then buf.indent(indent) end
+        buf.write("GET(")
+        if node[1] then
+          printNode(buf, node[1], indent + 1, false)
+          buf.write(", %d", node.name)
+        end
+        buf.write(")")
+        return true
+      end
       if #node.name == 0 then buf.write("nil")  return true  end
       
       -- Visitor pattern: check for specialized handler
