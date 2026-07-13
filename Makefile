@@ -1,5 +1,5 @@
 # Targets
-.PHONY: test test-all test-unit test-integration test-game-startup test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look test-zilch
+.PHONY: test test-all test-unit test-integration test-game-startup test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look test-zilch test-flow-control
 
 help:
 	@echo "Available targets:"
@@ -145,6 +145,10 @@ test-zilch:
 	@echo "Running ZILCH feature tests..."
 	@lua5.4 run-zil-test.lua zil/test-zilch
 
+test-flow-control:
+	@echo "Running flow control & data structure tests..."
+	@lua5.4 run-zil-test.lua zil/test-flow-control
+
 test-horror-helpers:
 	@echo "Running horror test helpers..."
 	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-helpers
@@ -180,4 +184,5 @@ test-pure-zil:
 	@lua5.4 run-zil-test.lua infocom/zork1/test/zork1-walkthrough
 	@lua5.4 run-zil-test.lua infocom/zork2/test/test-auto-generated
 	@lua5.4 run-zil-test.lua zil/test-zilch
+	@lua5.4 run-zil-test.lua zil/test-flow-control
 	@echo "All pure ZIL tests completed!"
