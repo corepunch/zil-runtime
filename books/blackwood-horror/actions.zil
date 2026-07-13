@@ -12,6 +12,58 @@
            <TELL "You sift through the ashes. Just soot and old char." CR>)>
     <RTRUE>>
 
+; === ROOM ACTION ROUTINES (Dynamic Descriptions) ===
+
+<ROUTINE RECEPTION-ROOM-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL "This cramped room once served as the sanitarium's reception. Filing cabinets line the opposite wall, their drawers hanging open like gaping mouths.">
+           <COND (<IN? ,BRASS-KEY ,RECEPTION-ROOM>
+                  <TELL " Something glints among the papers scattered on the floor.">)>
+           <TELL " A doorway to the east opens back to the entrance hall." CR>)>>
+
+<ROUTINE PATIENT-WARD-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL "A long corridor with tattered curtains hanging between areas, offering the ghost of privacy. The floor is littered with patient records and broken glass.">
+           <COND (,CHAINS-CUT-FLAG
+                  <TELL " To the north, a heavy door stands open, revealing darkness beyond.">)
+                 (T
+                  <TELL " At the far end, a heavy door sealed with chains blocks further passage.">)>
+           <TELL CR "A doorway leads west back to the entrance hall." CR>)>>
+
+<ROUTINE BASEMENT-CORRIDOR-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL "The basement corridor is pitch black, stretching into shadow. Stone stairs climb upward into darkness.">
+           <COND (,VALVE-TURNED-FLAG
+                  <TELL " Steam hisses from the pipes overhead, filling the corridor with an acrid mist.">)>
+           <TELL " To the east, a passage leads toward the sound of dripping water. West lies what might have been storage. North, another corridor descends toward deeper chambers." CR>)>>
+
+<ROUTINE FLOODING-CHAMBER-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL "The chamber is vast and dark, with arched stone ceilings disappearing into shadow.">
+           <COND (,STEAM-DOOR-OPEN
+                  <TELL " To the east, a door stands open, steam wisping from its edges.">)
+                 (T
+                  <TELL " A sealed metal door to the east is corroded shut.">)>
+           <TELL CR "To the north, a narrow passage disappears into darkness. The corridor lies to the south." CR>)>>
+
+<ROUTINE OVERGROWN-GARDEN-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL "Broken benches lie among the overgrowth. A stone path, barely visible, leads to a small chapel to the north.">
+           <COND (,CHAPEL-UNLOCKED
+                  <TELL " The chapel door stands open, darkness visible beyond.">)
+                 (T
+                  <TELL " The chapel door is secured with a heavy iron lock.">)>
+           <TELL CR "South returns to the cafeteria." CR>)>>
+
+<ROUTINE DIRECTORS-OFFICE-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL "A large office with wood paneling. Bookshelves line the walls, filled with medical texts and journals.">
+           <COND (<FSET? ,WALL-SAFE ,OPENBIT>
+                  <TELL " A wall safe is visible behind a moved painting.">)
+                 (<FSET? ,MORDECAI-PORTRAIT ,TOUCHBIT>
+                  <TELL " A portrait of Dr. Mordecai hangs slightly askew on the wall.">)>
+           <TELL " A door to the west opens back to the administrative wing corridor." CR>)>>
+
 ; === ACTION HANDLERS ===
 
 <ROUTINE DESK-F ()

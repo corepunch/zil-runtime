@@ -44,7 +44,8 @@
 <ROOM ASHWORTH-ENTRANCE-HALL
       (IN ROOMS)
       (DESC "Ashworth Manor Entrance Hall")
-      (LDESC "You step into a grand foyer that has seen better days. A crystal chandelier hangs from the ceiling, its prisms dull with dust. Portraits of the Ashworth family line the walls, their eyes following your every move. A Persian rug covers the floor, its patterns faded but still elegant. The air is thick with the scent of old wood and regret.")
+      (ACTION ENTRANCE-HALL-FCN)
+      (LDESC "You step into a grand foyer that has seen better days. The air is thick with the scent of old wood and regret. Doorways lead in every direction -- north to the gate, east to the library, west to the dining room, and a staircase down to the kitchen. A door to the south stands locked.")
       (SOUTH TO STUDY IF STUDY-UNLOCKED)
       (NORTH TO ASHWORTH-MANOR-GATE)
       (EAST TO LIBRARY)
@@ -56,7 +57,8 @@
 <ROOM STUDY
       (IN ROOMS)
       (DESC "Study")
-      (LDESC "The study is a crime scene. A chalk outline marks where the body lay, the victim struck down in this very room. A mahogany desk stands against the wall, its surface cluttered with papers. The fireplace contains cold ashes and a small locked box. A window looks out to the garden, its latch rusted but intact. The air hangs heavy with the memory of violence.")
+      (ACTION STUDY-FCN)
+      (LDESC "The study is a crime scene. A chalk outline marks where the body lay, the victim struck down in this very room. The air hangs heavy with the memory of violence. A doorway leads north back to the entrance hall.")
       (NORTH TO ASHWORTH-ENTRANCE-HALL)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL DESK FIREPLACE WINDOW CHALK-OUTLINE)>
@@ -64,7 +66,8 @@
 <ROOM LIBRARY
       (IN ROOMS)
       (DESC "Library")
-      (LDESC "Floor-to-ceiling bookshelves line the walls, their contents ranging from leather-bound classics to modern scientific texts. A reading desk stands near the fireplace, its surface scattered with papers. Colored markers dot the shelves, suggesting some organizational system. The fire is cold, but the room retains a scholarly warmth.")
+      (ACTION LIBRARY-FCN)
+      (LDESC "Floor-to-ceiling bookshelves line the walls, their contents ranging from leather-bound classics to modern scientific texts. The fire is cold, but the room retains a scholarly warmth. A doorway leads west back to the entrance hall.")
       (WEST TO ASHWORTH-ENTRANCE-HALL)
       (EAST TO SECRET-PASSAGE IF CIPHER-SOLVED)
       (FLAGS RLANDBIT ONBIT)
@@ -73,7 +76,7 @@
 <ROOM DINING-ROOM
       (IN ROOMS)
       (DESC "Dining Room")
-      (LDESC "A long dining table dominates the room, set for two but used by only one. Portraits of the family hang above, their expressions disapproving. A wine cabinet stands against the wall, its glass doors reflecting the dim light. The air smells of polish and unused cutlery.")
+      (LDESC "A long dining table dominates the room, set for two but used by only one. Portraits of the family hang above, their expressions disapproving. The air smells of polish and unused cutlery. A doorway leads east back to the entrance hall, and a door to the north leads to the pantry.")
       (EAST TO ASHWORTH-ENTRANCE-HALL)
       (NORTH TO PANTRY)
       (FLAGS RLANDBIT ONBIT)
@@ -82,7 +85,8 @@
 <ROOM KITCHEN
       (IN ROOMS)
       (DESC "Kitchen")
-      (LDESC "A kitchen that has seen better days. Copper pots hang from the ceiling, tarnished with age. The hearth is cold, its last fire long extinguished. A servant bell hangs from the wall, its rope leading up to the servant's quarters. A drawer in the counter is slightly open, promising something useful.")
+      (ACTION KITCHEN-FCN)
+      (LDESC "A kitchen that has seen better days. The hearth is cold, its last fire long extinguished. A staircase leads up to the entrance hall, and a doorway west leads to the garden.")
       (UP TO ASHWORTH-ENTRANCE-HALL)
       (WEST TO GARDEN)
       (FLAGS RLANDBIT ONBIT)
@@ -91,7 +95,8 @@
 <ROOM GARDEN
       (IN ROOMS)
       (DESC "Garden")
-      (LDESC "An overgrown garden sprawls before you, its paths choked with weeds. A fountain stands at the center, dry and silent. Hedge mazes line the paths, their shadows hiding secrets. Something glints in the branches near the fountain - a knife, stained with something dark.")
+      (ACTION GARDEN-FCN)
+      (LDESC "An overgrown garden sprawls before you, its paths choked with weeds. A fountain stands at the center, dry and silent. Hedge mazes line the paths, their shadows hiding secrets. A doorway east leads to the kitchen, paths lead north to the greenhouse and south to the servants' quarters.")
       (EAST TO KITCHEN)
       (NORTH TO GREENHOUSE)
       (SOUTH TO SERVANTS-QUARTERS)
@@ -101,7 +106,7 @@
 <ROOM GREENHOUSE
       (IN ROOMS)
       (DESC "Greenhouse")
-      (LDESC "A glass greenhouse filled with exotic plants. Labels mark the pots, identifying species from around the world. A potting bench stands near the door, its surface covered in soil and tools. The air is warm and humid, a stark contrast to the fog outside.")
+      (LDESC "A glass greenhouse filled with exotic plants. Labels mark the pots, identifying species from around the world. The air is warm and humid, a stark contrast to the fog outside. A doorway leads south back to the garden.")
       (SOUTH TO GARDEN)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL PLANTS LABELS BENCH POTS)>
@@ -109,7 +114,7 @@
 <ROOM SERVANTS-QUARTERS
       (IN ROOMS)
       (DESC "Servants' Quarters")
-      (LDESC "Sparse rooms with simple beds for the household staff. A large trunk sits in the corner, its contents hidden. Servant uniforms hang on hooks, their fabric worn from use. Mr. Hudson, the butler, is here, his expression troubled.")
+      (LDESC "Sparse rooms with simple beds for the household staff. The air smells of old laundry and duty. A doorway leads north back to the garden.")
       (NORTH TO GARDEN)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL BEDS TRUNK UNIFORMS MR-HUDSON)>
@@ -126,7 +131,7 @@
 <ROOM PANTRY
       (IN ROOMS)
       (DESC "Pantry")
-      (LDESC "A small pantry with shelves of food and wine. The air is cool and dry, preserving the contents. A bottle of foxglove and a container of charcoal sit on a high shelf, their labels faded but legible.")
+      (LDESC "A small pantry with shelves of food and wine. The air is cool and dry, preserving the contents. A doorway leads south back to the dining room.")
       (SOUTH TO DINING-ROOM)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL SHELVES FOXGLOVE CHARCOAL)>
@@ -138,6 +143,7 @@
 <OBJECT DEAD-LETTER
       (IN STUDY)
       (DESC "unsent letter")
+      (FDESC "A yellowed envelope lies among the papers on the desk, addressed in a shaking hand.")
       (LDESC "An unsent letter, its paper yellowed with age. The ink is faded but legible, the words a threat from one man to another. The seal is broken, the wax still bearing the initial 'M.'")
       (SYNONYM LETTER NOTE PAPER)
       (FLAGS TAKEBIT READBIT)
@@ -146,6 +152,7 @@
 <OBJECT BLOOD-STAINED-KNIFE
       (IN GARDEN)
       (DESC "blood-stained knife")
+      (FDESC "Something glints in the branches near the fountain -- a knife, its blade dark with dried blood.")
       (LDESC "A sharp blade, its edge stained with dried blood. The handle bears the mark of a surgical instrument, the kind used by doctors and scientists.")
       (SYNONYM KNIFE BLADE WEAPON)
       (FLAGS TAKEBIT WEAPONBIT)
@@ -154,6 +161,7 @@
 <OBJECT LOCKED-BOX
       (IN STUDY)
       (DESC "locked box")
+      (FDESC "A small locked box sits among the cold ashes in the fireplace, its brass clasp gleaming dully.")
       (LDESC "A small ornate box, its surface carved with intricate patterns. A keyhole stares up at you, promising secrets within.")
       (SYNONYM BOX CASE CONTAINER)
       (FLAGS CONTBIT)
@@ -162,6 +170,7 @@
 <OBJECT POISON-BOTTLE
       (IN STUDY)
       (DESC "poison bottle")
+      (FDESC "A small glass bottle with a faded label sits on the mantelpiece, its contents clear and deadly.")
       (LDESC "A small glass bottle, its label reading 'Aconitum - Wolfsbane. Highly poisonous.' The liquid inside is clear, its lethality hidden in plain sight.")
       (SYNONYM BOTTLE VIAL POISON)
       (FLAGS TAKEBIT READBIT)
@@ -170,6 +179,7 @@
 <OBJECT SECRET-LEDGER
       (IN LIBRARY)
       (DESC "secret ledger")
+      (FDESC "A leather-bound ledger lies open on the reading desk, its pages filled with coded entries.")
       (LDESC "A leather-bound book, its pages filled with numbers and names. Financial records that tell a story of debt and desperation.")
       (SYNONYM LEDGER BOOK ACCOUNT)
       (FLAGS TAKEBIT READBIT)
@@ -180,6 +190,7 @@
 <OBJECT MAGNIFYING-GLASS
       (IN ASHWORTH-ENTRANCE-HALL)
       (DESC "magnifying glass")
+      (FDESC "A magnifying glass rests on the hall table, its brass handle worn smooth.")
       (LDESC "A brass magnifying glass, its lens clear and strong. Useful for examining small details that the naked eye might miss.")
       (SYNONYM GLASS LENS MAGNIFIER)
       (FLAGS TAKEBIT)
@@ -188,6 +199,7 @@
 <OBJECT LOCKPICK-SET
       (IN KITCHEN)
       (DESC "lockpick set")
+      (FDESC "A leather roll lies in the open drawer, its contents glinting steel.")
       (LDESC "A set of metal picks, their tips worn from use. Tools of the trade for those who need to open locked doors.")
       (SYNONYM PICKS TOOLS)
       (FLAGS TAKEBIT TOOLBIT)
@@ -196,6 +208,7 @@
 <OBJECT LANTERN
       (IN SERVANTS-QUARTERS)
       (DESC "lantern")
+      (FDESC "An oil lantern sits on the trunk, its glass clean and fuel full.")
       (LDESC "A brass lantern, its glass clouded with age. When lit, it casts a warm glow that pushes back the darkness.")
       (SYNONYM LAMP LIGHT)
       (FLAGS TAKEBIT LIGHTBIT)
@@ -214,6 +227,7 @@
 <OBJECT TORN-PAGE
       (IN LIBRARY)
       (DESC "torn page")
+      (FDESC "A torn page lies on the reading desk, covered in handwritten notes.")
       (LDESC "A fragment of paper, its edges ragged. The text reads: 'Follow the rainbow order. Red, orange, yellow, green, blue, violet. Only then will the way open.'")
       (SYNONYM PAGE FRAGMENT)
       (FLAGS TAKEBIT READBIT)
@@ -230,6 +244,7 @@
 <OBJECT FOOTPRINT-CAST
       (IN GARDEN)
       (DESC "footprint cast")
+      (FDESC "A plaster cast of a footprint sits near the fountain, preserving the evidence.")
       (LDESC "A plaster cast of a boot print, size 10. Too large for Lady Ashworth, too small for Mr. Hudson.")
       (SYNONYM CAST MOLD FOOTPRINT)
       (FLAGS TAKEBIT)
@@ -238,6 +253,7 @@
 <OBJECT WAX-SEAL
       (IN DINING-ROOM)
       (DESC "wax seal")
+      (FDESC "A crimson wax seal rests on the dining table, pressed with an unknown sigil.")
       (LDESC "A broken wax seal, its surface bearing the initial 'M.' The mark of Dr. Moriarty.")
       (SYNONYM SEAL STAMP)
       (FLAGS TAKEBIT)

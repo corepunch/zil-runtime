@@ -298,6 +298,55 @@
            <MOVE ,CHARCOAL ,WINNER>
            <RTRUE>)>>
 
+; --- Room Action Routines (Dynamic Descriptions) ---
+
+<ROUTINE STUDY-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL "The study is a crime scene. A chalk outline marks where the body lay, the victim struck down in this very room. The air hangs heavy with the memory of violence.">
+           <COND (,LOCKED-BOX-OPENED
+                  <TELL " The locked box in the fireplace lies open, its contents revealed.">)
+                 (T
+                  <TELL " A small locked box sits among the cold ashes in the fireplace.">)>
+           <COND (<FSET? ,WINDOW ,OPENBIT>
+                  <TELL " The window stands open, letting in the chill night air.">)
+                 (T
+                  <TELL " A window looks out to the garden, its latch rusted but intact.">)>
+           <TELL CR "A doorway leads north back to the entrance hall." CR>)>>
+
+<ROUTINE LIBRARY-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL "Floor-to-ceiling bookshelves line the walls, their contents ranging from leather-bound classics to modern scientific texts. The fire is cold, but the room retains a scholarly warmth.">
+           <COND (,CIPHER-SOLVED
+                  <TELL " A secret passage lies open to the east, its dark mouth beckoning.">)
+                 (T
+                  <TELL " A doorway leads west back to the entrance hall.">)>
+           <CR>)>>
+
+<ROUTINE KITCHEN-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL "A kitchen that has seen better days. The hearth is cold, its last fire long extinguished.">
+           <COND (<FSET? ,DRAWER ,OPENBIT>
+                  <TELL " The drawer in the counter stands open.">)
+                 (T
+                  <TELL " A drawer in the counter is slightly ajar.">)>
+           <TELL CR "A staircase leads up to the entrance hall, and a doorway west leads to the garden." CR>)>>
+
+<ROUTINE GARDEN-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL "An overgrown garden sprawls before you, its paths choked with weeds. A fountain stands at the center, dry and silent. Hedge mazes line the paths, their shadows hiding secrets.">
+           <COND (<IN? ,BLOOD-STAINED-KNIFE ,GARDEN>
+                  <TELL " Something glints in the branches near the fountain.">)>
+           <TELL CR "A doorway east leads to the kitchen, paths lead north to the greenhouse and south to the servants' quarters." CR>)>>
+
+<ROUTINE ENTRANCE-HALL-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL "You step into a grand foyer that has seen better days. The air is thick with the scent of old wood and regret. Doorways lead in every direction -- north to the gate, east to the library, west to the dining room, and a staircase down to the kitchen.">
+           <COND (,STUDY-UNLOCKED
+                  <TELL " The door to the south stands open, revealing the study beyond.">)
+                 (T
+                  <TELL " A door to the south stands locked.">)>
+           <CR>)>>
+
 ; --- Global Object Actions ---
 
 <ROUTINE FOG-F ()
