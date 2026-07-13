@@ -55,6 +55,17 @@ test.describe("Compiler - Object Compilation", function(t)
 		assert.assert_not_nil(result)
 		assert.assert_match(result.body, "ITEM")
 	end)
+
+	t.it("should preserve symbolic routine-valued properties", function(assert)
+		local code = [[
+			<OBJECT HOUSE (ACTION HOUSE-F) (DESCFCN HOUSE-D) (NORTH PER NORTH-F)>
+		]]
+		local result = compiler.compile(parser.parse(code))
+
+		assert.assert_match(result.body, 'ACTION = ROUTINE_REF%("HOUSE_F"%)')
+		assert.assert_match(result.body, 'DESCFCN = ROUTINE_REF%("HOUSE_D"%)')
+		assert.assert_match(result.body, 'per = ROUTINE_REF%("NORTH_F"%)')
+	end)
 end)
 
 test.describe("Compiler - Constants and Globals", function(t)

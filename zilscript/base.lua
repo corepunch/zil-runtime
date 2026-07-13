@@ -13,6 +13,16 @@ local M = {}
 -- these minimal stubs allow ZIL modules to be loaded without bootstrap.
 if not _G.SETG then _G.SETG = function(name, val) _G[name] = val; return val end end
 if not _G.GETG then _G.GETG = function(name) return _G[name] end end
+if not _G.DEFINE_ROUTINE then
+	_G.DEFINE_ROUTINE = function(_, routine) return routine end
+end
+if not _G.ROUTINE_REF then
+	_G.ROUTINE_REF = function(name)
+		local value = rawget(_G, name)
+		if type(value) == "function" then return value end
+		return {__routine_ref = name}
+	end
+end
 
 -- Configuration options
 M.config = {

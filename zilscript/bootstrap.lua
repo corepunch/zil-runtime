@@ -773,6 +773,7 @@ function PUTP(obj, prop, val)
 	elseif type(val) == 'function' then
 		assert(PTSIZE(ptr) == 2, "Function property "..prop.." size must be 2")
 		mem:write(mem:stringprop(fn(val)), ptr)
+		return
 	end
 	assert(type(val) == 'number', "Only numbers are supported in PUTP, not "..type(val))
 	if PTSIZE(ptr) == 1 then mem:write(makebyte(val), ptr)
@@ -851,6 +852,46 @@ function GLOBAL_REF(name)
 	return {__global_ref = name}
 end
 
+local pending_routine_refs = {}
+
+function ROUTINE_REF(name)
+	local value = rawget(_G, name)
+	if type(value) == "function" then return value end
+	return {__routine_ref = name}
+end
+
+local function defer_routine_ref(name, object_id, property_name, kind)
+	local pending = pending_routine_refs[name]
+	if not pending then
+		pending = {}
+		pending_routine_refs[name] = pending
+	end
+	pending[#pending + 1] = {
+		object = object_id,
+		property = register(PROPERTIES, property_name),
+		kind = kind,
+	}
+end
+
+function DEFINE_ROUTINE(name, routine)
+	assert(type(routine) == "function", "DEFINE_ROUTINE expected function for "..tostring(name))
+	local pending = pending_routine_refs[name]
+	if not pending then return routine end
+
+	local routine_index = fn(routine)
+	for _, ref in ipairs(pending) do
+		if ref.kind == "exit" then
+			local ptr = GETPT(ref.object, ref.property)
+			assert(ptr, "Missing deferred routine exit property: "..tostring(name))
+			mem:write(makeword(routine_index), ptr)
+		else
+			PUTP(ref.object, ref.property, routine)
+		end
+	end
+	pending_routine_refs[name] = nil
+	return routine
+end
+
 function OBJECT(object)
 	local function resolve_global(value)
 		if type(value) == "string" then
@@ -858,8 +899,12 @@ function OBJECT(object)
 		end
 		return value
 	end
-	local function function_prop(value)
+	local function function_prop(value, property_name, object_id)
 		value = resolve_global(value)
+		if type(value) == "table" and value.__routine_ref then
+			defer_routine_ref(value.__routine_ref, object_id, property_name, "property")
+			return '\0\0'
+		end
 		return type(value) == 'function' and mem:stringprop(fn(value)) or '\0\0'
 	end
 	local function makeprop(body, name)
@@ -905,7 +950,7 @@ function OBJECT(object)
 			table.insert(t, makeprop(makebyte(loc_value), k))
 		-- using PQACTION for ACTION property, commented out original function support
 		elseif k == "ACTION" or k == "DESCFCN" then 
-			table.insert(t, makeprop(function_prop(v), k))
+			table.insert(t, makeprop(function_prop(v, k, n), k))
 		elseif type(v) == 'string' then table.insert(t, makeprop(mem:stringprop(v), k))
 		elseif type(v) == 'number' then table.insert(t, makeprop(makebyte(v), k))
 		elseif type(v) == 'function' then table.insert(t, makeprop(mem:stringprop(fn(v)), k))
@@ -920,7 +965,13 @@ function OBJECT(object)
 				str = mem:write(v.."\0")
 			elseif v.per then
 				local per = resolve_global(v.per)
-				str = makeword(fn(per))..string.char(0) -- FEXIT = 3
+				if type(per) == "table" and per.__routine_ref then
+					defer_routine_ref(per.__routine_ref, n, k, "exit")
+					str = makeword(0)..string.char(0) -- deferred FEXIT = 3
+				else
+					assert(type(per) == "function", "Unresolved exit routine for "..tostring(object_name).."."..tostring(k))
+					str = makeword(fn(per))..string.char(0) -- FEXIT = 3
+				end
 			elseif type(v[1]) == 'string' then
 				str = mem:write(v[1].."\0") -- NEXIT = 2
 			else
@@ -1258,6 +1309,11 @@ function FINALIZE_REFERENCES()
 		mem:write(makeword(value), ref.address)
 	end
 	pending_table_refs = {}
+	for name, refs in pairs(pending_routine_refs) do
+		if #refs > 0 then
+			error("Unresolved routine reference: "..name)
+		end
+	end
 end
 
 BUZZ(".", ",", "\"")

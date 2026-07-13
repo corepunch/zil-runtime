@@ -129,6 +129,11 @@ function TopLevel.compileRoutine(decl, body, node, compiler, printNode)
   decl.writeln(string.format("\telse error(__res and '%s\\n'..__res or '%s') end", name, name))
   decl.writeln("end")
 
+  -- Notify the runtime linker after the Lua global has its final function.
+  -- This patches routine-valued object properties that referenced the routine
+  -- before its source file was loaded.
+  decl.writeln('DEFINE_ROUTINE("%s", %s)', name, name)
+
   decl.writeln("_%s = {", name)
   for _, v in ipairs(compiler.current_verbs) do
    decl.writeln("\t'%s',", v)
@@ -164,7 +169,7 @@ function TopLevel.compileObject(decl, body, node, compiler)
         fields.writeNav(body, field, compiler)
         body.writeln(",")
       elseif field_value == "PER" then
-        body.writeln("\t%s = { per = \"%s\" },", field_name, compiler.value(field[3]))
+        body.writeln("\t%s = { per = ROUTINE_REF(\"%s\") },", field_name, compiler.value(field[3]))
       else
         local prop = normalizeProperty(field_name)
         body.write("\t%s = ", prop)

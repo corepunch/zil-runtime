@@ -66,6 +66,19 @@ local function writeValueField(buf, node, compiler)
   writeFirstChild(buf, node, false, compiler)
 end
 
+-- Routine-valued properties are symbolic in ZIL and may refer to routines
+-- declared in a later INSERT-FILE. Keep the name until the runtime linker can
+-- resolve it instead of eagerly reading a possibly-nil Lua global.
+local function writeRoutineField(buf, node, compiler)
+  local child = node[2]
+  if not child then return end
+  if child.type == "number" then
+    buf.write("%s", compiler.value(child))
+  else
+    buf.write('ROUTINE_REF("%s")', compiler.value(child))
+  end
+end
+
 local function writeObjectField(buf, node, compiler)
   if node[2] then writeObjectRef(buf, node[2], compiler) end
 end
@@ -78,7 +91,8 @@ Fields.FIELD_WRITERS = {
   DESC = writeStringField,
   LDESC = writeStringField,
   FDESC = writeStringField,
-  ACTION = writeValueField,
+  ACTION = writeRoutineField,
+  DESCFCN = writeRoutineField,
   IN = writeObjectField,
   GLOBAL = writeObjectList,
 }

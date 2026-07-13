@@ -3,6 +3,8 @@
 
 local test = require 'tests.test_framework'
 local runtime = require 'zilscript.runtime'
+local parser = require 'zilscript.parser'
+local compiler = require 'zilscript.compiler'
 
 test.describe("Runtime - Environment Creation", function(t)
 	t.it("should create game environment", function(assert)
@@ -103,6 +105,38 @@ test.describe("Runtime - Bootstrap Loading", function(t)
 		assert.assert_type(env.QUIT, "function")
 		assert.assert_type(env.RESTART, "function")
 		assert.assert_type(env.VERIFY, "function")
+	end)
+
+	t.it("should link routine-valued properties defined later", function(assert)
+		local env = runtime.create_game_env()
+		assert.assert_true(runtime.init(env, true))
+
+		local object_code = compiler.compile(parser.parse([[
+			<DIRECTIONS NORTH>
+			<OBJECT HOUSE
+				(DESC "house")
+				(ACTION HOUSE-F)
+				(DESCFCN HOUSE-D)
+				(NORTH PER HOUSE-EXIT)>
+		]])).combined
+		assert.assert_true(runtime.execute(object_code, "forward-object", env, true))
+		assert.assert_nil(env.GETP(env.HOUSE, env.PQACTION))
+
+		local routine_code = compiler.compile(parser.parse([[
+			<ROUTINE HOUSE-F (VALUE) <RETURN <+ .VALUE 1>>>
+			<ROUTINE HOUSE-D () <RETURN 22>>
+			<ROUTINE HOUSE-EXIT () <RETURN 33>>
+		]])).combined
+		assert.assert_true(runtime.execute(routine_code, "forward-routines", env, true))
+
+		local action = env.GETP(env.HOUSE, env.PQACTION)
+		local desc = env.GETP(env.HOUSE, env.PQDESCFCN)
+		local exit_ptr = env.GETPT(env.HOUSE, env.PQNORTH)
+		assert.assert_equal(action, env.ROUTINE_NUM(env.HOUSE_F))
+		assert.assert_equal(desc, env.ROUTINE_NUM(env.HOUSE_D))
+		assert.assert_equal(env.APPLY(action, 41), 42)
+		assert.assert_equal(env.APPLY(desc), 22)
+		assert.assert_equal(env.APPLY(env.GET(exit_ptr, 0)), 33)
 	end)
 
 	t.it("should restore captured scalar state on restart", function(assert)
