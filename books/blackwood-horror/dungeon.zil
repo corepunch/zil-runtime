@@ -30,7 +30,7 @@
 <ROOM SANITARIUM-ENTRANCE
       (IN ROOMS)
       (DESC "Sanitarium Entrance Hall")
-      (LDESC "The entrance hall reeks of mildew and decay. A grand staircase ascends to darkness in the east. To the west, a doorway leads to what might have been a reception area. North, you can make out an operating theater through a half-open door. A narrow staircase descends into the basement.")
+      (LDESC "The entrance hall reeks of mildew and decay. A grand staircase ascends to darkness in the east. To the west, a doorway leads to what might have been a reception area. A narrow staircase descends into the basement.")
       (SOUTH TO SANITARIUM-GATE)
       (WEST TO RECEPTION-ROOM)
       (NORTH TO OPERATING-THEATER)
@@ -51,9 +51,10 @@
 <ROOM OPERATING-THEATER
       (IN ROOMS)
       (DESC "Operating Theater")
-      (LDESC "The circular theater has rusty surgical instruments scattered about. Rising tiers of benches circle the area, where students once observed procedures. The air here is thick with an oppressive dread.")
+      (LDESC "The circular theater rises in tiers where students once observed procedures. Cold metal trays sit abandoned on carts. The air here is thick with an oppressive dread.")
       (SOUTH TO SANITARIUM-ENTRANCE)
-      (FLAGS RLANDBIT ONBIT)>
+      (FLAGS RLANDBIT ONBIT)
+      (PSEUDO "INSTRUMENTS" INSTRUMENTS-PSEUDO "SCALPELS" INSTRUMENTS-PSEUDO "TRAYS" TRAYS-PSEUDO "BENCHES" BENCHES-PSEUDO "BENCH" BENCHES-PSEUDO "TIERS" BENCHES-PSEUDO)>
 
 <ROOM PATIENT-WARD
       (IN ROOMS)
@@ -134,7 +135,7 @@
 <ROOM ELECTROSHOCK-THEATER
       (IN ROOMS)
       (DESC "Electroshock Theater")
-      (LDESC "A concrete room. The walls are scorched in places. A viewing window overlooks the room from above. To the east, a stairway climbs upward. West, a heavy door stands ajar, revealing a padded cell beyond. A passage to the south leads out to the isolation ward.")
+      (LDESC "A concrete room. The walls are scorched in places. A viewing window overlooks the room from above. To the east, a stairway climbs upward. A passage to the south leads out to the isolation ward.")
       (SOUTH TO ISOLATION-WARD)
       (EAST TO OBSERVATION-DECK)
       (WEST TO PADDED-CELL)
@@ -144,7 +145,7 @@
 <ROOM PADDED-CELL
       (IN ROOMS)
       (DESC "Padded Cell")
-      (LDESC "The small room reeks of decay. Something has been written on the walls in what looks like dried blood. The only way out is through the door to the east, leading to the electroshock theater.")
+      (LDESC "The small room reeks of decay. Something has been written on the walls in what looks like dried blood.")
       (EAST TO ELECTROSHOCK-THEATER)
       (FLAGS RLANDBIT)
       (VALUE 5)>
@@ -152,7 +153,7 @@
 <ROOM OBSERVATION-DECK
       (IN ROOMS)
       (DESC "Observation Deck")
-      (LDESC "A small room with chairs facing a window. This is where doctors watched their experiments. Stairs lead down to the west, and a door to the north opens to the administrative wing.")
+      (LDESC "A small room with chairs facing a window. This is where doctors watched their experiments. Stairs lead down to the west.")
       (WEST TO ELECTROSHOCK-THEATER)
       (NORTH TO ADMINISTRATIVE-WING)
       (FLAGS RLANDBIT ONBIT)>
@@ -170,7 +171,7 @@
       (IN ROOMS)
       (DESC "Director's Office")
       (ACTION DIRECTORS-OFFICE-FCN)
-      (LDESC "A large office with wood paneling. Bookshelves line the walls, filled with medical texts and journals. A door to the west opens back to the administrative wing corridor.")
+      (LDESC "A large office with wood paneling. Bookshelves line the walls, filled with medical texts and journals.")
       (WEST TO ADMINISTRATIVE-WING)
       (FLAGS RLANDBIT ONBIT)>
 
@@ -185,7 +186,7 @@
 <ROOM CAFETERIA
       (IN ROOMS)
       (DESC "Cafeteria")
-      (LDESC "Long tables with attached benches fill the room. Trays and plates lie scattered about, covered in dust. A door to the north leads to the garden. East returns to the staff quarters.")
+      (LDESC "Long tables with attached benches fill the room. Trays and plates lie scattered about, covered in dust. East returns to the staff quarters.")
       (EAST TO STAFF-QUARTERS)
       (NORTH TO OVERGROWN-GARDEN)
       (FLAGS RLANDBIT ONBIT)>
@@ -227,6 +228,14 @@
         (DESC "peeling wallpaper")
         (LDESC "Peeling wallpaper reveals water-stained plaster beneath.")
         (TEXT "Victorian-era wallpaper depicting pastoral scenes, now grotesquely warped by moisture and black mold.")>
+
+<OBJECT THEATER-DOOR
+        (IN SANITARIUM-ENTRANCE)
+        (SYNONYM DOOR)
+        (ADJECTIVE HALF-OPEN THEATER OPERATING)
+        (DESC "door to the operating theater")
+        (LDESC "To the north, a door stands half-open, revealing an operating theater beyond.")
+        (ACTION THEATER-DOOR-F)>
 
 <OBJECT OAK-DESK
         (IN RECEPTION-ROOM)
@@ -588,6 +597,14 @@
         (LDESC "Electrodes dangle from a machine beside the chair.")
         (ACTION SHOCK-MACHINE-F)>
 
+<OBJECT PADCELL-DOOR
+        (IN ELECTROSHOCK-THEATER)
+        (SYNONYM DOOR)
+        (ADJECTIVE HEAVY WEST PADDED)
+        (DESC "heavy door to the padded cell")
+        (LDESC "To the west, a heavy door stands ajar, revealing a padded cell beyond.")
+        (ACTION PADCELL-DOOR-F)>
+
 <OBJECT PADDING
         (IN PADDED-CELL)
         (SYNONYM PADDING WALLS)
@@ -608,6 +625,14 @@
         (SIZE 15)
         (ACTION STRAITJACKET-F)>
 
+<OBJECT ESCAPE-DOOR
+        (IN PADDED-CELL)
+        (SYNONYM DOOR)
+        (ADJECTIVE EAST HEAVY)
+        (DESC "door to the electroshock theater")
+        (LDESC "To the east, a heavy door leads back to the electroshock theater.")
+        (ACTION ESCAPE-DOOR-F)>
+
 <OBJECT ONE-WAY-MIRROR
         (IN OBSERVATION-DECK)
         (SYNONYM MIRROR WINDOW GLASS)
@@ -626,6 +651,14 @@
         (TEXT "Session 47 - Patient 189. Subject required maximum voltage. Seizure lasted 4 minutes. Memory loss total. Subject claims to be 'someone else' now. Dr. Mordecai pleased with results.")
         (SIZE 7)
         (ACTION OBSERVATION-LOGBOOK-F)>
+
+<OBJECT CORRIDOR-DOOR
+        (IN OBSERVATION-DECK)
+        (SYNONYM DOOR)
+        (ADJECTIVE NORTH ADMINISTRATIVE)
+        (DESC "door to the administrative wing")
+        (LDESC "To the north, a door opens to the administrative wing.")
+        (ACTION CORRIDOR-DOOR-F)>
 
 <OBJECT SCATTERED-PAPERS
         (IN ADMINISTRATIVE-WING)
@@ -672,6 +705,14 @@
         (LDESC "A safe is visible behind a moved painting.")
         (FLAGS CONTBIT)
         (ACTION WALL-SAFE-F)>
+
+<OBJECT OFFICE-DOOR
+        (IN DIRECTORS-OFFICE)
+        (SYNONYM DOOR)
+        (ADJECTIVE WEST HEAVY)
+        (DESC "door to the administrative wing")
+        (LDESC "To the west, a door opens back to the administrative wing corridor.")
+        (ACTION OFFICE-DOOR-F)>
 
 <OBJECT SAFE-KEY
         (IN HOLLOW-BOOK)
@@ -743,6 +784,14 @@
         (FLAGS TAKEBIT)
         (SIZE 2)
         (ACTION BELL-F)>
+
+<OBJECT GARDEN-DOOR
+        (IN CAFETERIA)
+        (SYNONYM DOOR)
+        (ADJECTIVE NORTH WOODEN)
+        (DESC "door to the garden")
+        (LDESC "To the north, a door leads out to the garden.")
+        (ACTION GARDEN-DOOR-F)>
 
 <OBJECT DEAD-GARDEN
         (IN OVERGROWN-GARDEN)

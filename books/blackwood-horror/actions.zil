@@ -62,7 +62,7 @@
                   <TELL " A wall safe is visible behind a moved painting.">)
                  (<FSET? ,MORDECAI-PORTRAIT ,TOUCHBIT>
                   <TELL " A portrait of Dr. Mordecai hangs slightly askew on the wall.">)>
-           <TELL " A door to the west opens back to the administrative wing corridor." CR>)>>
+           <TELL CR>)>>
 
 ; === ACTION HANDLERS ===
 
@@ -741,6 +741,89 @@
          <COND (<VERB? EXAMINE>
                 <TELL "A medical syringe with a sharp steel needle. The glass chamber is empty." CR>
                 <RTRUE>)>>
+
+; === NEW DOOR ACTION HANDLERS ===
+
+<ROUTINE THEATER-DOOR-F ()
+         <COND (<VERB? EXAMINE>
+                <TELL "The door to the operating theater is half-open. Faint metallic sounds drift from beyond." CR>
+                <RTRUE>)
+               (<VERB? OPEN>
+                <TELL "The door is already half-open. You can walk through to the north." CR>
+                <RTRUE>)
+               (<VERB? CLOSE>
+                <TELL "You leave it half-open." CR>
+                <RTRUE>)>>
+
+<ROUTINE PADCELL-DOOR-F ()
+         <COND (<VERB? EXAMINE>
+                <TELL "A heavy steel door, its frame reinforced. It stands ajar, and you can make out a padded cell beyond." CR>
+                <RTRUE>)
+               (<VERB? OPEN>
+                <TELL "The door is already open. The padded cell lies to the west." CR>
+                <RTRUE>)
+               (<VERB? CLOSE>
+                <TELL "You leave it open." CR>
+                <RTRUE>)>>
+
+<ROUTINE CORRIDOR-DOOR-F ()
+         <COND (<VERB? EXAMINE>
+                <TELL "A heavy wooden door leading to the administrative wing. It hangs open, as if someone left in a hurry." CR>
+                <RTRUE>)
+               (<VERB? OPEN>
+                <TELL "The door is already open. The administrative wing lies to the north." CR>
+                <RTRUE>)
+               (<VERB? CLOSE>
+                <TELL "You leave it open." CR>
+                <RTRUE>)>>
+
+<ROUTINE OFFICE-DOOR-F ()
+         <COND (<VERB? EXAMINE>
+                <TELL "A heavy office door leading back to the administrative wing corridor." CR>
+                <RTRUE>)
+               (<VERB? OPEN>
+                <TELL "The door is already open. The corridor lies to the west." CR>
+                <RTRUE>)
+               (<VERB? CLOSE>
+                <TELL "You leave it open." CR>
+                <RTRUE>)>>
+
+<ROUTINE GARDEN-DOOR-F ()
+         <COND (<VERB? EXAMINE>
+                <TELL "A wooden door with a cracked window pane. Through it you can see the overgrown garden beyond." CR>
+                <RTRUE>)
+               (<VERB? OPEN>
+                <TELL "The door swings open. The garden lies to the north." CR>
+                <RTRUE>)
+               (<VERB? CLOSE>
+                <TELL "You leave it open." CR>
+                <RTRUE>)>>
+
+<ROUTINE ESCAPE-DOOR-F ()
+         <COND (<VERB? EXAMINE>
+                <TELL "A heavy door, solid and imposing from this side. It's the only way out of this cell." CR>
+                <RTRUE>)
+               (<VERB? OPEN>
+                <TELL "The door is already open. The electroshock theater lies to the east." CR>
+                <RTRUE>)
+               (<VERB? CLOSE>
+                <TELL "You'd rather not trap yourself in here." CR>
+                <RTRUE>)>>
+
+<ROUTINE INSTRUMENTS-PSEUDO ()
+    <COND (<VERB? EXAMINE>
+           <TELL "Rusty forceps, scalpels, and clamps lie scattered across trays. Long abandoned, like everything else here." CR>)>
+    <RTRUE>>
+
+<ROUTINE TRAYS-PSEUDO ()
+    <COND (<VERB? EXAMINE>
+           <TELL "Cold metal instrument trays sit on carts, their contents rusted and useless." CR>)>
+    <RTRUE>>
+
+<ROUTINE BENCHES-PSEUDO ()
+    <COND (<VERB? EXAMINE SIT>
+           <TELL "Tiers of wooden benches circle the operating theater, where students once observed procedures. The wood is dark with age and moisture." CR>)>
+    <RTRUE>>
 
 ; === LOCAL-GLOBALS ACTION HANDLERS ===
 

@@ -8,7 +8,7 @@ Write player-facing text and interactions that teach play and maintain tone.
 
 ## Required Actions
 1. Write first-visit and revisit room text with actionable nouns.
-2. Ensure every mentioned noun is handled (object, pseudo object, or scenery response).
+2. **Ensure every mentioned noun is handled** — every object, person, or feature mentioned in room or object text must be reachable through the parser. If a room description says "a heavy door to the north," there must be an object with `SYNONYM DOOR` so `OPEN DOOR` works. Use objects for interactive items (doors, containers, NPCs), PSEUDO for scenery that players might EXAMINE (paintings, fireplaces, rubble), and NDESCBIT for background atmosphere. Never promise the player an interactable noun that isn't there — it breaks trust in the parser.
 3. Author object text to support puzzle affordances.
 4. Author NPC behavior scope and conversation patterns (ASK/TELL/GIVE/SHOW).
 5. Author layered hints (attention, direction, action, command).

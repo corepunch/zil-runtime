@@ -199,9 +199,11 @@ hangs heavy with the memory of violence.")
     (FLAGS NDESCBIT)>
 ```
 
-**Why**: When items describe themselves, their descriptions can change with game state. A locked box can say "locked" or "open" depending on a flag. A window can say "slightly ajar" or "open" depending on whether the player opened it. If the room description hardcodes the state, you need an ACTION routine just to vary one sentence.
+**Why**: When items describe themselves, their descriptions can change with game state. A locked box can say "locked" or "open" depending on a flag. A window can say "slightly ajar" or "open" depending on whether the player opened it. If the room description hardcodes the state, you need an ACTION routine just to vary one sentence. Most critically: if the room LDESC mentions a "door" but no door object exists, the player will type `OPEN DOOR` and get "There's no door here" — a broken promise that undermines trust in the parser.
 
-**Detection**: Search your `LDESC` strings for object names that appear as objects elsewhere. If a room says "a desk" and there's an OBJECT DESK, the desk should describe itself.
+**The door rule**: Every "door" noun in room text must correspond to an object with `SYNONYM DOOR` and an ACTION handler (even if it's always open). If you don't want a door object, say "doorway", "passage", or "opening" instead. Never use the word "door" in a room description without providing a door object.
+
+**Detection**: Search your `LDESC` strings for object names that appear as objects elsewhere. If a room says "a desk" and there's an OBJECT DESK, the desk should describe itself. Search for the word "door" — every occurrence must have a corresponding door object. Search for any concrete noun (chair, table, bed, window) that a player might `EXAMINE`; if it exists, ensure the parser can find it.
 
 ### 2. Every `<TELL>` must close with `>` before the next form
 
