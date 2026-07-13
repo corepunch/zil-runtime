@@ -143,10 +143,10 @@ function PrintNode.createPrintNode(compiler, form_handlers)
     end
 
     if node.type == "expr" then
-      -- Handle numeric form names (ZIL <N LIST> = NTH(LIST,N) = GET(LIST,N))
+      -- Handle numeric form names (ZIL <N LIST> = NTH(LIST,N))
       if type(node.name) == "number" then
         if indent == 1 then buf.indent(indent) end
-        buf.write("GET(")
+        buf.write("NTH(")
         if node[1] then
           printNode(buf, node[1], indent + 1, false)
           buf.write(", %d", node.name)
@@ -165,7 +165,7 @@ function PrintNode.createPrintNode(compiler, form_handlers)
       end
 
       -- Check if this is a macro call that needs expansion
-      local macro = compiler.macros[node.name]
+      local macro = compiler.macros[node.name] or compiler.macros[utils.normalizeFunctionName(node.name)]
       if macro then
         -- Expand the macro by substituting parameters and emitting the body
         local expanded = expandMacro(node, macro, compiler)

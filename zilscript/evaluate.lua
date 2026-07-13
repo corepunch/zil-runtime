@@ -37,6 +37,7 @@ local function scalar(node)
 		for i = 2, #values do if type(values[i]) ~= "number" then return nil end result = result // values[i] end
 		return result
 	elseif node.name == "ASCII" then
+		if type(values[1]) == "number" then return string.char(values[1]) end
 		return values[1]
 	elseif node.name == "STRING" then
 		local parts = {}
@@ -126,6 +127,12 @@ local function evaluate(cond)
 	if constant ~= nil and cond.type == "expr" then
 		if type(constant) == "number" then return {type = "number", value = constant} end
 		if type(constant) == "string" then return {type = "string", value = constant} end
+	end
+
+	-- Handle numeric-name expressions (from #BYTE, #WORD, or plain <N> with no children)
+	-- These represent numeric constants at the form level
+	if cond.type == "expr" and type(cond.name) == "number" and #cond == 0 then
+		return {type = "number", value = cond.name}
 	end
 
 	-- Handle %<DEBUG-CODE debug-form non-debug-form>

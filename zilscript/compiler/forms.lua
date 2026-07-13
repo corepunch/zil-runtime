@@ -451,9 +451,20 @@ function Forms.createHandlers(compiler, printNode)
       -- Create a new expression node with the FORM's contents
       local form_name = compiler.value(node[1])
       buf.write("%s(", utils.normalizeFunctionName(form_name))
+      local first = true
       for i = 2, #node do
-        printNode(buf, node[i], indent)
-        if i < #node then buf.write(", ") end
+        if node[i].type == "list" then
+          -- Splice list elements as individual arguments
+          for j = 1, #node[i] do
+            if not first then buf.write(", ") end
+            printNode(buf, node[i][j], indent)
+            first = false
+          end
+        else
+          if not first then buf.write(", ") end
+          printNode(buf, node[i], indent)
+          first = false
+        end
       end
       buf.write(")")
     else

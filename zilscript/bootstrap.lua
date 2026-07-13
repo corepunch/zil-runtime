@@ -963,6 +963,80 @@ function REST(s, i)
 	return s:sub((i or 1) + 1)
 end
 
+function EMPTYQ(s)
+	if s == nil then return true end
+	if type(s) == 'table' then
+		return #s == 0
+	end
+	if type(s) == 'string' then
+		return #s == 0
+	end
+	return s == false or s == 0
+end
+
+function LENGTHQ(s, n)
+	if s == nil then return n == nil end
+	if type(s) == 'table' then
+		return n == nil or #s == n
+	end
+	if type(s) == 'string' then
+		return n == nil or #s == n
+	end
+	return n == nil or 1 == n
+end
+
+FIX = "FIX"
+
+function TYPEQ(v, ...)
+	local types = {...}
+	for _, t in ipairs(types) do
+		if t == "ATOM" then
+			if type(v) == "number" or type(v) == "string" or type(v) == "boolean" then
+				return true
+			end
+		elseif t == "LIST" then
+			if type(v) == "table" then return true end
+		elseif t == "STRING" then
+			if type(v) == "string" then return true end
+		elseif t == "TABLE" then
+			if type(v) == "table" then return true end
+		elseif t == "FIX" then
+			if type(v) == "number" then return true end
+		elseif t == "FORM" then
+			if type(v) == "function" or type(v) == "table" then return true end
+		elseif t == "FALSE" then
+			if v == false or v == 0 or v == nil then return true end
+		end
+	end
+	return false
+end
+
+function NTH(s, i)
+	if type(s) == 'table' then
+		return s[i]
+	end
+	if type(s) == 'string' then
+		return s:sub(i, i)
+	end
+	return nil
+end
+
+function AND(...)
+	local args = {...}
+	for i = 1, #args do
+		if not args[i] or args[i] == 0 then return args[i] end
+	end
+	return args[#args]
+end
+
+function OR(...)
+	local args = {...}
+	for i = 1, #args do
+		if args[i] and args[i] ~= 0 then return args[i] end
+	end
+	return args[#args]
+end
+
 function APPLY(func, ...)
 	if type(func) == 'number' then
 		if func == 0 then return end
