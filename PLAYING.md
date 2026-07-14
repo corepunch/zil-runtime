@@ -73,9 +73,24 @@ The agent should:
 - Try multiple approaches if a puzzle doesn't yield results
 - Read any text the game presents (signs, leaflets, etc.)
 
+## Basic Commands
+
+| Category | Command | Example |
+|----------|---------|---------|
+| Movement | `<direction>` or `go <direction>` | `north`, `go east`, `south`, `west`, `up`, `down` |
+| Examination | `look`, `examine <object>` | `look`, `examine desk`, `x desk` |
+| Inventory | `inventory` or `i` | `inventory` |
+| Taking/Dropping | `take <object>`, `drop <object>` | `take key`, `drop key` |
+| Containers | `open <container>`, `close <container>`, `look in <container>` | `open drawer`, `look in trunk` |
+| Reading | `read <object>` | `read letter` |
+| Pushing/Pulling | `push <object>`, `pull <object>` | `push button` |
+| NPC Interaction | `ask <npc> about <topic>`, `tell <npc> about <topic>`, `show <object> to <npc>` | `ask hudson about master` |
+
+Standard verbs: EXAMINE, TAKE, DROP, USE, OPEN, CLOSE, LOOK, READ, ASK, TELL, SHOW, GO, PUSH, PULL, TASTE.
+
 ## Command Reference
 
-See [TESTING.md § How to Play](TESTING.md#how-to-play) for the full command reference (movement, examination, inventory, taking/dropping, using objects).
+See [TESTING.md § How to Play](TESTING.md#how-to-play) for the full command reference.
 
 ## Available Games
 

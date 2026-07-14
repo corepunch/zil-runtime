@@ -305,6 +305,18 @@
            <TELL "Simple beds for the household staff. They are empty." CR>
            <RTRUE>)>>
 
+<ROUTINE TRUNK-F ()
+    <COND (<VERB? EXAMINE>
+           <TELL "A large wooden trunk, its lid heavy." CR>
+           <RTRUE>)
+          (<VERB? OPEN>
+           <TELL "The trunk is already open." CR>
+           <RTRUE>)
+          (<VERB? CLOSE>
+           <TELL "You close the trunk." CR>
+           <RTRUE>)
+          (T <RFALSE>)>>
+
 <ROUTINE TRUNK-LETTER-F ()
     <COND (<VERB? EXAMINE READ>
            <TELL "The letter is addressed to Mr. Hudson from an unknown sender. It reads:" CR>
@@ -963,17 +975,17 @@
 
 <ROUTINE PRINT-CONTENTS (OBJ)
     <COND (<FIRST? OBJ>
-           <PRINT-ITEMS OBJ>
+           <PRINT-ITEMS <FIRST? OBJ>>
            <RTRUE>)
           (T
            <TELL "  nothing." CR>
            <RTRUE>)>>
 
-<ROUTINE PRINT-ITEMS (OBJ)
-    <COND (<FIRST? OBJ>
-           <TELL "  " D <FIRST? OBJ> CR>
-           <PRINT-ITEMS <NEXT? <FIRST? OBJ>>>
-           <RTRUE>)>>
+<ROUTINE PRINT-ITEMS (ITEM)
+    <COND (<NOT .ITEM> <RTRUE>)
+          (T
+           <TELL "  " D .ITEM CR>
+           <PRINT-ITEMS <NEXT? .ITEM>>)>>
 
 ; === GLOBAL OBJECT ACTIONS ===
 
