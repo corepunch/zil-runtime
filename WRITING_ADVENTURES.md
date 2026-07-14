@@ -1622,6 +1622,7 @@ Use this checklist before submitting your adventure:
 - [ ] Objects with custom behavior have an `(ACTION routine-name)` property
 - [ ] Every noun in FDESC/LDESC that a player might type is listed in SYNONYM or ADJECTIVE
 - [ ] FDESC describes discovery; objects inside containers get their own OBJECT with `(IN CONTAINER)`
+- [ ] Every noun printed by an ACTION routine's TELL corresponds to a real in-game object
 
 ### Puzzles
 - [ ] Every locked gate has a solution reachable before it

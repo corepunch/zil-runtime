@@ -124,6 +124,7 @@ The walkthrough grows with the game. At every commit-sized milestone, all implem
 9. **Opening a container must make contents reachable** — use container/search flags, set `OPENBIT`, and verify contents can be taken after a separate save/reload invocation.
 10. **Evidence and milestone counters must be idempotent** — guard one-time increments with per-clue flags so repeated EXAMINE/READ/TAKE cannot inflate progress.
 11. **FDESC/LDESC text is the parser vocabulary contract** — every concrete noun in an object's description text that a player might reasonably type must appear in its `SYNONYM` or `ADJECTIVE` list. When FDESC describes an item inside a container (e.g., "A leather roll lies in the open drawer"), create a container object for the described item rather than adding the description noun as a synonym on the contained object. Run `scripts/check-vocab.lua` to catch mismatches automatically.
+12. **ACTION routine text must match game objects** — when a TELL inside an ACTION routine mentions an object by name ("contains a letter", "sits on the table"), that object must exist in the game world with the right parent and matching SYNONYM. Players will immediately type the noun they just read.
 
 See `05_zil_implementation_reference.md` for details.
 
