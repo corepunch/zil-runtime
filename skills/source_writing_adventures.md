@@ -400,31 +400,126 @@ Objects are anything the player can see, examine, or interact with.
 
 **Object flags:**
 
-| Flag | Meaning |
-|------|---------|
-| `TAKEBIT` | Player can pick this up |
-| `READBIT` | Can be READ (shows TEXT property) |
-| `CONTBIT` | Is a container (things can be put IN it) |
-| `OPENBIT` | Container/door is currently open |
-| `OPENABLEBIT` | Can be opened/closed |
-| `SURFACEBIT` | Things can be put ON it (like a table) |
-| `DOORBIT` | Is a door (can be opened/closed) |
-| `LIGHTBIT` | Can provide light (lantern, torch) |
-| `ONBIT` | Light source is currently on |
-| `ACTORBIT` | Is an NPC (can be talked to) |
-| `WEAPONBIT` | Can be used as a weapon |
-| `TOOLBIT` | Can be used as a tool (keys, shovels) |
-| `TURNBIT` | Can be turned (valves, dials) |
-| `TRANSBIT` | Container is transparent (contents visible when closed) |
-| `NDESCBIT` | Don't auto-describe in room |
-| `SEARCHBIT` | Can be searched |
-| `DRINKBIT` | Can be drunk |
-| `FOODBIT` | Can be eaten |
-| `BURNBIT` | Can be burned |
-| `FLAMEBIT` | Produces flame |
-| `CLIMBBIT` | Can be climbed |
-| `VEHBIT` | Is a vehicle |
-| `WEARBIT` | Can be worn |
+Organized by use case. Most adventure objects need only a few — see the "Common combinations" below.
+
+#### Container & Visibility
+
+| Flag | Meaning | Example | Notes |
+|------|---------|---------|-------|
+| `CONTBIT` | Is a container — things can be put IN it | Trunk, box, bag | Engine auto-lists contents when open via `V-LOOK-INSIDE` |
+| `OPENBIT` | Container/door is currently open | Open drawer | Set/cleared by OPEN/CLOSE verb. Toggled at runtime with `<FSET ,OBJ ,OPENBIT>` |
+| `OPENABLEBIT` | Can be opened/closed | Locked box, drawer | Allows OPEN/CLOSE verbs. Use with `CONTBIT` or `DOORBIT` |
+| `SURFACEBIT` | Things can be put ON it (not IN) | Table, desk, altar | Parser understands "PUT X ON Y" vs "PUT X IN Y" |
+| `TRANSBIT` | Container is transparent — contents visible when closed | Glass bottle, cage | Engine lists contents even when container is closed |
+| `SEARCHBIT` | Can be searched — LOOK IN / SEARCH reveals contents | Trunk, desk | Used by parser to allow SEARCH verb |
+
+**Common container combinations:**
+```zil
+(FLAGS CONTBIT OPENBIT SEARCHBIT)      ; open box you can search
+(FLAGS CONTBIT OPENABLEBIT SEARCHBIT)  ; closed box you can open and search
+(FLAGS SURFACEBIT CONTBIT OPENBIT)     ; open table/surface
+(FLAGS CONTBIT TRANSBIT)               ; glass jar — always see inside
+```
+
+#### Light
+
+| Flag | Meaning | Example | Notes |
+|------|---------|---------|-------|
+| `LIGHTBIT` | Can provide light — is a light source | Lantern, torch, candles | Capability to emit light. Use with `ONBIT` for active state |
+| `ONBIT` | Light source is currently on / room is lit | Lit lantern | On a light source: it's emitting light. On a room: room is lit (no dark room) |
+
+**Common light combinations:**
+```zil
+(FLAGS LIGHTBIT ONBIT)       ; lantern that starts lit
+(FLAGS LIGHTBIT)             ; lantern that starts off
+(FLAGS RLANDBIT ONBIT)       ; lit room (always visible)
+(FLAGS RLANDBIT)             ; dark room (needs light source)
+```
+
+#### Player Interaction
+
+| Flag | Meaning | Example | Notes |
+|------|---------|---------|-------|
+| `TAKEBIT` | Can be picked up and carried | Key, coin, letter | Without this, "TAKE X" fails. Most inventory objects need it |
+| `READBIT` | Can be READ — shows TEXT property | Letter, book, map | READ verb shows the `(TEXT ...)` property |
+| `WEARBIT` | Can be worn/unworn | Hat, coat, armor | Allows WEAR/UNWEAR verbs |
+| `FOODBIT` | Can be eaten | Lunch, garlic, fruit | Allows EAT verb |
+| `DRINKBIT` | Can be drunk | Water, potion | Allows DRINK verb |
+| `BURNBIT` | Can be burned/destroyed | Paper, rope, book | Allows BURN verb. Object is flammable |
+| `CLIMBBIT` | Can be climbed | Tree, stairs, ladder | Allows CLIMB verb |
+
+#### Tool & Weapon
+
+| Flag | Meaning | Example | Notes |
+|------|---------|---------|-------|
+| `TOOLBIT` | Can be used as a tool (instrument) | Key, screwdriver, shovel | Parser uses this for "OPEN X WITH Y", "UNLOCK X WITH Y", etc. |
+| `WEAPONBIT` | Can be used as a weapon | Sword, axe, knife | Parser uses this for "ATTACK X WITH Y", "KILL X WITH Y" |
+| `TURNBIT` | Can be turned/twisted | Valve, dial, bolt | Allows TURN verb. For "TURN X TO Y" or "TURN X WITH Y" |
+| `FLAMEBIT` | Produces flame (fire source) | Match, torch, candles | Combined with `ONBIT` = actively flaming. Used by FLAMING? macro |
+
+**Common tool/weapon combinations:**
+```zil
+(FLAGS TAKEBIT TOOLBIT)              ; key, lockpick set
+(FLAGS TAKEBIT WEAPONBIT)            ; sword, knife
+(FLAGS TAKEBIT TOOLBIT WEAPONBIT)    ; axe — both tool and weapon
+(FLAGS TAKEBIT FLAMEBIT ONBIT)       ; lit torch
+```
+
+#### NPC & Combat
+
+| Flag | Meaning | Example | Notes |
+|------|---------|---------|-------|
+| `ACTORBIT` | Is an NPC — can be talked to, commanded, attacked | Troll, thief, ghost | Parser uses this for TELL, COMMAND, ATTACK, KISS, WAKE verbs |
+| `TRYTAKEBIT` | Can't be taken, but TAKE triggers ACTION routine | Troll, basket | ACTION routine handles the attempt (combat, custom message, etc.) |
+| `FIGHTBIT` | Currently in combat | Troll during fight | Set/cleared by combat system. Indicates active engagement |
+| `STAGGERED` | Stunned in combat — can't attack next turn | Staggered combatant | Set/cleared by combat system during fight resolution |
+
+**Common NPC combinations:**
+```zil
+(FLAGS ACTORBIT TRYTAKEBIT)          ; NPC that can't be taken
+(FLAGS ACTORBIT TRYTAKEBIT OPENBIT)  ; NPC in open container (cyclops in room)
+```
+
+#### Room Flags
+
+| Flag | Meaning | Example | Notes |
+|------|---------|---------|-------|
+| `RLANDBIT` | Is solid ground — safe, standard room | Most rooms | Every normal room needs this. Affects movement, combat, thief behavior |
+| `ONBIT` | Room is lit (on rooms, not light sources) | Lit room | Every room that's always lit needs this. Omit for dark rooms |
+| `NONLANDBIT` | Not land — water/air | Flooded reservoir | Prevents land-based actions. Used for boat/water rooms |
+| `MAZEBIT` | Is a maze room | Maze areas | Affects thief behavior and movement pathfinding |
+| `SACREDBIT` | Cannot be touched/destroyed by thief | Treasure rooms | Thief won't steal from or enter these rooms |
+
+**Common room combinations:**
+```zil
+(FLAGS RLANDBIT ONBIT)       ; standard lit room
+(FLAGS RLANDBIT)             ; dark room (needs light source)
+(FLAGS NONLANDBIT)           ; water/air room
+(FLAGS RLANDBIT MAZEBIT ONBIT)  ; lit maze room
+```
+
+#### Visibility & State
+
+| Flag | Meaning | Example | Notes |
+|------|---------|---------|-------|
+| `INVISIBLE` | Not visible — hidden from parser and player | Trap-door (before rug moved) | Set/cleared at runtime to show/hide objects |
+| `NDESCBIT` | Don't auto-describe in room text | Scenery, scenery-in-room | Object's description is handled by room LDESC or ACTION routine. Scenery objects use this |
+| `TOUCHBIT` | Has been visited/interacted with | Room (after first visit) | Controls FDESC (first time) vs LDESC (subsequent). Set by engine on first room visit |
+
+**Common visibility combinations:**
+```zil
+(FLAGS NDESCBIT)                      ; scenery — described in room text, not auto-listed
+(FLAGS NDESCBIT CONTBIT OPENBIT)      ; open container described in room text
+(FLAGS INVISIBLE)                     ; hidden object — revealed later with FSET
+(FLAGS TAKEBIT)                       ; normal takeable object (visible by default)
+```
+
+**Other flags** (defined in engine but rarely needed in adventure writing):
+
+| Flag | Meaning | When to use |
+|------|---------|-------------|
+| `NWALLBIT` | No wall interaction | Inherited from Zork engine, rarely used |
+| `RMUNGBIT` | Can be munged/destroyed | For destructible objects. Also used as catch-all in syntax matching |
 
 ### Routines (Action Handlers)
 
