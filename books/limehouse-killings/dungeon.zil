@@ -419,7 +419,7 @@
 <OBJECT DRAWER
       (IN KITCHEN)
       (DESC "drawer")
-      (LDESC "A drawer in the counter, slightly open. It promises something useful inside.")
+      (LDESC "A drawer in the counter.")
       (SYNONYM DRAWER)
       (FLAGS NDESCBIT CONTBIT SEARCHBIT)
       (ACTION DRAWER-F)>

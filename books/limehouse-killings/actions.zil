@@ -269,10 +269,7 @@
            <RTRUE>)>>
 
 <ROUTINE DRAWER-F ()
-    <COND (<VERB? EXAMINE>
-           <TELL "The drawer is slightly open. You can see something inside." CR>
-           <RTRUE>)
-          (<VERB? OPEN>
+    <COND (<VERB? OPEN>
            <TELL "You open the drawer. Inside is a leather roll." CR>
            <FSET ,DRAWER ,OPENBIT>
            <MOVE ,LEATHER-ROLL ,DRAWER>
