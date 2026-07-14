@@ -27,6 +27,7 @@ Create the design artifacts that externalize world structure and puzzle logic.
     - state change and inventory/location change;
     - a likely alternate wording and wrong-order attempt.
 15. Keep `OBJECTS.md` parser-facing: list the canonical head noun, exact compound spelling, adjectives, ambiguity risks, containment flags, and discovery command for every object.
+16. Populate `OBJECTS.md` from every concrete noun promised by room prose, blocked exits, and puzzle responses. Do not list a door, window, drawer, switch, rope, vehicle, gate, or container only in `STORY_STATE.md` as a Boolean; give the physical entity its own object row and reserve globals for supplementary or abstract state.
 
 ## Outputs
 - `MAP.md`

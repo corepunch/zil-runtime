@@ -27,11 +27,13 @@ test.describe("Limehouse Killings walkthrough", function(t)
 		assert.assert_equal(code, 0)
 
 		local actions = {
-			"go north", {"go south", "The study door is locked."},
+			"go north", {"go south", "The study door is closed."},
+			{"open study door", "need the study key or a lockpick"},
 			"go east", "examine reading-desk", "take torn-page", "read torn-page",
 			"examine colored-markers", "push red book", "push blue book", "push green book",
 			"push yellow book", "go south", "go east", "examine desk", "take dead-letter",
-			"read dead-letter", "take poison-bottle", "examine poison-bottle", "go north", "go west",
+			"read dead-letter", "take poison-bottle", "examine poison-bottle",
+			{"open study door", "interior bolt"}, "go north", "go west",
 			"examine table", "take wax-seal", "go north", "examine shelves", "take foxglove",
 			"take charcoal", "go south", "go east", "go down",
 			{"examine drawer", "The drawer is closed"},
@@ -80,6 +82,36 @@ test.describe("Limehouse Killings walkthrough", function(t)
 			"lua5.4 llm.lua --action " .. shell_quote("accuse dr-moriarty") .. suffix)
 		assert.assert_equal(accuse_code, 0)
 		assert.assert_match(ending, "Congratulations! You have solved the murder")
+
+		cleanup(savefile)
+	end)
+
+	t.it("should unlock and open the study door with Hudson's key", function(assert)
+		local savefile = "/tmp/test-limehouse-study-door.sav"
+		cleanup(savefile)
+		local suffix = " --save " .. shell_quote(savefile) .. " --game limehouse-killings"
+		assert.assert_equal(run_command("lua5.4 llm.lua --new-game" .. suffix), 0)
+
+		local actions = {
+			{"go north", "Entrance Hall"},
+			{"go down", "Kitchen"},
+			{"go west", "Garden"},
+			{"go south", "Servants' Quarters"},
+			{"ask hudson about key", "hands you the keyring"},
+			{"go north", "Garden"},
+			{"go east", "Kitchen"},
+			{"go up", "Entrance Hall"},
+			{"unlock study door with keyring", "study door is now unlocked"},
+			{"open study door", "You open the study door"},
+			{"go south", "Study"},
+		}
+
+		for _, entry in ipairs(actions) do
+			local code, output = run_command(
+				"lua5.4 llm.lua --action " .. shell_quote(entry[1]) .. suffix)
+			assert.assert_equal(code, 0, "Command failed: " .. entry[1])
+			assert.assert_match(output, entry[2], "Unexpected output for: " .. entry[1])
+		end
 
 		cleanup(savefile)
 	end)

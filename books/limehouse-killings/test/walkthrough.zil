@@ -24,6 +24,7 @@
     <TELL CR "Test 3: Try locked study door" CR>
     <PERFORM ,V?GO-SOUTH ,ROOMS>
     <ASSERT <NOT ,STUDY-UNLOCKED> "Study should be locked">
+    <ASSERT <NOT <FSET? ,STUDY-DOOR ,OPENBIT>> "Study door should be closed">
     <ASSERT <==? ,HERE ,ASHWORTH-ENTRANCE-HALL> "Locked study exit should keep player in entrance hall">
 
     ; Test 4: Go to library
@@ -93,6 +94,9 @@
 
     ; Test 16: Go to dining room
     <TELL CR "Test 16: Go to dining room" CR>
+    <PERFORM ,V?OPEN ,STUDY-DOOR>
+    <ASSERT ,STUDY-UNLOCKED "Opening the study door from inside should release its bolt">
+    <ASSERT <FSET? ,STUDY-DOOR ,OPENBIT> "Study door should be open">
     <PERFORM ,V?GO-NORTH ,ROOMS>
     <PERFORM ,V?GO-WEST ,ROOMS>
     <ASSERT <==? ,HERE ,DINING-ROOM> "Should be in dining room">

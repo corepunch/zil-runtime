@@ -169,6 +169,53 @@ The zork1 substrate treats `ASK` as a synonym of `TELL`; `ASK ACTOR ABOUT TOPIC`
 
 Define reusable topic objects in `GLOBAL-OBJECTS` so topic words resolve when the referenced clue/person is elsewhere. Guard interview counters, and ensure an NPC needed for a later command is physically or globally accessible at that point.
 
+### 0e. Represent physical world state with objects, not flag-only scenery
+
+If the prose names a physical thing the player could reasonably manipulate, that thing must exist in the object tree. Doors, windows, drawers, switches, ropes, vehicles, gates, and containers are not merely conditions on room exits.
+
+**Wrong — the prose promises a door, but only a Boolean exists:**
+
+```zil
+<GLOBAL STUDY-UNLOCKED <>>
+
+<ROOM ENTRANCE-HALL
+      (LDESC "A door to the south stands locked.")
+      (SOUTH TO STUDY IF STUDY-UNLOCKED)>
+
+; Somewhere else:
+<SETG STUDY-UNLOCKED T>
+```
+
+This shortcut lets movement change, but there is no door for `EXAMINE DOOR`, `OPEN DOOR`, `UNLOCK DOOR WITH KEY`, `CLOSE DOOR`, or pronoun resolution. Prose, parser scope, generic verbs, and navigation can contradict one another.
+
+**Right — create the door and let its object state control the exit:**
+
+```zil
+<GLOBAL STUDY-UNLOCKED <>> ; supplements the object: locked vs merely closed
+
+<OBJECT STUDY-DOOR
+      (IN LOCAL-GLOBALS)
+      (DESC "study door")
+      (SYNONYM DOOR)
+      (ADJECTIVE STUDY OAK)
+      (FLAGS DOORBIT NDESCBIT)
+      (ACTION STUDY-DOOR-F)>
+
+<ROOM ENTRANCE-HALL
+      (SOUTH TO STUDY IF STUDY-DOOR IS OPEN
+             ELSE "The study door is closed.")
+      (GLOBAL STUDY-DOOR)>
+
+<ROOM STUDY
+      (NORTH TO ENTRANCE-HALL IF STUDY-DOOR IS OPEN
+             ELSE "The study door is closed.")
+      (GLOBAL STUDY-DOOR)>
+```
+
+The door routine should handle `EXAMINE`, `OPEN`, and `UNLOCK`, validate the key or lockpick, set `STUDY-UNLOCKED` when the lock is released, and set/clear `OPENBIT` when the door opens or closes. The exit reads `OPENBIT`; the supplementary global answers the separate question "is it locked?"
+
+Use globals without objects for genuinely abstract facts such as `RIDDLE-SOLVED`, `NPC-TRUSTS-PLAYER`, or a one-time scoring guard. Do not use them to erase physical entities from the simulated world.
+
 ### 1. Don't embed item descriptions in room descriptions — let items describe themselves
 
 Room descriptions (`LDESC`) should describe the **space**, not the objects in it. Objects describe themselves via `FDESC`, `LDESC`, or `DESCFCN`. This keeps content modular and lets objects adapt to state changes.

@@ -204,11 +204,52 @@
           (<VERB? OPEN UNLOCK>
            <COND (<IN? ,LOCKPICK-SET ,WINNER>
                   <TELL "You use the lockpick set on the window latch. It clicks open." CR>
-                  <SETG STUDY-UNLOCKED T>
+                  <FSET ,WINDOW ,OPENBIT>
                   <RTRUE>)
                  (T
                   <TELL "The window latch is rusted. You need a tool to open it." CR>
                   <RTRUE>)>)>>
+
+<ROUTINE STUDY-DOOR-F ()
+    <COND (<VERB? EXAMINE>
+           <COND (<FSET? ,STUDY-DOOR ,OPENBIT>
+                  <TELL "The solid oak study door stands open." CR>)
+                 (,STUDY-UNLOCKED
+                  <TELL "The solid oak study door is closed but unlocked." CR>)
+                 (T
+                  <TELL "The solid oak study door is closed and locked." CR>)>
+           <RTRUE>)
+          (<VERB? OPEN>
+           <COND (<FSET? ,STUDY-DOOR ,OPENBIT>
+                  <TELL "The study door is already open." CR>)
+                 (<AND <==? ,HERE ,STUDY> <NOT ,STUDY-UNLOCKED>>
+                  <SETG STUDY-UNLOCKED T>
+                  <FSET ,STUDY-DOOR ,OPENBIT>
+                  <TELL "You draw back the interior bolt and open the study door." CR>)
+                 (<NOT ,STUDY-UNLOCKED>
+                  <TELL "The study door is locked. You'll need the study key or a lockpick." CR>)
+                 (T
+                  <FSET ,STUDY-DOOR ,OPENBIT>
+                  <TELL "You open the study door." CR>)>
+           <RTRUE>)
+          (<VERB? UNLOCK>
+           <COND (,STUDY-UNLOCKED
+                  <TELL "The study door is already unlocked." CR>)
+                 (<AND <==? ,HERE ,STUDY> <NOT ,PRSI>>
+                  <SETG STUDY-UNLOCKED T>
+                  <TELL "You draw back the interior bolt. The study door is now unlocked." CR>)
+                 (<==? ,PRSI ,KEYRING>
+                  <SETG STUDY-UNLOCKED T>
+                  <TELL "The study key turns smoothly in the lock. The study door is now unlocked." CR>)
+                 (<==? ,PRSI ,LOCKPICK-SET>
+                  <SETG STUDY-UNLOCKED T>
+                  <TELL "After a moment's careful work, the lock clicks open. The study door is now unlocked." CR>)
+                 (T
+                  <TELL "That does not fit the study door's lock." CR>)>
+           <RTRUE>)
+          (<VERB? BREAK ATTACK>
+           <TELL "The door is solid oak. You'd need a battering ram." CR>
+           <RTRUE>)>>
 
 <ROUTINE BOOKSHELF-F ()
     <COND (<VERB? EXAMINE>
@@ -345,7 +386,7 @@
                   <TELL " The window stands open, letting in the chill night air.">)
                  (T
                   <TELL " A window looks out to the garden, its latch rusted but intact.">)>
-           <TELL CR "A doorway leads north back to the entrance hall." CR>)>>
+           <TELL CR "The study door leads north back to the entrance hall." CR>)>>
 
 <ROUTINE LIBRARY-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
@@ -375,8 +416,10 @@
 <ROUTINE ENTRANCE-HALL-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
            <TELL "You step into a grand foyer that has seen better days. The air is thick with the scent of old wood and regret. Doorways lead in every direction -- north to the gate, east to the library, west to the dining room, and a staircase down to the kitchen.">
-           <COND (,STUDY-UNLOCKED
+           <COND (<FSET? ,STUDY-DOOR ,OPENBIT>
                   <TELL " The door to the south stands open, revealing the study beyond.">)
+                 (,STUDY-UNLOCKED
+                  <TELL " The unlocked study door to the south is closed.">)
                  (T
                   <TELL " A door to the south stands locked.">)>
            <CRLF>)>>
@@ -436,10 +479,9 @@
                   <RTRUE>)
                  (<EQUAL? ,PRSI ,KEY-TOPIC>
                   <TELL "You'll need the study key. He hands you the keyring." CR>
-                  <COND (<NOT ,HUDSON-KEY-GIVEN>
+                 <COND (<NOT ,HUDSON-KEY-GIVEN>
                          <SETG HUDSON-KEY-GIVEN T>
                          <MOVE ,KEYRING ,WINNER>)>
-                  <SETG STUDY-UNLOCKED T>
                   <RTRUE>)
                  (<EQUAL? ,PRSI ,MORIARTY-TOPIC>
                   <TELL "Dr. Moriarty visited often. He and the master had serious disagreements." CR>
@@ -866,9 +908,12 @@
 
 <ROUTINE V-GO-SOUTH ()
     <COND (<==? ,HERE ,ASHWORTH-ENTRANCE-HALL>
-           <COND (,STUDY-UNLOCKED
+           <COND (<FSET? ,STUDY-DOOR ,OPENBIT>
                   <SETG HERE ,STUDY>
                   <TELL "You enter the study." CR>
+                  <RTRUE>)
+                 (,STUDY-UNLOCKED
+                  <TELL "The study door is closed." CR>
                   <RTRUE>)
                  (T
                   <TELL "The study door is locked." CR>

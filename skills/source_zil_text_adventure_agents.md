@@ -418,7 +418,9 @@ But override defaults often. Good IF feels hand-authored.
 
 ## 5. Keeping Track of Story and State
 
-### 5.1 Use explicit flags
+### 5.1 Use explicit flags for abstract state
+
+Flags should represent abstract facts, milestones, and state that the object model cannot express. They must not replace physical objects named in the prose. If the game says there is a door, window, chest, switch, rope, or vehicle, create that object and let its location and object flags drive ordinary interaction.
 
 Bad:
 
@@ -429,12 +431,14 @@ The code infers progress from object location only.
 Better:
 
 ```text
-bridge-built = true
 riddle-solved = true
 goblin-trusts-player = true
+chapter-two-begun = true
 ```
 
 Object location can still matter, but major story states deserve named flags.
+
+Likewise, object state should still matter. Prefer `OPENBIT`, containment, location, and visibility for physical state. A supplementary flag such as `door-unlocked` is appropriate when the substrate has no `LOCKEDBIT`, but only alongside a real door object. A flag-only conditional exit describing an imaginary door is not a world model.
 
 ### 5.2 State should affect descriptions
 

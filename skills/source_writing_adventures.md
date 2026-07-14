@@ -142,7 +142,7 @@ Keep it as a table:
 
 | Room | N | S | E | W | U | D | Special |
 |------|---|---|---|---|---|---|---------|
-| LIGHTHOUSE-BASE | LIGHTHOUSE-INTERIOR* | — | COASTAL-PATH | — | — | — | *N only if TOWER-UNLOCKED |
+| LIGHTHOUSE-BASE | LIGHTHOUSE-INTERIOR* | — | COASTAL-PATH | — | — | — | *N only if IRON-DOOR is open |
 | COASTAL-PATH | OLD-BRIDGE | — | — | LIGHTHOUSE-BASE | — | — | |
 
 …and as a diagram so the shape is visible at a glance:
@@ -153,7 +153,7 @@ graph LR
   PATH -- W --> BASE
   PATH -- N --> BRIDGE[Old Bridge]
   BRIDGE -- S --> PATH
-  BASE -. "N if TOWER-UNLOCKED" .-> INT[Lighthouse Interior]
+  BASE -. "N if IRON-DOOR is open" .-> INT[Lighthouse Interior]
 ```
 
 **Rule enforced by this artifact:** every exit is bidirectional unless the design says otherwise, and every "otherwise" is written in the Special column with its reason.
@@ -165,7 +165,7 @@ Every object on one line. This is what keeps synonyms unique, flags correct, and
 | Object | Starts in | Flags | Synonyms / Adjectives | Size | Action |
 |--------|-----------|-------|-----------------------|------|--------|
 | IRON-KEY | KEEPERS-COTTAGE | TAKEBIT | KEY / IRON HEAVY | 4 | — |
-| IRON-DOOR | LIGHTHOUSE-BASE | — | DOOR / IRON RUSTED TOWER | — | IRON-DOOR-F |
+| IRON-DOOR | LOCAL-GLOBALS | DOORBIT NDESCBIT | DOOR / IRON RUSTED TOWER | — | IRON-DOOR-F |
 | OIL-CAN | LIGHTHOUSE-INTERIOR | TAKEBIT | CAN OIL / OIL | 5 | — |
 
 **Rules enforced:** takeable things have `TAKEBIT`; containers have `CONTBIT`; no two objects reachable in the same room share an ambiguous synonym without a distinguishing adjective; every object with custom behavior has an `ACTION` routine that exists.
@@ -176,7 +176,7 @@ Every `GLOBAL` flag: what it means, who sets it, who reads it. This is the artif
 
 | Flag | Meaning | Set by | Read by |
 |------|---------|--------|---------|
-| TOWER-UNLOCKED | Iron door open | IRON-DOOR-F | LIGHTHOUSE-BASE exit (N) |
+| TOWER-UNLOCKED | Iron door lock has been released | IRON-DOOR-F | IRON-DOOR-F descriptions/actions |
 | LAMP-LIT | Fresnel lens burning | LENS-F | LENS-F examine, ending check |
 
 ### 4. Puzzle dependency graph (the puzzle chart)
@@ -187,7 +187,7 @@ The spine of the game: which puzzle gates which. Shows dead-ends and unreachable
 graph TD
   MATCHES[Find matchbook<br/>on bridge] --> LAMP
   OILCAN[Find oil can<br/>in interior] --> LAMP
-  KEY[Find iron key<br/>in cottage] --> DOOR[Unlock iron door<br/>sets TOWER-UNLOCKED]
+  KEY[Find iron key<br/>in cottage] --> DOOR[Unlock/open iron door<br/>sets TOWER-UNLOCKED + OPENBIT]
   DOOR --> INTERIOR[Reach interior]
   INTERIOR --> OILCAN
   INTERIOR --> LAMP[Light the lens<br/>sets LAMP-LIT = win]
@@ -291,7 +291,7 @@ The walkthrough (`walkthrough.zil`) also serves as the entry point that wires th
 <CONSTANT RELEASEID 1>
 
 ; Global flags (state tracking)
-<GLOBAL DOOR-UNLOCKED <>>
+<GLOBAL RIDDLE-SOLVED <>>
 <GLOBAL LAMP-LIT <>>
 
 ; Rooms
@@ -360,8 +360,11 @@ Rooms are the locations the player moves between.
 
 **Direction connections:**
 - `(NORTH TO ROOM-NAME)` — unconditional exit
-- `(NORTH TO ROOM-NAME IF FLAG-NAME)` — conditional exit (only if global flag is true)
+- `(NORTH TO ROOM-NAME IF FLAG-NAME)` — conditional exit for an abstract condition or milestone
+- `(NORTH TO ROOM-NAME IF DOOR-NAME IS OPEN)` — conditional exit through a physical door or window object
 - `(NORTH PER ROUTINE-NAME)` — exit handled by a routine
+
+Do not use the flag-only form as a substitute for a physical object named in the prose. If the room says "a locked door blocks the north passage," create a `DOORBIT` object, put it in scope, and use `IF DOOR-NAME IS OPEN`. A supplementary global may track locked versus unlocked if needed, but the door itself must exist.
 
 **Flags:**
 - `RLANDBIT` — this is a land-based room (standard)
@@ -566,12 +569,12 @@ Routines are functions that handle player interactions with objects.
 
 ### Global Variables (Flags)
 
-Global flags track puzzle state across the game:
+Global flags track abstract puzzle facts, milestones, and one-time guards across the game:
 
 ```zil
-<GLOBAL DOOR-UNLOCKED <>>
+<GLOBAL RITUAL-COMPLETE <>>
 <GLOBAL MONSTER-DEFEATED <>>
-<GLOBAL LANTERN-LIT <>>
+<GLOBAL LETTER-DISCOVERED <>>
 ```
 
 `<>` means false/nil. `T` means true.
@@ -579,28 +582,50 @@ Global flags track puzzle state across the game:
 **Using globals:**
 ```zil
 ; Test a global
-<COND (,DOOR-UNLOCKED <TELL "The door is open." CR>)>
+<COND (,RITUAL-COMPLETE <TELL "The ritual is complete." CR>)>
 
 ; Set a global to true
-<SETG DOOR-UNLOCKED T>
+<SETG RITUAL-COMPLETE T>
 
 ; Set a global to false
-<SETG DOOR-UNLOCKED <>>
+<SETG RITUAL-COMPLETE <>>
 ```
 
 ### Conditional Exit with Flag
+
+Use this form when the condition is abstract, such as completing a ritual, surviving a timed event, or reaching a story milestone. Do not use it to fake a door, window, gate, or other physical obstacle.
 
 ```zil
 <ROOM HALLWAY
       (IN ROOMS)
       (DESC "Hallway")
-      (LDESC "A long hallway. A door to the north is secured with a padlock.")
-      (NORTH TO SECRET-ROOM IF DOOR-UNLOCKED)
+      (LDESC "A long hallway ends at the chalk circle where the ritual must be completed.")
+      (NORTH TO SECRET-ROOM IF RITUAL-COMPLETE
+             ELSE "The unfinished ritual still bars your way.")
       (SOUTH TO LOBBY)
       (FLAGS RLANDBIT ONBIT)>
 ```
 
-The player can only go NORTH once `DOOR-UNLOCKED` is set to `T`.
+The player can only go NORTH once the abstract milestone `RITUAL-COMPLETE` is true.
+
+For an actual door, use an object-driven exit instead:
+
+```zil
+<OBJECT STUDY-DOOR
+      (IN LOCAL-GLOBALS)
+      (SYNONYM DOOR)
+      (ADJECTIVE STUDY OAK)
+      (DESC "study door")
+      (FLAGS DOORBIT NDESCBIT)
+      (ACTION STUDY-DOOR-F)>
+
+<ROOM HALLWAY
+      (NORTH TO SECRET-ROOM IF STUDY-DOOR IS OPEN
+             ELSE "The study door is closed.")
+      (GLOBAL STUDY-DOOR)>
+```
+
+`OPENBIT` controls traversal. If the game distinguishes locked from closed, keep a supplementary `STUDY-UNLOCKED` global and update it in `STUDY-DOOR-F`; never let that global replace the door object.
 
 ### Control Flow
 
@@ -1370,9 +1395,11 @@ Here's a minimal but complete adventure demonstrating all major features:
       (IN ROOMS)
       (DESC "Lighthouse Base")
       (LDESC "You stand at the base of an old lighthouse. The paint is peeling and salt encrusts the windows. A rusted iron door leads north into the tower. The coastal path continues east toward the village.")
-      (NORTH TO LIGHTHOUSE-INTERIOR IF TOWER-UNLOCKED)
+      (NORTH TO LIGHTHOUSE-INTERIOR IF IRON-DOOR IS OPEN
+             ELSE "The iron door is closed.")
       (EAST TO COASTAL-PATH)
-      (FLAGS RLANDBIT ONBIT)>
+      (FLAGS RLANDBIT ONBIT)
+      (GLOBAL IRON-DOOR)>
 
 <ROOM COASTAL-PATH
       (IN ROOMS)
@@ -1401,9 +1428,11 @@ Here's a minimal but complete adventure demonstrating all major features:
       (IN ROOMS)
       (DESC "Lighthouse Interior")
       (LDESC "The ground floor of the lighthouse. A spiral staircase leads up. Machinery and supplies are scattered about. The door south leads outside.")
-      (SOUTH TO LIGHTHOUSE-BASE)
+      (SOUTH TO LIGHTHOUSE-BASE IF IRON-DOOR IS OPEN
+             ELSE "The iron door is closed.")
       (UP TO LAMP-ROOM)
-      (FLAGS RLANDBIT ONBIT)>
+      (FLAGS RLANDBIT ONBIT)
+      (GLOBAL IRON-DOOR)>
 
 <ROOM LAMP-ROOM
       (IN ROOMS)
@@ -1415,11 +1444,12 @@ Here's a minimal but complete adventure demonstrating all major features:
 ; === OBJECTS ===
 
 <OBJECT IRON-DOOR
-        (IN LIGHTHOUSE-BASE)
+        (IN LOCAL-GLOBALS)
         (SYNONYM DOOR)
         (ADJECTIVE IRON RUSTED TOWER)
         (DESC "iron door")
         (LDESC "A rusted iron door blocks entry to the lighthouse tower.")
+        (FLAGS DOORBIT NDESCBIT)
         (ACTION IRON-DOOR-F)>
 
 <OBJECT IRON-KEY
@@ -1472,11 +1502,12 @@ Here's a minimal but complete adventure demonstrating all major features:
 
 <ROUTINE IRON-DOOR-F ()
          <COND (<AND <VERB? EXAMINE>
+                     <NOT <FSET? ,IRON-DOOR ,OPENBIT>>
                      <NOT ,TOWER-UNLOCKED>>
                 <TELL "The iron door is rusted shut but has a large keyhole. It might open with the right key." CR>
                 <RTRUE>)
                (<AND <VERB? EXAMINE>
-                     ,TOWER-UNLOCKED>
+                     <FSET? ,IRON-DOOR ,OPENBIT>>
                 <TELL "The iron door stands open." CR>
                 <RTRUE>)
                (<AND <VERB? OPEN UNLOCK>
@@ -1489,6 +1520,7 @@ Here's a minimal but complete adventure demonstrating all major features:
                      <IN? ,IRON-KEY ,WINNER>>
                 <TELL "You fit the iron key into the lock. With effort, the rusted mechanism turns and the door swings open, revealing a spiral staircase within." CR>
                 <SETG TOWER-UNLOCKED T>
+                <FSET ,IRON-DOOR ,OPENBIT>
                 <RTRUE>)>>
 
 <ROUTINE FIREPLACE-F ()
@@ -1629,7 +1661,8 @@ A walkthrough test is itself a ZIL file. It includes the standard engine files a
     <ASSERT "Take the iron key" <CO-RESUME ,CO "take key" T> <==? <LOC ,IRON-KEY> ,ADVENTURER>>
 
     ; === Puzzle solution ===
-    <ASSERT "Unlock the door" <CO-RESUME ,CO "unlock door with key" T> ,DOOR-UNLOCKED>
+    <ASSERT "Unlock the door" <CO-RESUME ,CO "unlock door with key" T>
+            <AND ,TOWER-UNLOCKED <FSET? ,IRON-DOOR ,OPENBIT>>>
     <ASSERT "Enter the next area" <CO-RESUME ,CO "walk north" T> <==? ,HERE ,NEXT-ROOM>>
 
     ; === Winning condition ===
@@ -1796,7 +1829,8 @@ Use this checklist before submitting your adventure:
 - [ ] Every locked gate has a solution reachable before it
 - [ ] At least one clue exists for every puzzle
 - [ ] No dead ends where the player is stuck with no recourse
-- [ ] Global flags track state for conditional exits and multi-step puzzles
+- [ ] Physical obstacles are real objects; object flags control their physical state
+- [ ] Global flags track abstract milestones, scoring guards, and state not represented by object flags
 
 ### Verbs
 - [ ] **CRITICAL: No `<SYNTAX ...>` forms in dungeon.zil** — all SYNTAX comes from the substrate (`infocom/zork1/syntax.zil`). Adding your own will cause conflicts and broken commands.

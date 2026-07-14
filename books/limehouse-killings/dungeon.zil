@@ -48,22 +48,22 @@
       (DESC "Ashworth Manor Entrance Hall")
       (ACTION ENTRANCE-HALL-FCN)
       (LDESC "You step into a grand foyer that has seen better days. The air is thick with the scent of old wood and regret. Doorways lead in every direction -- north to the gate, east to the library, west to the dining room, and a staircase down to the kitchen. A door to the south stands locked.")
-      (SOUTH TO STUDY IF STUDY-UNLOCKED ELSE "The study door is locked.")
+      (SOUTH TO STUDY IF STUDY-DOOR IS OPEN ELSE "The study door is closed.")
       (NORTH TO ASHWORTH-MANOR-GATE)
       (EAST TO LIBRARY)
       (WEST TO DINING-ROOM)
       (DOWN TO KITCHEN)
       (FLAGS RLANDBIT ONBIT)
-      (GLOBAL CHANDELIER PORTRAITS RUG)>
+      (GLOBAL CHANDELIER PORTRAITS RUG STUDY-DOOR)>
 
 <ROOM STUDY
       (IN ROOMS)
       (DESC "Study")
       (ACTION STUDY-FCN)
       (LDESC "The study is a crime scene. A chalk outline marks where the body lay, the victim struck down in this very room. The air hangs heavy with the memory of violence. A doorway leads north back to the entrance hall.")
-      (NORTH TO ASHWORTH-ENTRANCE-HALL)
+      (NORTH TO ASHWORTH-ENTRANCE-HALL IF STUDY-DOOR IS OPEN ELSE "The study door is closed.")
       (FLAGS RLANDBIT ONBIT)
-      (GLOBAL DESK FIREPLACE WINDOW CHALK-OUTLINE)>
+      (GLOBAL DESK FIREPLACE WINDOW CHALK-OUTLINE STUDY-DOOR)>
 
 <ROOM LIBRARY
       (IN ROOMS)
@@ -140,6 +140,15 @@
       (GLOBAL SHELVES FOXGLOVE CHARCOAL)>
 
 ; === OBJECTS ===
+
+<OBJECT STUDY-DOOR
+      (IN LOCAL-GLOBALS)
+      (DESC "study door")
+      (LDESC "A solid oak door separates the entrance hall from the study. Its brass lock is old but substantial.")
+      (SYNONYM DOOR ENTRANCE)
+      (ADJECTIVE STUDY OAK SOUTH)
+      (FLAGS DOORBIT NDESCBIT)
+      (ACTION STUDY-DOOR-F)>
 
 ; --- Evidence Objects ---
 

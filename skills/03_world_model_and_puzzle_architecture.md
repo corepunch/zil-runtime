@@ -26,12 +26,14 @@ Translate design docs into a coherent simulation plan before full implementation
    - two in-scope objects sharing a noun need distinguishing adjectives.
 7. Define container visibility transitions: where contents begin, which action sets `OPENBIT`, and which flags let the parser search inside.
 8. Define each one-time counter as `event flag -> guarded increment`, including which verbs can discover the same clue.
+9. Audit physical nouns against the object registry. Every described fixture or obstacle that affords player actions must be a real object with vocabulary, scope, flags, and behavior; do not substitute a global Boolean for a door, window, container, switch, vehicle, or similar world entity.
 
 ## Infocom-Quality Simulation Checks
 - Build a command matrix for each major puzzle with at least ten likely player attempts; implement useful responses for the top attempts.
 - Ensure common parser verbs and synonyms are covered (`look`, `examine`, `open`, `close`, `take/get`, `drop`, `read`, `put`, `unlock`, `attack`, `listen`, `smell`, `wait`, `again`, inventory shortcuts).
 - Keep the puzzle challenge in idea-space, not wording-space; avoid single exact-verb bottlenecks.
 - Ensure world state is physical and persistent (object movement, room state changes, blocked/unblocked routes, timed hazards).
+- Prefer object state (`OPENBIT`, containment, location, visibility) over parallel global state. Use globals for abstract facts and milestones, or to supplement a real object when the substrate lacks a specific state such as `LOCKEDBIT`.
 - Preserve challenge while reducing accidental cruelty (telegraphed danger, recoverable mistakes, explicit unwinnable-risk handling).
 - Prefer meaningful mazes over filler mazes; if maze-like areas exist, provide landmarks or distinct mechanics.
 - Support optional mastery with alternate/risky/clever solutions where feasible.
@@ -49,6 +51,7 @@ Translate design docs into a coherent simulation plan before full implementation
 - At least one long-loop puzzle requires carrying knowledge or objects between distant locations.
 - The first vertical slice can be played with the exact planned commands before the next slice is implemented.
 - Repeating TAKE/READ/EXAMINE or opening an already-open object cannot duplicate progress or strand contents.
+- Every physical noun named in room prose or a blocked-exit message resolves to an object in scope and supports the obvious generic verbs.
 
 ## Primary Source Coverage
 - `ZIL_TEXT_ADVENTURE_AGENTS.md`: sections 3, 4, 5
