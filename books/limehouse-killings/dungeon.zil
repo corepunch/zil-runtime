@@ -212,10 +212,9 @@
       (LDESC "A roll of soft leather, neatly tied. Something metallic shifts inside.")
       (SYNONYM ROLL CASE)
       (ADJECTIVE LEATHER)
-      (FLAGS CONTBIT OPENABLEBIT OPENBIT TAKEBIT)
+      (FLAGS CONTBIT TAKEBIT)
       (CAPACITY 5)
-      (SIZE 3)
-      (ACTION LEATHER-ROLL-F)>
+      (SIZE 3)>
 
 <OBJECT LOCKPICK-SET
       (IN LEATHER-ROLL)
@@ -422,6 +421,7 @@
       (LDESC "A drawer in the counter.")
       (SYNONYM DRAWER)
       (FLAGS NDESCBIT CONTBIT SEARCHBIT)
+      (CAPACITY 10)
       (ACTION DRAWER-F)>
 
 <OBJECT FOUNTAIN
@@ -482,7 +482,7 @@
       (LDESC "A large wooden trunk, its lid heavy.")
       (SYNONYM TRUNK CHEST)
       (FLAGS NDESCBIT CONTBIT OPENBIT SEARCHBIT)
-      (ACTION TRUNK-F)>
+      (CAPACITY 20)>
 
 <OBJECT TRUNK-LETTER
       (IN TRUNK)

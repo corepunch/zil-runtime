@@ -1,5 +1,5 @@
 # Targets
-.PHONY: test test-all test-unit test-integration test-game-startup test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-read-mailbox test-walk-around-house test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-limehouse-walkthrough test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look test-zilch test-flow-control
+.PHONY: test test-all test-unit test-integration test-game-startup test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-read-mailbox test-walk-around-house test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-limehouse-walkthrough test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look test-zilch test-flow-control lint-zil
 
 help:
 	@echo "Available targets:"
@@ -37,6 +37,7 @@ help:
 	@echo "  test-save         - Run save/restore tests"
 	@echo "  test-llm          - Run LLM persistence tests"
 	@echo "  test-limehouse-walkthrough - Run Limehouse golden-path LLM test"
+	@echo "  lint-zil          - Check printed object names against parser vocabulary"
 	@echo ""
 	@echo "Horror game tests:"
 	@echo "  test-horror-helpers - Run horror test helpers"

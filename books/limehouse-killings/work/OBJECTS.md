@@ -17,7 +17,7 @@
 |----|------|----------|-------|----------|-------------|
 | DEAD-LETTER | Unsent Letter | letter, note, paper | TAKEBIT READBIT | STUDY (on desk) | Key evidence #1 |
 | BLOOD-STAINED-KNIFE | Blood-Stained Knife | knife, blade, weapon | TAKEBIT | GARDEN (in hedge) | Murder weapon |
-| LOCKED-BOX | Locked Box | box, case, container | CONTAINERBIT | STUDY (in fireplace) | Key evidence #2 |
+| LOCKED-BOX | Locked Box | box, case, container | CONTBIT | STUDY (in fireplace) | Key evidence #2 |
 | POISON-BOTTLE | Poison Bottle | bottle, vial, poison | TAKEBIT READBIT | STUDY (in desk) | Key evidence #3 |
 | SECRET-LEDGER | Secret Ledger | ledger, book, account | TAKEBIT READBIT | LIBRARY (hidden in shelf) | Key evidence #4 |
 

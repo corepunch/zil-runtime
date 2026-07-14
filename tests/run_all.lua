@@ -6,6 +6,7 @@ require 'zilscript'
 
 local test_files = {
 	"tests/test_compiler.lua",
+	"tests/test_check_vocab.lua",
 	"tests/test_comprehensive_accuracy.lua",
 	"tests/test_defmac.lua",
 	"tests/test_framework.lua",

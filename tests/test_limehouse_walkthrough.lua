@@ -32,10 +32,23 @@ test.describe("Limehouse Killings walkthrough", function(t)
 			"push yellow book", "go south", "go east", "examine desk", "take dead-letter",
 			"read dead-letter", "take poison-bottle", "examine poison-bottle", "go north", "go west",
 			"examine table", "take wax-seal", "go north", "examine shelves", "take foxglove",
-			"take charcoal", "go south", "go east", "go down", "examine drawer", "open drawer",
+			"take charcoal", "go south", "go east", "go down",
+			{"examine drawer", "The drawer is closed"},
+			{"open drawer", "Inside is a leather roll"},
+			{"examine drawer", "A leather roll lies in the open drawer"},
+			{"examine leather roll", "The leather roll is closed"},
+			{"open leather roll", "The leather roll contains:"},
+			{"close leather roll", "You close the leather roll"},
+			{"examine leather roll", "The leather roll is closed"},
+			{"open leather roll", "The leather roll contains:"},
 			"take lockpick-set", "go west", "examine hedges", "take blood-stained-knife",
 			"take footprint-cast", "go north", "examine plants", "examine labels", "go south",
-			"go south", "examine trunk", "ask hudson about master", "ask hudson about alibi",
+			"go south", {"examine trunk", "The trunk contains:"},
+			{"close trunk", "You close the trunk"},
+			{"examine trunk", "The trunk is closed"},
+			{"open trunk", "The trunk contains:"},
+			{"examine trunk", "The trunk contains:"},
+			"ask hudson about master", "ask hudson about alibi",
 			"ask hudson about key", "take keyring", "ask hudson about moriarty", "go north", "go east",
 			"go up", "go west", "ask lady about marriage", "ask lady about alibi", "go east", "go east",
 			"ask moriarty about experiments", "ask moriarty about poison", "take secret-ledger",
@@ -43,13 +56,18 @@ test.describe("Limehouse Killings walkthrough", function(t)
 			"take bank-statement", "read bank-statement", "go north", "ask inspector about case",
 		}
 
-		for _, action in ipairs(actions) do
+		for _, entry in ipairs(actions) do
+			local action = type(entry) == "table" and entry[1] or entry
+			local expected = type(entry) == "table" and entry[2] or nil
 			local action_code, output = run_command(
 				"lua5.4 llm.lua --action " .. shell_quote(action) .. suffix)
 			assert.assert_equal(action_code, 0, "Command failed: " .. action)
 			assert.assert_false(output:find("used the word", 1, true) ~= nil, "Parser rejected: " .. action)
 			assert.assert_false(output:find("can't see", 1, true) ~= nil, "Object missing: " .. action)
 			assert.assert_false(output:find("can't go", 1, true) ~= nil, "Route failed: " .. action)
+			if expected then
+				assert.assert_match(output, expected, "Unexpected output for: " .. action)
+			end
 		end
 
 		local score_code, score = run_command("lua5.4 llm.lua --action score" .. suffix)

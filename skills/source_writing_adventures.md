@@ -408,7 +408,6 @@ Organized by use case. Most adventure objects need only a few — see the "Commo
 |------|---------|---------|-------|
 | `CONTBIT` | Is a container — things can be put IN it | Trunk, box, bag | Engine auto-lists contents when open via `V-LOOK-INSIDE` |
 | `OPENBIT` | Container/door is currently open | Open drawer | Set/cleared by OPEN/CLOSE verb. Toggled at runtime with `<FSET ,OBJ ,OPENBIT>` |
-| `OPENABLEBIT` | Can be opened/closed | Locked box, drawer | Allows OPEN/CLOSE verbs. Use with `CONTBIT` or `DOORBIT` |
 | `SURFACEBIT` | Things can be put ON it (not IN) | Table, desk, altar | Parser understands "PUT X ON Y" vs "PUT X IN Y" |
 | `TRANSBIT` | Container is transparent — contents visible when closed | Glass bottle, cage | Engine lists contents even when container is closed |
 | `SEARCHBIT` | Can be searched — LOOK IN / SEARCH reveals contents | Trunk, desk | Used by parser to allow SEARCH verb |
@@ -416,7 +415,7 @@ Organized by use case. Most adventure objects need only a few — see the "Commo
 **Common container combinations:**
 ```zil
 (FLAGS CONTBIT OPENBIT SEARCHBIT)      ; open box you can search
-(FLAGS CONTBIT OPENABLEBIT SEARCHBIT)  ; closed box you can open and search
+(FLAGS CONTBIT SEARCHBIT)              ; closed box you can open and search
 (FLAGS SURFACEBIT CONTBIT OPENBIT)     ; open table/surface
 (FLAGS CONTBIT TRANSBIT)               ; glass jar — always see inside
 ```

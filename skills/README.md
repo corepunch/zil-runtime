@@ -123,7 +123,7 @@ The walkthrough grows with the game. At every commit-sized milestone, all implem
 8. **Object IDs and DESC text are not parser vocabulary** — every reachable object needs explicit `SYNONYM` nouns and `ADJECTIVE` modifiers matching the exact transcript commands, including hyphenated forms when used.
 9. **Opening a container must make contents reachable** — use container/search flags, set `OPENBIT`, and verify contents can be taken after a separate save/reload invocation.
 10. **Evidence and milestone counters must be idempotent** — guard one-time increments with per-clue flags so repeated EXAMINE/READ/TAKE cannot inflate progress.
-11. **FDESC/LDESC text is the parser vocabulary contract** — every concrete noun in an object's description text that a player might reasonably type must appear in its `SYNONYM` or `ADJECTIVE` list. When FDESC describes an item inside a container (e.g., "A leather roll lies in the open drawer"), create a container object for the described item rather than adding the description noun as a synonym on the contained object. Run `scripts/check-vocab.lua` to catch mismatches automatically.
+11. **FDESC/LDESC text is the parser vocabulary contract** — every concrete noun in description text that a player might reasonably type must resolve to that object or another object in scope. When FDESC describes an item inside a container (e.g., "A leather roll lies in the open drawer"), create a container object for the described item rather than adding the description noun as a synonym on the contained object. `scripts/check-vocab.lua` checks that printed `DESC` names contain a registered synonym; transcript playtesting must cover the broader prose contract.
 12. **ACTION routine text must match game objects** — when a TELL inside an ACTION routine mentions an object by name ("contains a letter", "sits on the table"), that object must exist in the game world with the right parent and matching SYNONYM. Players will immediately type the noun they just read.
 13. **Don't override EXAMINE on containers** — the Zork engine automatically lists contents via `V-LOOK-INSIDE` → `PRINT-CONT`. Containers with `CONTBIT` print "The X contains: Y, Z" when open, "closed" when closed. Place objects inside containers with `(IN CONTAINER)` rather than printing their names manually.
 
@@ -170,7 +170,6 @@ For rooms that can be entered only via vehicle (boats, etc.):
 | `READBIT` | Can be READ | For readable items |
 | `CONTBIT` | Is a container | For boxes, bags, etc. |
 | `OPENBIT` | Container is open | For open containers/doors |
-| `OPENABLEBIT` | Can be opened/closed | For containers that open |
 | `LIGHTBIT` | Can provide light | For lanterns, torches |
 | `ONBIT` | Light source is on | For active light sources |
 | `ACTORBIT` | Is an NPC | For talkable characters |
@@ -197,5 +196,5 @@ After setting flags, test:
 1. Can player enter the room?
 2. Is the room lit (if ONBIT) or dark (if no ONBIT)?
 3. Can player take objects (if TAKEBIT)?
-4. Can player open containers (if CONTBIT + OPENABLEBIT)?
+4. Can player open and close containers (if `CONTBIT`)?
 5. Can player talk to NPCs (if ACTORBIT)?

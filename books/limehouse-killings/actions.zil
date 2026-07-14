@@ -85,16 +85,6 @@
            <TELL "You peer through the magnifying glass. It reveals fine details." CR>
            <RTRUE>)>>
 
-<ROUTINE LEATHER-ROLL-F ()
-    <COND (<VERB? OPEN>
-           <FSET ,LEATHER-ROLL ,OPENBIT>
-           <TELL "You untie the leather roll. Inside are several metal lockpicks." CR>
-           <RTRUE>)
-          (<VERB? TAKE>
-           <TELL "You take the leather roll." CR>
-           <MOVE ,LEATHER-ROLL ,WINNER>
-           <RTRUE>)>>
-
 <ROUTINE LOCKPICK-SET-F ()
     <COND (<VERB? EXAMINE>
            <TELL "A set of metal picks, their tips worn from use." CR>
@@ -269,10 +259,12 @@
            <RTRUE>)>>
 
 <ROUTINE DRAWER-F ()
-    <COND (<VERB? OPEN>
+    <COND (<AND <VERB? OPEN> <FSET? ,DRAWER ,OPENBIT>>
+           <TELL "The drawer is already open." CR>
+           <RTRUE>)
+          (<VERB? OPEN>
            <TELL "You open the drawer. Inside is a leather roll." CR>
            <FSET ,DRAWER ,OPENBIT>
-           <MOVE ,LEATHER-ROLL ,DRAWER>
            <RTRUE>)>>
 
 <ROUTINE FOUNTAIN-F ()
@@ -304,18 +296,6 @@
     <COND (<VERB? EXAMINE>
            <TELL "Simple beds for the household staff. They are empty." CR>
            <RTRUE>)>>
-
-<ROUTINE TRUNK-F ()
-    <COND (<VERB? EXAMINE>
-           <TELL "A large wooden trunk, its lid heavy." CR>
-           <RTRUE>)
-          (<VERB? OPEN>
-           <TELL "The trunk is already open." CR>
-           <RTRUE>)
-          (<VERB? CLOSE>
-           <TELL "You close the trunk." CR>
-           <RTRUE>)
-          (T <RFALSE>)>>
 
 <ROUTINE TRUNK-LETTER-F ()
     <COND (<VERB? EXAMINE READ>
@@ -739,7 +719,11 @@
 ; === VERB ACTIONS ===
 
 <ROUTINE V-EXAMINE ()
-    <COND (<FSET? ,PRSO ,SCENERY>
+    <COND (<OR <FSET? ,PRSO ,CONTBIT>
+               <FSET? ,PRSO ,DOORBIT>>
+           <V-LOOK-INSIDE>
+           <RTRUE>)
+          (<FSET? ,PRSO ,SCENERY>
            <PERFORM ,V?EXAMINE ,PRSO>
            <RTRUE>)
           (<FSET? ,PRSO ,NPC>
@@ -784,16 +768,28 @@
     <RTRUE>>
 
 <ROUTINE V-OPEN ()
-    <COND (<FSET? ,PRSO ,CONTAINERBIT>
-           <PERFORM ,V?OPEN ,PRSO>
+    <COND (<OR <FSET? ,PRSO ,CONTBIT>
+               <FSET? ,PRSO ,DOORBIT>>
+           <COND (<FSET? ,PRSO ,OPENBIT>
+                  <TELL "The " D ,PRSO " is already open." CR>)
+                 (T
+                  <FSET ,PRSO ,OPENBIT>
+                  <TELL "You open the " D ,PRSO "." CR>
+                  <COND (<FSET? ,PRSO ,CONTBIT>
+                         <V-LOOK-INSIDE>)>)>
            <RTRUE>)
           (T
            <TELL "You can't open that." CR>
            <RTRUE>)>>
 
 <ROUTINE V-CLOSE ()
-    <COND (<FSET? ,PRSO ,CONTAINERBIT>
-           <PERFORM ,V?CLOSE ,PRSO>
+    <COND (<OR <FSET? ,PRSO ,CONTBIT>
+               <FSET? ,PRSO ,DOORBIT>>
+           <COND (<FSET? ,PRSO ,OPENBIT>
+                  <FCLEAR ,PRSO ,OPENBIT>
+                  <TELL "You close the " D ,PRSO "." CR>)
+                 (T
+                  <TELL "The " D ,PRSO " is already closed." CR>)>
            <RTRUE>)
           (T
            <TELL "You can't close that." CR>

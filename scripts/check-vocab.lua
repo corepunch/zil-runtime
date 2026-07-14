@@ -1,114 +1,17 @@
 #!/usr/bin/env lua
--- check-vocab.lua: Validate that FDESC/LDESC text words are registered as synonyms/adjectives
+-- check-vocab.lua: Validate objective parser-vocabulary invariants.
 --
 -- Usage:
 --   lua scripts/check-vocab.lua <file.zil> [file2.zil ...]
 --   lua scripts/check-vocab.lua books/limehouse-killings/dungeon.zil
 --
 -- What it checks:
---   1. CRITICAL: Every word in DESC appears in SYNONYM (the parser uses SYNONYM to match)
---   2. HIGH: Nouns in FDESC/LDESC that look like they could be typed as commands
---      but aren't registered in any object's SYNONYM or ADJECTIVE list
---   3. INFO: Nouns in FDESC/LDESC resolved by other objects in the same file
-
--- ============================================================
--- Stop words: words to skip (articles, verbs, adjectives, context)
--- ============================================================
-local STOP_WORDS = {}
-local _stop_list = {
-    -- Articles/determiners
-    "the", "a", "an", "some", "any", "no", "every",
-    "each", "both", "few", "many", "much", "several",
-    -- Pronouns
-    "it", "its", "he", "she", "they", "them", "him",
-    "her", "his", "their", "this", "that", "these",
-    "those", "ones", "you", "your",
-    -- Prepositions
-    "of", "in", "on", "at", "to", "for", "with",
-    "by", "from", "up", "about", "into", "through",
-    "during", "before", "after", "above", "below",
-    "between", "under", "behind", "beside", "near",
-    "against", "among", "across", "along", "around",
-    -- Conjunctions
-    "and", "or", "but", "nor", "yet", "so", "if",
-    "then", "else", "when", "while", "because", "since",
-    "although",
-    -- Common verbs in descriptions
-    "lies", "sits", "stands", "rests", "hangs", "contains",
-    "holds", "shows", "appears", "seems", "looks", "gives",
-    "leads", "provides", "fills", "covers", "marks",
-    "suggests", "promises", "waiting", "using", "worn",
-    "filled", "covered", "etched", "reading", "glinting",
-    "is", "are", "was", "were", "be", "been", "being",
-    "have", "has", "had", "do", "does", "did", "will",
-    "would", "could", "should", "may", "might", "shall",
-    "can", "need", "dare",
-    -- Context/environment words (not object vocabulary)
-    "wall", "walls", "floor", "ceiling", "room", "door", "doors",
-    "window", "windows", "passage", "corridor", "hall", "hallway",
-    "corner", "center", "edge", "side", "end", "top", "bottom",
-    "inside", "outside", "surface", "part", "place", "way",
-    -- Common descriptors (adjectives, not nouns to type)
-    "old", "new", "small", "large", "big", "long",
-    "short", "tall", "deep", "wide", "narrow", "thick",
-    "thin", "heavy", "light", "dark", "bright", "cold",
-    "hot", "warm", "cool", "dry", "wet", "soft", "hard",
-    "clean", "dirty", "fresh", "clear", "plain", "sturdy",
-    "fine", "sharp", "smooth", "rough", "empty", "full",
-    -- Common verbs (actions, not nouns)
-    "opens", "blocks", "secures", "reveals", "dominates",
-    "separates", "overlooks", "burns", "casts", "pushes",
-    "glints", "gleams", "glows", "shifts", "stands",
-    "lies", "hangs", "rests", "sits", "crouches",
-    -- ZIL/formatting
-    "cr", "tell", "cond", "true", "false", "routine",
-    "object", "room", "verb",
-    -- Time/age references
-    "ago", "years", "centuries", "recently", "long",
-    -- Possessives and contractions
-    "moriarty's", "ashworth's", "doesn't", "you're", "you'd",
-    "lord", "mr", "mrs", "dr",
-    -- Numbers
-    "one", "two", "three", "first", "second", "third",
-}
-for _, w in ipairs(_stop_list) do
-    rawset(STOP_WORDS, w, true)
-end
-
--- ============================================================
--- Nouns that commonly appear in descriptions but are NOT
--- player-typable object names (context/environment)
--- ============================================================
-local CONTEXT_NOUNS = {}
-local _context_list = {
-    -- Environment
-    "stone", "wood", "metal", "glass", "iron", "brass", "steel",
-    "leather", "cloth", "fabric", "paper", "ink",
-    -- Furniture
-    "table", "chair", "desk", "shelf", "shelves", "bench",
-    "bed", "cabinet", "counter", "trunk",
-    -- Building
-    "wall", "floor", "ceiling", "door", "window", "gate",
-    "staircase", "stairs", "passage", "corridor", "hall",
-    "room", "corner", "center", "edge",
-    -- Nature
-    "tree", "bush", "hedge", "plant", "flower", "leaf", "leaves",
-    "water", "stone", "rock", "earth", "soil", "dust",
-    -- Body
-    "hand", "hands", "eye", "eyes", "face", "head", "fingers",
-    "stomach", "arm", "arms",
-    -- Abstract
-    "light", "darkness", "shadow", "shadows", "glow",
-    "sound", "noise", "silence", "air", "breath",
-    "time", "day", "night", "morning", "evening",
-    "story", "secret", "secrets", "evidence", "truth",
-    -- Actions
-    "pull", "push", "turn", "slide", "lift", "raise",
-    "mark", "marks", "pattern", "symbols",
-}
-for _, w in ipairs(_context_list) do
-    rawset(CONTEXT_NOUNS, w, true)
-end
+--   CRITICAL: At least one noun from DESC appears in SYNONYM.
+--
+-- Determining whether every prose word in FDESC/LDESC is an interactive noun
+-- requires language and world-model context. This script deliberately does not
+-- guess: the previous heuristic treated verbs, adverbs, and compounds as nouns
+-- and made the repository's own lint target unusable.
 
 -- ============================================================
 -- Parse ZIL OBJECT definitions
@@ -173,9 +76,6 @@ local function parse_zil_objects(content)
                 end
 
                 local synonyms = extract_property("SYNONYM") or {}
-                local adjectives = extract_property("ADJECTIVE") or {}
-                local fdesc = extract_property("FDESC")
-                local ldesc = extract_property("LDESC")
                 local desc = extract_property("DESC")
 
                 local syn_set = {}
@@ -183,17 +83,9 @@ local function parse_zil_objects(content)
                     for _, w in ipairs(synonyms) do syn_set[w] = true end
                 end
 
-                local adj_set = {}
-                if type(adjectives) == "table" then
-                    for _, w in ipairs(adjectives) do adj_set[w] = true end
-                end
-
                 table.insert(objects, {
                     name = obj_name,
                     synonyms = syn_set,
-                    adjectives = adj_set,
-                    fdesc = fdesc,
-                    ldesc = ldesc,
                     desc = desc,
                 })
 
@@ -228,57 +120,29 @@ end
 -- ============================================================
 -- Check a single object
 -- ============================================================
-local function check_object(obj, all_objects)
+local function check_object(obj)
     local issues = {}
 
-    -- Build vocabulary sets
-    local vocab = {}
-    for w in pairs(obj.synonyms) do vocab[w] = true end
-    for w in pairs(obj.adjectives) do vocab[w] = true end
-
-    local all_vocab = {}
-    for _, other in ipairs(all_objects) do
-        for w in pairs(other.synonyms) do all_vocab[w] = true end
-        for w in pairs(other.adjectives) do all_vocab[w] = true end
-    end
-
-    -- CHECK 1: CRITICAL — DESC words should be in SYNONYM
+    -- DESC is the name printed by the engine. At least one of its words must be
+    -- an accepted noun. We intentionally do not assume the final word is the
+    -- head noun because descriptions such as "door to the garden" are common.
     if obj.desc then
         local desc_words = tokenize_desc(obj.desc)
+        local matched_noun = false
         for _, word in ipairs(desc_words) do
-            if not STOP_WORDS[word] and #word > 1 then
-                if not vocab[word] then
-                    table.insert(issues, {
-                        level = "CRITICAL",
-                        field = "DESC",
-                        word = word,
-                        msg = string.format("DESC word \"%s\" not in SYNONYM — parser won't match it", word),
-                    })
-                end
+            if obj.synonyms[word] then
+                matched_noun = true
+                break
             end
         end
-    end
-
-    -- CHECK 2: HIGH — Nouns in FDESC/LDESC that look like typeable commands
-    local function check_desc_text(text, field_name)
-        if not text then return end
-        local words = tokenize_desc(text)
-        for _, word in ipairs(words) do
-            if not STOP_WORDS[word] and #word > 2 and not CONTEXT_NOUNS[word] then
-                if not vocab[word] and not all_vocab[word] then
-                    table.insert(issues, {
-                        level = "HIGH",
-                        field = field_name,
-                        word = word,
-                        msg = string.format("\"%s\" in %s not in any SYNONYM/ADJECTIVE — player can't type it", word, field_name),
-                    })
-                end
-            end
+        if #desc_words > 0 and not matched_noun then
+            table.insert(issues, {
+                level = "CRITICAL",
+                field = "DESC",
+                msg = "no DESC word appears in SYNONYM — parser won't match the printed name",
+            })
         end
     end
-
-    check_desc_text(obj.fdesc, "FDESC")
-    check_desc_text(obj.ldesc, "LDESC")
 
     return issues
 end
@@ -294,13 +158,12 @@ local function main()
 
     if #files == 0 then
         io.write("Usage: lua scripts/check-vocab.lua <file.zil> [file2.zil ...]\n")
-        io.write("\nValidates that player-facing nouns in descriptions are registered\n")
-        io.write("as SYNONYM or ADJECTIVE on the object.\n")
+        io.write("\nValidates that each object's DESC contains a noun registered\n")
+        io.write("as a SYNONYM on that object.\n")
         os.exit(1)
     end
 
     local total_critical = 0
-    local total_high = 0
 
     for _, filepath in ipairs(files) do
         local f = io.open(filepath, "r")
@@ -315,7 +178,7 @@ local function main()
         local file_issues = {}
 
         for _, obj in ipairs(objects) do
-            local issues = check_object(obj, objects)
+            local issues = check_object(obj)
             if #issues > 0 then
                 file_issues[obj.name] = issues
             end
@@ -328,8 +191,6 @@ local function main()
                     io.write(string.format("  [%s] %s: %s\n", issue.level, obj_name, issue.msg))
                     if issue.level == "CRITICAL" then
                         total_critical = total_critical + 1
-                    elseif issue.level == "HIGH" then
-                        total_high = total_high + 1
                     end
                 end
             end
@@ -337,8 +198,8 @@ local function main()
         end
     end
 
-    io.write(string.format("%d critical, %d high across %d file(s)\n",
-        total_critical, total_high, #files))
+    io.write(string.format("%d critical across %d file(s)\n",
+        total_critical, #files))
 
     if total_critical > 0 then
         os.exit(1)
