@@ -205,10 +205,21 @@
       (FLAGS TAKEBIT)
       (ACTION MAGNIFYING-GLASS-F)>
 
-<OBJECT LOCKPICK-SET
-      (IN KITCHEN)
-      (DESC "lockpick set")
+<OBJECT LEATHER-ROLL
+      (IN DRAWER)
+      (DESC "leather roll")
       (FDESC "A leather roll lies in the open drawer, its contents glinting steel.")
+      (LDESC "A roll of soft leather, neatly tied. Something metallic shifts inside.")
+      (SYNONYM ROLL CASE)
+      (ADJECTIVE LEATHER)
+      (FLAGS CONTBIT OPENABLEBIT OPENBIT TAKEBIT)
+      (CAPACITY 5)
+      (SIZE 3)
+      (ACTION LEATHER-ROLL-F)>
+
+<OBJECT LOCKPICK-SET
+      (IN LEATHER-ROLL)
+      (DESC "lockpick set")
       (LDESC "A set of metal picks, their tips worn from use. Tools of the trade for those who need to open locked doors.")
       (SYNONYM SET PICKS TOOLS LOCKPICK-SET)
       (ADJECTIVE LOCKPICK)
@@ -220,7 +231,8 @@
       (DESC "lantern")
       (FDESC "An oil lantern sits on the trunk, its glass clean and fuel full.")
       (LDESC "A brass lantern, its glass clouded with age. When lit, it casts a warm glow that pushes back the darkness.")
-      (SYNONYM LAMP LIGHT)
+      (SYNONYM LAMP LIGHT LANTERN)
+      (ADJECTIVE OIL BRASS)
       (FLAGS TAKEBIT LIGHTBIT)
       (ACTION LANTERN-F)>
 
@@ -424,7 +436,7 @@
       (IN GARDEN)
       (DESC "hedge mazes")
       (LDESC "Tall hedges, their branches thick and tangled. They hide secrets in their shadows.")
-      (SYNONYM HEDGES HEDGE BUSHES)
+      (SYNONYM HEDGES HEDGE BUSHES MAZE MAZES)
       (FLAGS NDESCBIT)
       (ACTION HEDGES-F)>
 

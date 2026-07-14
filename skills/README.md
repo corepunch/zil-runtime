@@ -123,6 +123,7 @@ The walkthrough grows with the game. At every commit-sized milestone, all implem
 8. **Object IDs and DESC text are not parser vocabulary** — every reachable object needs explicit `SYNONYM` nouns and `ADJECTIVE` modifiers matching the exact transcript commands, including hyphenated forms when used.
 9. **Opening a container must make contents reachable** — use container/search flags, set `OPENBIT`, and verify contents can be taken after a separate save/reload invocation.
 10. **Evidence and milestone counters must be idempotent** — guard one-time increments with per-clue flags so repeated EXAMINE/READ/TAKE cannot inflate progress.
+11. **FDESC/LDESC text is the parser vocabulary contract** — every concrete noun in an object's description text that a player might reasonably type must appear in its `SYNONYM` or `ADJECTIVE` list. When FDESC describes an item inside a container (e.g., "A leather roll lies in the open drawer"), create a container object for the described item rather than adding the description noun as a synonym on the contained object. Run `scripts/check-vocab.lua` to catch mismatches automatically.
 
 See `05_zil_implementation_reference.md` for details.
 

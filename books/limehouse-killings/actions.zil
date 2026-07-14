@@ -85,6 +85,19 @@
            <TELL "You peer through the magnifying glass. It reveals fine details." CR>
            <RTRUE>)>>
 
+<ROUTINE LEATHER-ROLL-F ()
+    <COND (<VERB? EXAMINE>
+           <TELL "A roll of soft leather, neatly tied. Something metallic shifts inside." CR>
+           <RTRUE>)
+          (<VERB? OPEN>
+           <FSET ,LEATHER-ROLL ,OPENBIT>
+           <TELL "You untie the leather roll. Inside are several metal lockpicks." CR>
+           <RTRUE>)
+          (<VERB? TAKE>
+           <TELL "You take the leather roll." CR>
+           <MOVE ,LEATHER-ROLL ,WINNER>
+           <RTRUE>)>>
+
 <ROUTINE LOCKPICK-SET-F ()
     <COND (<VERB? EXAMINE>
            <TELL "A set of metal picks, their tips worn from use." CR>
@@ -263,9 +276,9 @@
            <TELL "The drawer is slightly open. You can see something inside." CR>
            <RTRUE>)
           (<VERB? OPEN>
-           <TELL "You open the drawer. Inside is a lockpick set." CR>
+           <TELL "You open the drawer. Inside is a leather roll." CR>
            <FSET ,DRAWER ,OPENBIT>
-           <MOVE ,LOCKPICK-SET ,DRAWER>
+           <MOVE ,LEATHER-ROLL ,DRAWER>
            <RTRUE>)>>
 
 <ROUTINE FOUNTAIN-F ()

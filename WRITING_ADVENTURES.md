@@ -1620,6 +1620,8 @@ Use this checklist before submitting your adventure:
 - [ ] Containers have `CONTBIT` (and `OPENBIT` if they start open)
 - [ ] Objects in containers are `(IN CONTAINER-NAME)`
 - [ ] Objects with custom behavior have an `(ACTION routine-name)` property
+- [ ] Every noun in FDESC/LDESC that a player might type is listed in SYNONYM or ADJECTIVE
+- [ ] FDESC describes discovery; objects inside containers get their own OBJECT with `(IN CONTAINER)`
 
 ### Puzzles
 - [ ] Every locked gate has a solution reachable before it

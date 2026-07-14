@@ -203,3 +203,7 @@ test-pure-zil:
 	@lua5.4 run-zil-test.lua zil/test-zilch
 	@lua5.4 run-zil-test.lua zil/test-flow-control
 	@echo "All pure ZIL tests completed!"
+
+lint-zil:
+	@echo "Checking vocabulary consistency in book adventures..."
+	@lua5.4 scripts/check-vocab.lua books/limehouse-killings/dungeon.zil books/blackwood-horror/dungeon.zil
