@@ -71,27 +71,6 @@
                 <TELL "The desk has three drawers. The top two are broken and empty. The bottom drawer is intact but locked." CR>
                 <RTRUE>)>>
 
-<ROUTINE DESK-DRAWER-F ()
-         <COND (<AND <VERB? EXAMINE>
-                     <NOT <FSET? ,DESK-DRAWER ,OPENBIT>>>
-                <TELL "The bottom drawer of the desk is locked. The keyhole has the number '3' engraved beside it." CR>
-                <RTRUE>)
-               (<AND <VERB? EXAMINE>
-                     <FSET? ,DESK-DRAWER ,OPENBIT>>
-                <TELL "The drawer is open. " <COND (<IN? ,PATIENT-FILE ,DESK-DRAWER> <TELL "Inside is a file folder.">)(<ELSE> <TELL "It's empty now.">)> CR>
-                <RTRUE>)
-               (<AND <VERB? OPEN UNLOCK>
-                     <NOT <FSET? ,DESK-DRAWER ,OPENBIT>>
-                     <NOT <IN? ,BRASS-KEY ,WINNER>>>
-                <TELL "The drawer is locked. You need a key with the number '3' on it." CR>
-                <RTRUE>)
-               (<AND <VERB? OPEN UNLOCK>
-                     <NOT <FSET? ,DESK-DRAWER ,OPENBIT>>
-                     <IN? ,BRASS-KEY ,WINNER>>
-                <TELL "You insert the brass key into the lock. It turns smoothly. The drawer slides open, revealing an old file folder inside." CR>
-                <FSET ,DESK-DRAWER ,OPENBIT>
-                <RTRUE>)>>
-
 <ROUTINE PATIENT-FILE-F ()
          <COND (<VERB? READ EXAMINE>
                 <TELL "A file folder labeled 'Patient 189 - CONFIDENTIAL'. Inside are medical records and notes. 'Subject shows extraordinary resistance to pain. Mental state deteriorating. Recommending transfer to isolation wing. Dr. Mordecai has expressed personal interest in this case. Update: Patient transferred to chapel for experimental treatment. Nov 1, 1952.'" CR>
@@ -522,7 +501,17 @@
                 <RTRUE>)>>
 
 <ROUTINE GREEN-CANDLES-F ()
-         <COND (<VERB? EXAMINE>
+         <COND (,GAME-WON
+                <COND (<VERB? EXAMINE>
+                       <TELL "The candles are cold and dark now, their green glow extinguished forever. Ordinary wax, nothing more." CR>
+                       <RTRUE>)
+                      (<VERB? LAMP-OFF BLOW>
+                       <TELL "The candles are already dark. There's nothing to extinguish." CR>
+                       <RTRUE>)
+                      (<VERB? LAMP-ON>
+                       <TELL "The candles will never burn again." CR>
+                       <RTRUE>)>)
+               (<VERB? EXAMINE>
                 <TELL "The CANDLES burn with green flames that give off no heat. The light makes everything look diseased." CR>
                 <RTRUE>)
                (<VERB? LAMP-OFF>
@@ -609,7 +598,15 @@
                 <RTRUE>)>>
 
 <ROUTINE DRAWER-F ()
-         <COND (<AND <VERB? OPEN>
+         <COND (<AND <VERB? EXAMINE>
+                     <NOT <FSET? ,BOTTOM-DRAWER ,OPENBIT>>>
+                <TELL "The bottom drawer of the desk is locked. The keyhole has the number '3' engraved beside it." CR>
+                <RTRUE>)
+               (<AND <VERB? EXAMINE>
+                     <FSET? ,BOTTOM-DRAWER ,OPENBIT>>
+                <TELL "The drawer is open. Inside you can see a leather-bound ledger and a patient file." CR>
+                <RTRUE>)
+               (<AND <VERB? OPEN>
                      <FSET? ,BOTTOM-DRAWER ,OPENBIT>>
                 <TELL "The drawer is already open." CR>
                 <RTRUE>)
@@ -621,7 +618,7 @@
                (<AND <VERB? OPEN UNLOCK>
                      <NOT <FSET? ,BOTTOM-DRAWER ,OPENBIT>>
                      <IN? ,BRASS-KEY ,WINNER>>
-                <TELL "You unlock the " D ,BOTTOM-DRAWER " with the " D ,BRASS-KEY ". It slides open with a groan, revealing a leather-bound ledger inside." CR>
+                <TELL "You insert the brass key into the lock. It turns smoothly. The drawer slides open, revealing a leather-bound ledger and a patient file inside." CR>
                 <FCLEAR ,BOTTOM-DRAWER ,NDESCBIT>
                 <FSET ,BOTTOM-DRAWER ,OPENBIT>
                 <RTRUE>)>>

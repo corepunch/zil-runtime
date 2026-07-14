@@ -76,7 +76,7 @@
 <ROOM BASEMENT-STAIRS
       (IN ROOMS)
       (DESC "Basement Stairs")
-      (LDESC "A narrow stone staircase descends into darkness. The air grows colder with each step. Moisture drips from the ceiling, and the walls are slick with condensation. The stairs lead down into the basement, while the entrance hall lies to the south.")
+      (LDESC "A narrow stone staircase descends into darkness. The air grows colder with each step. Moisture drips from the ceiling, and the walls are slick with condensation. The stairs lead down into the basement, while the entrance hall lies up the stairs.")
       (UP TO SANITARIUM-ENTRANCE)
       (DOWN TO BASEMENT-CORRIDOR)
       (FLAGS RLANDBIT ONBIT)>
@@ -247,18 +247,8 @@
         (TEXT "The desk has three drawers. The top two are broken and empty. The bottom drawer appears intact but is locked tight.")
         (ACTION DESK-F)>
 
-<OBJECT DESK-DRAWER
-        (IN RECEPTION-ROOM)
-        (SYNONYM DRAWER)
-        (ADJECTIVE BOTTOM LOCKED DESK)
-        (DESC "desk drawer")
-        (LDESC "The bottom drawer of the oak desk is locked.")
-        (FLAGS CONTBIT OPENABLEBIT)
-        (CAPACITY 10)
-        (ACTION DESK-DRAWER-F)>
-
 <OBJECT PATIENT-FILE
-        (IN DESK-DRAWER)
+        (IN BOTTOM-DRAWER)
         (SYNONYM FILE FOLDER RECORDS)
         (ADJECTIVE PATIENT CONFIDENTIAL)
         (DESC "patient file")
@@ -330,6 +320,7 @@
         (ADJECTIVE HEAVY SEALED LOCKED MORGUE)
         (DESC "heavy door")
         (LDESC "At the far end, a heavy door sealed with chains blocks further passage. Scratches cover the door's surface, as if made by desperate fingers.")
+        (FLAGS NDESCBIT)
         (ACTION HEAVYDOOR-F)>
 
 <OBJECT CHAINS
@@ -523,6 +514,7 @@
         (ADJECTIVE SEALED EAST METAL)
         (DESC "sealed door")
         (LDESC "A door to the east is sealed shut.")
+        (FLAGS NDESCBIT)
         (ACTION SEALED-DOOR-F)>
 
 <OBJECT PORCELAIN-TUBS
@@ -823,6 +815,7 @@
         (ADJECTIVE GREEN UNNATURAL)
         (DESC "green candles")
         (LDESC "Candles burn with an unnatural green flame.")
+        (FLAGS NDESCBIT)
         (ACTION GREEN-CANDLES-F)>
 
 <OBJECT WOODEN-BOX
@@ -862,7 +855,7 @@
 <OBJECT SANITARIUM-BUILDING
     (IN LOCAL-GLOBALS)
     (SYNONYM BUILDING SANITARIUM STRUCTURE FACADE)
-    (ADJECTIVE ABANDONED VICTORIAN)
+    (ADJECTIVE ABANDONED VICTORIAN SANITARIUM)
     (DESC "sanitarium building")
     (FLAGS NDESCBIT)
     (ACTION SANITARIUM-BUILDING-F)>
