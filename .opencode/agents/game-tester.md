@@ -137,3 +137,41 @@ Available games:
 - Try variations of commands if one doesn't work
 - Note any error messages or unexpected behavior
 - Take screenshots (copy output) of bugs for reference
+
+## Know-Hows (from experience)
+
+### Synonym/Verb Coverage
+Never assume one verb form works. ZIL parsers vary wildly. Always test synonyms:
+- **Examine**: `examine <obj>`, `x <obj>`, `look at <obj>`, `look <obj>`
+- **Search**: `search <container>`, `look in <container>`, `look inside <container>`, `open <container>`
+- **NPC talk**: `ask <npc> about <topic>`, `tell <npc> about <topic>`, `ask <npc> for <obj>`, `<topic>` (bare topic), `show <obj> to <npc>`, `give <obj> to <npc>`
+
+### NPC Name Variations
+Test NPC interaction with multiple name forms: full name (`inspector lestrade`), surname (`lestrade`), title (`inspector`). Many games register NPCs under a specific synonym and reject valid alternatives.
+
+### Disambiguation Stress
+When objects share a primary synonym (e.g., two "letter" items), test that the parser either (a) asks for clarification, (b) has distinct secondary descriptors, or (c) doesn't trap the player in an infinite loop. Also try `take <descriptor> <obj>` variants.
+
+### Hyphenated & Special-Character Names
+Test objects with hyphens (`wine-cabinet`), apostrophes (`moriarty's`), or multi-word names. ZIL's tokenizer may break on these differently from what the author intended.
+
+### State Persistence Checks
+After manipulating an object (open drawer, take item, solve puzzle), re-`look` and check that:
+- Room descriptions update to reflect the new state
+- Container descriptions change (e.g., "open" vs "closed")
+- Objects the player is carrying show in inventory
+
+### Conditional Exit Testing
+For locked/conditional exits, test the path **before** meeting the condition (expect a "can't go that way" or puzzle hint), then **after** meeting the condition (expect passage). Note if the failure path produces blank output or crashes.
+
+### Low-Level Command Edge Cases
+Try internal/raw verbs like `V-GO-NORTH`, `V-GO-EAST` etc. These sometimes bypass puzzle checks and expose underlying bugs. Also try blank input, gibberish, and `again`.
+
+### Walkthrough as Regression Check
+After organic play, check for a `.walkthrough` file in the game directory or embedded in the main ZIL source. If one exists, run it with the test runner to verify the golden path hasn't regressed. This catches issues organic play might miss, and confirms the game is completable end-to-end.
+
+### Game Completion Attempt
+Always push toward the game's ending if possible. Verify final messages, score displays, and restart/undo behavior at the endgame. A game that crashes or hangs on the winning move is a critical bug.
+
+### Multiple Play Sessions
+If a game is large, save frequently with different save file names. Test save/load functionality. This also lets you branch and test alternative solutions without replaying from scratch.
