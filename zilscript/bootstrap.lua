@@ -67,6 +67,10 @@ FLAGS = {}
 FUNCTIONS = {}
 _DIRECTIONS = {}
 
+_GLOBAL_FLAG_SLOTS = {}    -- global name → Z-machine variable number
+_GLOBAL_FLAG_NAMES = {}    -- Z-machine variable number → global name
+_next_global_flag_slot = 15 -- 0 is the stack; 1..15 are local variables
+
 DESCS = {}
 DIRS = {}
 
@@ -660,9 +664,18 @@ MULL = MUL
 -- _OTBL is the base of a 256×2-byte array allocated in mem by the first DECL_OBJECT call.
 local function getobj(num) return mem:word(_OTBL + (num-1)*2) end
 
--- VALUE function: identity function for ZIL's <VALUE var> form
--- In ZIL, <VALUE var> gets the runtime value of a variable
-function VALUE(x) return x end
+-- In ZIL, <VALUE var> gets the runtime value of a variable. Conditional exits
+-- store a variable number in their property bytes, so resolve those numbers
+-- back to the live Lua global; other values retain the legacy identity behavior.
+function VALUE(x)
+	if type(x) == "number" then
+		local gname = _GLOBAL_FLAG_NAMES[x]
+		if gname then
+			return rawget(_G, gname)
+		end
+	end
+	return x
+end
 
 function LOC(obj) return GETP(obj, PQLOC) end
 function INQ(obj, room) return GETP(obj, PQLOC) == room end
@@ -857,6 +870,10 @@ function GLOBAL_REF(name)
 	return {__global_ref = name}
 end
 
+function GLOBAL_FLAG_REF(name)
+	return {__global_ref = name}
+end
+
 local pending_routine_refs = {}
 
 function ROUTINE_REF(name)
@@ -984,13 +1001,26 @@ function OBJECT(object)
 					error(string.format("Unresolved exit target for %s.%s", tostring(object_name), tostring(k)))
 				end
 				str = string.char(v[1]) -- UEXIT = 1
-				local say = v.say and mem:write(v.say.."\0") or 0
+				local say = v.say and mem:writestring2(v.say) or 0
 				if v.door ~= nil then
 					local door = type(v.door) == "boolean" and (v.door and 1 or 0) or v.door
 					str = str..string.char(door)..makeword(say)..string.char(0) -- DEXIT = 5
 				elseif v.flag ~= nil then
-					local flag = type(v.flag) == "boolean" and (v.flag and 1 or 0) or v.flag
-					str = str..string.char(flag)..makeword(say) -- CEXIT = 4
+					local flag_val = v.flag
+					if type(flag_val) == "table" and flag_val.__global_ref then
+						local gname = flag_val.__global_ref
+						if not _GLOBAL_FLAG_SLOTS[gname] then
+							_next_global_flag_slot = _next_global_flag_slot + 1
+							_GLOBAL_FLAG_SLOTS[gname] = _next_global_flag_slot
+							_GLOBAL_FLAG_NAMES[_next_global_flag_slot] = gname
+						end
+						local variable = _GLOBAL_FLAG_SLOTS[gname]
+						assert(variable <= 255, "Too many global variables for conditional exits (max 240)")
+						str = str..string.char(variable)..makeword(say) -- CEXIT = 4
+					else
+						flag_val = type(flag_val) == "boolean" and (flag_val and 1 or 0) or flag_val
+						str = str..string.char(flag_val)..makeword(say) -- CEXIT = 4
+					end
 				end
 			end
 			table.insert(t, makeprop(str, k))

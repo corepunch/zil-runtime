@@ -27,7 +27,8 @@ test.describe("Limehouse Killings walkthrough", function(t)
 		assert.assert_equal(code, 0)
 
 		local actions = {
-			"go north", "go east", "examine reading-desk", "take torn-page", "read torn-page",
+			"go north", {"go south", "The study door is locked."},
+			"go east", "examine reading-desk", "take torn-page", "read torn-page",
 			"examine colored-markers", "push red book", "push blue book", "push green book",
 			"push yellow book", "go south", "go east", "examine desk", "take dead-letter",
 			"read dead-letter", "take poison-bottle", "examine poison-bottle", "go north", "go west",

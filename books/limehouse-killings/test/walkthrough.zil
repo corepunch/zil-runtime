@@ -24,6 +24,7 @@
     <TELL CR "Test 3: Try locked study door" CR>
     <PERFORM ,V?GO-SOUTH ,ROOMS>
     <ASSERT <NOT ,STUDY-UNLOCKED> "Study should be locked">
+    <ASSERT <==? ,HERE ,ASHWORTH-ENTRANCE-HALL> "Locked study exit should keep player in entrance hall">
 
     ; Test 4: Go to library
     <TELL CR "Test 4: Go to library" CR>

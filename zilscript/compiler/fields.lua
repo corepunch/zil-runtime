@@ -132,7 +132,11 @@ function Fields.writeNav(buf, node, compiler)
     if utils.safeget(parts[5], 'value') == "IS" and parts[6] then
       cond = "door = "..cond
     else
-      cond = "flag = "..cond
+      if parts[4].type == "ident" or parts[4].type == "symbol" then
+        cond = "flag = GLOBAL_FLAG_REF(\"" .. cond .. "\")"
+      else
+        cond = "flag = "..cond
+      end
     end
     
     local room = compiler.value(parts[2])

@@ -139,6 +139,30 @@ test.describe("Runtime - Bootstrap Loading", function(t)
 		assert.assert_equal(env.APPLY(env.GET(exit_ptr, 0)), 33)
 	end)
 
+	t.it("should evaluate conditional exit globals when the exit is used", function(assert)
+		local env = runtime.create_game_env()
+		assert.assert_true(runtime.init(env, true))
+
+		local code = compiler.compile(parser.parse([[
+			<GLOBAL DOOR-UNLOCKED <>>
+			<DIRECTIONS SOUTH>
+			<ROOM STUDY (DESC "study")>
+			<ROOM HALL
+				(DESC "hall")
+				(SOUTH TO STUDY IF DOOR-UNLOCKED ELSE "The door is locked.")>
+		]])).combined
+		assert.assert_true(runtime.execute(code, "conditional-exit", env, true))
+
+		local exit_ptr = env.GETPT(env.HALL, env.PQSOUTH)
+		assert.assert_equal(env.PTSIZE(exit_ptr), 4)
+		assert.assert_nil(env.VALUE(env.GETB(exit_ptr, 1)))
+		assert.assert_not_equal(env.GET(exit_ptr, 1), 0)
+
+		env.DOOR_UNLOCKED = true
+		assert.assert_true(env.VALUE(env.GETB(exit_ptr, 1)))
+		assert.assert_equal(env.GETB(exit_ptr, 0), env.STUDY)
+	end)
+
 	t.it("should restore captured scalar state on restart", function(assert)
 		local env = runtime.create_game_env()
 		runtime.init(env, true)

@@ -48,7 +48,7 @@
       (DESC "Ashworth Manor Entrance Hall")
       (ACTION ENTRANCE-HALL-FCN)
       (LDESC "You step into a grand foyer that has seen better days. The air is thick with the scent of old wood and regret. Doorways lead in every direction -- north to the gate, east to the library, west to the dining room, and a staircase down to the kitchen. A door to the south stands locked.")
-      (SOUTH TO STUDY IF STUDY-UNLOCKED)
+      (SOUTH TO STUDY IF STUDY-UNLOCKED ELSE "The study door is locked.")
       (NORTH TO ASHWORTH-MANOR-GATE)
       (EAST TO LIBRARY)
       (WEST TO DINING-ROOM)
