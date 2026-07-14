@@ -124,6 +124,7 @@ Rules:
 - If FDESC or LDESC mentions a concrete noun a player might type (e.g., "leather roll", "brass lantern"), that word must appear in the object's `SYNONYM` or `ADJECTIVE` list. The text the player reads IS the parser vocabulary contract. Run `scripts/check-vocab.lua` to validate.
 - When FDESC describes an object inside a container (e.g., "A leather roll lies in the open drawer, its contents glinting steel"), create a separate container object for the described item. Don't put the description noun as a synonym on the contained object — that breaks the containment hierarchy.
 - Every concrete noun printed by an ACTION routine's TELL must correspond to an actual in-game object. If `TRUNK-F` EXAMINE says "contains a letter", a `LETTER` object must exist inside the `TRUNK` with matching SYNONYM. Players type exactly what they read — broken promises destroy parser trust.
+- Don't write manual EXAMINE handlers for containers — the Zork engine handles it automatically via `V-EXAMINE` → `V-LOOK-INSIDE` → `PRINT-CONT`. It prints "The X contains: Y, Z" when open, "The X is closed" when closed, and "The X is empty" when empty. Use `(TEXT ...)` for custom description only when you need flavor text that replaces the default listing. Place contained objects inside the container with `(IN CONTAINER)` so they appear in the automatic listing.
 
 ### 0b. Make containers reveal reachable contents
 

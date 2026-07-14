@@ -479,7 +479,7 @@
 <OBJECT TRUNK
       (IN SERVANTS-QUARTERS)
       (DESC "trunk")
-      (LDESC "A large wooden trunk, its lid heavy. It contains the servant's belongings and secrets.")
+      (LDESC "A large wooden trunk, its lid heavy.")
       (SYNONYM TRUNK CHEST)
       (FLAGS NDESCBIT CONTBIT OPENBIT SEARCHBIT)
       (ACTION TRUNK-F)>
@@ -494,7 +494,7 @@
       (ACTION TRUNK-LETTER-F)>
 
 <OBJECT UNIFORMS
-      (IN SERVANTS-QUARTERS)
+      (IN TRUNK)
       (DESC "servant uniforms")
       (LDESC "Servant uniforms, their fabric worn from use. They hang on hooks, waiting for their next wearer.")
       (SYNONYM UNIFORMS CLOTHES)

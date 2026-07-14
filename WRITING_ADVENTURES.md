@@ -1623,6 +1623,7 @@ Use this checklist before submitting your adventure:
 - [ ] Every noun in FDESC/LDESC that a player might type is listed in SYNONYM or ADJECTIVE
 - [ ] FDESC describes discovery; objects inside containers get their own OBJECT with `(IN CONTAINER)`
 - [ ] Every noun printed by an ACTION routine's TELL corresponds to a real in-game object
+- [ ] Containers rely on engine EXAMINE (no manual handler) — place contents inside with `(IN CONTAINER)`
 
 ### Puzzles
 - [ ] Every locked gate has a solution reachable before it

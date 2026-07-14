@@ -86,10 +86,7 @@
            <RTRUE>)>>
 
 <ROUTINE LEATHER-ROLL-F ()
-    <COND (<VERB? EXAMINE>
-           <TELL "A roll of soft leather, neatly tied. Something metallic shifts inside." CR>
-           <RTRUE>)
-          (<VERB? OPEN>
+    <COND (<VERB? OPEN>
            <FSET ,LEATHER-ROLL ,OPENBIT>
            <TELL "You untie the leather roll. Inside are several metal lockpicks." CR>
            <RTRUE>)
@@ -309,11 +306,6 @@
 <ROUTINE BEDS-F ()
     <COND (<VERB? EXAMINE>
            <TELL "Simple beds for the household staff. They are empty." CR>
-           <RTRUE>)>>
-
-<ROUTINE TRUNK-F ()
-    <COND (<VERB? EXAMINE>
-           <TELL "A large trunk contains servant uniforms and a letter." CR>
            <RTRUE>)>>
 
 <ROUTINE TRUNK-LETTER-F ()
