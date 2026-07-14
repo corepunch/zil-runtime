@@ -111,7 +111,7 @@
       (LDESC "A glass greenhouse filled with exotic plants. Labels mark the pots, identifying species from around the world. The air is warm and humid, a stark contrast to the fog outside. A doorway leads south back to the garden.")
       (SOUTH TO GARDEN)
       (FLAGS RLANDBIT ONBIT)
-      (GLOBAL PLANTS LABELS BENCH POTS)>
+      (GLOBAL PLANTS LABELS BENCH)>
 
 <ROOM SERVANTS-QUARTERS
       (IN ROOMS)
@@ -391,7 +391,7 @@
       (IN DINING-ROOM)
       (DESC "wine cabinet")
       (LDESC "A glass-fronted cabinet, its shelves filled with fine wines and spirits. A lock secures its contents.")
-      (SYNONYM CABINET)
+      (SYNONYM CABINET WINE-CABINET)
       (ADJECTIVE WINE)
       (FLAGS NDESCBIT)
       (ACTION WINE-CABINET-F)>
@@ -494,9 +494,10 @@
 
 <OBJECT TRUNK-LETTER
       (IN TRUNK)
-      (DESC "letter")
+      (DESC "folded note")
       (LDESC "A folded letter, its edges worn. The handwriting is small and cramped.")
-      (SYNONYM LETTER NOTE)
+      (SYNONYM NOTE)
+      (ADJECTIVE FOLDED)
       (FLAGS TAKEBIT READBIT)
       (TEXT "The letter is addressed to Mr. Hudson from an unknown sender. It reads: 'The master's experiments have gone too far. If anything happens to me, the evidence is in the study. Burn this after reading.' The signature is illegible.")
       (ACTION TRUNK-LETTER-F)>
@@ -638,7 +639,7 @@
       (IN LIBRARY)
       (DESC "Dr. Moriarty")
       (LDESC "Dr. Moriarty stands by the bookshelf, his expression arrogant and dismissive. He regards you with cool intelligence.")
-      (SYNONYM MORIARTY DR-MORIARTY)
+      (SYNONYM MORIARTY DR-MORIARTY DOCTOR)
       (ADJECTIVE DR DOCTOR)
       (FLAGS ACTORBIT NDESCBIT)
       (ACTION DR-MORIARTY-F)>
@@ -647,8 +648,9 @@
       (IN ASHWORTH-ENTRANCE-HALL)
       (DESC "Inspector Lestrade")
       (LDESC "Inspector Lestrade of Scotland Yard stands in the entrance hall, his expression professional and skeptical. He waits for your evidence.")
-      (SYNONYM INSPECTOR LESTRADE)
-      (FLAGS ACTORBIT NDESCBIT)
+      (SYNONYM INSPECTOR LESTRADE OFFICER DETECTIVE POLICE SCOTLAND-YARD)
+      (ADJECTIVE INSPECTOR SCOTLAND)
+      (FLAGS ACTORBIT NDESCBIT ARTICLEBIT)
       (ACTION INSPECTOR-F)>
 
 ; Conversation topics are global so ASK ... ABOUT ... can resolve them from

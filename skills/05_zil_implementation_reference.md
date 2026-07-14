@@ -405,3 +405,103 @@ Each book needs its own entry `.zil` file (like `blackwood-horror.zil`). Use loc
 ### 7. zork2/zork3 use different file naming conventions
 
 When referencing substrate files for zork2/zork3, note that they prefix files with `g` (globals → gglobals.zil, main → gmain.zil, clock → gclock.zil, etc.). The `try_open` function handles case-insensitive matching (`GMACROS` → `gmacros.zil`).
+
+### 8. Custom V-GO direction handlers must mirror every conditional exit
+
+If you define custom `V-GO-NORTH`, `V-GO-SOUTH`, `V-GO-EAST`, etc. routines in `actions.zil`, those routines completely replace the room's exit-table walk for that direction. Every conditional exit declared on a room (`IF CIPHER-SOLVED`, `IF DOOR IS OPEN`) **must** be replicated inside the matching V-GO routine, or the condition will be silently bypassed.
+
+**Wrong** (library south exit ignores cipher):
+```zil
+<ROUTINE V-GO-SOUTH ()
+    <COND ...
+          (<==? ,HERE ,LIBRARY>
+           <SETG HERE ,SECRET-PASSAGE>       ; no CIPHER-SOLVED check!
+           <TELL "You enter the secret passage." CR>)>>
+```
+
+**Right** (mirrors the room's conditional exit):
+```zil
+<ROUTINE V-GO-SOUTH ()
+    <COND ...
+          (<==? ,HERE ,LIBRARY>
+           <COND (,CIPHER-SOLVED
+                  <SETG HERE ,SECRET-PASSAGE>
+                  <TELL "You enter the secret passage." CR>)
+                 (T
+                  <TELL "You can't go that way." CR>)>)>>
+```
+
+Also ensure every room that HAS an exit for a given direction appears in the V-GO routine. Missing a room entirely means the direction silently fails there, even when the exit should be valid.
+
+**Prevention**: For every conditional room exit, search `actions.zil` for the corresponding direction routine and verify the condition is checked. If no V-GO routine exists for that direction, the substrate's `V-WALK` handles exit-table conditions correctly — only define V-GO routines for directions that genuinely need custom behavior beyond what the room's (TO ... IF ...) declarations already provide.
+
+### 9. NPCs and named objects need generous, overlap-tested vocabulary
+
+Players will try many forms of a name. Give every NPC:
+- Surname and title as `SYNONYM`: `(SYNONYM HUDSON BUTLER MR-HUDSON)`
+- Role-based nouns: `(SYNONYM DOCTOR)` for Dr. Moriarty, `(SYNONYM INSPECTOR LESTRADE OFFICER DETECTIVE POLICE)` for Inspector Lestrade
+- Role nouns as `ADJECTIVE` for common title forms: `(ADJECTIVE DR DOCTOR)` so both "doctor moriarty" and "dr moriarty" parse
+- `ARTICLEBIT` on characters where "the X" is natural English: inspector, doctor, butler — not for proper names alone (Mr. Hudson)
+
+For hyphenated object names (wine-cabinet, blood-stained-knife), add the hyphenated form as a `SYNONYM` **and** ensure the individual words exist as adjective+noun:
+```zil
+<OBJECT WINE-CABINET
+      (SYNONYM CABINET WINE-CABINET)
+      (ADJECTIVE WINE)>
+```
+
+Test every transcript noun phrase in the parser before accepting the slice. Don't assume the substrate inherits every needed verb — search `infocom/zork1/syntax.zil` and if a promised verb (ASK, SEARCH, LOOK AT) is missing, add one narrow `SYNTAX` entry in `actions.zil`.
+
+### 10. No two objects in overlapping scope may share a DESC
+
+When the parser encounters `TAKE LETTER` and two objects have `DESC "letter"`, it enters disambiguation. With identical synonyms and no distinguishing adjectives, this can loop. Give every object a **unique** `DESC` text, or ensure they are never in scope together, or use distinct `ADJECTIVE` so the parser can tell them apart:
+
+```zil
+; Study letter
+<OBJECT DEAD-LETTER
+      (DESC "unsent letter")        ; unique DESC
+      (SYNONYM LETTER)>
+
+; Trunk letter — never in scope at the same time as DEAD-LETTER,
+; but still distinct so "letter" alone doesn't trip disambiguation
+<OBJECT TRUNK-LETTER
+      (DESC "folded note")          ; different DESC
+      (SYNONYM NOTE)
+      (ADJECTIVE FOLDED)>
+```
+
+**Detection**: Grep for duplicate `(DESC "..."` strings across objects and for overlapping `SYNONYM` sets. Also check room `GLOBAL` lists — an object placed in a room's `GLOBAL` appears there as a pseudo-object even if its physical `(IN ...)` is elsewhere. Don't add kitchen `POTS` to the greenhouse's `GLOBAL` list.
+
+### 11. Dynamic room descriptions must faithfully reflect object state
+
+Room ACTION routines that compose a live description from object state must check the correct flags and use accurate language:
+
+```zil
+<ROUTINE KITCHEN-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           ...
+           <COND (<FSET? ,DRAWER ,OPENBIT>
+                  <TELL " The drawer stands open, a leather roll inside.">)
+                 (T
+                  <TELL " A drawer in the counter is closed.">)>)>>
+```
+
+Don't say "slightly ajar" for a closed drawer, "stands open" for a closed door, or "now unlocked" for a door that was unlocked three turns ago. Every state-dependent phrase must be paired with the exact flag check that produces it. When in doubt, the player's `EXAMINE` of the object tells the truth — make sure the room description doesn't contradict it.
+
+### 12. NPC-given items must not be freely TAKE-able before the NPC offers them
+
+When an NPC carries an item meant to be given in conversation, guard the item's `TAKE` handler against early acquisition:
+
+```zil
+<ROUTINE KEYRING-F ()
+    <COND (<VERB? TAKE>
+           <COND (,HUDSON-KEY-GIVEN
+                  <TELL "You take the keyring." CR>
+                  <MOVE ,KEYRING ,WINNER>)
+                 (<IN? ,KEYRING ,WINNER>
+                  <TELL "You already have the keyring." CR>)
+                 (T
+                  <TELL "That's not yours. Ask Mr. Hudson for it." CR>)>)>>
+```
+
+Otherwise the player can `TAKE KEYRING` directly from the NPC's inventory and skip the conversation gate. The item's initial `(IN MR-HUDSON)` places it inside the NPC object, but `TAKEBIT` on the item allows the parser to retrieve it from containers whose `SEARCHBIT` or `OPENBIT` grant access.

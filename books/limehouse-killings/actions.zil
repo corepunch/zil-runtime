@@ -115,8 +115,13 @@
            <TELL "A ring of keys, each one opening a different lock." CR>
            <RTRUE>)
           (<VERB? TAKE>
-           <TELL "You take the keyring." CR>
-           <MOVE ,KEYRING ,WINNER>
+           <COND (<IN? ,KEYRING ,WINNER>
+                  <TELL "You already have the keyring." CR>)
+                 (,HUDSON-KEY-GIVEN
+                  <TELL "You take the keyring." CR>
+                  <MOVE ,KEYRING ,WINNER>)
+                 (T
+                  <TELL "The keyring is not yours. You should ask Mr. Hudson for it." CR>)>
            <RTRUE>)>>
 
 ; --- Clue Object Actions ---
@@ -407,9 +412,9 @@
     <COND (<EQUAL? .RARG ,M-LOOK>
            <TELL "A kitchen that has seen better days. The hearth is cold, its last fire long extinguished.">
            <COND (<FSET? ,DRAWER ,OPENBIT>
-                  <TELL " The drawer in the counter stands open.">)
+                  <TELL " The drawer in the counter stands open, a leather roll inside.">)
                  (T
-                  <TELL " A drawer in the counter is slightly ajar.">)>
+                  <TELL " A drawer in the counter is closed.">)>
            <TELL CR "A staircase leads up to the entrance hall, and a doorway west leads to the garden." CR>)>>
 
 <ROUTINE GARDEN-FCN (RARG)
@@ -866,8 +871,11 @@
            <TELL "You return to the garden." CR>
            <RTRUE>)
           (<==? ,HERE ,LIBRARY>
-           <SETG HERE ,SECRET-PASSAGE>
-           <TELL "You enter the secret passage." CR>
+           <COND (,CIPHER-SOLVED
+                  <SETG HERE ,SECRET-PASSAGE>
+                  <TELL "You enter the secret passage." CR>)
+                 (T
+                  <TELL "You can't go that way." CR>)>
            <RTRUE>)
           (T
            <TELL "You can't go that way." CR>
@@ -877,6 +885,13 @@
     <COND (<==? ,HERE ,ASHWORTH-ENTRANCE-HALL>
            <SETG HERE ,LIBRARY>
            <TELL "You enter the library." CR>
+           <RTRUE>)
+          (<==? ,HERE ,LIBRARY>
+           <COND (,CIPHER-SOLVED
+                  <SETG HERE ,SECRET-PASSAGE>
+                  <TELL "You enter the secret passage." CR>)
+                 (T
+                  <TELL "You can't go that way." CR>)>
            <RTRUE>)
           (<==? ,HERE ,DINING-ROOM>
            <SETG HERE ,ASHWORTH-ENTRANCE-HALL>
@@ -1039,6 +1054,10 @@
 <SYNTAX HINTS = V-HINTS>
 <SYNONYM HINTS HINT>
 <SYNTAX ACCUSE OBJECT (FIND ACTORBIT) (IN-ROOM) = V-ACCUSE>
+<SYNTAX ASK OBJECT (FIND ACTORBIT) (IN-ROOM) ABOUT OBJECT = V-TELL>
+<SYNTAX ASK OBJECT (FIND ACTORBIT) (IN-ROOM) = V-TELL>
+<SYNTAX LOOK AT OBJECT (HELD CARRIED ON-GROUND IN-ROOM) = V-EXAMINE>
+<SYNTAX SEARCH OBJECT (HELD CARRIED ON-GROUND IN-ROOM) = V-EXAMINE>
 
 <ROUTINE GO ()
 	<SETG HERE ,ASHWORTH-MANOR-GATE>
