@@ -481,8 +481,17 @@
       (DESC "trunk")
       (LDESC "A large wooden trunk, its lid heavy. It contains the servant's belongings and secrets.")
       (SYNONYM TRUNK CHEST)
-      (FLAGS NDESCBIT)
+      (FLAGS NDESCBIT CONTBIT OPENBIT SEARCHBIT)
       (ACTION TRUNK-F)>
+
+<OBJECT TRUNK-LETTER
+      (IN TRUNK)
+      (DESC "letter")
+      (LDESC "A folded letter, its edges worn. The handwriting is small and cramped.")
+      (SYNONYM LETTER NOTE)
+      (FLAGS TAKEBIT READBIT)
+      (TEXT "The letter is addressed to Mr. Hudson from an unknown sender. It reads: 'The master's experiments have gone too far. If anything happens to me, the evidence is in the study. Burn this after reading.' The signature is illegible.")
+      (ACTION TRUNK-LETTER-F)>
 
 <OBJECT UNIFORMS
       (IN SERVANTS-QUARTERS)

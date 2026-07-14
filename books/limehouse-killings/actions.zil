@@ -316,6 +316,13 @@
            <TELL "A large trunk contains servant uniforms and a letter." CR>
            <RTRUE>)>>
 
+<ROUTINE TRUNK-LETTER-F ()
+    <COND (<VERB? EXAMINE READ>
+           <TELL "The letter is addressed to Mr. Hudson from an unknown sender. It reads:" CR>
+           <TELL "The master's experiments have gone too far. If anything happens to me, the evidence is in the study. Burn this after reading." CR>
+           <TELL "The signature is illegible." CR>
+           <RTRUE>)>>
+
 <ROUTINE UNIFORMS-F ()
     <COND (<VERB? EXAMINE>
            <TELL "Servant uniforms, their fabric worn from use." CR>
