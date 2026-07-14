@@ -1049,6 +1049,13 @@ function REST(s, i)
 	return s:sub((i or 1) + 1)
 end
 
+function BACK(s, i)
+	if type(s) == 'number' then
+		return s-(i or 1)
+	end
+	error("BACK: unsupported type " .. type(s))
+end
+
 function EMPTYQ(s)
 	if s == nil then return true end
 	if type(s) == 'table' then
@@ -1217,7 +1224,7 @@ function SYNTAX(syn)
 		error(string.format("SYNTAX for verb '%s' is missing ACTION", syn.VERB))
 	end
 	-- Defer if the action function isn't defined yet (e.g., syntax.zil loaded before verbs.zil)
-	if _G[syn.ACTION] == nil then
+	if _G[syn.ACTION] == nil or (syn.PREACTION and _G[syn.PREACTION] == nil) then
 		table.insert(_pending_syntax, syn)
 		return
 	end

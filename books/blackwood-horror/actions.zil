@@ -106,12 +106,12 @@
                      <NOT ,CHAINS-CUT-FLAG>>
                 <TELL "Thick iron chains wrap around the door handles, secured with a massive rusted padlock. The chains look old but still strong." CR>
                 <RTRUE>)
-               (<AND <VERB? ATTACK>
+               (<AND <VERB? ATTACK CUT>
                      <NOT ,CHAINS-CUT-FLAG>
                      <NOT <IN? ,SCALPEL ,WINNER>>>
                 <TELL "The chains are too strong to break with your bare hands. You need a sharp tool." CR>
                 <RTRUE>)
-               (<AND <VERB? ATTACK>
+               (<AND <VERB? ATTACK CUT>
                      <NOT ,CHAINS-CUT-FLAG>
                      <IN? ,SCALPEL ,WINNER>>
                 <TELL "You saw through the rusty chains with the " D ,SCALPEL ". It takes several minutes of effort, but finally they fall away with a crash. The heavy door creaks open, revealing a passage north into darkness." CR>
@@ -870,6 +870,16 @@
     <COND (<EQUAL? ,HERE ,OPERATING-THEATER ,PATIENT-WARD ,ELECTROSHOCK-THEATER>
            <TELL "The building settles with a deep structural groan, as if exhaling." CR>)>
     <RTRUE>>
+
+; === HELLO OVERRIDE FOR CHAPEL ===
+
+<ROUTINE PRE-HELLO-CHAPEL ()
+    <COND (<AND <EQUAL? ,HERE ,CHAPEL>
+                <NOT ,GAME-WON>>
+           <SETG PRSO ,PATIENT-189>)>
+    <RFALSE>>
+
+<SYNTAX HELLO = V-HELLO PRE-HELLO-CHAPEL>
 
 ; === ENTRY POINT ===
 
