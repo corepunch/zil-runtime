@@ -159,17 +159,55 @@ Test the verbs repeatedly and in different orders. Progress must increment once.
 
 ### 0d. Implement ASK/TELL topics for this substrate
 
-The zork1 substrate treats `ASK` as a synonym of `TELL`; `ASK ACTOR ABOUT TOPIC` reaches the actor with the topic in `PRSI`. Actor routines that support ASK should therefore handle both verbs and inspect `PRSI`:
+The zork1 substrate treats `ASK` as a parser synonym of the `TELL` action; it does not create a separate `V?ASK` action. `ASK ACTOR ABOUT TOPIC` and `TELL ACTOR ABOUT TOPIC` both reach the actor with `PRSA = V?TELL`, the actor in `PRSO`, and the topic in `PRSI`. Actor routines must therefore test `TELL` and inspect `PRSI`:
 
 ```zil
-<COND (<VERB? ASK TELL>
+<COND (<VERB? TELL>
        <COND (<EQUAL? ,PRSI ,KEY-TOPIC>
               ... )>)>
 ```
 
-Define reusable topic objects in `GLOBAL-OBJECTS` so topic words resolve when the referenced clue/person is elsewhere. Guard interview counters, and ensure an NPC needed for a later command is physically or globally accessible at that point.
+Do not write `<VERB? ASK TELL>` here: `V?ASK` may be undefined, and placing it first can prevent the valid `TELL` comparison from being reached. Do not inspect `PRSO` for the topic; that is the actor. Define reusable topic objects in `GLOBAL-OBJECTS` so topic words resolve when the referenced clue/person is elsewhere. Guard interview counters, and ensure an NPC needed for a later command is physically or globally accessible at that point.
 
-### 0e. Represent physical world state with objects, not flag-only scenery
+### 0e. Never redispatch the same action from its default verb routine
+
+`PERFORM` already dispatches an action to the indirect object, direct object, and then the verb default. A default routine must produce the fallback; it must not call `PERFORM` with its own action again:
+
+```zil
+; Wrong: recurses when no object routine handles TELL.
+<ROUTINE V-TELL ()
+    <PERFORM ,V?TELL ,PRSO ,PRSI>>
+
+; Right: normally inherit the substrate's V-TELL. For a new verb, provide
+; a terminal fallback instead of redispatching it.
+<ROUTINE V-SHOW ()
+    <TELL "The " D ,PRSI " doesn't seem interested." CR>>
+```
+
+Before defining any `V-*` routine, search the substrate's `verbs.zil`. Override only when the game genuinely needs a different default, and add a command-level test where no object handler accepts the action.
+
+### 0f. Audit parser registration separately from action routines
+
+A `V-USE`, `V-SHOW`, or `V-HINTS` routine does not make the typed verb parse. Search `infocom/zork1/syntax.zil`; if the verb is absent, add one narrow book-specific `SYNTAX` declaration and exercise the literal command through `llm.lua`.
+
+The substrate may intentionally map a surface verb to a canonical action. In Zork I syntax, `PULL` maps to `V-MOVE`, so a pullable object's action routine handles `<VERB? MOVE>`; duplicating the global `PULL` syntax in a book is unnecessary and can create ambiguous grammar. Record these mappings in the verb × object matrix.
+
+### 0g. Keep puzzle instructions, implementation, and tests executable and identical
+
+For every ordered puzzle, maintain one canonical sequence and copy it exactly into the clue text, hints, design notes, and parser-driven walkthrough. Every named step must exist as an object or action. A clue that says “rainbow order” cannot mention colors for which no interactive books exist, and the walkthrough must not encode a different order merely because it passes.
+
+### 0h. Treat titles as modifiers in multiword NPC names
+
+Put the stable head noun in `SYNONYM` and titles in `ADJECTIVE`:
+
+```zil
+(SYNONYM HUDSON BUTLER MR-HUDSON)
+(ADJECTIVE MR MISTER)
+```
+
+This intentionally supports both `HUDSON` and `MISTER HUDSON`. Test the full natural form; do not move `MISTER` into `SYNONYM`, where it becomes a competing head noun.
+
+### 0i. Represent physical world state with objects, not flag-only scenery
 
 If the prose names a physical thing the player could reasonably manipulate, that thing must exist in the object tree. Doors, windows, drawers, switches, ropes, vehicles, gates, and containers are not merely conditions on room exits.
 
@@ -215,6 +253,15 @@ This shortcut lets movement change, but there is no door for `EXAMINE DOOR`, `OP
 The door routine should handle `EXAMINE`, `OPEN`, and `UNLOCK`, validate the key or lockpick, set `STUDY-UNLOCKED` when the lock is released, and set/clear `OPENBIT` when the door opens or closes. The exit reads `OPENBIT`; the supplementary global answers the separate question "is it locked?"
 
 Use globals without objects for genuinely abstract facts such as `RIDDLE-SOLVED`, `NPC-TRUSTS-PLAYER`, or a one-time scoring guard. Do not use them to erase physical entities from the simulated world.
+
+Do not leave mutable door state in a static room `LDESC`:
+
+```zil
+; Wrong: this remains "locked" after the door opens.
+(LDESC "A door to the south stands locked.")
+```
+
+Follow Zork I's `EAST-HOUSE` pattern instead: give the room an ACTION routine, handle `M-LOOK`, and compose the complete room description inline from `OPENBIT` and any supplementary lock state. Keep the door's own `EXAMINE`, `OPEN`, `CLOSE`, and `UNLOCK` behavior in its object ACTION routine, just as Zork I keeps `EAST-HOUSE` separate from `KITCHEN-WINDOW-F`.
 
 ### 1. Don't embed item descriptions in room descriptions — let items describe themselves
 

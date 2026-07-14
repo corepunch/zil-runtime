@@ -6,6 +6,7 @@
 --   lua scripts/check-vocab.lua books/limehouse-killings/dungeon.zil
 --
 -- What it checks:
+--   CRITICAL: Player-addressable objects have a DESC.
 --   CRITICAL: At least one noun from DESC appears in SYNONYM.
 --
 -- Determining whether every prose word in FDESC/LDESC is an interactive noun
@@ -86,6 +87,7 @@ local function parse_zil_objects(content)
                 table.insert(objects, {
                     name = obj_name,
                     synonyms = syn_set,
+                    has_synonyms = next(syn_set) ~= nil,
                     desc = desc,
                 })
 
@@ -123,6 +125,16 @@ end
 local function check_object(obj)
     local issues = {}
 
+    -- An object with vocabulary is player-addressable. Without DESC, generic
+    -- responses print nil or an unrelated inherited default name.
+    if obj.has_synonyms and not obj.desc then
+        table.insert(issues, {
+            level = "CRITICAL",
+            field = "DESC",
+            msg = "player-addressable object has SYNONYM but no DESC",
+        })
+    end
+
     -- DESC is the name printed by the engine. At least one of its words must be
     -- an accepted noun. We intentionally do not assume the final word is the
     -- head noun because descriptions such as "door to the garden" are common.
@@ -158,8 +170,8 @@ local function main()
 
     if #files == 0 then
         io.write("Usage: lua scripts/check-vocab.lua <file.zil> [file2.zil ...]\n")
-        io.write("\nValidates that each object's DESC contains a noun registered\n")
-        io.write("as a SYNONYM on that object.\n")
+        io.write("\nValidates that player-addressable objects have DESC and that\n")
+        io.write("each DESC contains a noun registered as a SYNONYM.\n")
         os.exit(1)
     end
 

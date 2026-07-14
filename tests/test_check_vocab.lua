@@ -50,6 +50,18 @@ test.describe("Vocabulary checker", function(t)
 		assert.assert_match(output, "no DESC word appears in SYNONYM")
 		os.remove(path)
 	end)
+
+	t.it("rejects player-addressable scenery with no printed name", function(assert)
+		local path = write_fixture("missing-desc", [[
+<OBJECT FOG
+      (SYNONYM FOG MIST HAZE)
+      (FLAGS NDESCBIT)>
+]])
+		local code, output = run_checker(path)
+		assert.assert_not_equal(code, 0)
+		assert.assert_match(output, "object has SYNONYM but no DESC")
+		os.remove(path)
+	end)
 end)
 
 local success = test.summary()

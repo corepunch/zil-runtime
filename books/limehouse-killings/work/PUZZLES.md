@@ -67,7 +67,7 @@ Decode the hidden message in the bookshelf arrangement to reveal secret passage.
 3. FIND TORN-PAGE on reading desk
 4. READ TORN-PAGE: "Follow the rainbow order"
 5. EXAMINE COLORED-MARKERS
-6. Notice order: red, orange, yellow, green, blue, violet
+6. Apply rainbow order to the colors that are actually marked: red, yellow, green, blue
 7. Push books in rainbow order on marked shelves
 8. Wall slides open, revealing SECRET-PASSAGE
 
@@ -86,7 +86,7 @@ Decode the hidden message in the bookshelf arrangement to reveal secret passage.
 1. **Attention:** "The bookshelf has colored markers. Perhaps they mean something."
 2. **Direction:** "The torn page mentions 'rainbow order'."
 3. **Action:** "Push the books with colored spines in rainbow order."
-4. **Command:** `PUSH RED BOOK THEN BLUE BOOK THEN GREEN BOOK THEN YELLOW BOOK`
+4. **Command:** `PUSH RED BOOK THEN PUSH YELLOW BOOK THEN PUSH GREEN BOOK THEN PUSH BLUE BOOK`
 
 ### Dependencies
 - None (parallel to Puzzle 1)

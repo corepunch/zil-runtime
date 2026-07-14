@@ -38,7 +38,7 @@ A reading desk with a torn page lying on it.
 You take the torn page.
 
 > READ TORN-PAGE
-The page reads: "Follow the rainbow order. Red, orange, yellow, green, blue, violet. Only then will the way open."
+The page reads: "Among the marked books, follow the rainbow order: red, yellow, green, blue. Only then will the way open."
 
 > EXAMINE COLORED-MARKERS
 The markers are: RED on shelf 1, BLUE on shelf 3, GREEN on shelf 4, YELLOW on shelf 2.

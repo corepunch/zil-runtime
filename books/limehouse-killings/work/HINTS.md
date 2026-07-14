@@ -44,10 +44,10 @@ The hint system provides progressive assistance for each puzzle. Players can req
 "The torn page mentions 'rainbow order'. The markers are colored."
 
 **Tier 3 (Action):**
-"Push the books with colored spines in rainbow order: red, orange, yellow, green, blue, violet."
+"Push the marked books in their rainbow order: red, yellow, green, blue."
 
 **Tier 4 (Command):**
-`PUSH RED BOOK THEN BLUE BOOK THEN GREEN BOOK THEN YELLOW BOOK`
+`PUSH RED BOOK THEN PUSH YELLOW BOOK THEN PUSH GREEN BOOK THEN PUSH BLUE BOOK`
 
 ---
 

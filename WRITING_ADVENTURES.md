@@ -215,6 +215,10 @@ A grid of which objects deliberately respond to which non-default verbs. Blank c
 | FRESNEL-LENS | ✓ | — | ✓ | — |
 | FIREPLACE | ✓ | — | — | ✓ |
 
+The grid must use the substrate's action names, not just the surface words. For example, Zork I parses `PULL` as the `MOVE` action, so a pullable object's row records `PULL → MOVE`. A `V-*` routine alone does not register vocabulary: every desired typed verb absent from `infocom/zork1/syntax.zil` also needs a narrow game-specific `SYNTAX` declaration and a literal parser test.
+
+For conversation, `ASK` is a parser synonym for the `TELL` action. NPC routines test `<VERB? TELL>`, keep the actor in `PRSO`, and read the topic from `PRSI`. Default verb routines must end in a response; they must never call `PERFORM` with their own action, because `PERFORM` has already tried the object handlers and will recurse back to the same default.
+
 ### 6. Daemon / clock schedule
 
 Every `QUEUE`d routine, its interval, and — critically — every global flag it reads. This is the checklist for the systems-interaction pass in §4: cross every daemon against every flag in the state ledger and ask "what happens when this fires while that flag is set?"
@@ -1584,7 +1588,7 @@ A good walkthrough test should:
 4. **Verify text output** — key descriptions use `ASSERT-TEXT` to catch broken output
 5. **Test the ending** — confirm the final victory condition triggers
 
-You don't need to test every verb on every object — focus on the path that wins the game. Optional puzzles and flavor interactions are nice to include but not required.
+You do not need a Cartesian test of every verb on every object. You do need literal parser-driven coverage for the critical path, every custom or newly registered verb, every verb × object cell promised by the design, global scenery names, NPC conversation forms, blocked exits, and natural aliases such as `INSPECT`, `ME`, and titled NPC names. Optional flavor can be sampled rather than exhaustive.
 
 ### Checklist Item
 
@@ -1726,8 +1730,11 @@ Use this checklist before submitting your adventure:
 - [ ] Global flags track state for conditional exits and multi-step puzzles
 
 ### Verbs
-- [ ] Only use verbs from the standard Zork1 syntax file (no custom SYNTAX definitions needed)
+- [ ] Search the standard Zork1 syntax before adding grammar; add one narrow game-specific `SYNTAX` entry for each genuinely absent verb
+- [ ] Every desired typed verb has a parser-driven test; defining a `V-*` routine alone is not registration
 - [ ] Common verbs handled: EXAMINE, TAKE, DROP, OPEN, CLOSE, UNLOCK, READ, LOOK-INSIDE
+- [ ] NPC ASK/TELL handlers test `TELL` and read the topic from `PRSI`
+- [ ] Default `V-*` routines terminate with a response and never `PERFORM` their own action
 - [ ] Object routines end with `<RTRUE>` to signal they handled the action
 
 ### Polish

@@ -140,7 +140,7 @@ A ring of keys, each one opening a different lock. The study key hangs among the
 ### Clue Objects
 
 **TORN-PAGE:**
-A fragment of paper, its edges ragged. The text reads: "Follow the rainbow order. Red, orange, yellow, green, blue, violet. Only then will the way open."
+A fragment of paper, its edges ragged. The text reads: "Among the marked books, follow the rainbow order: red, yellow, green, blue. Only then will the way open."
 
 **COLORED-MARKERS:**
 Small ribbons of color, tied to the bookshelves. Red, blue, green, and yellow markers suggest an organizational system.
@@ -295,10 +295,10 @@ Servant uniforms, their fabric worn from use. They hang on hooks, waiting for th
 "The torn page mentions 'rainbow order'. The markers are colored."
 
 **Tier 3 (Action):**
-"Push the books with colored spines in rainbow order: red, orange, yellow, green, blue, violet."
+"Push the marked books in their rainbow order: red, yellow, green, blue."
 
 **Tier 4 (Command):**
-`PUSH RED BOOK THEN BLUE BOOK THEN GREEN BOOK THEN YELLOW BOOK`
+`PUSH RED BOOK THEN PUSH YELLOW BOOK THEN PUSH GREEN BOOK THEN PUSH BLUE BOOK`
 
 ### Puzzle 3: Greenhouse Poison
 

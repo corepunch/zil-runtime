@@ -30,8 +30,8 @@ test.describe("Limehouse Killings walkthrough", function(t)
 			"go north", {"go south", "The study door is closed."},
 			{"open study door", "need the study key or a lockpick"},
 			"go east", "examine reading-desk", "take torn-page", "read torn-page",
-			"examine colored-markers", "push red book", "push blue book", "push green book",
-			"push yellow book", "go south", "go east", "examine desk", "take dead-letter",
+			"examine colored-markers", "push red book", "push yellow book", "push green book",
+			"push blue book", "go south", "go east", "examine chalk-outline", "examine desk", "take dead-letter",
 			"read dead-letter", "take poison-bottle", "examine poison-bottle",
 			{"open study door", "interior bolt"}, "go north", "go west",
 			"examine table", "take wax-seal", "go north", "examine shelves", "take foxglove",
@@ -86,6 +86,49 @@ test.describe("Limehouse Killings walkthrough", function(t)
 		cleanup(savefile)
 	end)
 
+	t.it("should support the reported parser and interaction commands", function(assert)
+		local savefile = "/tmp/test-limehouse-command-regressions.sav"
+		cleanup(savefile)
+		local suffix = " --save " .. shell_quote(savefile) .. " --game limehouse-killings"
+		assert.assert_equal(run_command("lua5.4 llm.lua --new-game" .. suffix), 0)
+
+		local actions = {
+			{"examine me", "eyes are prehensile"},
+			{"examine myself", "eyes are prehensile"},
+			{"inspect path", "gravel path leads north"},
+			{"hints", "Hint:"},
+			{"examine fog", "fog swirls"},
+			{"examine gates", "iron gates"},
+			{"examine path", "gravel path"},
+			{"go north", "Entrance Hall"},
+			{"examine chandelier", "chandelier hangs"},
+			{"examine portraits", "Portraits of the Ashworth family"},
+			{"examine rug", "Persian rug"},
+			{"go down", "Kitchen"},
+			{"pull servant bell", "distant bell rings"},
+			{"use servant bell", "distant bell rings"},
+			{"go west", "Garden"},
+			{"take footprint-cast", "take the footprint cast"},
+			{"go south", "Servants' Quarters"},
+			{"examine mister hudson", "Mr. Hudson"},
+			{"tell hudson about footprint-cast", "don't know anything about that"},
+			{"show footprint-cast to hudson", "examines the item"},
+		}
+
+		for _, entry in ipairs(actions) do
+			local code, output = run_command(
+				"lua5.4 llm.lua --action " .. shell_quote(entry[1]) .. suffix)
+			assert.assert_equal(code, 0, "Command failed: " .. entry[1])
+			assert.assert_false(output:find("Runtime error", 1, true) ~= nil, "Runtime failed: " .. entry[1])
+			assert.assert_false(output:find("used the word", 1, true) ~= nil, "Parser rejected: " .. entry[1])
+			assert.assert_false(output:find("There was no verb", 1, true) ~= nil, "Verb missing: " .. entry[1])
+			assert.assert_false(output:find("nil", 1, true) ~= nil, "Nil leaked into output: " .. entry[1])
+			assert.assert_match(output, entry[2], "Unexpected output for: " .. entry[1])
+		end
+
+		cleanup(savefile)
+	end)
+
 	t.it("should unlock and open the study door with Hudson's key", function(assert)
 		local savefile = "/tmp/test-limehouse-study-door.sav"
 		cleanup(savefile)
@@ -101,8 +144,11 @@ test.describe("Limehouse Killings walkthrough", function(t)
 			{"go north", "Garden"},
 			{"go east", "Kitchen"},
 			{"go up", "Entrance Hall"},
+			{"look", "closed and locked"},
 			{"unlock study door with keyring", "study door is now unlocked"},
+			{"look", "closed but unlocked"},
 			{"open study door", "You open the study door"},
+			{"look", "stands open, revealing the study beyond"},
 			{"go south", "Study"},
 		}
 

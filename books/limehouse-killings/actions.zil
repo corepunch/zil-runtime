@@ -123,7 +123,7 @@
 
 <ROUTINE TORN-PAGE-F ()
     <COND (<VERB? EXAMINE READ>
-           <TELL "The page reads: 'Follow the rainbow order. Red, orange, yellow, green, blue, violet. Only then will the way open.'" CR>
+           <TELL "The page reads: 'Among the marked books, follow the rainbow order: red, yellow, green, blue. Only then will the way open.'" CR>
            <RTRUE>)
           (<VERB? TAKE>
            <TELL "You take the torn page." CR>
@@ -142,13 +142,13 @@
                  (<AND <EQUAL? ,PRSO ,RED-BOOK> <==? ,CIPHER-STAGE 0>>
                   <SETG CIPHER-STAGE 1>
                   <TELL "The red-marked book clicks into place." CR>)
-                 (<AND <EQUAL? ,PRSO ,BLUE-BOOK> <==? ,CIPHER-STAGE 1>>
+                 (<AND <EQUAL? ,PRSO ,YELLOW-BOOK> <==? ,CIPHER-STAGE 1>>
                   <SETG CIPHER-STAGE 2>
-                  <TELL "The blue-marked book clicks into place." CR>)
+                  <TELL "The yellow-marked book clicks into place." CR>)
                  (<AND <EQUAL? ,PRSO ,GREEN-BOOK> <==? ,CIPHER-STAGE 2>>
                   <SETG CIPHER-STAGE 3>
                   <TELL "The green-marked book clicks into place." CR>)
-                 (<AND <EQUAL? ,PRSO ,YELLOW-BOOK> <==? ,CIPHER-STAGE 3>>
+                 (<AND <EQUAL? ,PRSO ,BLUE-BOOK> <==? ,CIPHER-STAGE 3>>
                   <SOLVE-CIPHER>)
                  (T
                   <SETG CIPHER-STAGE 0>
@@ -295,7 +295,7 @@
     <COND (<VERB? EXAMINE>
            <TELL "A servant bell hangs from the wall. A rope leads up to the servant's quarters." CR>
            <RTRUE>)
-          (<VERB? PULL USE>
+          (<VERB? MOVE USE>
            <TELL "You pull the bell rope. A distant bell rings upstairs." CR>
            <RTRUE>)>>
 
@@ -386,7 +386,13 @@
                   <TELL " The window stands open, letting in the chill night air.">)
                  (T
                   <TELL " A window looks out to the garden, its latch rusted but intact.">)>
-           <TELL CR "The study door leads north back to the entrance hall." CR>)>>
+           <COND (<FSET? ,STUDY-DOOR ,OPENBIT>
+                  <TELL " The solid oak study door to the north stands open onto the entrance hall.">)
+                 (,STUDY-UNLOCKED
+                  <TELL " The solid oak study door to the north is closed but unlocked.">)
+                 (T
+                  <TELL " The solid oak study door to the north is closed and locked.">)>
+           <CRLF>)>>
 
 <ROUTINE LIBRARY-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
@@ -417,11 +423,11 @@
     <COND (<EQUAL? .RARG ,M-LOOK>
            <TELL "You step into a grand foyer that has seen better days. The air is thick with the scent of old wood and regret. Doorways lead in every direction -- north to the gate, east to the library, west to the dining room, and a staircase down to the kitchen.">
            <COND (<FSET? ,STUDY-DOOR ,OPENBIT>
-                  <TELL " The door to the south stands open, revealing the study beyond.">)
+                  <TELL " The solid oak study door to the south stands open, revealing the study beyond.">)
                  (,STUDY-UNLOCKED
-                  <TELL " The unlocked study door to the south is closed.">)
+                  <TELL " The solid oak study door to the south is closed but unlocked.">)
                  (T
-                  <TELL " A door to the south stands locked.">)>
+                  <TELL " The solid oak study door to the south is closed and locked.">)>
            <CRLF>)>>
 
 ; --- Global Object Actions ---
@@ -467,7 +473,7 @@
     <COND (<VERB? EXAMINE>
            <TELL "Mr. Hudson, the butler, stands nervously. His expression is troubled." CR>
            <RTRUE>)
-          (<VERB? ASK TELL>
+          (<VERB? TELL>
            <COND (<EQUAL? ,PRSI ,MASTER-TOPIC>
                   <TELL "Lord Ashworth had enemies, sir. Dr. Moriarty visited often, and their arguments grew worse." CR>
                   <RTRUE>)
@@ -486,33 +492,33 @@
                  (<EQUAL? ,PRSI ,MORIARTY-TOPIC>
                   <TELL "Dr. Moriarty visited often. He and the master had serious disagreements." CR>
                   <RTRUE>)
-                 (<OR <IN? ,PRSO ,INTQUOTE> <IN? ,PRSO ,QUOTE>>
+                 (<OR <IN? ,PRSI ,INTQUOTE> <IN? ,PRSI ,QUOTE>>
                   <TELL "I'm not sure what you mean." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,ROOMS>
+                 (<EQUAL? ,PRSI ,ROOMS>
                   <TELL "I'm in the servants' quarters." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,MR-HUDSON>
+                 (<EQUAL? ,PRSI ,MR-HUDSON>
                   <TELL "Yes? What is it?" CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,LADY-ASHWORTH>
+                 (<EQUAL? ,PRSI ,LADY-ASHWORTH>
                   <TELL "Lady Ashworth? She was in the drawing room, I believe." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,DR-MORIARTY>
+                 (<EQUAL? ,PRSI ,DR-MORIARTY>
                   <TELL "Dr. Moriarty? He visited often. He and the master had... disagreements." CR>
                    <SETG MORIARTY-INTERVIEWED T>
                    <SETG SUSPECTS-INTERVIEWED <+ ,SUSPECTS-INTERVIEWED 1>>
                    <RTRUE>)
-                 (<EQUAL? ,PRSO ,DEAD-LETTER>
+                 (<EQUAL? ,PRSI ,DEAD-LETTER>
                   <TELL "A letter? I know nothing of such things." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,BLOOD-STAINED-KNIFE>
+                 (<EQUAL? ,PRSI ,BLOOD-STAINED-KNIFE>
                   <TELL "A knife? I don't recognize it." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,POISON-BOTTLE>
+                 (<EQUAL? ,PRSI ,POISON-BOTTLE>
                   <TELL "Poison? I would never touch such things." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,KEYRING>
+                 (<EQUAL? ,PRSI ,KEYRING>
                   <TELL "The keyring? I suppose you'll need this." <COND (,HUDSON-KEY-GIVEN
                                                                           " You already have it.")
                                                                          (T
@@ -522,13 +528,6 @@
                   <RTRUE>)
                  (T
                   <TELL "I don't know anything about that." CR>
-                  <RTRUE>)>)
-          (<VERB? TELL>
-           <COND (<EQUAL? ,PRSO ,MR-HUDSON>
-                  <TELL "Yes? What is it?" CR>
-                  <RTRUE>)
-                 (T
-                  <TELL "I'm not sure I understand." CR>
                   <RTRUE>)>)
           (<VERB? SHOW>
            <COND (<EQUAL? ,PRSO ,DEAD-LETTER>
@@ -548,7 +547,7 @@
     <COND (<VERB? EXAMINE>
            <TELL "Lady Ashworth sits at the dining table, her expression cold and calculating." CR>
            <RTRUE>)
-          (<VERB? ASK TELL>
+          (<VERB? TELL>
            <COND (<EQUAL? ,PRSI ,MARRIAGE-TOPIC>
                   <TELL "Our marriage was difficult, but I did not kill my husband." CR>
                   <RTRUE>)
@@ -559,41 +558,34 @@
                          <SETG LADY-INTERVIEWED T>
                          <SETG SUSPECTS-INTERVIEWED <+ ,SUSPECTS-INTERVIEWED 1>>)>
                   <RTRUE>)
-                 (<OR <IN? ,PRSO ,INTQUOTE> <IN? ,PRSO ,QUOTE>>
+                 (<OR <IN? ,PRSI ,INTQUOTE> <IN? ,PRSI ,QUOTE>>
                   <TELL "I'm not sure what you mean." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,ROOMS>
+                 (<EQUAL? ,PRSI ,ROOMS>
                   <TELL "I was in the drawing room all evening." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,LADY-ASHWORTH>
+                 (<EQUAL? ,PRSI ,LADY-ASHWORTH>
                   <TELL "Yes? What is it?" CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,DR-MORIARTY>
+                 (<EQUAL? ,PRSI ,DR-MORIARTY>
                   <TELL "Dr. Moriarty was a frequent guest. My husband owed him money." CR>
                    <SETG MORIARTY-INTERVIEWED T>
                    <SETG SUSPECTS-INTERVIEWED <+ ,SUSPECTS-INTERVIEWED 1>>
                    <RTRUE>)
-                 (<EQUAL? ,PRSO ,MR-HUDSON>
+                 (<EQUAL? ,PRSI ,MR-HUDSON>
                   <TELL "Mr. Hudson? He's been with the household for years. Loyal, but nervous." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,DEAD-LETTER>
+                 (<EQUAL? ,PRSI ,DEAD-LETTER>
                   <TELL "A letter? Where did you get that?" CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,BLOOD-STAINED-KNIFE>
+                 (<EQUAL? ,PRSI ,BLOOD-STAINED-KNIFE>
                   <TELL "A knife? I don't know anything about it." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,POISON-BOTTLE>
+                 (<EQUAL? ,PRSI ,POISON-BOTTLE>
                   <TELL "Poison? I know nothing of such things." CR>
                   <RTRUE>)
                  (T
                   <TELL "I don't know anything about that." CR>
-                  <RTRUE>)>)
-          (<VERB? TELL>
-           <COND (<EQUAL? ,PRSO ,LADY-ASHWORTH>
-                  <TELL "Yes? What is it?" CR>
-                  <RTRUE>)
-                 (T
-                  <TELL "I'm not sure I understand." CR>
                   <RTRUE>)>)
           (<VERB? SHOW>
            <COND (<EQUAL? ,PRSO ,DEAD-LETTER>
@@ -613,7 +605,7 @@
     <COND (<VERB? EXAMINE>
            <TELL "Dr. Moriarty stands by the bookshelf, his expression arrogant and dismissive." CR>
            <RTRUE>)
-          (<VERB? ASK TELL>
+          (<VERB? TELL>
            <COND (<EQUAL? ,PRSI ,EXPERIMENTS-TOPIC>
                   <TELL "My experiments concern medicinal plants. Lord Ashworth financed some of the work." CR>
                   <RTRUE>)
@@ -626,46 +618,39 @@
                          <SETG SUSPECTS-INTERVIEWED <+ ,SUSPECTS-INTERVIEWED 1>>)>
                   <MOVE ,DR-MORIARTY ,ASHWORTH-ENTRANCE-HALL>
                   <RTRUE>)
-                 (<OR <IN? ,PRSO ,INTQUOTE> <IN? ,PRSO ,QUOTE>>
+                 (<OR <IN? ,PRSI ,INTQUOTE> <IN? ,PRSI ,QUOTE>>
                   <TELL "I'm not sure what you mean." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,ROOMS>
+                 (<EQUAL? ,PRSI ,ROOMS>
                   <TELL "I was at my laboratory all evening. Ask my assistant." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,DR-MORIARTY>
+                 (<EQUAL? ,PRSI ,DR-MORIARTY>
                   <TELL "Yes? What is it?" CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,LADY-ASHWORTH>
+                 (<EQUAL? ,PRSI ,LADY-ASHWORTH>
                   <TELL "Lady Ashworth? She's a fine woman, trapped in a difficult marriage." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,MR-HUDSON>
+                 (<EQUAL? ,PRSI ,MR-HUDSON>
                   <TELL "Mr. Hudson? He's a servant. What about him?" CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,DEAD-LETTER>
+                 (<EQUAL? ,PRSI ,DEAD-LETTER>
                   <TELL "A letter? I don't know anything about it." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,BLOOD-STAINED-KNIFE>
+                 (<EQUAL? ,PRSI ,BLOOD-STAINED-KNIFE>
                   <TELL "A knife? I use surgical tools in my work. That's not one of them." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,POISON-BOTTLE>
+                 (<EQUAL? ,PRSI ,POISON-BOTTLE>
                   <TELL "Wolfsbane? Aconitum? I have some in my greenhouse. For research." CR>
                    <SETG MORIARTY-POISON-KNOWN T>
                    <RTRUE>)
-                 (<EQUAL? ,PRSO ,SECRET-LEDGER>
+                 (<EQUAL? ,PRSI ,SECRET-LEDGER>
                   <TELL "A ledger? I don't know what you're talking about." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,BANK-STATEMENT>
+                 (<EQUAL? ,PRSI ,BANK-STATEMENT>
                   <TELL "A bank statement? That's private information." CR>
                   <RTRUE>)
                  (T
                   <TELL "I don't know anything about that." CR>
-                  <RTRUE>)>)
-          (<VERB? TELL>
-           <COND (<EQUAL? ,PRSO ,DR-MORIARTY>
-                  <TELL "Yes? What is it?" CR>
-                  <RTRUE>)
-                 (T
-                  <TELL "I'm not sure I understand." CR>
                   <RTRUE>)>)
           (<VERB? SHOW>
            <COND (<EQUAL? ,PRSO ,DEAD-LETTER>
@@ -691,52 +676,45 @@
     <COND (<VERB? EXAMINE>
            <TELL "Inspector Lestrade of Scotland Yard stands in the entrance hall, his expression professional and skeptical." CR>
            <RTRUE>)
-          (<VERB? ASK TELL>
+          (<VERB? TELL>
            <COND (<EQUAL? ,PRSI ,CASE-TOPIC>
                   <TELL "Bring me five solid pieces of evidence and interview all three suspects. Then make your accusation." CR>
                   <RTRUE>)
-                 (<OR <IN? ,PRSO ,INTQUOTE> <IN? ,PRSO ,QUOTE>>
+                 (<OR <IN? ,PRSI ,INTQUOTE> <IN? ,PRSI ,QUOTE>>
                   <TELL "I'm not sure what you mean." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,ROOMS>
+                 (<EQUAL? ,PRSI ,ROOMS>
                   <TELL "What have you found, detective?" CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,INSPECTOR>
+                 (<EQUAL? ,PRSI ,INSPECTOR>
                   <TELL "Yes? What is it?" CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,DR-MORIARTY>
+                 (<EQUAL? ,PRSI ,DR-MORIARTY>
                   <TELL "Dr. Moriarty? A respected scientist. You'll need strong evidence." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,LADY-ASHWORTH>
+                 (<EQUAL? ,PRSI ,LADY-ASHWORTH>
                   <TELL "Lady Ashworth? She has an alibi. What evidence do you have?" CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,MR-HUDSON>
+                 (<EQUAL? ,PRSI ,MR-HUDSON>
                   <TELL "Mr. Hudson? He was in the servants' quarters. What evidence do you have?" CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,DEAD-LETTER>
+                 (<EQUAL? ,PRSI ,DEAD-LETTER>
                   <TELL "A letter? Let me see it." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,BLOOD-STAINED-KNIFE>
+                 (<EQUAL? ,PRSI ,BLOOD-STAINED-KNIFE>
                   <TELL "A knife? Let me see it." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,POISON-BOTTLE>
+                 (<EQUAL? ,PRSI ,POISON-BOTTLE>
                   <TELL "Poison? Let me see it." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,SECRET-LEDGER>
+                 (<EQUAL? ,PRSI ,SECRET-LEDGER>
                   <TELL "A ledger? Let me see it." CR>
                   <RTRUE>)
-                 (<EQUAL? ,PRSO ,BANK-STATEMENT>
+                 (<EQUAL? ,PRSI ,BANK-STATEMENT>
                   <TELL "A bank statement? Let me see it." CR>
                   <RTRUE>)
                  (T
                   <TELL "I don't know anything about that." CR>
-                  <RTRUE>)>)
-          (<VERB? TELL>
-           <COND (<EQUAL? ,PRSO ,INSPECTOR>
-                  <TELL "Yes? What is it?" CR>
-                  <RTRUE>)
-                 (T
-                  <TELL "I'm not sure I understand." CR>
                   <RTRUE>)>)
           (<VERB? SHOW>
            <COND (<EQUAL? ,PRSO ,DEAD-LETTER>
@@ -759,29 +737,6 @@
                   <RTRUE>)>)>>
 
 ; === VERB ACTIONS ===
-
-<ROUTINE V-EXAMINE ()
-    <COND (<OR <FSET? ,PRSO ,CONTBIT>
-               <FSET? ,PRSO ,DOORBIT>>
-           <V-LOOK-INSIDE>
-           <RTRUE>)
-          (<FSET? ,PRSO ,SCENERY>
-           <PERFORM ,V?EXAMINE ,PRSO>
-           <RTRUE>)
-          (<FSET? ,PRSO ,NPC>
-           <PERFORM ,V?EXAMINE ,PRSO>
-           <RTRUE>)
-          (T
-           <TELL "You examine the " D ,PRSO ". " <GETP ,PRSO ,P?LDESC> CR>
-           <RTRUE>)>>
-
-<ROUTINE V-READ ()
-    <COND (<FSET? ,PRSO ,READBIT>
-           <PERFORM ,V?READ ,PRSO>
-           <RTRUE>)
-          (T
-           <TELL "You can't read that." CR>
-           <RTRUE>)>>
 
 <ROUTINE V-TAKE ()
     <COND (<FSET? ,PRSO ,TAKEBIT>
@@ -807,6 +762,10 @@
 
 <ROUTINE V-USE-ON ()
     <TELL "You can't use that on that." CR>
+    <RTRUE>>
+
+<ROUTINE V-SHOW ()
+    <TELL "The " D ,PRSI " doesn't seem interested." CR>
     <RTRUE>>
 
 <ROUTINE V-OPEN ()
@@ -836,26 +795,6 @@
           (T
            <TELL "You can't close that." CR>
            <RTRUE>)>>
-
-<ROUTINE V-PUSH ()
-    <COND (<EQUAL? ,PRSO ,BOOKSHELF>
-           <PERFORM ,V?PUSH ,BOOKSHELF>
-           <RTRUE>)
-          (T
-           <TELL "You can't push that." CR>
-           <RTRUE>)>>
-
-<ROUTINE V-ASK ()
-    <PERFORM ,V?ASK ,PRSO ,PRSI>
-    <RTRUE>>
-
-<ROUTINE V-TELL ()
-    <PERFORM ,V?TELL ,PRSO ,PRSI>
-    <RTRUE>>
-
-<ROUTINE V-SHOW-TO ()
-    <PERFORM ,V?SHOW ,PRSI ,PRSO>
-    <RTRUE>>
 
 <ROUTINE V-ACCUSE ()
     <COND (<EQUAL? ,PRSO ,DR-MORIARTY>
@@ -1009,7 +948,14 @@
     <RTRUE>>
 
 <ROUTINE V-HINTS ()
-    <TELL "Hints are available. Type HINTS for help." CR>
+    <COND (<NOT ,STUDY-UNLOCKED>
+           <TELL "Hint: Mr. Hudson may know how to open the study." CR>)
+          (<NOT ,CIPHER-SOLVED>
+           <TELL "Hint: compare the torn page with the colored markers in the library." CR>)
+          (<NOT ,POISON-IDENTIFIED>
+           <TELL "Hint: compare the poison bottle with the labeled greenhouse plants." CR>)
+          (T
+           <TELL "Hint: gather the evidence, interview every suspect, and report to Inspector Lestrade." CR>)>
     <RTRUE>>
 
 ; === HELPER ROUTINES ===
@@ -1087,6 +1033,11 @@
 
 ; === GAME ENTRY ===
 
+<SYNTAX USE OBJECT (HELD CARRIED ON-GROUND IN-ROOM) = V-USE>
+<SYNTAX USE OBJECT (HELD CARRIED ON-GROUND IN-ROOM) ON OBJECT (HELD CARRIED ON-GROUND IN-ROOM) = V-USE-ON>
+<SYNTAX SHOW OBJECT (HAVE) TO OBJECT (FIND ACTORBIT) (IN-ROOM) = V-SHOW>
+<SYNTAX HINTS = V-HINTS>
+<SYNONYM HINTS HINT>
 <SYNTAX ACCUSE OBJECT (FIND ACTORBIT) (IN-ROOM) = V-ACCUSE>
 
 <ROUTINE GO ()

@@ -47,7 +47,6 @@
       (IN ROOMS)
       (DESC "Ashworth Manor Entrance Hall")
       (ACTION ENTRANCE-HALL-FCN)
-      (LDESC "You step into a grand foyer that has seen better days. The air is thick with the scent of old wood and regret. Doorways lead in every direction -- north to the gate, east to the library, west to the dining room, and a staircase down to the kitchen. A door to the south stands locked.")
       (SOUTH TO STUDY IF STUDY-DOOR IS OPEN ELSE "The study door is closed.")
       (NORTH TO ASHWORTH-MANOR-GATE)
       (EAST TO LIBRARY)
@@ -258,7 +257,7 @@
       (IN LIBRARY)
       (DESC "torn page")
       (FDESC "A torn page lies on the reading desk, covered in handwritten notes.")
-      (LDESC "A fragment of paper, its edges ragged. The text reads: 'Follow the rainbow order. Red, orange, yellow, green, blue, violet. Only then will the way open.'")
+      (LDESC "A fragment of paper, its edges ragged. The text reads: 'Among the marked books, follow the rainbow order: red, yellow, green, blue. Only then will the way open.'")
       (SYNONYM PAGE FRAGMENT TORN-PAGE)
       (ADJECTIVE TORN)
       (FLAGS TAKEBIT READBIT)
@@ -278,7 +277,7 @@
       (DESC "footprint cast")
       (FDESC "A plaster cast of a footprint sits near the fountain, preserving the evidence.")
       (LDESC "A plaster cast of a boot print, size 10. Too large for Lady Ashworth, too small for Mr. Hudson.")
-      (SYNONYM CAST MOLD FOOTPRINT)
+      (SYNONYM FOOTPRINT-CAST CAST MOLD FOOTPRINT)
       (ADJECTIVE FOOTPRINT)
       (FLAGS TAKEBIT)
       (ACTION FOOTPRINT-CAST-F)>
@@ -561,37 +560,57 @@
 ; === GLOBAL OBJECTS ===
 
 <OBJECT FOG
-      (SYNONYM MIST HAZE)
+      (DESC "fog")
+      (LDESC "Cold river fog curls through the manor gates.")
+      (SYNONYM FOG MIST HAZE)
       (FLAGS NDESCBIT)
       (ACTION FOG-F)>
 
 <OBJECT GATES
-      (SYNONYM GATE BARS)
+      (DESC "iron gates")
+      (LDESC "The iron gates stand open, their bars red with rust.")
+      (SYNONYM GATES GATE BARS)
+      (ADJECTIVE IRON)
       (FLAGS NDESCBIT)
       (ACTION GATES-F)>
 
 <OBJECT PATH
-      (SYNONYM WALKWAY DRIVE)
+      (DESC "gravel path")
+      (LDESC "A gravel path leads north through the fog to Ashworth Manor.")
+      (SYNONYM PATH WALKWAY DRIVE)
+      (ADJECTIVE GRAVEL)
       (FLAGS NDESCBIT)
       (ACTION PATH-F)>
 
 <OBJECT CHANDELIER
-      (SYNONYM LIGHT CRYSTAL)
+      (DESC "chandelier")
+      (LDESC "A dusty crystal chandelier hangs above the entrance hall.")
+      (SYNONYM CHANDELIER LIGHT CRYSTAL)
+      (ADJECTIVE DUSTY)
       (FLAGS NDESCBIT)
       (ACTION CHANDELIER-F)>
 
 <OBJECT PORTRAITS
-      (SYNONYM PAINTINGS PICTURES)
+      (DESC "family portraits")
+      (LDESC "Portraits of the Ashworth family line the walls.")
+      (SYNONYM PORTRAITS PAINTINGS PICTURES)
+      (ADJECTIVE FAMILY)
       (FLAGS NDESCBIT)
       (ACTION PORTRAITS-F)>
 
 <OBJECT RUG
-      (SYNONYM CARPET MAT)
+      (DESC "Persian rug")
+      (LDESC "A faded Persian rug covers the entrance-hall floor.")
+      (SYNONYM RUG CARPET MAT)
+      (ADJECTIVE PERSIAN FADED)
       (FLAGS NDESCBIT)
       (ACTION RUG-F)>
 
 <OBJECT CHALK-OUTLINE
-      (SYNONYM OUTLINE BODY)
+      (DESC "chalk outline")
+      (LDESC "A chalk outline marks the place where Lord Ashworth's body was found.")
+      (SYNONYM CHALK-OUTLINE OUTLINE BODY)
+      (ADJECTIVE CHALK)
       (FLAGS NDESCBIT)
       (ACTION CHALK-OUTLINE-F)>
 
