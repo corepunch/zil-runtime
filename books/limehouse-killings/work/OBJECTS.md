@@ -1,117 +1,78 @@
-# The Limehouse Killings - Object Registry
+# The Limehouse Killings - Object and Vocabulary Registry
 
-## Global Objects
+This registry records parser-facing names and narrative roles. `DESC` text is not vocabulary; every canonical command must be backed by `SYNONYM` and `ADJECTIVE` entries.
 
-| ID | Name | Synonyms | Flags | Location | Puzzle Role |
-|----|------|----------|-------|----------|-------------|
-| FOG | Fog | mist, haze | SCENERY | ASHWORTH-MANOR-GATE | Atmosphere |
-| GATES | Iron Gates | gate, bars | SCENERY | ASHWORTH-MANOR-GATE | Entry barrier |
-| PATH | Gravel Path | walkway, drive | SCENERY | ASHWORTH-MANOR-GATE | Navigation |
-| CHANDELIER | Chandelier | light, crystal | SCENERY | ENTRANCE-HALL | Atmosphere |
-| PORTRAITS | Portraits | paintings, pictures | SCENERY | ENTRANCE-HALL | Atmosphere |
-| RUG | Persian Rug | carpet, mat | SCENERY | ENTRANCE-HALL | Hidden item? |
+## Opening and Evidence Objects
 
-## Evidence Objects
+| ID | Canonical phrase | Natural variants | Initial location | Role/state |
+|---|---|---|---|---|
+| `TELEGRAM` | creased telegram | telegram, message, wire | Gate | Visible opening object and quick reward; teaches the name-marked mechanism convention |
+| `DEAD-LETTER` | unsent letter | letter, note, paper | Study | Threat/intent discovery; guarded by `DEAD-LETTER-FOUND` |
+| `POISON-BOTTLE` | poison bottle | bottle, vial | Study | Method clue; compare `VIAL` with greenhouse plants |
+| `BLOOD-STAINED-KNIFE` | blood-stained knife | knife, blade, weapon | Garden | Route/weapon evidence; guarded by `KNIFE-FOUND` |
+| `SECRET-LEDGER` | secret ledger | ledger, account, book | Library | Debt clue; guarded by `SECRET-LEDGER-FOUND` |
+| `BANK-STATEMENT` | bank statement | statement, receipt | Locked box | Motive corroboration; guarded by `BANK-STATEMENT-FOUND` |
+| `FOOTPRINT-CAST` | footprint cast | footprint, cast, mold, impression | Garden | Excludes Lady Ashworth and later matches Moriarty's heel |
+| `WAX-SEAL` | wax seal | seal, stamp | Dining Room | Visual `M` clue and optional corroboration |
 
-| ID | Name | Synonyms | Flags | Location | Puzzle Role |
-|----|------|----------|-------|----------|-------------|
-| DEAD-LETTER | Unsent Letter | letter, note, paper | TAKEBIT READBIT | STUDY (on desk) | Key evidence #1 |
-| BLOOD-STAINED-KNIFE | Blood-Stained Knife | knife, blade, weapon | TAKEBIT | GARDEN (in hedge) | Murder weapon |
-| LOCKED-BOX | Locked Box | box, case, container | CONTAINERBIT | STUDY (in fireplace) | Key evidence #2 |
-| POISON-BOTTLE | Poison Bottle | bottle, vial, poison | TAKEBIT READBIT | STUDY (in desk) | Key evidence #3 |
-| SECRET-LEDGER | Secret Ledger | ledger, book, account | TAKEBIT READBIT | LIBRARY (hidden in shelf) | Key evidence #4 |
+## Puzzle and Tool Objects
 
-## Tool Objects
+| ID | Canonical phrase | Natural variants | Location | Contract |
+|---|---|---|---|---|
+| `STUDY-DOOR` | study door | door, oak door, south door | Local global | Real door controlling the north/south route; key/lockpick are optional solutions |
+| `LOCKED-BOX` | locked box | box, case, container | Study fireplace | `CONTBIT SEARCHBIT TURNBIT`; name dial, never opened by key/lockpick |
+| `TORN-PAGE` | torn page | page, fragment | Library | Explicit red-yellow-green-blue clue |
+| `COLORED-MARKERS` | colored markers | markers, ribbons, tags | Library | Environmental half of cipher clue |
+| `RED-BOOK` etc. | red-marked book | red book, yellow book, green book, blue book | Library | Four distinct parser objects; `PUSH` advances/reset cipher |
+| `MAGNIFYING-GLASS` | magnifying glass | glass, lens, magnifier | Entrance Hall | Reveals the crescent nick in the footprint cast's right heel |
+| `LEATHER-ROLL` | leather roll | roll, leather case | Kitchen drawer | Openable container holding picks |
+| `LOCKPICK-SET` | lockpick set | lockpick, set, picks, tools | Leather roll | Optional physical route/tool, not a required major gate |
+| `KEYRING` | keyring | keys, key | Hudson | Optional study-door solution and Hudson trust response |
+| `LANTERN` | oil lantern | lantern, lamp, light | Servants' Quarters | Hudson's maintained keepsake; explicitly not presented as a required darkness tool |
+| `FOXGLOVE` | foxglove | digitalis | Pantry | Dangerous digitalis contrast; refuses unsafe self-medication |
+| `CHARCOAL` | charcoal | coal | Pantry | Recoverable response to tasting poison; restores one lost health point |
 
-| ID | Name | Synonyms | Flags | Location | Puzzle Role |
-|----|------|----------|-------|----------|-------------|
-| MAGNIFYING-GLASS | Magnifying Glass | glass, lens, magnifier | TAKEBIT | ENTRANCE-HALL (on table) | Examine small clues |
-| LOCKPICK-SET | Lockpick Set | picks, tools | TAKEBIT | KITCHEN (in drawer) | Open locked doors |
-| LANTERN | Lantern | lamp, light | TAKEBIT LIGHTBIT | SERVANTS-QUARTERS | Illuminate dark areas |
-| KEYRING | Keyring | keys, key | TAKEBIT | MR. HUDSON (gives freely) | Open locked study |
+## Major Scenery and Containers
 
-## Clue Objects
+| ID | Room | Required nouns/commands | Function |
+|---|---|---|---|
+| `GATES`, `PATH`, `FOG` | Gate | examine gates/path/fog | Opening landmark and sensory frame |
+| `CHANDELIER`, `PORTRAITS`, `RUG` | Hall | examine chandelier/portraits/rug | Hub texture; portraits are a candidate place for additional name-dial foreshadowing |
+| `DESK`, `FIREPLACE`, `WINDOW`, `CHALK-OUTLINE` | Study | examine each; open window | Crime reconstruction and physical route model |
+| `BOOKSHELF`, `READING-DESK` | Library | examine/push bookshelf; examine desk | Cipher affordance |
+| `TABLE`, `WINE-CABINET` | Dining Room | examine table/cabinet; open cabinet | Interrupted meal and missing private-laboratory delivery bottle |
+| `POTS`, `HEARTH`, `SERVANT-BELL`, `DRAWER` | Kitchen | examine; pull/use bell; open drawer | Warm contrast, feedback, tool container |
+| `FOUNTAIN`, `HEDGES` | Garden | examine fountain/hedges | Surface footprint and knife discoveries |
+| `PLANTS`, `LABELS`, `BENCH` | Greenhouse | examine plants/labels; use vial on plants | Poison comparison |
+| `BEDS`, `TRUNK`, `UNIFORMS`, `TRUNK-LETTER` | Quarters | examine/open/read | Hudson environment and secondary testimony |
+| `SHELVES` | Pantry | examine shelves | Ingredient context |
+| `STONE-WALLS`, `COBWEBS`, `DUST` | Passage | examine | Locked-room route and age |
 
-| ID | Name | Synonyms | Flags | Location | Puzzle Role |
-|----|------|----------|-------|----------|-------------|
-| TORN-PAGE | Torn Page | page, fragment | TAKEBIT READBIT | LIBRARY (on desk) | Cipher clue |
-| COLORED-MARKERS | Colored Markers | markers, ribbons, tags | SCENERY | LIBRARY (on shelves) | Cipher clue |
-| FOOTPRINT-CAST | Footprint Cast | cast, mold, footprint | TAKEBIT | GARDEN (near fountain) | Alibi evidence |
-| WAX-SEAL | Wax Seal | seal, stamp | TAKEBIT | DINING-ROOM (on table) | Identifies letter writer |
-| BANK-STATEMENT | Bank Statement | statement, receipt | TAKEBIT READBIT | STUDY (in locked box) | Financial motive |
+## NPC Registry
 
-## Furniture/Scenery Objects
+| ID | Canonical listener | Vocabulary | Initial location | Movement |
+|---|---|---|---|---|
+| `MR-HUDSON` | Mr. Hudson | Hudson, butler; adjectives Mr/Mister | Servants' Quarters | Static, description changes by case state |
+| `LADY-ASHWORTH` | Lady Ashworth | Ashworth, wife; adjective Lady | Dining Room | Static, description changes by case state |
+| `DR-MORIARTY` | Dr. Moriarty | Moriarty, doctor; adjectives Dr/Doctor | Library | Moves to Entrance Hall after poison interview |
+| `INSPECTOR` | Inspector Lestrade | inspector, Lestrade, officer, police | Offstage | Moves to Entrance Hall only at Act III threshold |
 
-| ID | Name | Synonyms | Flags | Location | Puzzle Role |
-|----|------|----------|-------|----------|-------------|
-| DESK | Mahogany Desk | desk, table | SCENERY | STUDY | Evidence location |
-| FIREPLACE | Fireplace | hearth, fire | SCENERY | STUDY | Hidden items |
-| WINDOW | Window | glass, pane | SCENERY | STUDY | Alternate entry |
-| BOOKSHELF | Bookshelf | shelves, books | SCENERY | LIBRARY | Cipher puzzle |
-| READING-DESK | Reading Desk | lectern, stand | SCENERY | LIBRARY | Torn page location |
-| TABLE | Dining Table | table, board | SCENERY | DINING-ROOM | NPC encounter |
-| WINE-CABINET | Wine Cabinet | cabinet, cupboard | SCENERY | DINING-ROOM | Hidden compartment |
-| POTS | Copper Pots | pans, cookware | SCENERY | KITCHEN | Atmosphere |
-| HEARTH | Cold Hearth | stove, oven | SCENERY | KITCHEN | Tool location |
-| BELL | Servant Bell | bell, rope | SCENERY | KITCHEN | Summon NPCs |
-| FOUNTAIN | Fountain | well, basin | SCENERY | GARDEN | Evidence location |
-| HEDGES | Hedge Maze | hedges, bushes | SCENERY | GARDEN | Knife location |
-| PLANTS | Exotic Plants | plants, flowers | SCENERY | GREENHOUSE | Poison identification |
-| BENCH | Potting Bench | bench, table | SCENERY | GREENHOUSE | Label location |
-| POTS | Flower Pots | pots, containers | SCENERY | GREENHOUSE | Poison source |
-| BEDS | Servant Beds | beds, cots | SCENERY | SERVANTS-QUARTERS | Atmosphere |
-| TRUNK | Trunk | chest, box | SCENERY | SERVANTS-QUARTERS | Hidden items |
-| UNIFORMS | Servant Uniforms | clothes, livery | SCENERY | SERVANTS-QUARTERS | Atmosphere |
+## Topic Objects
 
-## NPC Objects
+Global topic objects support `ASK/TELL ... ABOUT ...`: master, alibi, key, Moriarty, marriage, experiments/research, poison/wolfsbane, and case/murder. Actor routines must guard `PRSI` before every containment/equality operation so topicless `ASK NPC` cannot crash.
 
-| ID | Name | Synonyms | Flags | Location | Puzzle Role |
-|----|------|----------|-------|----------|-------------|
-| MR-HUDSON | Mr. Hudson | butler, hudson | NPC | SERVANTS-QUARTERS | Info provider, key holder |
-| LADY-ASHWORTH | Lady Ashworth | lady, wife | NPC | DINING-ROOM | Suspect, alibi provider |
-| DR-MORIARTY | Dr. Moriarty | doctor, moriarty | NPC | LIBRARY | Suspect, poison expert |
-| INSPECTOR | Inspector Lestrade | inspector, lestrade | NPC | ENTRANCE-HALL (final) | Case resolution |
+## Vocabulary Collision Rules
 
-## Object Count
+- `SET` and `CAST` are also substrate verbs. At game start their noun senses are re-registered so `TAKE LOCKPICK SET` and `TAKE FOOTPRINT CAST` work.
+- `INSPECTOR` truncates to the same six-letter dictionary form as `INSPECT`; its object sense is likewise re-registered.
+- Prefer unambiguous canonical puzzle commands such as `USE VIAL ON PLANTS` where `POISON` can resolve to both a topic and a physical bottle.
+- Test spaced and hyphenated variants where the prose teaches both.
 
-- **Total Objects:** 35
-- **Takeable Objects:** 12
-- **Scenery Objects:** 18
-- **NPC Objects:** 4
-- **Evidence Objects:** 5 (key to winning)
+## Progress Guard Policy
 
-## Object Relationships
+`TAKE`, `READ`, and `EXAMINE` may expose the same clue, but each corresponding `*-FOUND` flag may increment `EVIDENCE-FOUND` only once. Opening the box is separate from discovering/reading its bank statement.
 
-- **LOCKED-BOX** contains: BANK-STATEMENT, SECRET-LEDGER
-- **DESK** holds: DEAD-LETTER, POISON-BOTTLE
-- **BOOKSHELF** hides: SECRET-LEDGER, COLORED-MARKERS
-- **GARDEN** contains: BLOOD-STAINED-KNIFE, FOOTPRINT-CAST
-- **WINE-CABINET** contains: WAX-SEAL
+## Optional Evidence State
 
-## Object States
-
-- **STUDY door:** LOCKED → UNLOCKED (with KEY or LOCKPICK)
-- **SECRET-PASSAGE:** HIDDEN → REVEALED (with cipher solution)
-- **LOCKED-BOX:** CLOSED → OPENED (with KEY)
-- **LANTERN:** UNLIT → LIT (with matches)
-- **WINE-CABINET:** CLOSED → OPENED (with KEY)
-
-## Parser Expectations
-
-- **EXAMINE:** Detailed description of object
-- **TAKE:** Pick up object (if TAKEBIT)
-- **DROP:** Put down object
-- **USE:** Context-dependent action
-- **OPEN/CLOSE:** For containers
-- **READ:** For readable objects
-- **ASK/TELL:** For NPCs
-- **SHOW:** Show item to NPC
-
-## Object Interactions
-
-- **MAGNIFYING-GLASS + FOOTPRINT-CAST:** Reveals boot size
-- **LOCKPICK-SET + STUDY DOOR:** Opens locked door
-- **KEY + LOCKED-BOX:** Opens box
-- **POISON-BOTTLE + GREENHOUSE PLANTS:** Identifies poison type
-- **DEAD-LETTER + LADY-ASHWORTH:** Confrontation
-- **BLOOD-STAINED-KNIFE + DR-MORIARTY:** Accusation
+- `FOOTPRINT-DETAIL-FOUND` records the magnifying-glass discovery and unlocks exact heel-match prose from Moriarty, Lestrade, and the ending.
+- `CABINET-CLUE-SEEN` records the missing medicinal-delivery bottle and changes Dining Room revisit prose.

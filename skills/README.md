@@ -96,17 +96,46 @@ adventure-name/
 - Full source mirrors remain available for exact wording and complete reference.
 - The `work/`, `test/`, and `package/` subfolders keep adventures organized as they grow.
 
+## Non-Negotiable: Play As You Build
+
+Do not write the whole adventure and wait for Stage 6 to play it. Build vertical slices:
+
+1. Write the exact player commands for one room or puzzle in `TRANSCRIPT_TESTS.md`.
+2. Implement only that slice.
+3. Start a fresh game and execute those commands through `llm.lua`, one saved invocation per command.
+4. Test the obvious noun variants, wrong order, repeated action, inventory, and save/reload boundary.
+5. Add the successful commands to the automated parser-driven walkthrough.
+6. Continue only when the slice passes.
+
+The walkthrough grows with the game. At every commit-sized milestone, all implemented slices must still be playable from a fresh game.
+
 ## Critical Rules (from Real Bugs)
 
 **These caused broken games. Read before implementing.**
 
-1. **No `<SYNTAX ...>` in dungeon.zil** — SYNTAX comes from substrate (`infocom/zork1/syntax.zil`). Adding your own breaks commands.
+1. **No `<SYNTAX ...>` in dungeon.zil and no redefinition of standard syntax** — standard SYNTAX comes from substrate (`infocom/zork1/syntax.zil`). A genuinely new verb may add one narrow declaration in `actions.zil`.
 2. **No `<ROUTINE V-LOOK ...>` in actions.zil** — V-LOOK comes from substrate. Redefining it breaks room descriptions.
 3. **Room descriptions use `P?LDESC` not `P?DESC`** — `P?DESC` is the room name, `P?LDESC` is the full description.
 4. **Every `<TELL>` must close with `>`** — unclosed TELL swallows subsequent code.
 5. **GO must exist in actions.zil** — entry point for the game.
 6. **Room descriptions don't embed item descriptions** — items describe themselves via `FDESC`/`LDESC`/`DESCFCN`. This keeps content modular and lets items adapt to state changes.
-7. **Use dynamic descriptions for state-changing rooms** — rooms with open/closed, lit/unlit, or locked/unlocked elements should use an ACTION routine with `M-LOOK` to vary the description based on flags.
+7. **Never freeze mutable state into `LDESC`** — follow Zork I's `EAST-HOUSE` pattern: rooms with open/closed, lit/unlit, locked/unlocked, moved, revealed, or depleted elements should omit the duplicated static `LDESC` and use an ACTION routine with `M-LOOK` to compose the full live description from object state. The object's ACTION routine separately handles `EXAMINE` and manipulation.
+8. **Object IDs and DESC text are not parser vocabulary** — every reachable object needs explicit `SYNONYM` nouns and `ADJECTIVE` modifiers matching the exact transcript commands, including hyphenated forms when used.
+9. **Opening a container must make contents reachable** — use container/search flags, set `OPENBIT`, and verify contents can be taken after a separate save/reload invocation.
+10. **Evidence and milestone counters must be idempotent** — guard one-time increments with per-clue flags so repeated EXAMINE/READ/TAKE cannot inflate progress.
+11. **Default verb routines never redispatch themselves** — `PERFORM` already visits object actions before the default; calling the same action again creates recursion.
+12. **Parser syntax and action routines are separate deliverables** — a `V-*` routine does not register a typed verb. Test `USE`, `SHOW`, `HINTS`, custom verbs, and substrate aliases through `llm.lua`.
+13. **ASK uses the TELL action and `PRSI` topic** — NPC routines test `<VERB? TELL>` and compare the topic in `PRSI`; do not depend on a separate `V?ASK`.
+14. **Puzzle clues and executable sequences must agree** — reconcile prose, hints, object availability, implementation order, and the parser-driven walkthrough before shipping.
+11. **FDESC/LDESC text is the parser vocabulary contract** — every concrete noun in description text that a player might reasonably type must resolve to that object or another object in scope. When FDESC describes an item inside a container (e.g., "A leather roll lies in the open drawer"), create a container object for the described item rather than adding the description noun as a synonym on the contained object. `scripts/check-vocab.lua` checks that printed `DESC` names contain a registered synonym; transcript playtesting must cover the broader prose contract.
+12. **ACTION routine text must match game objects** — when a TELL inside an ACTION routine mentions an object by name ("contains a letter", "sits on the table"), that object must exist in the game world with the right parent and matching SYNONYM. Players will immediately type the noun they just read.
+13. **Don't override EXAMINE on containers** — the Zork engine automatically lists contents via `V-LOOK-INSIDE` → `PRINT-CONT`. Containers with `CONTBIT` print "The X contains: Y, Z" when open, "closed" when closed. Place objects inside containers with `(IN CONTAINER)` rather than printing their names manually.
+14. **Physical nouns are objects, not Boolean shortcuts** — if prose says there is a door, window, switch, drawer, rope, vehicle, or other thing the player could reasonably EXAMINE, OPEN, CLOSE, UNLOCK, TAKE, or refer to as IT, create an `OBJECT` for it. Put shared fixtures in `LOCAL-GLOBALS`, list them in each relevant room's `GLOBAL`, and use object flags such as `OPENBIT` in exits and descriptions. A global may supplement the object for state the object model does not represent (for example, locked versus closed), but must not replace the object itself. Never print a physical obstacle while implementing only `(SOUTH TO ROOM IF SOME-FLAG)`; that produces scenery the parser cannot interact with.
+15. **Custom V-GO routines must mirror every conditional exit** — if you write `V-GO-NORTH`/`V-GO-SOUTH`/etc., every conditional exit (`IF CIPHER-SOLVED`, `IF DOOR IS OPEN`) declared on rooms must be replicated inside the matching V-GO routine. Missing the check silently bypasses the puzzle. Also ensure every room with an exit for that direction appears in the routine.
+16. **NPCs and key objects need generous, overlap-tested vocabulary** — give every NPC role-based synonyms, title adjectives, and `ARTICLEBIT` where "the X" is natural. Add hyphenated compound forms as `SYNONYM`. Pre-register every verb the DESIGN.md promises (ASK, SEARCH, LOOK AT) with explicit `SYNTAX` entries. Test all transcript noun phrases through the parser.
+17. **No two objects in overlapping scope may share DESC or SYNONYM sets** — identical `DESC` strings on objects that can be in scope together cause disambiguation loops. Give unique DESCs, use distinct adjectives, and audit room `GLOBAL` lists so objects don't pseudo-appear in rooms where they don't belong.
+18. **Dynamic room text must faithfully reflect object state** — every state-dependent phrase in a room ACTION routine must be paired with the exact flag check that produces it. Don't say "slightly ajar" for a closed drawer or contradict what the object's own EXAMINE reports.
+19. **NPC-given items must guard against early TAKE** — if an NPC carries an item meant to be given during conversation, the item's TAKE handler must check the relevant global (e.g., `HUDSON-KEY-GIVEN`) before allowing the player to take it.
 
 See `05_zil_implementation_reference.md` for details.
 
@@ -151,7 +180,6 @@ For rooms that can be entered only via vehicle (boats, etc.):
 | `READBIT` | Can be READ | For readable items |
 | `CONTBIT` | Is a container | For boxes, bags, etc. |
 | `OPENBIT` | Container is open | For open containers/doors |
-| `OPENABLEBIT` | Can be opened/closed | For containers that open |
 | `LIGHTBIT` | Can provide light | For lanterns, torches |
 | `ONBIT` | Light source is on | For active light sources |
 | `ACTORBIT` | Is an NPC | For talkable characters |
@@ -178,5 +206,5 @@ After setting flags, test:
 1. Can player enter the room?
 2. Is the room lit (if ONBIT) or dark (if no ONBIT)?
 3. Can player take objects (if TAKEBIT)?
-4. Can player open containers (if CONTBIT + OPENABLEBIT)?
+4. Can player open and close containers (if `CONTBIT`)?
 5. Can player talk to NPCs (if ACTORBIT)?

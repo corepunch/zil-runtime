@@ -1,5 +1,5 @@
 # Targets
-.PHONY: test test-all test-unit test-integration test-game-startup test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-read-mailbox test-walk-around-house test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look test-zilch test-flow-control
+.PHONY: test test-all test-unit test-integration test-game-startup test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-read-mailbox test-walk-around-house test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-playtest-regressions test-horror-all test-limehouse-walkthrough test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look test-zilch test-flow-control lint-zil
 
 help:
 	@echo "Available targets:"
@@ -36,10 +36,13 @@ help:
 	@echo "  test-let          - Run LET form tests"
 	@echo "  test-save         - Run save/restore tests"
 	@echo "  test-llm          - Run LLM persistence tests"
+	@echo "  test-limehouse-walkthrough - Run Limehouse golden-path LLM test"
+	@echo "  lint-zil          - Check printed object names against parser vocabulary"
 	@echo ""
 	@echo "Horror game tests:"
 	@echo "  test-horror-helpers - Run horror test helpers"
 	@echo "  test-horror-partial - Run horror partial walkthrough"
+	@echo "  test-horror-playtest-regressions - Run isolated Blackwood playtest regressions"
 	@echo "  test-horror-failures - Run horror failing conditions tests"
 	@echo "  test-horror       - Run horror complete walkthrough"
 	@echo "  test-horror-all   - Run all horror tests"
@@ -65,7 +68,7 @@ test-unit:
 	@echo "Running unit tests..."
 	lua tests/run_all.lua
 
-test-integration: test-zork1 test-zork2 test-game-startup test-parser test-horror-all
+test-integration: test-zork1 test-zork2 test-game-startup test-parser test-horror-all test-limehouse-walkthrough
 	@echo "All integration tests completed!"
 
 test-zork1:
@@ -151,6 +154,10 @@ test-llm:
 	@echo "Running LLM persistence tests..."
 	@lua tests/test_llm.lua
 
+test-limehouse-walkthrough:
+	@echo "Running Limehouse Killings golden-path walkthrough..."
+	@lua5.4 tests/test_limehouse_walkthrough.lua
+
 test-zilch:
 	@echo "Running ZILCH feature tests..."
 	@lua5.4 run-zil-test.lua zil/test-zilch
@@ -171,7 +178,17 @@ test-horror-failures:
 	@echo "Running horror failing conditions tests..."
 	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-failures
 
-test-horror-all: test-horror-helpers test-horror-partial test-horror-failures test-horror
+test-horror-playtest-regressions:
+	@echo "Running isolated Blackwood playtest regressions..."
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-safe-key
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-say-ending
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-give-relic
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-something
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-scenery
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-lore
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-systems
+
+test-horror-all: test-horror-helpers test-horror-partial test-horror-failures test-horror-playtest-regressions test-horror
 	@echo "All horror tests completed!"
 
 test-pure-zil:
@@ -198,3 +215,7 @@ test-pure-zil:
 	@lua5.4 run-zil-test.lua zil/test-zilch
 	@lua5.4 run-zil-test.lua zil/test-flow-control
 	@echo "All pure ZIL tests completed!"
+
+lint-zil:
+	@echo "Checking vocabulary consistency in book adventures..."
+	@lua5.4 scripts/check-vocab.lua books/limehouse-killings/dungeon.zil books/blackwood-horror/dungeon.zil

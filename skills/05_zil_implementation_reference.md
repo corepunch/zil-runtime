@@ -9,19 +9,24 @@ Implement game logic in ZIL with clean split between world data and routines.
 ## Required Actions
 1. Implement `dungeon.zil` for rooms, objects, and declarative world data.
 2. Implement `actions.zil` for routines, daemon/clock behavior, and `GO`.
-3. Implement `walkthrough.zil` as executable test entry file.
+3. Implement an executable walkthrough entry. If using `walkthrough.zil` with `run-zil-test.lua`, it must load prerequisites and expose `RUN_TEST`; also maintain a parser-driven cross-process walkthrough for release confidence.
 4. Use the engine include chain consistently.
 5. Apply advanced ZIL patterns where needed (GLOBAL objects, PSEUDO, FDESC/LDESC, PER exits, dynamic descriptions, transformations, daemons).
+6. Implement one playable vertical slice at a time. After each room, object, puzzle, or NPC interaction, play its exact transcript through `llm.lua` before adding the next slice.
+7. Grow a parser-driven walkthrough test alongside implementation; do not rely only on routines invoked directly with `PERFORM`.
 
 ## Outputs
 - `dungeon.zil`
 - `actions.zil`
 - `walkthrough.zil`
+- Parser-driven walkthrough test under `tests/` when the adventure is playable through `llm.lua`
 
 ## Acceptance Checks
 - Parser/object/room routines compile and run.
 - Puzzle state changes are explicit and traceable.
 - Dynamic text and clock events are deterministic enough to test.
+- Exact transcript noun phrases parse before and after a save/reload boundary.
+- Each completed slice is reachable from a fresh game and remains covered by the growing walkthrough.
 
 ## Design-Critical Implementation Reminders
 
@@ -41,9 +46,9 @@ These are implementation-level constraints that protect the intended Infocom-sty
 
 These rules are derived from real bugs found when running book content through the zilscript engine. Violating them will cause parse errors, broken compilation, or broken gameplay.
 
-### 0. NEVER redefine V-LOOK or SYNTAX — they come from the substrate
+### 0. Never redefine V-LOOK or standard SYNTAX
 
-The substrate (`infocom/zork1/`) provides V-LOOK and all SYNTAX definitions. **Do not add your own.**
+The substrate (`infocom/zork1/`) provides V-LOOK and the standard SYNTAX definitions. **Do not redefine those.**
 
 **V-LOOK is provided by the substrate.** It reads `P?LDESC` from the current room and prints exits. Your `GO` routine calls it automatically. If you redefine V-LOOK (as Limehouse Killings did), you will break room descriptions.
 
@@ -67,7 +72,15 @@ The substrate (`infocom/zork1/`) provides V-LOOK and all SYNTAX definitions. **D
     <MAIN-LOOP>>
 ```
 
-**SYNTAX is provided by the substrate.** All standard verbs (LOOK, EXAMINE, TAKE, DROP, OPEN, etc.) are already defined in `infocom/zork1/syntax.zil`. Your `dungeon.zil` should NOT contain any `<SYNTAX ...>` forms.
+**Standard SYNTAX is provided by the substrate.** LOOK, EXAMINE, TAKE, DROP, OPEN, and other standard verbs already exist in `infocom/zork1/syntax.zil`. Your `dungeon.zil` must not contain `<SYNTAX ...>` forms and `actions.zil` must not redefine standard entries.
+
+A genuinely new verb still needs one narrow syntax declaration in `actions.zil`, after its action routine is available:
+
+```zil
+<SYNTAX ACCUSE OBJECT (FIND ACTORBIT) (IN-ROOM) = V-ACCUSE>
+```
+
+After adding custom syntax, test the typed command through the parser. Calling `<PERFORM ,V?ACCUSE ...>` proves the routine, not the vocabulary or syntax.
 
 **Wrong** (Limehouse Killings bug — adds SYNTAX that conflicts):
 ```zil
@@ -85,7 +98,170 @@ The substrate (`infocom/zork1/`) provides V-LOOK and all SYNTAX definitions. **D
 <OBJECT ...>
 ```
 
-**Detection:** If your `dungeon.zil` contains `<SYNTAX` anywhere, remove it. If your `actions.zil` contains `<ROUTINE V-LOOK`, remove it.
+**Detection:** If `dungeon.zil` contains `<SYNTAX`, remove it. If `actions.zil` contains `<ROUTINE V-LOOK`, remove it. Review every `actions.zil` SYNTAX entry and keep only custom verbs absent from the substrate.
+
+### 0a. Make parser vocabulary explicit
+
+Object IDs and `DESC` strings are not automatically usable nouns. Every player-reachable object needs explicit vocabulary matching the transcript:
+
+```zil
+<OBJECT TORN-PAGE
+      (IN LIBRARY)
+      (DESC "torn page")
+      (SYNONYM PAGE FRAGMENT TORN-PAGE)
+      (ADJECTIVE TORN)
+      (FLAGS TAKEBIT READBIT)>
+```
+
+Rules:
+
+- Put head nouns and alternate nouns in `SYNONYM`.
+- Put modifiers in `ADJECTIVE`.
+- If a transcript types a hyphenated compound, include that exact spelling as a synonym.
+- Add canonical nouns even when they match the object ID (`FOXGLOVE` still needs `(SYNONYM FOXGLOVE ...)`).
+- Test both the documented form and a natural spaced variant.
+- Resolve same-room noun collisions with adjectives or different nouns.
+- If FDESC or LDESC mentions a concrete noun a player might type (e.g., "leather roll", "brass lantern"), that word must resolve to the described object or another object in scope. The text the player reads IS the parser vocabulary contract. `scripts/check-vocab.lua` verifies the objective subset—that each printed `DESC` contains a registered synonym—but prose nouns still require transcript playtesting and human review.
+- When FDESC describes an object inside a container (e.g., "A leather roll lies in the open drawer, its contents glinting steel"), create a separate container object for the described item. Don't put the description noun as a synonym on the contained object — that breaks the containment hierarchy.
+- Every concrete noun printed by an ACTION routine's TELL must correspond to an actual in-game object. If `TRUNK-F` EXAMINE says "contains a letter", a `LETTER` object must exist inside the `TRUNK` with matching SYNONYM. Players type exactly what they read — broken promises destroy parser trust.
+- Don't write manual EXAMINE handlers for containers — the Zork engine handles it automatically via `V-EXAMINE` → `V-LOOK-INSIDE` → `PRINT-CONT`. It prints "The X contains: Y, Z" when open, "The X is closed" when closed, and "The X is empty" when empty. Use `(TEXT ...)` for custom description only when you need flavor text that replaces the default listing. Place contained objects inside the container with `(IN CONTAINER)` so they appear in the automatic listing.
+
+### 0b. Make containers reveal reachable contents
+
+A printed “open” response is not enough. The world model must change:
+
+```zil
+<OBJECT LOCKED-BOX
+      (IN STUDY)
+      (SYNONYM BOX)
+      (ADJECTIVE LOCKED)
+      (FLAGS CONTBIT SEARCHBIT)
+      (ACTION LOCKED-BOX-F)>
+
+; in successful OPEN/UNLOCK branch
+<FSET ,LOCKED-BOX ,OPENBIT>
+<MOVE ,BANK-STATEMENT ,LOCKED-BOX>
+```
+
+Immediately test `OPEN BOX`, then `TAKE STATEMENT` in the next `llm.lua` process. This catches both scope and save-state errors.
+
+### 0c. Guard one-time story progress
+
+If TAKE, READ, and EXAMINE can all reveal a clue, route them through one guarded transition:
+
+```zil
+<COND (<NOT ,LETTER-FOUND>
+       <SETG LETTER-FOUND T>
+       <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>)>
+```
+
+Test the verbs repeatedly and in different orders. Progress must increment once.
+
+### 0d. Implement ASK/TELL topics for this substrate
+
+The zork1 substrate treats `ASK` as a parser synonym of the `TELL` action; it does not create a separate `V?ASK` action. `ASK ACTOR ABOUT TOPIC` and `TELL ACTOR ABOUT TOPIC` both reach the actor with `PRSA = V?TELL`, the actor in `PRSO`, and the topic in `PRSI`. Actor routines must therefore test `TELL` and inspect `PRSI`:
+
+```zil
+<COND (<VERB? TELL>
+       <COND (<EQUAL? ,PRSI ,KEY-TOPIC>
+              ... )>)>
+```
+
+Do not write `<VERB? ASK TELL>` here: `V?ASK` may be undefined, and placing it first can prevent the valid `TELL` comparison from being reached. Do not inspect `PRSO` for the topic; that is the actor. Define reusable topic objects in `GLOBAL-OBJECTS` so topic words resolve when the referenced clue/person is elsewhere. Guard interview counters, and ensure an NPC needed for a later command is physically or globally accessible at that point.
+
+### 0e. Never redispatch the same action from its default verb routine
+
+`PERFORM` already dispatches an action to the indirect object, direct object, and then the verb default. A default routine must produce the fallback; it must not call `PERFORM` with its own action again:
+
+```zil
+; Wrong: recurses when no object routine handles TELL.
+<ROUTINE V-TELL ()
+    <PERFORM ,V?TELL ,PRSO ,PRSI>>
+
+; Right: normally inherit the substrate's V-TELL. For a new verb, provide
+; a terminal fallback instead of redispatching it.
+<ROUTINE V-SHOW ()
+    <TELL "The " D ,PRSI " doesn't seem interested." CR>>
+```
+
+Before defining any `V-*` routine, search the substrate's `verbs.zil`. Override only when the game genuinely needs a different default, and add a command-level test where no object handler accepts the action.
+
+### 0f. Audit parser registration separately from action routines
+
+A `V-USE`, `V-SHOW`, or `V-HINTS` routine does not make the typed verb parse. Search `infocom/zork1/syntax.zil`; if the verb is absent, add one narrow book-specific `SYNTAX` declaration and exercise the literal command through `llm.lua`.
+
+The substrate may intentionally map a surface verb to a canonical action. In Zork I syntax, `PULL` maps to `V-MOVE`, so a pullable object's action routine handles `<VERB? MOVE>`; duplicating the global `PULL` syntax in a book is unnecessary and can create ambiguous grammar. Record these mappings in the verb × object matrix.
+
+### 0g. Keep puzzle instructions, implementation, and tests executable and identical
+
+For every ordered puzzle, maintain one canonical sequence and copy it exactly into the clue text, hints, design notes, and parser-driven walkthrough. Every named step must exist as an object or action. A clue that says “rainbow order” cannot mention colors for which no interactive books exist, and the walkthrough must not encode a different order merely because it passes.
+
+### 0h. Treat titles as modifiers in multiword NPC names
+
+Put the stable head noun in `SYNONYM` and titles in `ADJECTIVE`:
+
+```zil
+(SYNONYM HUDSON BUTLER MR-HUDSON)
+(ADJECTIVE MR MISTER)
+```
+
+This intentionally supports both `HUDSON` and `MISTER HUDSON`. Test the full natural form; do not move `MISTER` into `SYNONYM`, where it becomes a competing head noun.
+
+### 0i. Represent physical world state with objects, not flag-only scenery
+
+If the prose names a physical thing the player could reasonably manipulate, that thing must exist in the object tree. Doors, windows, drawers, switches, ropes, vehicles, gates, and containers are not merely conditions on room exits.
+
+**Wrong — the prose promises a door, but only a Boolean exists:**
+
+```zil
+<GLOBAL STUDY-UNLOCKED <>>
+
+<ROOM ENTRANCE-HALL
+      (LDESC "A door to the south stands locked.")
+      (SOUTH TO STUDY IF STUDY-UNLOCKED)>
+
+; Somewhere else:
+<SETG STUDY-UNLOCKED T>
+```
+
+This shortcut lets movement change, but there is no door for `EXAMINE DOOR`, `OPEN DOOR`, `UNLOCK DOOR WITH KEY`, `CLOSE DOOR`, or pronoun resolution. Prose, parser scope, generic verbs, and navigation can contradict one another.
+
+**Right — create the door and let its object state control the exit:**
+
+```zil
+<GLOBAL STUDY-UNLOCKED <>> ; supplements the object: locked vs merely closed
+
+<OBJECT STUDY-DOOR
+      (IN LOCAL-GLOBALS)
+      (DESC "study door")
+      (SYNONYM DOOR)
+      (ADJECTIVE STUDY OAK)
+      (FLAGS DOORBIT NDESCBIT)
+      (ACTION STUDY-DOOR-F)>
+
+<ROOM ENTRANCE-HALL
+      (SOUTH TO STUDY IF STUDY-DOOR IS OPEN
+             ELSE "The study door is closed.")
+      (GLOBAL STUDY-DOOR)>
+
+<ROOM STUDY
+      (NORTH TO ENTRANCE-HALL IF STUDY-DOOR IS OPEN
+             ELSE "The study door is closed.")
+      (GLOBAL STUDY-DOOR)>
+```
+
+The door routine should handle `EXAMINE`, `OPEN`, and `UNLOCK`, validate the key or lockpick, set `STUDY-UNLOCKED` when the lock is released, and set/clear `OPENBIT` when the door opens or closes. The exit reads `OPENBIT`; the supplementary global answers the separate question "is it locked?"
+
+Use globals without objects for genuinely abstract facts such as `RIDDLE-SOLVED`, `NPC-TRUSTS-PLAYER`, or a one-time scoring guard. Do not use them to erase physical entities from the simulated world.
+
+Do not leave mutable door state in a static room `LDESC`:
+
+```zil
+; Wrong: this remains "locked" after the door opens.
+(LDESC "A door to the south stands locked.")
+```
+
+Follow Zork I's `EAST-HOUSE` pattern instead: give the room an ACTION routine, handle `M-LOOK`, and compose the complete room description inline from `OPENBIT` and any supplementary lock state. Keep the door's own `EXAMINE`, `OPEN`, `CLOSE`, and `UNLOCK` behavior in its object ACTION routine, just as Zork I keeps `EAST-HOUSE` separate from `KITCHEN-WINDOW-F`.
 
 ### 1. Don't embed item descriptions in room descriptions — let items describe themselves
 
@@ -121,9 +297,11 @@ hangs heavy with the memory of violence.")
     (FLAGS NDESCBIT)>
 ```
 
-**Why**: When items describe themselves, their descriptions can change with game state. A locked box can say "locked" or "open" depending on a flag. A window can say "slightly ajar" or "open" depending on whether the player opened it. If the room description hardcodes the state, you need an ACTION routine just to vary one sentence.
+**Why**: When items describe themselves, their descriptions can change with game state. A locked box can say "locked" or "open" depending on a flag. A window can say "slightly ajar" or "open" depending on whether the player opened it. If the room description hardcodes the state, you need an ACTION routine just to vary one sentence. Most critically: if the room LDESC mentions a "door" but no door object exists, the player will type `OPEN DOOR` and get "There's no door here" — a broken promise that undermines trust in the parser.
 
-**Detection**: Search your `LDESC` strings for object names that appear as objects elsewhere. If a room says "a desk" and there's an OBJECT DESK, the desk should describe itself.
+**The door rule**: Every "door" noun in room text must correspond to an object with `SYNONYM DOOR` and an ACTION handler (even if it's always open). If you don't want a door object, say "doorway", "passage", or "opening" instead. Never use the word "door" in a room description without providing a door object.
+
+**Detection**: Search your `LDESC` strings for object names that appear as objects elsewhere. If a room says "a desk" and there's an OBJECT DESK, the desk should describe itself. Search for the word "door" — every occurrence must have a corresponding door object. Search for any concrete noun (chair, table, bed, window) that a player might `EXAMINE`; if it exists, ensure the parser can find it.
 
 ### 2. Every `<TELL>` must close with `>` before the next form
 
@@ -177,26 +355,15 @@ GO must set up initial state:
 
 **Detection**: Game loads without errors but prints "Failed to start game: GO() not defined or failed."
 
-### 4. Simplified SYNTAX uses `= ACTION`, not `ACTION` keyword
+### 4. Custom SYNTAX uses `= V-ROUTINE`
 
-The limehouse/blackwood books use a simplified SYNTAX format. Note the differences:
+Only add syntax for verbs absent from the substrate. Use `= V-ROUTINE` at the end and include scope constraints when appropriate:
 
-**Simplified format** (books):
 ```zil
-<SYNTAX EXAMINE OBJECT = V-EXAMINE>
-<SYNTAX ASK OBJECT ABOUT TEXT = V-ASK>
+<SYNTAX ACCUSE OBJECT (FIND ACTORBIT) (IN-ROOM) = V-ACCUSE>
 ```
 
-**Infocom format** (zork1/2/3):
-```zil
-<SYNTAX EXAMINE OBJECT (MANY) = V-EXAMINE>
-<SYNTAX ATTACK OBJECT (FIND ACTORBIT) (ON-GROUND IN-ROOM) = V-ATTACK>
-```
-
-Key rules for the simplified format:
-- `= V-ROUTINE` at the end (not `ACTION V?ROUTINE`)
-- Modifier keywords like `TEXT` before `=` are supported
-- Use hyphenated names: `V-GO-NORTH` (not `V?GO-NORTH`)
+Do not copy standard LOOK/EXAMINE/TAKE/ASK entries into book content. Before adding a verb, search `infocom/zork1/syntax.zil`; after adding it, test the typed command rather than only calling its routine.
 
 ### 5. Bracket balance: every `<` needs a matching `>`
 
@@ -238,3 +405,226 @@ Each book needs its own entry `.zil` file (like `blackwood-horror.zil`). Use loc
 ### 7. zork2/zork3 use different file naming conventions
 
 When referencing substrate files for zork2/zork3, note that they prefix files with `g` (globals → gglobals.zil, main → gmain.zil, clock → gclock.zil, etc.). The `try_open` function handles case-insensitive matching (`GMACROS` → `gmacros.zil`).
+
+### 8. Custom V-GO direction handlers must mirror every conditional exit
+
+If you define custom `V-GO-NORTH`, `V-GO-SOUTH`, `V-GO-EAST`, etc. routines in `actions.zil`, those routines completely replace the room's exit-table walk for that direction. Every conditional exit declared on a room (`IF CIPHER-SOLVED`, `IF DOOR IS OPEN`) **must** be replicated inside the matching V-GO routine, or the condition will be silently bypassed.
+
+**Wrong** (library south exit ignores cipher):
+```zil
+<ROUTINE V-GO-SOUTH ()
+    <COND ...
+          (<==? ,HERE ,LIBRARY>
+           <SETG HERE ,SECRET-PASSAGE>       ; no CIPHER-SOLVED check!
+           <TELL "You enter the secret passage." CR>)>>
+```
+
+**Right** (mirrors the room's conditional exit):
+```zil
+<ROUTINE V-GO-SOUTH ()
+    <COND ...
+          (<==? ,HERE ,LIBRARY>
+           <COND (,CIPHER-SOLVED
+                  <SETG HERE ,SECRET-PASSAGE>
+                  <TELL "You enter the secret passage." CR>)
+                 (T
+                  <TELL "You can't go that way." CR>)>)>>
+```
+
+Also ensure every room that HAS an exit for a given direction appears in the V-GO routine. Missing a room entirely means the direction silently fails there, even when the exit should be valid.
+
+**Prevention**: For every conditional room exit, search `actions.zil` for the corresponding direction routine and verify the condition is checked. If no V-GO routine exists for that direction, the substrate's `V-WALK` handles exit-table conditions correctly — only define V-GO routines for directions that genuinely need custom behavior beyond what the room's (TO ... IF ...) declarations already provide.
+
+### 9. NPCs and named objects need generous, overlap-tested vocabulary
+
+Players will try many forms of a name. Give every NPC:
+- Surname and title as `SYNONYM`: `(SYNONYM HUDSON BUTLER MR-HUDSON)`
+- Role-based nouns: `(SYNONYM DOCTOR)` for Dr. Moriarty, `(SYNONYM INSPECTOR LESTRADE OFFICER DETECTIVE POLICE)` for Inspector Lestrade
+- Role nouns as `ADJECTIVE` for common title forms: `(ADJECTIVE DR DOCTOR)` so both "doctor moriarty" and "dr moriarty" parse
+- `ARTICLEBIT` on characters where "the X" is natural English: inspector, doctor, butler — not for proper names alone (Mr. Hudson)
+
+For hyphenated object names (wine-cabinet, blood-stained-knife), add the hyphenated form as a `SYNONYM` **and** ensure the individual words exist as adjective+noun:
+```zil
+<OBJECT WINE-CABINET
+      (SYNONYM CABINET WINE-CABINET)
+      (ADJECTIVE WINE)>
+```
+
+Test every transcript noun phrase in the parser before accepting the slice. Don't assume the substrate inherits every needed verb — search `infocom/zork1/syntax.zil` and if a promised verb (ASK, SEARCH, LOOK AT) is missing, add one narrow `SYNTAX` entry in `actions.zil`.
+
+### 10. No two objects in overlapping scope may share a DESC
+
+When the parser encounters `TAKE LETTER` and two objects have `DESC "letter"`, it enters disambiguation. With identical synonyms and no distinguishing adjectives, this can loop. Give every object a **unique** `DESC` text, or ensure they are never in scope together, or use distinct `ADJECTIVE` so the parser can tell them apart:
+
+```zil
+; Study letter
+<OBJECT DEAD-LETTER
+      (DESC "unsent letter")        ; unique DESC
+      (SYNONYM LETTER)>
+
+; Trunk letter — never in scope at the same time as DEAD-LETTER,
+; but still distinct so "letter" alone doesn't trip disambiguation
+<OBJECT TRUNK-LETTER
+      (DESC "folded note")          ; different DESC
+      (SYNONYM NOTE)
+      (ADJECTIVE FOLDED)>
+```
+
+**Detection**: Grep for duplicate `(DESC "..."` strings across objects and for overlapping `SYNONYM` sets. Also check room `GLOBAL` lists — an object placed in a room's `GLOBAL` appears there as a pseudo-object even if its physical `(IN ...)` is elsewhere. Don't add kitchen `POTS` to the greenhouse's `GLOBAL` list.
+
+### 11. Dynamic room descriptions must faithfully reflect object state
+
+Room ACTION routines that compose a live description from object state must check the correct flags and use accurate language:
+
+```zil
+<ROUTINE KITCHEN-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           ...
+           <COND (<FSET? ,DRAWER ,OPENBIT>
+                  <TELL " The drawer stands open, a leather roll inside.">)
+                 (T
+                  <TELL " A drawer in the counter is closed.">)>)>>
+```
+
+Don't say "slightly ajar" for a closed drawer, "stands open" for a closed door, or "now unlocked" for a door that was unlocked three turns ago. Every state-dependent phrase must be paired with the exact flag check that produces it. When in doubt, the player's `EXAMINE` of the object tells the truth — make sure the room description doesn't contradict it.
+
+### 12. NPC-given items must not be freely TAKE-able before the NPC offers them
+
+When an NPC carries an item meant to be given in conversation, guard the item's `TAKE` handler against early acquisition:
+
+```zil
+<ROUTINE KEYRING-F ()
+    <COND (<VERB? TAKE>
+           <COND (,HUDSON-KEY-GIVEN
+                  <TELL "You take the keyring." CR>
+                  <MOVE ,KEYRING ,WINNER>)
+                 (<IN? ,KEYRING ,WINNER>
+                  <TELL "You already have the keyring." CR>)
+                 (T
+                  <TELL "That's not yours. Ask Mr. Hudson for it." CR>)>)>>
+```
+
+Otherwise the player can `TAKE KEYRING` directly from the NPC's inventory and skip the conversation gate. The item's initial `(IN MR-HUDSON)` places it inside the NPC object, but `TAKEBIT` on the item allows the parser to retrieve it from containers whose `SEARCHBIT` or `OPENBIT` grant access.
+
+### 13. Pronoun resolution with THIS-IS-IT
+
+The substrate's `THIS-IS-IT` macro binds `IT` to an object for subsequent commands. After any TELL that names an object, call `THIS-IS-IT` so the player can refer to it by pronoun:
+
+```zil
+<ROUTINE LENS-F ()
+    <COND (<VERB? EXAMINE>
+           <TELL "The Fresnel lens is magnificent but dark." CR>
+           <THIS-IS-IT ,FRESNEL-LENS>   ; now "EXAMINE IT" or "TAKE IT" works
+           <RTRUE>)>>
+```
+
+Apply this to every object with an ACTION routine that produces text naming the object. The most important objects to bind are: the current room's most visible feature, the last NPC spoken to, the last object examined, the last object taken or dropped.
+
+**Implementation notes:**
+- `THIS-IS-IT` sets the substrate's internal `P-IT-OBJECT` variable.
+- The substrate also supports `P-HIM-OBJECT` for ACTORBIT NPCs. After TELL about an NPC, call `THIS-IS-IT` with the NPC object and it will also set `P-HIM-OBJECT`.
+- Pronoun binding survives across turns but not across save/restore cycles in the current substrate.
+
+### 14. Autonomous NPC movement with clock daemons
+
+An NPC that moves independently creates a living world. The pattern: define a clock daemon that evaluates the NPC's current location and picks a valid adjacent room.
+
+```zil
+<GLOBAL GUARD-DIRECTION <>>  ; which way the guard is currently patrolling
+
+<ROUTINE I-GUARD-PATROL ()
+    <COND (<EQUAL? <LOC ,GUARD> ,ENTRANCE-HALL>
+           <MOVE ,GUARD ,CORRIDOR>
+           <SETG GUARD-DIRECTION 'FURTHER>)
+          (<EQUAL? <LOC ,GUARD> ,CORRIDOR>
+           <COND (<==? ,GUARD-DIRECTION 'FURTHER>
+                  <MOVE ,GUARD ,GUARD-ROOM>
+                  <SETG GUARD-DIRECTION 'RETURN>)
+                 (T
+                  <MOVE ,GUARD ,ENTRANCE-HALL>
+                  <SETG GUARD-DIRECTION 'OUT>)>)
+          (<EQUAL? <LOC ,GUARD> ,GUARD-ROOM>
+           <MOVE ,GUARD ,CORRIDOR>
+           <SETG GUARD-DIRECTION 'RETURN>)>
+    <RTRUE>>
+```
+
+Queue at interval 3-5 in GO. The guard moves every few turns, changing which rooms are occupied or dangerous.
+
+**Key considerations:**
+- An NPC's action routine must handle the case where the player is in the same room when the NPC arrives. Use M-ENTER for room entry handlers.
+- Guard NPC movement against the `GAME-WON` flag so patrols stop after the game ends.
+- If multiple NPCs patrol, ensure they don't occupy the same room simultaneously, or handle the overlap case.
+- Test: the player waits in a room and the NPC eventually arrives or passes through.
+
+### 15. Mechanical stateful clock daemons
+
+Atmosphere-only clock daemons (whispers, creaks) become wallpaper. Mechanical daemons that track numerical state create real gameplay decisions.
+
+**Pattern 1 — Battery drain (resource management):**
+
+```zil
+<GLOBAL FLASHLIGHT-CHARGE 100>  ; starts full
+
+<ROUTINE I-FLASHLIGHT ()
+    <COND (<AND <FSET? ,FLASHLIGHT ,ONBIT>
+                <IN? ,FLASHLIGHT ,WINNER>>
+           <SETG FLASHLIGHT-CHARGE <- ,FLASHLIGHT-CHARGE 1>>
+           <COND (<EQUAL? ,FLASHLIGHT-CHARGE 75>
+                  <TELL "Your flashlight flickers slightly." CR>)
+                 (<EQUAL? ,FLASHLIGHT-CHARGE 50>
+                  <TELL "The flashlight beam grows noticeably dimmer." CR>)
+                 (<EQUAL? ,FLASHLIGHT-CHARGE 25>
+                  <TELL "The flashlight casts only a faint yellow glow." CR>)
+                 (<EQUAL? ,FLASHLIGHT-CHARGE 0>
+                  <TELL "Your flashlight sputters and dies." CR>
+                  <FCLEAR ,FLASHLIGHT ,ONBIT>)>)>
+    <RTRUE>>
+```
+
+**Pattern 2 — Environmental exposure (cumulative hazard):**
+
+```zil
+<GLOBAL COLD-EXPOSURE 0>
+
+<ROUTINE I-FREEZE-CHECK ()
+    <COND (<EQUAL? ,HERE ,COLD-ROOM ,FREEZER ,ICE-CAVE>
+           <SETG COLD-EXPOSURE <+ ,COLD-EXPOSURE 1>>
+           <COND (<EQUAL? ,COLD-EXPOSURE 3>
+                  <TELL "You shiver. The cold is seeping through your clothes." CR>)
+                 (<EQUAL? ,COLD-EXPOSURE 6>
+                  <TELL "Your fingers are numb. Movement is getting harder." CR>
+                  <SETG PLAYER-STRENGTH <- ,PLAYER-STRENGTH 10>>)
+                 (<EQUAL? ,COLD-EXPOSURE 9>
+                  <TELL "The cold crushes the warmth from your chest. Your vision narrows." CR>)
+                 (<EQUAL? ,COLD-EXPOSURE 12>
+                  <TELL "You collapse. The cold takes you." CR>
+                  ; trigger death
+                  )>)>
+    <RTRUE>>
+```
+
+**Pattern 3 — Object state decay (temperature, freshness):**
+
+```zil
+<GLOBAL CHINESE-FOOD-TEMP 5>  ; 5 = frozen, 10 = perfect, 15 = burnt
+
+<ROUTINE I-FOOD-TEMP ()
+    <COND (<AND ,CHINESE-FOOD-HEATING
+                <EQUAL? ,HERE ,KITCHEN>>
+           <SETG CHINESE-FOOD-TEMP <+ ,CHINESE-FOOD-TEMP 1>>
+           <COND (<EQUAL? ,CHINESE-FOOD-TEMP 8>
+                  <TELL "The microwave beeps. The food is now hot." CR>
+                  <SETG CHINESE-FOOD-HEATING <>>
+                  ; tell the hacker it's ready
+                  )>)>
+    <COND (<AND <NOT ,CHINESE-FOOD-HEATING>
+                <IN? ,CHINESE-FOOD ,WINNER>
+                <G? ,CHINESE-FOOD-TEMP 0>>
+           <SETG CHINESE-FOOD-TEMP <- ,CHINESE-FOOD-TEMP 1>>
+           <COND (<EQUAL? ,CHINESE-FOOD-TEMP 2>
+                  <TELL "The Chinese food is getting cold again." CR>)>)>
+    <RTRUE>>
+```
+
+**Rule:** Every mechanical clock daemon must: (1) have visible feedback at each stage threshold, (2) stage notifications at intervals the player can notice and react to, (3) either interact with or be readable through EXAMINE on relevant objects. The player should never die or lose progress without warning. Telegraph, then escalate, then execute.

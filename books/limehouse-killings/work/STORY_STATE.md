@@ -1,205 +1,155 @@
-# The Limehouse Killings - Story State
+# The Limehouse Killings - Story State Contract
 
-## Global Variables
+This file documents the implemented state machine and the transitions future `.zil` refactors must preserve.
 
-### Game Progress
+## Act State
 
-| Variable | Type | Initial | Description |
-|----------|------|---------|-------------|
-| GAME-WON | BOOLEAN | FALSE | Set TRUE when killer correctly accused |
-| GAME-LOST | BOOLEAN | FALSE | Set TRUE when wrong accusation or death |
-| GAME-ENDED | BOOLEAN | FALSE | Set TRUE when game over (win or lose) |
+| Variable | Initial | Meaning |
+|---|---:|---|
+| `CASE-ACT` | 1 | 1 = exploration, 2 = reconstruction, 3 = confrontation |
+| `INSPECTOR-PRESENT` | false | Lestrade has moved into the Entrance Hall |
 
-### Investigation Progress
+Transitions:
 
-| Variable | Type | Initial | Description |
-|----------|------|---------|-------------|
-| EVIDENCE-FOUND | COUNTER | 0 | Number of key evidence items found (0-5) |
-| SUSPECTS-INTERVIEWED | COUNTER | 0 | Number of suspects interviewed (0-3) |
-| CLUES-CONNECTED | COUNTER | 0 | Number of clue connections made (0-4) |
+```text
+CASE-ACT 1
+  -- solve library cipher --> CASE-ACT 2
 
-### Room Access
-
-| Variable | Type | Initial | Description |
-|----------|------|---------|-------------|
-| STUDY-UNLOCKED | BOOLEAN | FALSE | Set TRUE when study door opened |
-| SECRET-PASSAGE-FOUND | BOOLEAN | FALSE | Set TRUE when passage discovered |
-| SECRET-PASSAGE-OPEN | BOOLEAN | FALSE | Set TRUE when passage wall opened |
-
-### NPC States
-
-| Variable | Type | Initial | Description |
-|----------|------|---------|-------------|
-| HUDSON-INTERVIEWED | BOOLEAN | FALSE | Set TRUE after talking to butler |
-| LADY-INTERVIEWED | BOOLEAN | FALSE | Set TRUE after talking to Lady Ashworth |
-| MORIARTY-INTERVIEWED | BOOLEAN | FALSE | Set TRUE after talking to Dr. Moriarty |
-| HUDSON-KEY-GIVEN | BOOLEAN | FALSE | Set TRUE when butler gives key |
-| HUDSON-MOTIVE-REVEALED | BOOLEAN | FALSE | Set TRUE when butler's motive revealed |
-| LADY-ALIBI-CLAIMED | BOOLEAN | FALSE | Set TRUE when Lady claims alibi |
-| MORIARTY-POISON-KNOWN | BOOLEAN | FALSE | Set TRUE when Moriarty's poison expertise known |
-| INSPECTOR-PRESENT | BOOLEAN | FALSE | Set TRUE when Inspector arrives |
-
-### Evidence Found
-
-| Variable | Type | Initial | Description |
-|----------|------|---------|-------------|
-| DEAD-LETTER-FOUND | BOOLEAN | FALSE | Key evidence #1 |
-| KNIFE-FOUND | BOOLEAN | FALSE | Key evidence #2 |
-| LOCKED-BOX-OPENED | BOOLEAN | FALSE | Key evidence #3 (contains BANK-STATEMENT) |
-| POISON-BOTTLE-FOUND | BOOLEAN | FALSE | Key evidence #4 |
-| SECRET-LEDGER-FOUND | BOOLEAN | FALSE | Key evidence #5 |
-
-### Puzzle States
-
-| Variable | Type | Initial | Description |
-|----------|------|---------|-------------|
-| CIPHER-SOLVED | BOOLEAN | FALSE | Set TRUE when bookshelf cipher solved |
-| POISON-IDENTIFIED | BOOLEAN | FALSE | Set TRUE when poison type known |
-| ANTIDOTE-FOUND | BOOLEAN | FALSE | Set TRUE when antidote ingredients found |
-| KILLER-ACCUSED | BOOLEAN | FALSE | Set TRUE when accusation made |
-| CORRECT-ACCUSATION | BOOLEAN | FALSE | Set TRUE if accusation is correct |
-
-### Timer/Counter States
-
-| Variable | Type | Initial | Description |
-|----------|------|---------|-------------|
-| ROOMS-VISITED | COUNTER | 0 | Number of unique rooms visited |
-| ITEMS-TAKEN | COUNTER | 0 | Number of items taken |
-| WRONG-ATTEMPTS | COUNTER | 0 | Number of failed puzzle attempts |
-| HINT-LEVEL | COUNTER | 0 | Current hint level (0-4) |
-
-## State Transitions
-
-### Study Entry
-```
-STUDY-UNLOCKED = FALSE → STUDY-UNLOCKED = TRUE
-  Triggers: USE KEY ON DOOR or USE LOCKPICK ON WINDOW
-  Effects: Can now enter STUDY from ENTRANCE-HALL
+CASE-ACT 2
+  -- EVIDENCE-FOUND > 2 and SUSPECTS-INTERVIEWED = 3 --> CASE-ACT 3
+                                                           INSPECTOR-PRESENT = true
+                                                           MOVE INSPECTOR to hall
 ```
 
-### Library Cipher
-```
-CIPHER-SOLVED = FALSE → CIPHER-SOLVED = TRUE
-  Triggers: Push books in correct rainbow order
-  Effects: SECRET-PASSAGE-FOUND = TRUE, SECRET-PASSAGE-OPEN = TRUE
-  Can now: ENTER SECRET-PASSAGE from LIBRARY
-```
+Act transitions are monotonic and must alter visible world text in at least two places.
 
-### Evidence Collection
-```
-EVIDENCE-FOUND = N → EVIDENCE-FOUND = N+1
-  Triggers: TAKE specific evidence item
-  Effects: Corresponding *-FOUND = TRUE
-  When EVIDENCE-FOUND = 5: INSPECTOR-PRESENT = TRUE (after delay)
-```
+## Investigation State
 
-### NPC Interview
-```
-SUSPECTS-INTERVIEWED = N → SUSPECTS-INTERVIEWED = N+1
-  Triggers: Complete conversation with NPC
-  Effects: Corresponding *-INTERVIEWED = TRUE
-  When SUSPECTS-INTERVIEWED = 3: Can make accusation
-```
+| Variable | Initial | Guarded trigger |
+|---|---:|---|
+| `EVIDENCE-FOUND` | 0 | Increment once per counted discovery flag |
+| `SUSPECTS-INTERVIEWED` | 0 | Increment once for Hudson alibi, Lady alibi, and Moriarty poison interview |
+| `DEAD-LETTER-FOUND` | false | First meaningful read/examine/discovery of letter |
+| `KNIFE-FOUND` | false | First take/examine discovery of knife |
+| `POISON-BOTTLE-FOUND` | false | First meaningful read/examine of vial |
+| `SECRET-LEDGER-FOUND` | false | First meaningful read/examine of ledger |
+| `BANK-STATEMENT-FOUND` | false | First meaningful read/examine of statement |
 
-### Final Confrontation
-```
-KILLER-ACCUSED = FALSE → KILLER-ACCUSED = TRUE
-  Triggers: ACCUSE [SUSPECT] with all evidence
-  Effects: 
-    If CORRECT-ACCUSATION = TRUE: GAME-WON = TRUE
-    If CORRECT-ACCUSATION = FALSE: GAME-LOST = TRUE
-  GAME-ENDED = TRUE
-```
+The physical box is not itself counted evidence. Its statement is the corroborating discovery.
 
-## Milestone Flags
+## Route and Puzzle State
 
-### Early Game
-- [ ] Arrived at ASHWORTH-MANOR-GATE
-- [ ] Entered ASHWORTH-ENTRANCE-HALL
-- [ ] Met MR-HUDSON
-- [ ] Received KEY from MR-HUDSON
+| Variable/object state | Initial | Transition |
+|---|---:|---|
+| `STUDY-UNLOCKED` | false | Interior bolt, keyring, or lockpick unlocks door |
+| `STUDY-DOOR OPENBIT` | clear | `OPEN STUDY DOOR` after unlock, or opening from Study |
+| `CIPHER-STAGE` | 0 | Correct book advances 0→1→2→3; wrong book resets |
+| `CIPHER-SOLVED` | false | Blue book after red-yellow-green sequence |
+| `SECRET-PASSAGE-FOUND` | false | Set with cipher success |
+| `SECRET-PASSAGE-OPEN` | false | Set with cipher success |
+| `POISON-IDENTIFIED` | false | `USE VIAL ON PLANTS` in Greenhouse |
+| `BOX-CLUE-SEEN` | false | Examine name-dial box |
+| `FOOTPRINT-DETAIL-FOUND` | false | Use magnifying glass on footprint cast |
+| `CABINET-CLUE-SEEN` | false | Examine/open wine cabinet |
+| `LOCKED-BOX-OPENED` | false | Turn dial to Moriarty after three prerequisite facts |
+| `LOCKED-BOX OPENBIT` | clear | Set with successful dial solution |
 
-### Mid Game
-- [ ] Entered STUDY
-- [ ] Found DEAD-LETTER
-- [ ] Found POISON-BOTTLE
-- [ ] Solved LIBRARY CIPHER
-- [ ] Found SECRET-PASSAGE
-- [ ] Interviewed LADY-ASHWORTH
-- [ ] Interviewed DR-MORIARTY
+## NPC State Matrices
 
-### Late Game
-- [ ] Found BLOOD-STAINED-KNIFE
-- [ ] Found LOCKED-BOX
-- [ ] Found SECRET-LEDGER
-- [ ] Identified POISON
-- [ ] Found ANTIDOTE
-- [ ] Gathered all 5 evidence items
-- [ ] INSPECTOR-PRESENT = TRUE
+Each principal NPC must expose three discoverable behavior states: initial, changed by direct player action, and changed by story progress elsewhere.
 
-### End Game
-- [ ] Accused killer
-- [ ] Presented evidence to Inspector
-- [ ] GAME-WON = TRUE or GAME-LOST = TRUE
+### Hudson
 
-## Consequence Mapping
+| State | Trigger | Observable behavior |
+|---|---|---|
+| Initial | Act I/II, not confronted | Re-polishes one spoon; cloth squeaks as his hand tightens |
+| Confronted | Show dead letter before Act III | Stops polishing and admits carrying the letter to the study |
+| Late case | `CASE-ACT = 3` | Packed carpetbag and wrongly buttoned coat reveal fear/relief |
 
-### Wrong Accusation
-```
-ACCUSE LADY-ASHWORTH
-  Result: "Lady Ashworth has an alibi. The evidence doesn't match."
-  Effect: WRONG-ATTEMPTS += 1
-  Can retry: YES
+Flags: `HUDSON-INTERVIEWED`, `HUDSON-KEY-GIVEN`, `HUDSON-CONFRONTED`.
 
-ACCUSE MR-HUDSON
-  Result: "Mr. Hudson was in servants' quarters. The knife isn't his."
-  Effect: WRONG-ATTEMPTS += 1
-  Can retry: YES
+### Lady Ashworth
 
-ACCUSE DR-MORIARTY (with all evidence)
-  Result: "Dr. Moriarty, you are under arrest for the murder of Lord Ashworth."
-  Effect: GAME-WON = TRUE
-```
+| State | Trigger | Observable behavior |
+|---|---|---|
+| Initial | Act I/II, not confronted | Untouched filmed soup and precisely aligned knife |
+| Confronted | Show dead letter before Act III | Ring/paper tremor; admits burning an earlier draft |
+| Late case | `CASE-ACT = 3` | Removes mourning ribbon and listens for Lestrade |
 
-### Dangerous Actions
-```
-TASTE POISON
-  Result: "You feel dizzy. Perhaps that wasn't wise."
-  Effect: PLAYER-HEALTH -= 1
-  Can continue: YES (if health > 0)
+Flags: `LADY-INTERVIEWED`, `LADY-ALIBI-CLAIMED`, `LADY-CONFRONTED`.
 
-CONFRONT KILLER UNARMED
-  Result: "The killer attacks you. Everything goes dark."
-  Effect: GAME-LOST = TRUE
-  Can continue: NO
-```
+### Moriarty
 
-### Missed Evidence
-```
-END GAME WITH EVIDENCE-FOUND < 5
-  Result: "The case goes cold. Insufficient evidence."
-  Effect: GAME-LOST = TRUE
-  Can continue: NO
+| State | Trigger | Observable behavior |
+|---|---|---|
+| Initial | Act I/II, not confronted | Controlled four-beat tapping by scientific folios |
+| Confronted | Show letter or ask about poison before Act III | Sweat, pocketed gloved hand, counting exits |
+| Late case | `CASE-ACT = 3` | Moves to hall; muddy heel matches footprint cast |
+
+Flags: `MORIARTY-INTERVIEWED`, `MORIARTY-POISON-KNOWN`, `MORIARTY-CONFRONTED`.
+
+### Lestrade
+
+| State | Trigger | Observable behavior |
+|---|---|---|
+| Offstage | Acts I–II | Cannot be examined or addressed |
+| Receiving case | Act III | Blank notebook page; asks for threat/method/motive |
+| Case complete | Three presentation flags | Notebook explicitly labels the three links |
+
+## Final Argument State
+
+| Variable | Trigger | Meaning |
+|---|---|---|
+| `LETTER-PRESENTED` | Show letter to Lestrade | Threat/intent link accepted |
+| `POISON-PRESENTED` | Show bottle to Lestrade | Method/access link accepted |
+| `MOTIVE-PRESENTED` | Show statement to Lestrade | Debt/blackmail link accepted |
+| `KILLER-ACCUSED` | Successful chosen-proof accusation | Accusation made |
+| `CORRECT-ACCUSATION` | Moriarty + complete chain + valid lead proof | Correct culprit established |
+| `GAME-WON` | Successful ending | Win state |
+| `GAME-ENDED` | Successful ending or lethal poison outcome | Session terminates |
+
+Final choice:
+
+```text
+complete case + ACCUSE MORIARTY
+  -> prompt for lead proof
+     -> WITH LETTER: testimony-led resolution
+     -> WITH POISON: physical-evidence/confession resolution
 ```
 
-## Save/Restore Points
+Both branches converge on arrest but contain distinct player-authored emphasis.
 
-The game does not implement save/restore. All state is held in memory during play.
+## Safety and Counter Invariants
 
-## Testing State Assertions
+- Repeating `READ`, `EXAMINE`, or `TAKE` never increments a discovery twice.
+- Asking one NPC about Moriarty never marks Moriarty himself interviewed.
+- Topicless `ASK/TELL` checks `PRSI` before `IN?` or `EQUAL?`.
+- Inspector arrival can fire only once.
+- Cipher and box solutions remain solved after revisit/save replay.
+- Wrong accusations increase `WRONG-ATTEMPTS` where supported but do not force a loss.
+- `TASTE POISON` decrements `PLAYER-HEALTH`; only zero health ends the game.
+- `USE CHARCOAL` after tasting poison restores one health point and never exceeds the initial value.
 
-### Golden Path Assertions
-```
-ASSERT STUDY-UNLOCKED = TRUE
-ASSERT CIPHER-SOLVED = TRUE
-ASSERT EVIDENCE-FOUND = 5
-ASSERT SUSPECTS-INTERVIEWED = 3
-ASSERT GAME-WON = TRUE
+## Golden-Path Assertions
+
+```text
+CASE-ACT = 2 after cipher
+CIPHER-SOLVED = true
+SECRET-PASSAGE-OPEN = true
+POISON-IDENTIFIED = true
+LOCKED-BOX-OPENED = true
+EVIDENCE-FOUND = 5
+SUSPECTS-INTERVIEWED = 3
+CASE-ACT = 3
+INSPECTOR-PRESENT = true
+LETTER-PRESENTED = true
+POISON-PRESENTED = true
+MOTIVE-PRESENTED = true
+KILLER-ACCUSED = true
+CORRECT-ACCUSATION = true
+GAME-WON = true
 ```
 
-### Failure Path Assertions
-```
-ASSERT GAME-LOST = TRUE (wrong accusation)
-ASSERT GAME-LOST = TRUE (death)
-ASSERT EVIDENCE-FOUND < 5 (missed evidence)
-```
+## Save/Replay Requirement
+
+`llm.lua` persists state by replaying action history across processes. Every transition above must therefore be deterministic under a fresh load plus replay, including runtime vocabulary registration for `SET`, `CAST`, and `INSPECTOR`.

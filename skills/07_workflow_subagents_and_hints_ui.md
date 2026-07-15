@@ -26,6 +26,8 @@ Operationalize iterative development with specialized passes and parent-child hi
    - progressive command hint (only after repeated failure)
 5. Preserve mystery while reducing stall-outs; hints should extend play, not skip play.
 6. Design for social solving: puzzle prompts and room/object naming should be easy to discuss out loud.
+7. Use a vertical-slice gate: design exact commands, implement one slice, play it through `llm.lua`, add it to the automated walkthrough, then proceed.
+8. After any vocabulary, containment, counter, route, NPC, or save-system change, replay both the focused slice and the golden path.
 
 ## Outputs
 - Review findings per specialist pass
@@ -38,6 +40,7 @@ Operationalize iterative development with specialized passes and parent-child hi
 - Workflow remains slice-based, not big-bang rewrites.
 - Hint UI avoids replacing parser agency with exhaustive action lists.
 - Co-play flow supports parent guidance without immediate spoilers.
+- No iteration batch contains multiple unplayed puzzles; each completed slice has parser-driven coverage before the next begins.
 
 ## Primary Source Coverage
 - `ZIL_TEXT_ADVENTURE_AGENTS.md`: sections 9, 11, 13

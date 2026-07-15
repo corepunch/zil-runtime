@@ -841,7 +841,7 @@ be included when the crunch comes."
 			<SETG WINNER .OWINNER>
 			<RETURN .FLG>)
 		       (<NOT <ZERO? <GET ,CLOCK-HAND ,C-RTN>>>
-			<SET TICK <GET ,CLOCK-HAND ,C-TICK>>
+			<SET TICK <SIGNED-WORD <GET ,CLOCK-HAND ,C-TICK>>>
 			<COND (<L? .TICK -1>
 			       <PUT ,CLOCK-HAND ,C-TICK <- <- .TICK> 3>>
 			       <SET Q? ,CLOCK-HAND>)

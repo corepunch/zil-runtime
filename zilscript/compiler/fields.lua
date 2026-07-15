@@ -30,6 +30,14 @@ local function writeListString(buf, node, compiler)
   end, compiler)
 end
 
+-- Vocabulary is player-facing text, not a Lua identifier. Preserve ZIL word
+-- spelling (notably hyphens) so commands such as "take torn-page" resolve.
+local function writeWordList(buf, node, compiler)
+  writeFormattedList(buf, node, function(child)
+    return string.format("%q", tostring(child.value))
+  end, compiler)
+end
+
 -- Write plain list
 local function writeList(buf, node, compiler)
   writeFormattedList(buf, node, nil, compiler)
@@ -86,8 +94,8 @@ end
 -- Field writer dispatch table
 Fields.FIELD_WRITERS = {
   FLAGS = writeListString,
-  SYNONYM = writeListString,
-  ADJECTIVE = writeListString,
+  SYNONYM = writeWordList,
+  ADJECTIVE = writeWordList,
   DESC = writeStringField,
   LDESC = writeStringField,
   FDESC = writeStringField,
@@ -124,7 +132,11 @@ function Fields.writeNav(buf, node, compiler)
     if utils.safeget(parts[5], 'value') == "IS" and parts[6] then
       cond = "door = "..cond
     else
-      cond = "flag = "..cond
+      if parts[4].type == "ident" or parts[4].type == "symbol" then
+        cond = "flag = GLOBAL_FLAG_REF(\"" .. cond .. "\")"
+      else
+        cond = "flag = "..cond
+      end
     end
     
     local room = compiler.value(parts[2])
@@ -151,6 +163,18 @@ end
 
 -- Write field using appropriate writer or default
 function Fields.writeField(buf, node, field_name, compiler)
+  if field_name == "THINGS" and node[2] and node[2].type == "expr"
+      and node[2].name == "PSEUDO" then
+    buf.write("PSEUDO_TABLE(")
+    for i, tuple in ipairs(node[2]) do
+      if i > 1 then buf.write(", ") end
+      local adjective = tuple[1] and tuple[1].value
+      local noun = tuple[2] and tuple[2].value
+      buf.write("{%s, %q}", adjective and string.format("%q", adjective) or "nil", noun)
+    end
+    buf.write(")")
+    return
+  end
   local writer = Fields.FIELD_WRITERS[field_name] or writeValueField
   writer(buf, node, compiler)
 end

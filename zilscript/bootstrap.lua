@@ -13,6 +13,10 @@ ZIL_ObjectFlags = {
 }
 
 D = 0xBAADF00D
+N = 0xBAADF00E
+TELL_A = 0xBAADF00F
+TELL_THE = 0xBAADF010
+TELL_CTHE = 0xBAADF011
 
 OQANY=1
 
@@ -28,6 +32,22 @@ P1QOBJECT=0
 P1QVERB=1
 P1QADJECTIVE=2
 P1QDIRECTION=3
+
+-- Standard room-exit property layouts.  Some Infocom sources (including
+-- The Lurking Horror) treat these as substrate-provided constants and leave
+-- their local declarations commented out.
+REXIT=0
+UEXIT=1
+NEXIT=2
+FEXIT=3
+CEXIT=4
+DEXIT=5
+NEXITSTR=0
+FEXITFCN=0
+CEXITFLAG=1
+CEXITSTR=1
+DEXITOBJ=1
+DEXITSTR=1
 
 SH=128
 SC=64
@@ -66,11 +86,17 @@ FLAGS = {}
 FUNCTIONS = {}
 _DIRECTIONS = {}
 
+_GLOBAL_FLAG_SLOTS = {}    -- global name → Z-machine variable number
+_GLOBAL_FLAG_NAMES = {}    -- Z-machine variable number → global name
+_next_global_flag_slot = 15 -- 0 is the stack; 1..15 are local variables
+
 DESCS = {}
 DIRS = {}
 
 _VTBL = {}
 _OTBL = 0  -- mem address of 256×2-byte object pointer table; set on first DECL_OBJECT
+_CHILD_TBL = 0 -- parent object id -> first child object id
+_SIBLING_TBL = 0 -- object id -> next sibling object id
 
 T = true
 CR = "\n"
@@ -93,12 +119,15 @@ M_ENTER = 2
 M_LOOK = 3
 M_FLASH = 4
 M_OBJDESC = 5
+M_LEAVE = M_END
+M_CONTAINER = M_OBJECT
 
 local mem
 local _obj_count = 0  -- number of declared objects; object IDs are 1.._obj_count
 local _act_count = 0  -- number of registered actions; action IDs are 1.._act_count
 local _act_fn_to_id = {}  -- build-time reverse-lookup: fn_idx -> action_id
 local _pending_syntax = {}  -- SYNTAX entries deferred until action functions are defined
+local _pending_synonyms = {} -- vocabulary aliases applied after all object words exist
 local restart_snapshot
 local suggestions = {
 	READBIT = "READ",
@@ -270,6 +299,26 @@ mem = setmetatable({size=0},{__index={
 	end
 }})
 
+-- The Z-machine header occupies address zero in a story file, while this
+-- runtime keeps its compact object/table heap separately.  Model the handful
+-- of writable header bytes used by Infocom ZIL without reserving or aliasing
+-- heap memory.
+local z_header = {}
+
+function SET_HEADER(release, serial)
+	release = tonumber(release) or 0
+	z_header[2] = release & 0xff
+	z_header[3] = (release >> 8) & 0xff
+	serial = tostring(serial or "000000")
+	serial = (serial .. "000000"):sub(1, 6)
+	for i = 1, 6 do
+		z_header[17 + i] = serial:byte(i)
+	end
+	return true
+end
+
+SET_HEADER(0, "000000")
+
 local cache = {
 	verbs = {},
 	words = {},
@@ -293,6 +342,29 @@ function ROUTINE_NUM(f)
 end
 
 local learn
+
+local function merge_dictionary_word(target, source)
+	local old = mem:read(7, target)
+	local new = mem:read(7, source)
+	local old_flags = old:byte(5) or 0
+	local new_flags = new:byte(5) or 0
+	if old_flags == 0 then
+		mem:write(new, target)
+		return
+	end
+	local old_primary = old_flags & 3
+	local new_primary = new_flags & 3
+	local secondary = old:byte(7) or 0
+	if new_primary ~= old_primary then
+		secondary = new:byte(6) or secondary
+	end
+	mem:write(string.char(
+		old:byte(1), old:byte(2), old:byte(3), old:byte(4),
+		((old_flags | new_flags) & ~3) | old_primary,
+		old:byte(6) or 0,
+		secondary
+	), target)
+end
 
 local function register(tbl, value)
 	local n = 0
@@ -523,10 +595,38 @@ end
 
 function TELL(...)
 	local object = false
+	local number = false
 	for i = 1, select("#", ...) do
 		local v = select(i, ...)
-		if v == D then object = true
-		elseif object then object = false io_write(GETP(v, _G["PQDESC"]))
+		if v == D then object = "D"
+		elseif v == TELL_A then object = "A"
+		elseif v == TELL_THE then object = "THE"
+		elseif v == TELL_CTHE then object = "CTHE"
+		elseif v == N then number = true
+		elseif object then
+			local token = object
+			object = false
+			if v then
+				local printer = token == "A" and rawget(_G, "PRINTA")
+					or token == "THE" and rawget(_G, "THE_PRINT")
+					or token == "CTHE" and rawget(_G, "CTHE_PRINT")
+					or token == "D" and rawget(_G, "DPRINT")
+				if printer then
+					APPLY(printer, v)
+				else
+					local desc = GETP(v, _G["PQDESC"]) or ""
+					if token == "A" then
+						io_write(desc:match("^[AEIOUaeiou]") and "an " or "a ")
+					elseif token == "THE" then
+						io_write("the ")
+					elseif token == "CTHE" then
+						io_write("The ")
+					end
+					io_write(desc)
+				end
+			end
+		elseif number then number = false io_write(tostring(v))
+		elseif v == nil or v == false then -- FALSE expressions print nothing
 		elseif type(v) == "number" then io_write(mem:string(v))
 		elseif v == '>' then -- skip
 		else io_write(tostring(v)) end
@@ -615,6 +715,7 @@ end
 
 -- Logic / bitwise
 function NOT(a) return not a or a == 0 end
+function ZIL_TRUE(value) return value ~= nil and value ~= false and value ~= 0 end
 function PASS(a) return a end
 function BAND(a, b) return (a or 0) & (b or 0) end
 function BOR(a, b) return (a or 0) | (b or 0) end
@@ -635,6 +736,13 @@ function EQUALQ(a, ...)
 end
 function GASSIGNEDQ(name) return rawget(_G, tostring(name)) ~= nil end
 function NEQUALQ(a, b) return not EQUALQ(a, b) end
+function SIGNED_WORD(value)
+	value = value or 0
+	if type(value) == "number" and value >= 0x8000 and value <= 0xffff then
+		return value - 0x10000
+	end
+	return value
+end
 function GQ(a, b) return (a or 0) > (b or 0) end
 function LQ(a, b) return (a or 0) < (b or 0) end
 function GEQ(a, b) return (a or 0) >= (b or 0) end
@@ -642,9 +750,21 @@ function LEQ(a, b) return (a or 0) <= (b or 0) end
 function ZEROQ(a) return (a or 0) == 0 end
 function ONEQ(a) return a == 1 end
 function ADD(a, b) return (a or 0) + (b or 0) end
-function SUB(a, b) return (a or 0) - (b or 0) end
+function SUB(a, ...)
+	if select("#", ...) == 0 then return -(a or 0) end
+	local result = a or 0
+	for i = 1, select("#", ...) do
+		result = result - (select(i, ...) or 0)
+	end
+	return result
+end
 function DIV(a, b) return (a or 0) // (b or 0) end
 function MUL(a, b) return (a or 0) * (b or 0) end
+function MOD(a, b) return (a or 0) % (b or 0) end
+
+-- Audio is optional in the current text-only host.  Preserve the opcode's
+-- successful control-flow behavior even when no sound backend is attached.
+function SOUND(...) return true end
 
 -- function GQ(a, b) return a > b end
 -- IGRTRQ = GQ
@@ -654,32 +774,101 @@ MULL = MUL
 -- Object / room ops
 -- Returns the mem address of object num's property table block.
 -- _OTBL is the base of a 256×2-byte array allocated in mem by the first DECL_OBJECT call.
-local function getobj(num) return mem:word(_OTBL + (num-1)*2) end
+local function getobj(num)
+	if type(num) ~= "number" or num <= 0 then return nil end
+	local pointer = mem:word(_OTBL + (num-1)*2)
+	return pointer ~= 0 and pointer or nil
+end
 
--- VALUE function: identity function for ZIL's <VALUE var> form
--- In ZIL, <VALUE var> gets the runtime value of a variable
-function VALUE(x) return x end
+-- In ZIL, <VALUE var> gets the runtime value of a variable. Conditional exits
+-- store a variable number in their property bytes, so resolve those numbers
+-- back to the live Lua global; other values retain the legacy identity behavior.
+function VALUE(x)
+	if type(x) == "number" then
+		local gname = _GLOBAL_FLAG_NAMES[x]
+		if gname then
+			return rawget(_G, gname)
+		end
+	end
+	return x
+end
 
 function LOC(obj) return GETP(obj, PQLOC) end
 function INQ(obj, room) return GETP(obj, PQLOC) == room end
-function MOVE(obj, dest) PUTP(obj, PQLOC, dest) end
-function REMOVE(obj) PUTP(obj, PQLOC, 0) end
 
-function FIRSTQ(obj)
-	for n = 1, _obj_count do
-		if GETP(n, PQLOC) == obj then return n end
+local function unlink_object(obj)
+	local parent = LOC(obj)
+	if not parent or parent == 0 then return end
+	local child = mem:byte(_CHILD_TBL + parent)
+	local previous = 0
+	while child ~= 0 do
+		if child == obj then
+			local next_sibling = mem:byte(_SIBLING_TBL + child)
+			if previous == 0 then
+				mem:write(makebyte(next_sibling), _CHILD_TBL + parent)
+			else
+				mem:write(makebyte(next_sibling), _SIBLING_TBL + previous)
+			end
+			mem:write(makebyte(0), _SIBLING_TBL + child)
+			return
+		end
+		previous = child
+		child = mem:byte(_SIBLING_TBL + child)
 	end
 end
 
+function MOVE(obj, dest)
+	unlink_object(obj)
+	PUTP(obj, PQLOC, dest)
+	if dest and dest ~= 0 then
+		local first = mem:byte(_CHILD_TBL + dest)
+		mem:write(makebyte(first), _SIBLING_TBL + obj)
+		mem:write(makebyte(obj), _CHILD_TBL + dest)
+	end
+end
+
+function REMOVE(obj)
+	unlink_object(obj)
+	PUTP(obj, PQLOC, 0)
+end
+
+function FIRSTQ(obj)
+	local child = mem:byte(_CHILD_TBL + obj)
+	return child ~= 0 and child or nil
+end
+
 function NEXTQ(obj)
-	local parent = GETP(obj, PQLOC)
-	local found = false
-	for n = 1, _obj_count do
-		if GETP(n, PQLOC) == parent then
-			if found then return n end
-			if n == obj then found = true end
+	local sibling = mem:byte(_SIBLING_TBL + obj)
+	return sibling ~= 0 and sibling or nil
+end
+
+function MAP_CONTENTS(container, callback, end_callback)
+	local object = FIRSTQ(container)
+	local result
+	while object do
+		local next_object = NEXTQ(object)
+		result = callback(object, next_object)
+		object = next_object
+	end
+	if end_callback then return end_callback() end
+	return result
+end
+
+function MAP_DIRECTIONS(room, callback, end_callback)
+	local directions = {}
+	for _, property in pairs(_DIRECTIONS) do
+		directions[#directions + 1] = property
+	end
+	table.sort(directions)
+	local result
+	for _, property in ipairs(directions) do
+		local property_table = GETPT(room, property)
+		if property_table then
+			result = callback(property, property_table)
 		end
 	end
+	if end_callback then return end_callback() end
+	return result
 end
 
 learn = function(word, atom, value)
@@ -718,7 +907,7 @@ learn = function(word, atom, value)
 	for _, syn in ipairs(cache.synonyms[word_key] or {}) do
 		local syn_key = syn:lower():sub(1, 6)
 		if cache.words[syn_key] then
-			mem:write(mem:read(8, cache.words[word_key]), cache.words[syn_key])
+			merge_dictionary_word(cache.words[syn_key], cache.words[word_key])
 		end
 	end
 	
@@ -752,6 +941,7 @@ function FSETQ(obj, flag)
 end
 function GETPT(obj, prop)
 	local tbl = getobj(obj)
+	if not tbl then return nil end
 	local l = mem:byte(tbl)+tbl+1
 	local pname, psize = mem:byte(l), mem:byte(l+1)
 	local header = 2
@@ -762,6 +952,7 @@ function GETPT(obj, prop)
 	end
 end
 function PTSIZE(ptr)
+	if not ptr then return 0 end
 	return mem:byte(ptr-1)
 end
 function PUTP(obj, prop, val)
@@ -789,7 +980,11 @@ function GETP(obj, prop)
 	local ptr = GETPT(obj, prop)
 	local ptsize = PTSIZE(ptr)
 	if ptsize == 1 then return mem:byte(ptr) end
-	if ptsize == 2 then return mem:word(ptr) ~= 0 and mem:string(mem:word(ptr)) or nil end
+	if ptsize == 2 then
+		local value = mem:word(ptr)
+		if prop == rawget(_G, "PQTHINGS") then return value ~= 0 and value or nil end
+		return value ~= 0 and mem:string(value) or nil
+	end
 	if ptsize == 4 then return mem:dword(ptr) end
 	if ptsize == 8 then return mem:qword(ptr) end
 	assert(false, "Unsupported property to get")
@@ -831,9 +1026,21 @@ function DECL_OBJECT(name)
 	if not _OTBL or _OTBL == 0 then
 		-- Allocate the 256×2-byte object pointer table on first use
 		_OTBL = mem:write(string.rep('\0\0', 256))
+		_CHILD_TBL = mem:write(string.rep('\0', 256))
+		_SIBLING_TBL = mem:write(string.rep('\0', 256))
 	end
-	_obj_count = _obj_count + 1
-	assert(_obj_count <= 255, "Too many objects (max 255)")
+	-- Direction properties are passed through PRSO for WALK. Several Infocom
+	-- parsers also use numeric pseudo-objects such as IT, so assigning an object
+	-- the same number as a direction makes a walk look like pronoun substitution.
+	-- Leave holes for direction-property numbers when allocating object IDs.
+	repeat
+		_obj_count = _obj_count + 1
+		local is_direction = false
+		for _, property in pairs(_DIRECTIONS) do
+			if property == _obj_count then is_direction = true break end
+		end
+	until not is_direction
+	assert(_obj_count <= 255, "Too many objects (max 255) while declaring " .. tostring(name))
 	if name then declared_objects[name] = _obj_count end
 	return _obj_count
 end
@@ -849,6 +1056,10 @@ end
 function GLOBAL_REF(name)
 	local value = rawget(_G, name)
 	if value ~= nil then return value end
+	return {__global_ref = name}
+end
+
+function GLOBAL_FLAG_REF(name)
 	return {__global_ref = name}
 end
 
@@ -875,10 +1086,13 @@ end
 
 function DEFINE_ROUTINE(name, routine)
 	assert(type(routine) == "function", "DEFINE_ROUTINE expected function for "..tostring(name))
+	-- Register every named routine when it is defined.  A routine can otherwise
+	-- receive its first numeric pointer only when GO queues it; restored llm.lua
+	-- sessions skip GO, leaving that saved pointer beyond the rebuilt table.
+	local routine_index = fn(routine)
 	local pending = pending_routine_refs[name]
 	if not pending then return routine end
 
-	local routine_index = fn(routine)
 	for _, ref in ipairs(pending) do
 		if ref.kind == "exit" then
 			local ptr = GETPT(ref.object, ref.property)
@@ -890,6 +1104,17 @@ function DEFINE_ROUTINE(name, routine)
 	end
 	pending_routine_refs[name] = nil
 	return routine
+end
+
+local function sorted_keys(tbl)
+	local keys = {}
+	for key in pairs(tbl) do
+		keys[#keys + 1] = key
+	end
+	table.sort(keys, function(a, b)
+		return tostring(a) < tostring(b)
+	end)
+	return keys
 end
 
 function OBJECT(object)
@@ -920,7 +1145,12 @@ function OBJECT(object)
 	local n = _G[object_name]
 	local t = {string.char(#object_name), object_name}
 	assert(n, "DECL_OBJECT not called for "..tostring(object_name))
-	for k, v in pairs(object) do
+	-- Object declarations are Lua tables, whose hash iteration order varies from
+	-- process to process.  Property numbers and function-pointer slots are both
+	-- assigned while walking these fields, so an unstable order makes a memory
+	-- dump written by one llm.lua process incompatible with the next one.
+	for _, k in ipairs(sorted_keys(object)) do
+		local v = object[k]
 		if k == "ZIL_NAME" then
 		elseif k == "SYNONYM" then
 			local body = table.concat2(v, function(syn)
@@ -951,6 +1181,8 @@ function OBJECT(object)
 		-- using PQACTION for ACTION property, commented out original function support
 		elseif k == "ACTION" or k == "DESCFCN" then 
 			table.insert(t, makeprop(function_prop(v, k, n), k))
+		elseif k == "THINGS" and type(v) == "number" then
+			table.insert(t, makeprop(makeword(v), k))
 		elseif type(v) == 'string' then table.insert(t, makeprop(mem:stringprop(v), k))
 		elseif type(v) == 'number' then table.insert(t, makeprop(makebyte(v), k))
 		elseif type(v) == 'function' then table.insert(t, makeprop(mem:stringprop(fn(v)), k))
@@ -979,13 +1211,26 @@ function OBJECT(object)
 					error(string.format("Unresolved exit target for %s.%s", tostring(object_name), tostring(k)))
 				end
 				str = string.char(v[1]) -- UEXIT = 1
-				local say = v.say and mem:write(v.say.."\0") or 0
+				local say = v.say and mem:writestring2(v.say) or 0
 				if v.door ~= nil then
 					local door = type(v.door) == "boolean" and (v.door and 1 or 0) or v.door
 					str = str..string.char(door)..makeword(say)..string.char(0) -- DEXIT = 5
 				elseif v.flag ~= nil then
-					local flag = type(v.flag) == "boolean" and (v.flag and 1 or 0) or v.flag
-					str = str..string.char(flag)..makeword(say) -- CEXIT = 4
+					local flag_val = v.flag
+					if type(flag_val) == "table" and flag_val.__global_ref then
+						local gname = flag_val.__global_ref
+						if not _GLOBAL_FLAG_SLOTS[gname] then
+							_next_global_flag_slot = _next_global_flag_slot + 1
+							_GLOBAL_FLAG_SLOTS[gname] = _next_global_flag_slot
+							_GLOBAL_FLAG_NAMES[_next_global_flag_slot] = gname
+						end
+						local variable = _GLOBAL_FLAG_SLOTS[gname]
+						assert(variable <= 255, "Too many global variables for conditional exits (max 240)")
+						str = str..string.char(variable)..makeword(say) -- CEXIT = 4
+					else
+						flag_val = type(flag_val) == "boolean" and (flag_val and 1 or 0) or flag_val
+						str = str..string.char(flag_val)..makeword(say) -- CEXIT = 4
+					end
 				end
 			end
 			table.insert(t, makeprop(str, k))
@@ -1004,6 +1249,21 @@ function OBJECT(object)
 	end
 	local tbl_addr = mem:write(table.concat(t) .. "\0\0")
 	mem:write(makeword(tbl_addr), _OTBL + (n-1)*2)
+	-- Initial object trees retain declaration order. Runtime MOVE uses the
+	-- Z-machine rule of inserting the object at the head of its new parent.
+	local parent = LOC(n)
+	if parent and parent ~= 0 then
+		local first = mem:byte(_CHILD_TBL + parent)
+		if first == 0 then
+			mem:write(makebyte(n), _CHILD_TBL + parent)
+		else
+			local sibling = first
+			while mem:byte(_SIBLING_TBL + sibling) ~= 0 do
+				sibling = mem:byte(_SIBLING_TBL + sibling)
+			end
+			mem:write(makebyte(n), _SIBLING_TBL + sibling)
+		end
+	end
 end
 
 function REST(s, i)
@@ -1012,6 +1272,13 @@ function REST(s, i)
 	end
 	if type(s) == 'table' then s = string.char(#s)..table.concat(s) end
 	return s:sub((i or 1) + 1)
+end
+
+function BACK(s, i)
+	if type(s) == 'number' then
+		return s-(i or 1)
+	end
+	error("BACK: unsupported type " .. type(s))
 end
 
 function EMPTYQ(s)
@@ -1099,11 +1366,21 @@ end
 
 function PUT(obj, i, val)
 	assert(type(obj) == 'number', "PUT: Only number types, not "..type(obj))
+	if obj == 0 then
+		val = type(val) == 'function' and fn(val) or val or 0
+		z_header[i * 2] = val & 0xff
+		z_header[i * 2 + 1] = (val >> 8) & 0xff
+		return
+	end
 	mem:write(makeword(type(val) == 'function' and fn(val) or val or 0), obj+i*2)
 end
 
 function PUTB(s, i, val) 
 	assert(type(s) == 'number', "PUTB: Only number types, not "..type(s))
+	if s == 0 then
+		z_header[i] = val & 0xff
+		return
+	end
 	mem:write(makebyte(val), s+i)
 end
 -- function GET(t, i) return type(t) == 'table' and t[i * 2] or 0 end
@@ -1111,7 +1388,7 @@ end
 
 function GETB(s, i)
 	assert(type(s) == 'number', "GETB: Only number types")
-	if s == 0 then return GET(s) end
+	if s == 0 then return z_header[i or 0] or 0 end
 	return mem:byte(s+i)
 	-- if s == 0 then return GET(s)
 	-- elseif type(s) == 'string' then return i==0 and #i or s:byte(i)
@@ -1123,14 +1400,6 @@ function GETB(s, i)
 end
 
 function GET(s, i)
-	if s == 0 then
-		-- Z-machine header mockup
-		s = {
-			[0] = 3,       -- version (not actually used)
-			[1] = 15,      -- release number (Release 15)
-			[8] = 0,       -- Flags 2 (transcript bit is bit 0)
-		}
-	end
 	if not i then return 0 end
 	if type(s) == 'number' then
 		return (GETB(s,i*2) or 0)|((GETB(s,i*2+1) or 0)<<8)
@@ -1143,6 +1412,27 @@ end
 
 function DIRECTIONS(...)
 	for _, dir in ipairs {...} do
+		-- Top-level object declarations are emitted before directive bodies. If
+		-- the next direction-property number aliases the numeric pseudo-object
+		-- IT, swap that still-forward declaration with the final object declared
+		-- in this module. Otherwise WALK WEST can look like pronoun substitution.
+		local next_property = 1
+		for _ in pairs(PROPERTIES) do next_property = next_property + 1 end
+		for object_name, object_id in pairs(declared_objects) do
+			if object_name == "IT" and object_id == next_property
+					and not getobj(object_id) then
+				for swap_name, swap_id in pairs(declared_objects) do
+					if swap_id == _obj_count and not getobj(swap_id) then
+						declared_objects[swap_name] = object_id
+						_G[swap_name] = object_id
+						break
+					end
+				end
+				declared_objects[object_name] = _obj_count
+				_G[object_name] = _obj_count
+				break
+			end
+		end
 		_DIRECTIONS[dir] = learn(dir, PSQDIRECTION, PROPERTIES)
 		if type(DIRS) == "table" and dir ~= "IN" and dir ~= "OUT" then
 			table.insert(DIRS, dir:lower())
@@ -1182,7 +1472,7 @@ function SYNTAX(syn)
 		error(string.format("SYNTAX for verb '%s' is missing ACTION", syn.VERB))
 	end
 	-- Defer if the action function isn't defined yet (e.g., syntax.zil loaded before verbs.zil)
-	if _G[syn.ACTION] == nil then
+	if _G[syn.ACTION] == nil or (syn.PREACTION and _G[syn.PREACTION] == nil) then
 		table.insert(_pending_syntax, syn)
 		return
 	end
@@ -1218,11 +1508,15 @@ function SYNTAX(syn)
 end
 
 function FINALIZE_SYNTAX()
-	if #_pending_syntax == 0 then return end
 	local pending = _pending_syntax
 	_pending_syntax = {}
 	for _, syn in ipairs(pending) do
 		SYNTAX(syn)
+	end
+	local synonyms = _pending_synonyms
+	_pending_synonyms = {}
+	for _, args in ipairs(synonyms) do
+		SYNONYM(table.unpack(args))
 	end
 end
 
@@ -1233,6 +1527,11 @@ function BUZZ(...)
 	end
 end
 
+function DEFER_SYNONYM(...)
+	_pending_synonyms[#_pending_synonyms + 1] = {...}
+	return true
+end
+
 function SYNONYM(verb, ...)
 	verb = verb:lower():sub(1, 6)
 	cache.synonyms[verb] = {...}
@@ -1240,9 +1539,14 @@ function SYNONYM(verb, ...)
 		-- Truncate to 6 chars (Z-machine dictionary convention)
 		local syn_key = syn:lower():sub(1, 6)
 		if cache.words[verb] then
-			cache.words[syn_key] = mem:write(mem:read(8, cache.words[verb]))
+			if cache.words[syn_key] then
+				merge_dictionary_word(cache.words[syn_key], cache.words[verb])
+			else
+				cache.words[syn_key] = mem:write(mem:read(7, cache.words[verb]))
+			end
 		else
-			cache.words[syn_key] = mem:write(string.rep('\0', 8))
+			cache.words[syn_key] = cache.words[syn_key]
+				or mem:write(string.rep('\0', 7))
 		end
 		_G['WQ'..syn:upper()] = cache.words[syn_key]
   end
@@ -1257,6 +1561,32 @@ function ITABLE(size, maybe_size)
 	local address = mem:write_word(size)
 	mem:write(string.rep("\0", size))
 	return address
+end
+
+function ITABLE_WORDS(count, pattern_width)
+	count = count or 0
+	pattern_width = pattern_width or 1
+	return mem:write(string.rep("\0\0", count * pattern_width))
+end
+
+function STRING_TABLE(value, with_length)
+	value = tostring(value or "")
+	if with_length then
+		assert(#value <= 255, "Length-prefixed STRING table exceeds 255 bytes")
+		return mem:write(string.char(#value) .. value)
+	end
+	return mem:write(value)
+end
+
+function PSEUDO_TABLE(...)
+	local entries = {...}
+	local words = {}
+	for _, entry in ipairs(entries) do
+		local adjective = entry[1] and VOC(entry[1], ADJECTIVE) or 0
+		local noun = entry[2] and VOC(entry[2], NOUN) or 0
+		words[#words + 1] = makeword(adjective) .. makeword(noun)
+	end
+	return mem:write(makeword(#entries * 2) .. table.concat(words))
 end
 
 local pending_table_refs = {}
@@ -1646,6 +1976,39 @@ function RESTORE(filename)
 		end
 	end
 
+	-- Version 2 saves append the vocabulary address map after the scalar globals.
+	-- Dictionary storage is rebuilt whenever a game process starts, and its
+	-- addresses are not guaranteed to match those in the process that wrote the
+	-- save.  Restore the saved map so READ and parser word lookups point into the
+	-- memory image we just loaded.
+	if magic == SAVE_MAGIC_V2 then
+		local section_type = file:read(1)
+		if section_type and section_type:byte() == 4 then
+			local count_bytes = file:read(2)
+			if not count_bytes or #count_bytes < 2 then
+				file:close()
+				return false
+			end
+			local cw_count = count_bytes:byte(1) | (count_bytes:byte(2) << 8)
+			local restored_words = {}
+			for _ = 1, cw_count do
+				local nl = file:read(1)
+				if not nl then
+					file:close()
+					return false
+				end
+				local word = file:read(nl:byte())
+				local addr_bytes = file:read(8)
+				if not word or not addr_bytes or #addr_bytes < 8 then
+					file:close()
+					return false
+				end
+				restored_words[word] = read_int64(addr_bytes)
+			end
+			cache.words = restored_words
+		end
+	end
+
 	-- Clean up state globals in the game environment (env) that weren't in the save file.
 	-- _G inside the bootstrap IS the env table (env._G = env).
 	local game_env = _G
@@ -1664,4 +2027,3 @@ end
 _LLM_RESTORED = false
 
 -- === Done ===
-print("ZIL runtime initialized.")

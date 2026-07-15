@@ -23,23 +23,15 @@ lua5.4 llm.lua --action "read leaflet" --save zork1.sav
 
 ## Output
 
-Each command returns JSON:
+Each command returns the game's text output directly (plain text, no JSON):
 
-```json
-{
-  "ok": true,
-  "output": "Opening the small mailbox reveals a leaflet.\n",
-  "room": "West of House",
-  "savefile": "zork1.sav",
-  "historyfile": "zork1.sav.actions",
-  "restored": true
-}
+```
+Ashworth Manor Gate
+The iron gates of Ashworth Manor loom before you...
 ```
 
-- `ok` — whether the command executed without engine error
-- `output` — the game's text response (ANSI stripped)
-- `room` — current room name (if available)
-- `restored` — whether state was restored from a previous save
+- **Exit code 0** — command executed successfully
+- **Exit code 1** — error occurred (stderr shows `ERROR: ...`)
 
 ## How State Continuity Works
 
@@ -60,12 +52,8 @@ lua5.4 llm.lua --new-game --save "$SAVE"
 
 # Play turns
 for i in $(seq 1 10); do
-  # Choose an action based on current game state
-  RESPONSE=$(lua5.4 llm.lua --action "look" --save "$SAVE")
-  echo "$RESPONSE" | jq -r '.output'
-
-  # Decide next action, then execute
-  lua5.4 llm.lua --action "go north" --save "$SAVE"
+  # Execute a command - output is plain text, exit code 0=success, 1=error
+  lua5.4 llm.lua --action "look" --save "$SAVE"
 done
 ```
 
@@ -74,7 +62,7 @@ done
 An agent can play the game in a loop:
 
 1. **Start**: `lua5.4 llm.lua --new-game --save game.sav`
-2. **Observe**: Parse the `output` field from the JSON response
+2. **Observe**: Read the plain text output
 3. **Decide**: Choose the next command based on game state
 4. **Act**: `lua5.4 llm.lua --action "<command>" --save game.sav`
 5. **Repeat** from step 2
@@ -85,9 +73,24 @@ The agent should:
 - Try multiple approaches if a puzzle doesn't yield results
 - Read any text the game presents (signs, leaflets, etc.)
 
+## Basic Commands
+
+| Category | Command | Example |
+|----------|---------|---------|
+| Movement | `<direction>` or `go <direction>` | `north`, `go east`, `south`, `west`, `up`, `down` |
+| Examination | `look`, `examine <object>` | `look`, `examine desk`, `x desk` |
+| Inventory | `inventory` or `i` | `inventory` |
+| Taking/Dropping | `take <object>`, `drop <object>` | `take key`, `drop key` |
+| Containers | `open <container>`, `close <container>`, `look in <container>` | `open drawer`, `look in trunk` |
+| Reading | `read <object>` | `read letter` |
+| Pushing/Pulling | `push <object>`, `pull <object>` | `push button` |
+| NPC Interaction | `ask <npc> about <topic>`, `tell <npc> about <topic>`, `show <object> to <npc>` | `ask hudson about master` |
+
+Standard verbs: EXAMINE, TAKE, DROP, USE, OPEN, CLOSE, LOOK, READ, ASK, TELL, SHOW, GO, PUSH, PULL, TASTE.
+
 ## Command Reference
 
-See [TESTING.md § How to Play](TESTING.md#how-to-play) for the full command reference (movement, examination, inventory, taking/dropping, using objects).
+See [TESTING.md § How to Play](TESTING.md#how-to-play) for the full command reference.
 
 ## Available Games
 
@@ -98,6 +101,8 @@ Pass `--game <name>` to play different games:
 | zork1 (default) | `infocom.zork1.zork1` |
 | lurkinghorror | `infocom.lurkinghorror.h1` |
 | spellbreaker | `infocom.spellbreaker.z6` |
+| limehouse-killings | `books.limehouse-killings.limehouse-killings` |
+| blackwood-horror | `books.blackwood-horror.blackwood-horror` |
 
 ## Command-Line Reference
 
@@ -110,6 +115,9 @@ Options:
   --game, -g name      Game module (default: zork1)
   --new-game           Start fresh, ignoring existing save
   --help, -h           Show help
+
+Output: plain text to stdout
+Exit codes: 0 = success, 1 = error
 ```
 
 ## Evaluating Playability
@@ -126,19 +134,16 @@ Example evaluation script:
 
 ```bash
 SAVE="eval.sav"
-lua5.4 llm.lua --new-game --save "$SAVE" | jq -r '.output' > eval.log
+lua5.4 llm.lua --new-game --save "$SAVE" > eval.log
 
 for turn in $(seq 1 50); do
   # In practice, an LLM would decide the action here
   ACTION="look"
-  RESULT=$(lua5.4 llm.lua --action "$ACTION" --save "$SAVE")
-  OUTPUT=$(echo "$RESULT" | jq -r '.output')
-  ROOM=$(echo "$RESULT" | jq -r '.room')
+  lua5.4 llm.lua --action "$ACTION" --save "$SAVE" >> eval.log
+  EXIT_CODE=$?
 
-  echo "Turn $turn [$ROOM]: $OUTPUT" >> eval.log
-
-  # Check for game end conditions
-  if echo "$OUTPUT" | grep -qi "game has ended\|you have died\|score is"; then
+  # Check for game end conditions or errors
+  if [ $EXIT_CODE -ne 0 ]; then
     break
   fi
 done

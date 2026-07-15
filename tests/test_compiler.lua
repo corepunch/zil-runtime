@@ -37,6 +37,40 @@ test.describe("Compiler - Basic Compilation", function(t)
 	end)
 end)
 
+test.describe("Compiler - game-specific TELL and description contexts", function(t)
+	t.it("should lower Infocom verb and preposition synonym directives", function(assert)
+		local ast = parser.parse([[
+			<VERB-SYNONYM EXAMINE X>
+			<PREP-SYNONYM THROUGH THRU>
+		]])
+		local result = compiler.compile(ast)
+
+		assert.assert_match(result.body, 'DEFER_SYNONYM%("EXAMINE", "X"%)')
+		assert.assert_match(result.body, 'DEFER_SYNONYM%("THROUGH", "THRU"%)')
+	end)
+
+	t.it("should lower OBJDESC? to the M-OBJDESC? context", function(assert)
+		local ast = parser.parse([[<ROUTINE DESC (RARG) <RARG? OBJDESC?>>]])
+		local result = compiler.compile(ast)
+
+		assert.assert_match(result.declarations, "EQUALQ%(m_RARG, M_OBJDESCQ%)")
+	end)
+
+	t.it("should preserve article token identity in TELL", function(assert)
+		local ast = parser.parse([[<ROUTINE SAY (OBJ) <TELL A .OBJ " / " THE .OBJ " / " CTHE .OBJ>>]])
+		local result = compiler.compile(ast)
+
+		assert.assert_match(result.declarations, "TELL%(TELL_A, m_OBJ, \" / \", TELL_THE, m_OBJ, \" / \", TELL_CTHE, m_OBJ%)")
+	end)
+
+	t.it("should lower P? verb atoms and object alternatives", function(assert)
+		local ast = parser.parse([[<ROUTINE MATCH () <P? LISTEN (<> NOISE)>>]])
+		local result = compiler.compile(ast)
+
+		assert.assert_match(result.declarations, "PASS%(VERBQ%(VQLISTEN%) and PRSOQ%(nil, NOISE%)%)")
+	end)
+end)
+
 test.describe("Compiler - Object Compilation", function(t)
 	t.it("should compile simple object", function(assert)
 		local code = [[<OBJECT MAILBOX (DESC "mailbox")>]]
@@ -66,9 +100,28 @@ test.describe("Compiler - Object Compilation", function(t)
 		assert.assert_match(result.body, 'DESCFCN = ROUTINE_REF%("HOUSE_D"%)')
 		assert.assert_match(result.body, 'per = ROUTINE_REF%("NORTH_F"%)')
 	end)
+
+	t.it("should preserve hyphens in player-facing vocabulary", function(assert)
+		local code = [[<OBJECT TORN-PAGE
+			(SYNONYM PAGE TORN-PAGE)
+			(ADJECTIVE HAND-WRITTEN)
+			(FLAGS TAKEBIT)>]]
+		local result = compiler.compile(parser.parse(code))
+
+		assert.assert_match(result.body, 'SYNONYM = {"PAGE", "TORN%-PAGE"}')
+		assert.assert_match(result.body, 'ADJECTIVE = {"HAND%-WRITTEN"}')
+		assert.assert_match(result.body, 'FLAGS = {"TAKEBIT"}')
+	end)
 end)
 
 test.describe("Compiler - Constants and Globals", function(t)
+	t.it("should preserve STRING and LENGTH table storage", function(assert)
+		local code = [[<CONSTANT LOGIN-ID <TABLE (PURE LENGTH STRING) "872325412">>]]
+		local result = compiler.compile(parser.parse(code))
+
+		assert.assert_match(result.combined, 'STRING_TABLE%("872325412", true%)')
+	end)
+
 	t.it("should compile CONSTANT", function(assert)
 		local code = [[<CONSTANT MAX-SCORE 100>]]
 		local ast = parser.parse(code)
@@ -86,6 +139,27 @@ test.describe("Compiler - Constants and Globals", function(t)
 		
 		assert.assert_not_nil(result)
 		assert.assert_type(result.declarations, "string")
+	end)
+end)
+
+test.describe("Compiler - Mapping Forms", function(t)
+	t.it("should lower MAP-DIRECTIONS with local bindings", function(assert)
+		local code = [[<ROUTINE WALK-EXITS (ROOM "AUX" COUNT)
+			<MAP-DIRECTIONS (D P .ROOM) <SET COUNT <PTSIZE .P>>>
+		>]]
+		local result = compiler.compile(parser.parse(code))
+
+		assert.assert_match(result.declarations, "MAP_DIRECTIONS%(m_ROOM, function%(m_D, m_P%)")
+		assert.assert_match(result.declarations, "PTSIZE%(m_P%)")
+	end)
+
+	t.it("should lower MAP-CONTENTS with current and next bindings", function(assert)
+		local code = [[<ROUTINE WALK-CONTENTS (BOX)
+			<MAP-CONTENTS (ITEM NEXT .BOX) <SET ITEM .NEXT>>
+		>]]
+		local result = compiler.compile(parser.parse(code))
+
+		assert.assert_match(result.declarations, "MAP_CONTENTS%(m_BOX, function%(m_ITEM, m_NEXT%)")
 	end)
 end)
 

@@ -30,6 +30,19 @@ end
 -- Helper: Generate a table constructor call (LTABLE, TABLE share same pattern)
 local function writeTableCall(buf, name, node, printNode)
   local first_is_storage_spec = utils.safeget(node[1], 'type') == "list"
+  if first_is_storage_spec then
+    local has_string, has_length = false, false
+    for _, spec in ipairs(node[1]) do
+      has_string = has_string or spec.value == "STRING"
+      has_length = has_length or spec.value == "LENGTH"
+    end
+    if has_string and node[2] and node[2].type == "string" and #node == 2 then
+      buf.write("STRING_TABLE(")
+      printNode(buf, node[2], 0)
+      buf.write(", %s)", has_length and "true" or "false")
+      return
+    end
+  end
   local start = first_is_storage_spec and 2 or 1
   buf.write("%s(", name)
   for i = start, #node do
@@ -117,6 +130,117 @@ end
 function Forms.createHandlers(compiler, printNode)
   local form = {}
 
+  local function writeMap(buf, node, indent, runtime_name, binder_count)
+    local bindings = node[1]
+    if not bindings or bindings.type ~= "list" or #bindings < binder_count + 1 then
+      error(runtime_name .. " requires a binding list")
+    end
+
+    local saved_local_vars = {}
+    for k, v in pairs(compiler.local_vars) do saved_local_vars[k] = v end
+    local binders = {}
+    for i = 1, binder_count do
+      compiler.registerLocalVar(bindings[i])
+      binders[i] = compiler.localVarName(bindings[i])
+    end
+
+    local end_clause
+    local body_start = 2
+    if node[2] and node[2].type == "list"
+        and utils.safeget(node[2][1], "value") == "END" then
+      end_clause = node[2]
+      body_start = 3
+    end
+
+    buf.write("%s(", runtime_name)
+    printNode(buf, bindings[#bindings], indent + 1)
+    buf.write(", function(%s) local __tmp", table.concat(binders, ", "))
+    for i = body_start, #node do
+      buf.write("; ")
+      if utils.needReturn(node[i]) then buf.write("__tmp = ") end
+      printNode(buf, node[i], indent + 1)
+    end
+    buf.write("; return __tmp end, ")
+    if end_clause then
+      buf.write("function() local __tmp")
+      for i = 2, #end_clause do
+        buf.write("; ")
+        if utils.needReturn(end_clause[i]) then buf.write("__tmp = ") end
+        printNode(buf, end_clause[i], indent + 1)
+      end
+      buf.write("; return __tmp end")
+    else
+      buf.write("nil")
+    end
+    buf.write(")")
+    compiler.local_vars = saved_local_vars
+  end
+
+  form["MAP-DIRECTIONS"] = function(buf, node, indent)
+    writeMap(buf, node, indent, "MAP_DIRECTIONS", 2)
+  end
+
+  form["MAP-CONTENTS"] = function(buf, node, indent)
+    local bindings = node[1]
+    local binder_count = bindings and (#bindings - 1) or 1
+    writeMap(buf, node, indent, "MAP_CONTENTS", binder_count)
+  end
+
+  form["RARG?"] = function(buf, node, indent)
+    local target = compiler.local_vars.RARG and "m_RARG" or "RARG"
+    buf.write("EQUALQ(%s", target)
+    for i = 1, #node do
+      buf.write(", ")
+      local context = node[i].value
+      if context == "OBJDESC?" then
+        buf.write("M_OBJDESCQ")
+      elseif context and ({BEG=true, CONTAINER=true, END=true, ENTER=true,
+          LEAVE=true, LOOK=true, OBJDESC=true})[context] then
+        buf.write("M_%s", context)
+      else
+        printNode(buf, node[i], indent + 1)
+      end
+    end
+    buf.write(")")
+  end
+
+  -- P? is the compact Infocom predicate for matching the current verb,
+  -- direct object, indirect object, and actor. Its macro normally adds the
+  -- V? prefix to verb atoms; emitting a plain atom makes it nil at runtime,
+  -- which turns the verb slot into a wildcard and matches every command.
+  form["P?"] = function(buf, node, indent)
+    local dimensions = {
+      {predicate = "VERBQ", node = node[1], verb = true},
+      {predicate = "PRSOQ", node = node[2]},
+      {predicate = "PRSIQ", node = node[3]},
+      {predicate = "WINNERQ", node = node[4]},
+    }
+    local wrote = false
+    buf.write("PASS(")
+    for _, dimension in ipairs(dimensions) do
+      local argument = dimension.node
+      if argument and argument.value ~= "*" then
+        if wrote then buf.write(" and ") end
+        wrote = true
+        buf.write("%s(", dimension.predicate)
+        local values = argument.type == "list" and argument or {argument}
+        for i, value in ipairs(values) do
+          if dimension.verb and value.type == "ident" then
+            local verb = value.value == "THROUGH" and "ENTER" or value.value
+            compiler.current_verbs[#compiler.current_verbs + 1] = verb
+            buf.write("VQ%s", utils.normalizeIdentifier(verb))
+          else
+            printNode(buf, value, indent + 1)
+          end
+          if i < #values then buf.write(", ") end
+        end
+        buf.write(")")
+      end
+    end
+    if not wrote then buf.write("true") end
+    buf.write(")")
+  end
+
   -- COND (if-elseif-else)
   form.COND = function(buf, node, indent)
     if node[1] and utils.safeget(node[1][1], 'value') == "ELSE" then
@@ -140,9 +264,9 @@ function Forms.createHandlers(compiler, printNode)
         if i > 1 then buf.write("else ") end
       else
         buf.write(i == 1 and "if " or "elseif ")
-        buf.write("APPLY(function() __tmp = ")
+        buf.write("ZIL_TRUE(APPLY(function() __tmp = ")
         printNode(buf, clause[1], indent + 1)
-        buf.write(" return __tmp end)")
+        buf.write(" return __tmp end))")
         buf.write(" then ")
       end
       
@@ -176,11 +300,22 @@ function Forms.createHandlers(compiler, printNode)
   end
 
   form.TELL = function(buf, node, indent)
+    -- TELL-TOKENS gives these identifiers formatting semantics distinct from
+    -- their ordinary globals (THE is also commonly an object flag).
+    local tokens = {
+      A = "TELL_A",
+      AN = "TELL_A",
+      THE = "TELL_THE",
+      CTHE = "TELL_CTHE",
+    }
     buf.write("TELL(")
     for i = 1, #node do
       local cond_node = utils.isCond(node[i]) and node[i]
         or (node[i].type == "placeholder" and utils.isCond(node[i][1]) and node[i][1])
-      if node[i].type == "placeholder" and node[i][1] and not cond_node then
+      local token = node[i].type == "ident" and tokens[node[i].value]
+      if token then
+        buf.write(token)
+      elseif node[i].type == "placeholder" and node[i][1] and not cond_node then
         buf.write("D, ")
         printNode(buf, node[i][1], indent + 1)
       elseif cond_node then
@@ -348,6 +483,18 @@ function Forms.createHandlers(compiler, printNode)
     writeStringCall(buf, "SYNONYM", node)
   end
 
+  -- Infocom vocabulary sources distinguish verb/preposition aliases from the
+  -- generic SYNONYM directive.  They share the same dictionary representation
+  -- at runtime, so preserve the source spelling while lowering both forms to
+  -- the existing synonym implementation.
+  form["VERB-SYNONYM"] = function(buf, node, indent)
+    writeStringCall(buf, "DEFER_SYNONYM", node)
+  end
+
+  form["PREP-SYNONYM"] = function(buf, node, indent)
+    writeStringCall(buf, "DEFER_SYNONYM", node)
+  end
+
   -- GLOBAL and CONSTANT
   form.GLOBAL = function(buf, node, indent)
     local name = compiler.value(node[1])
@@ -425,13 +572,17 @@ function Forms.createHandlers(compiler, printNode)
   end
 
   form.ITABLE = function(buf, node)
-    buf.write("ITABLE(")
-    if utils.safeget(node[1], "value") == "NONE" and node[2] then
-      printNode(buf, node[2], 0)
+    if node[1] and node[1].type == "number"
+        and not (node[2] and node[2].type == "list") then
+      buf.write("ITABLE_WORDS(%s, %d)", compiler.value(node[1]), math.max(1, #node - 1))
+    elseif utils.safeget(node[1], "value") == "NONE" and node[2] then
+      buf.write("ITABLE_WORDS(%s, 1)", compiler.value(node[2]))
     else
+      -- Preserve the established byte/LEXV buffer layout for flagged tables.
+      buf.write("ITABLE(")
       printNode(buf, node[1], 0)
+      buf.write(")")
     end
-    buf.write(")")
   end
 
   -- AND/OR

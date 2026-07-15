@@ -1,11 +1,4 @@
-<INSERT-FILE "infocom/zork1/globals">
-<INSERT-FILE "infocom/zork1/clock">
-<INSERT-FILE "books/blackwood-horror/dungeon">
-<INSERT-FILE "books/blackwood-horror/actions">
-<INSERT-FILE "infocom/zork1/parser">
-<INSERT-FILE "infocom/zork1/verbs">
-<INSERT-FILE "infocom/zork1/syntax">
-<INSERT-FILE "infocom/zork1/main">
+<INSERT-FILE "books/blackwood-horror/blackwood-horror">
 
 <CONSTANT RELEASEID 1>
 
@@ -42,11 +35,11 @@
         <CO-RESUME ,CO "look" T> 
         <==? ,HERE ,SANITARIUM-GATE>>
     
-    <ASSERT "Verify plaque has TAKEBIT flag" 
-        <FSET? ,BRASS-PLAQUE ,TAKEBIT>>
+    <ASSERT "Verify plaque has no TAKEBIT flag"
+        <NOT <FSET? ,BRASS-PLAQUE ,TAKEBIT>>>
     
-    <ASSERT "Take the brass plaque" 
-        <CO-RESUME ,CO "take plaque" T> 
-        <==? <LOC ,BRASS-PLAQUE> ,ADVENTURER>>
+    <ASSERT-TEXT "bolted firmly" <CO-RESUME ,CO "take plaque">>
+    <ASSERT "Plaque stays at the gate"
+        <==? <LOC ,BRASS-PLAQUE> ,SANITARIUM-GATE>>
     
     <TELL CR "All failing conditions tests completed!" CR>>

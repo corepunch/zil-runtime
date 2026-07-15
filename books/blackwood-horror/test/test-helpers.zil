@@ -1,11 +1,4 @@
-<INSERT-FILE "infocom/zork1/globals">
-<INSERT-FILE "infocom/zork1/clock">
-<INSERT-FILE "books/blackwood-horror/dungeon">
-<INSERT-FILE "books/blackwood-horror/actions">
-<INSERT-FILE "infocom/zork1/parser">
-<INSERT-FILE "infocom/zork1/verbs">
-<INSERT-FILE "infocom/zork1/syntax">
-<INSERT-FILE "infocom/zork1/main">
+<INSERT-FILE "books/blackwood-horror/blackwood-horror">
 
 <CONSTANT RELEASEID 1>
 
@@ -20,8 +13,9 @@
     ;"Learn about Blackwood Sanitarium"
     <CO-RESUME ,CO "examine plaque">
     
-    ;"Take the brass plaque"
-    <ASSERT "Take the brass plaque" <CO-RESUME ,CO "take plaque" T> <==? <LOC ,BRASS-PLAQUE> ,ADVENTURER>>
+    ;"The brass plaque is fixed to the gate"
+    <ASSERT-TEXT "bolted firmly" <CO-RESUME ,CO "take plaque">>
+    <ASSERT "Brass plaque remains on the gate" <==? <LOC ,BRASS-PLAQUE> ,SANITARIUM-GATE>>
     
     ;"Enter Sanitarium Entrance Hall"
     <ASSERT "Enter Sanitarium Entrance Hall" <CO-RESUME ,CO "north" T> <==? ,HERE ,SANITARIUM-ENTRANCE>>
