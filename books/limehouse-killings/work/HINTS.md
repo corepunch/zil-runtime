@@ -1,230 +1,106 @@
-# The Limehouse Killings - Hint Panel Content
+# The Limehouse Killings - Hint Design
 
-## Hint System Overview
+Hints must preserve idea-space challenge while removing parser friction. Every final-tier hint uses a command accepted by the current parser-driven walkthrough.
 
-The hint system provides progressive assistance for each puzzle. Players can request hints at any time by typing HINTS. Hints are presented in 4 tiers, from vague to specific.
+## Current Delivery
 
-## Hint Panel Structure
+The implemented `HINTS` command chooses one state-aware hint:
 
-### How to Use Hints
-- Type HINTS to see available hint topics
-- Type HINTS [TOPIC] to get a hint for that puzzle
-- Each hint topic has 4 tiers
-- Type HINTS [TOPIC] again for the next tier
-- Hints reset when puzzle is solved
+1. Study access while the door is locked.
+2. Library cipher until solved.
+3. Poison comparison until identified.
+4. Case assembly and Lestrade afterward.
 
-## Puzzle Hints
+Topic-specific, repeat-to-advance tiers are a future UI refactor, not current behavior. The content below is the target copy for that refactor.
 
-### Puzzle 1: Study Entry
+## Opening and Study Access
 
-**Topic:** STUDY
+| Tier | Copy |
+|---|---|
+| Attention | “The study door is locked, but a locked-room crime may have more than one route.” |
+| Direction | “Hudson has the study key. The colored books in the library may reveal how someone avoided the door.” |
+| Action | “Ask Hudson about the key for the physical route, or solve the marked-book sequence for the hidden route.” |
+| Command | `ASK HUDSON ABOUT KEY`, or `PUSH RED BOOK`, `PUSH YELLOW BOOK`, `PUSH GREEN BOOK`, `PUSH BLUE BOOK` |
 
-**Tier 1 (Attention):**
-"The study door is locked. Perhaps someone has the key."
+Design note: never imply the key or lockpick is the only solution. The secret passage is the preferred story-bearing route.
 
-**Tier 2 (Direction):**
-"The butler might know where the key is kept. Or perhaps there's another way in."
+## Library Passage
 
-**Tier 3 (Action):**
-"Ask Mr. Hudson about the key, but be persistent. Alternatively, check the garden for another entrance."
+| Tier | Copy |
+|---|---|
+| Attention | “The torn page and colored ribbons describe the same arrangement.” |
+| Direction | “The page says rainbow order; only four marked colors are present.” |
+| Action | “Push the marked books from the warm end of the sequence toward blue.” |
+| Command | `PUSH RED BOOK`, then yellow, green, and blue |
 
-**Tier 4 (Command):**
-`ASK HUDSON ABOUT KEY` or `USE LOCKPICK ON WINDOW`
+Wrong order: “The book springs back. The sequence resets.”
 
----
+## Greenhouse Poison
 
-### Puzzle 2: Library Cipher
+| Tier | Copy |
+|---|---|
+| Attention | “The vial and the greenhouse labels each use two names for one plant.” |
+| Direction | “Aconitum is wolfsbane; compare the physical vial with the purple plant.” |
+| Action | “Use the vial on the plants rather than merely carrying antidote ingredients.” |
+| Command | `USE VIAL ON PLANTS` |
 
-**Topic:** CIPHER
+Wrong attempts:
 
-**Tier 1 (Attention):**
-"The bookshelf has colored markers. Perhaps they mean something."
+- `TASTE VIAL`: danger feedback and recoverable health loss.
+- Merely taking foxglove/charcoal: no progress; these are not the identification solution.
 
-**Tier 2 (Direction):**
-"The torn page mentions 'rainbow order'. The markers are colored."
+## Ashworth Name Dial
 
-**Tier 3 (Action):**
-"Push the marked books in their rainbow order: red, yellow, green, blue."
+| Tier | Copy |
+|---|---|
+| Attention | “The box has no keyhole. Its three engravings are categories of evidence.” |
+| Direction | “Connect the sealed letter, purple flower, and columns of debt to one person.” |
+| Action | “Read the letter and ledger, identify the poison, then set the dial to the shared name.” |
+| Command | `TURN LOCKED BOX TO MORIARTY` |
 
-**Tier 4 (Command):**
-`PUSH RED BOOK THEN PUSH YELLOW BOOK THEN PUSH GREEN BOOK THEN PUSH BLUE BOOK`
+Wrong attempts:
 
----
+- `OPEN BOX`: teaches that the dial is the lock.
+- Correct name before prerequisites: identifies the unresolved three categories.
+- Wrong name: dial returns to blank.
 
-### Puzzle 3: Greenhouse Poison
+## NPC Interviews and State Changes
 
-**Topic:** POISON
+| Tier | Copy |
+|---|---|
+| Attention | “Answers establish alibis; showing evidence changes behavior.” |
+| Direction | “Ask Hudson and Lady Ashworth about their alibis. Ask Moriarty about poison.” |
+| Action | “Show the unsent letter before Act III if you want to expose a suspect's intermediate state.” |
+| Command | `ASK HUDSON ABOUT ALIBI`, `ASK LADY ABOUT ALIBI`, `ASK MORIARTY ABOUT POISON`, `SHOW LETTER TO HUDSON/LADY/MORIARTY` |
 
-**Tier 1 (Attention):**
-"The poison bottle has a label. Greenhouse plants have labels too."
+Topicless `ASK NPC` should prompt for a topic, never crash.
 
-**Tier 2 (Direction):**
-"Match the poison bottle to a plant in the greenhouse."
+## Lestrade's Case Chain
 
-**Tier 3 (Action):**
-"Find the wolfsbane plant and take the antidote ingredients."
+| Tier | Copy |
+|---|---|
+| Attention | “Lestrade wants an argument, not an inventory count.” |
+| Direction | “Organize the case as threat, method, and motive.” |
+| Action | “Show him Ashworth's threat, the identified poison, and the financial corroboration.” |
+| Command | `SHOW LETTER TO INSPECTOR`, `SHOW BOTTLE TO INSPECTOR`, `SHOW STATEMENT TO INSPECTOR` |
 
-**Tier 4 (Command):**
-`EXAMINE POISON-BOTTLE THEN FIND WOLFSBANE IN GREENHOUSE`
+Early accusation response must name the missing argument links, not say only “not enough evidence.”
 
----
+## Final Choice
 
-### Puzzle 4: Final Confrontation
+| Tier | Copy |
+|---|---|
+| Attention | “The case is complete. Decide which proof should lead.” |
+| Direction | “The letter invites witness confirmation; the poison may provoke specialized knowledge.” |
+| Action | “Accuse Moriarty with either the letter or the poison.” |
+| Command | `ACCUSE MORIARTY WITH LETTER` or `ACCUSE MORIARTY WITH POISON` |
 
-**Topic:** ACCUSE
+## General Hint Principles
 
-**Tier 1 (Attention):**
-"The evidence must point to one suspect."
-
-**Tier 2 (Direction):**
-"Consider who had means, motive, and opportunity."
-
-**Tier 3 (Action):**
-"Dr. Moriarty had poison, owed money, and no alibi."
-
-**Tier 4 (Command):**
-`ACCUSE DR-MORIARTY`
-
----
-
-## General Hints
-
-### Topic: GENERAL
-
-**Tier 1:**
-"If you're stuck, try examining everything in the current room. Look for objects that might be useful."
-
-**Tier 2:**
-"Have you talked to all the NPCs? They might have information you need."
-
-**Tier 3:**
-"Some doors are locked. You'll need a key or tool to open them."
-
-**Tier 4:**
-"Try reading any notes or letters you've found. They might contain clues."
-
----
-
-### Topic: INVENTORY
-
-**Tier 1:**
-"You can carry up to 7 items. Use INVENTORY to see what you have."
-
-**Tier 2:**
-"Some items are useful for specific puzzles. Think about what each item might do."
-
-**Tier 3:**
-"The lockpick set can open locked doors. The keyring has the study key."
-
-**Tier 4:**
-"Use USE [ITEM] ON [OBJECT] to use items on specific objects."
-
----
-
-### Topic: NPCs
-
-**Tier 1:**
-"Each NPC has different information. Try asking them about various topics."
-
-**Tier 2:**
-"ASK [NPC] ABOUT [TOPIC] to learn new information."
-
-**Tier 3:**
-"Some NPCs lie. Compare what they say with the evidence you find."
-
-**Tier 4:**
-"SHOW [ITEM] TO [NPC] to see their reaction to evidence."
-
----
-
-## Wrong Attempt Responses
-
-### Study Entry
-- **BREAK DOOR:** "The door is solid oak. You'd need a battering ram."
-- **CLIMB WINDOW (without lockpick):** "The window is too high. You need a tool."
-- **ASK LADY ABOUT KEY:** "I don't have such things. Ask the butler."
-
-### Library Cipher
-- **PUSH RANDOM BOOKS:** "Nothing happens. Perhaps there's an order to follow."
-- **READ ALL BOOKS:** "The books are unremarkable Victorian literature."
-- **ASK HUDSON ABOUT PASSAGE:** "I know of no such thing."
-
-### Greenhouse Poison
-- **SMELL POISON:** "The scent is faint but distinctive. Best not to inhale."
-- **TASTE POISON:** "You feel dizzy. Perhaps that wasn't wise." (lose health)
-- **ASK LADY ABOUT POISON:** "I know nothing of such things." (lying)
-
-### Final Confrontation
-- **ACCUSE LADY-ASHWORTH:** "Lady Ashworth has an alibi. The evidence doesn't match."
-- **ACCUSE MR-HUDSON:** "Mr. Hudson was in servants' quarters. The knife isn't his."
-- **ACCUSE UNKNOWN:** "You must name a specific suspect."
-- **SHOW EVIDENCE TO WRONG PERSON:** "That's not the Inspector."
-
----
-
-## Success Feedback
-
-### Evidence Found
-- "You take the [evidence item] carefully. This could be important."
-- "This [evidence item] might connect to the murder."
-
-### Clue Connected
-- "You make a connection: [clue] points to [suspect]."
-- "The pieces are falling into place."
-
-### Puzzle Solved
-- "The lock clicks open. You can now enter the study."
-- "The wall slides open, revealing a secret passage."
-- "You've identified the poison. Now to find the antidote."
-
-### Accusation Correct
-- "Dr. Moriarty, you are under arrest for the murder of Lord Ashworth."
-- "The inspector reads the evidence. 'Case closed.'"
-
-### Game Won
-- "Congratulations! You have solved the murder of Lord Ashworth."
-- "Your reputation as a detective is secured."
-
----
-
-## Hint Writing Guidelines
-
-### Progressive Disclosure
-1. **Tier 1:** Draw attention to the problem area
-2. **Tier 2:** Point toward the solution path
-3. **Tier 3:** Describe the specific action needed
-4. **Tier 4:** Provide exact command syntax
-
-### Tone
-- Maintain Victorian atmosphere in hints
-- Be encouraging, not condescending
-- Avoid spoiling other puzzles
-- Keep hints concise
-
-### Fairness
-- Don't give away the solution too easily
-- Make hints relevant to current progress
-- Update hints based on game state
-- Reset hints when puzzle is solved
-
----
-
-## Implementation Notes
-
-### Hint State Tracking
-- Track current hint tier per puzzle
-- Reset tier when puzzle solved
-- Allow players to request specific hint topics
-- Provide GENERAL hints for stuck players
-
-### Hint Delivery
-- Display hints in response to HINTS command
-- Allow HINTS [TOPIC] for specific hints
-- Show available topics in HINTS response
-- Limit hint requests per game session (optional)
-
-### Integration
-- Hints should not break immersion
-- Avoid mechanical language in hints
-- Maintain consistent tone with game text
-- Provide feedback when hint is used
+- Attention → direction → action → exact command.
+- Hint the inference before the syntax.
+- Use nouns printed in current room/object prose.
+- Never reference nonexistent verbs such as `MATCH` or `FIND WOLFSBANE`.
+- Never describe foxglove/charcoal as mandatory until an antidote system exists.
+- Update hints at act boundaries so solved problems disappear.
+- Preserve dry Victorian voice; Hudson's kettle is a useful tonal model.

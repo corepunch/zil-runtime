@@ -1,223 +1,191 @@
-# The Limehouse Killings - Puzzle Design
+# The Limehouse Killings - Puzzle Architecture
+
+The central design rule is that deduction, not possession, gates progress. Keys and lockpicks may offer optional physical routes, but at least two major gates must require understanding the fiction.
 
 ## Puzzle Overview
 
-| # | Puzzle | Location | Difficulty | Time |
-|---|--------|----------|------------|------|
-| 1 | Study Entry | ENTRANCE-HALL | Easy | 10 min |
-| 2 | Library Cipher | LIBRARY | Medium | 20 min |
-| 3 | Greenhouse Poison | GREENHOUSE | Medium | 15 min |
-| 4 | Final Confrontation | STUDY | Hard | 15 min |
+| Puzzle | Act | Challenge type | Fictional inference | Canonical command |
+|---|---:|---|---|---|
+| Library passage | I → II | Observation and sequence | Torn-page instruction + colored books | Push red, yellow, green, blue books |
+| Greenhouse comparison | II | Cross-location identification | Aconitum on vial = wolfsbane plant | `USE VIAL ON PLANTS` |
+| Ashworth name dial | II | Culprit connection | Letter + purple flower + debt all point to Moriarty | `TURN LOCKED BOX TO MORIARTY` |
+| Lestrade case chain | III | Argument and choice | Threat + method + motive form a case | Show three links, then accuse with letter or poison |
 
-## Puzzle 1: Study Entry
+The locked study door is an optional physical obstacle, not a required major puzzle. The fiction-led library passage provides a complete alternate route into the study.
 
-### Goal
-Enter the locked study where the murder occurred.
+## Puzzle 1 — Library Passage
 
-### Solution Path
-**Primary:** Get key from Mr. Hudson
-1. ASK HUDSON ABOUT KEY
-2. Hudson refuses initially
-3. ASK HUDSON ABOUT MASTER
-4. Hudson reveals he was fired by Lord Ashworth
-5. ASK HUDSON ABOUT ALIBI
-6. Hudson provides alibi (in servants' quarters)
-7. ASK HUDSON ABOUT KEY (again)
-8. Hudson gives key, wants case solved
+Goal: discover how someone crossed into the sealed study and enter Act II.
 
-**Secondary:** Use lockpick on window
-1. FIND LOCKPICK-SET in KITCHEN
-2. GO TO GARDEN
-3. EXAMINE WINDOW (from outside)
-4. USE LOCKPICK ON WINDOW
-5. Window opens, can enter study
+Discoverable information:
 
-### Clues
-- Butler mentioned carrying key in servants' quarters
-- Window visible from garden, latch appears old
-- TORN-PAGE mentions "study locked from inside"
+- The reading desk exposes a torn page naming “rainbow order.”
+- Colored ribbons and four distinct marked books make the manipulable nouns visible.
+- Each correct push clicks; a wrong push resets the sequence explicitly.
 
-### Wrong Attempts
-- **BREAK DOOR:** "The door is solid oak. You'd need a battering ram."
-- **CLIMB WINDOW (without lockpick):** "The window is too high. You need a tool."
-- **ASK LADY ABOUT KEY:** "I don't have such things. Ask the butler."
+Solution:
 
-### Hint Tiers
-1. **Attention:** "The study door is locked. Perhaps someone has the key."
-2. **Direction:** "The butler might know where the key is kept."
-3. **Action:** "Ask Mr. Hudson about the key, but be persistent."
-4. **Command:** `ASK HUDSON ABOUT KEY`
-
-### Dependencies
-- None (can be solved first)
-
-### Softlock Prevention
-- Lockpick alternative ensures butler isn't required
-- Window accessible from multiple garden paths
-- No time limit on getting key
-
-## Puzzle 2: Library Cipher
-
-### Goal
-Decode the hidden message in the bookshelf arrangement to reveal secret passage.
-
-### Solution Path
-1. EXAMINE BOOKSHELF
-2. Notice COLORED-MARKERS on shelves (red, blue, green, yellow)
-3. FIND TORN-PAGE on reading desk
-4. READ TORN-PAGE: "Follow the rainbow order"
-5. EXAMINE COLORED-MARKERS
-6. Apply rainbow order to the colors that are actually marked: red, yellow, green, blue
-7. Push books in rainbow order on marked shelves
-8. Wall slides open, revealing SECRET-PASSAGE
-
-### Clues
-- TORN-PAGE mentions "rainbow order"
-- COLORED-MARKERS visible on bookshelf
-- Some books have colored spines matching markers
-- DR-MORIARTY mentions "hidden study entrance" if asked
-
-### Wrong Attempts
-- **PUSH RANDOM BOOKS:** "Nothing happens. Perhaps there's an order to follow."
-- **READ ALL BOOKS:** "The books are unremarkable Victorian literature."
-- **ASK HUDSON ABOUT PASSAGE:** "I know of no such thing."
-
-### Hint Tiers
-1. **Attention:** "The bookshelf has colored markers. Perhaps they mean something."
-2. **Direction:** "The torn page mentions 'rainbow order'."
-3. **Action:** "Push the books with colored spines in rainbow order."
-4. **Command:** `PUSH RED BOOK THEN PUSH YELLOW BOOK THEN PUSH GREEN BOOK THEN PUSH BLUE BOOK`
-
-### Dependencies
-- None (parallel to Puzzle 1)
-
-### Softlock Prevention
-- Torn page provides clear hint
-- Colored markers are visible without magnification
-- Multiple attempts allowed
-- No penalty for wrong order
-
-## Puzzle 3: Greenhouse Poison
-
-### Goal
-Identify the poison used to kill Lord Ashworth and find antidote ingredients.
-
-### Solution Path
-1. EXAMINE POISON-BOTTLE in STUDY
-2. Read label: "Aconitum - Wolfsbane"
-3. GO TO GREENHOUSE
-4. EXAMINE PLANTS
-5. FIND POISON-PLANT (wolfsbane)
-6. EXAMINE LABELS on pots
-7. MATCH POISON-BOTTLE to plant label
-8. Take antidote ingredients (foxglove, charcoal)
-
-### Clues
-- POISON-BOTTLE label matches plant in greenhouse
-- DR-MORIARTY specializes in rare poisons
-- LADY-ASHWORTH mentions husband's "experimental treatments"
-- TORN-PAGE mentions "wolfsbane remedy"
-
-### Wrong Attempts
-- **SMELL POISON:** "The scent is faint but distinctive. Best not to inhale."
-- **TASTE POISON:** "You feel dizzy. Perhaps that wasn't wise." (lose health)
-- **ASK LADY ABOUT POISON:** "I know nothing of such things." (lying)
-
-### Hint Tiers
-1. **Attention:** "The poison bottle has a label. Greenhouse plants have labels too."
-2. **Direction:** "Match the poison bottle to a plant in the greenhouse."
-3. **Action:** "Find the wolfsbane plant and take the antidote ingredients."
-4. **Command:** `EXAMINE POISON-BOTTLE THEN FIND WOLFSBANE IN GREENHOUSE`
-
-### Dependencies
-- Requires access to STUDY (Puzzle 1)
-- Requires GREENHOUSE exploration
-
-### Softlock Prevention
-- Poison bottle has readable label
-- Plant labels are visible
-- Antidote ingredients are takeable
-- No permanent damage from wrong attempts
-
-## Puzzle 4: Final Confrontation
-
-### Goal
-Present correct evidence to Inspector Lestrade to accuse the killer.
-
-### Solution Path
-1. Gather all 5 evidence items:
-   - DEAD-LETTER (threat from victim)
-   - BLOOD-STAINED-KNIFE (murder weapon)
-   - LOCKED-BOX (with BANK-STATEMENT)
-   - POISON-BOTTLE (rare poison)
-   - SECRET-LEDGER (financial records)
-2. GO TO ENTRANCE-HALL (Inspector arrives)
-3. ASK INSPECTOR ABOUT CASE
-4. ACCUSE DR-MORIARTY
-5. SHOW EVIDENCE TO INSPECTOR (one by one)
-6. Game ends with arrest
-
-### Clues
-- DEAD-LETTER threatens Dr. Moriarty
-- BLOOD-STAINED-KNIFE matches Moriarty's surgical tools
-- BANK-STATEMENT shows Moriarty owed victim money
-- POISON-BOTTLE is rare, only Moriarty has access
-- SECRET-LEDGER shows Moriarty was being blackmailed
-
-### Wrong Attempts
-- **ACCUSE LADY-ASHWORTH:** "Lady Ashworth has an alibi. The evidence doesn't match."
-- **ACCUSE MR-HUDSON:** "Mr. Hudson was in servants' quarters. The knife isn't his."
-- **ACCUSE UNKNOWN:** "You must name a specific suspect."
-- **SHOW EVIDENCE TO WRONG PERSON:** "That's not the Inspector."
-
-### Hint Tiers
-1. **Attention:** "The evidence must point to one suspect."
-2. **Direction:** "Consider who had means, motive, and opportunity."
-3. **Action:** "Dr. Moriarty had poison, owed money, and no alibi."
-4. **Command:** `ACCUSE DR-MORIARTY`
-
-### Dependencies
-- Requires all 5 evidence items
-- Requires all NPCs interviewed
-- Requires INSPECTOR present
-
-### Softlock Prevention
-- Evidence is findable in multiple orders
-- Inspector arrives after sufficient investigation
-- Wrong accusations provide clear feedback
-- Can retry accusation if wrong first time
-
-## Puzzle Dependency Graph
-
-```
-PUZZLE 1 (Study Entry)
-    ↓
-PUZZLE 3 (Greenhouse Poison) ← requires study access
-    ↓
-PUZZLE 4 (Final Confrontation) ← requires all evidence
-
-PUZZLE 2 (Library Cipher) ← parallel, no dependencies
+```text
+READ TORN PAGE
+EXAMINE COLORED MARKERS
+PUSH RED BOOK
+PUSH YELLOW BOOK
+PUSH GREEN BOOK
+PUSH BLUE BOOK
 ```
 
-## Verb/Object Response Matrix
+Consequences:
 
-| Verb | Object | Response |
-|------|--------|----------|
-| EXAMINE | POISON-BOTTLE | "Label reads: Aconitum - Wolfsbane" |
-| READ | DEAD-LETTER | "My dear Dr. Moriarty, I know what you did..." |
-| TAKE | BLOOD-STAINED-KNIFE | "You take the knife carefully." |
-| USE | LOCKPICK ON DOOR | "The lock clicks open." |
-| ASK | HUDSON ABOUT KEY | "I suppose you'll need this." (gives key) |
-| SHOW | DEAD-LETTER TO LADY | "Where did you get that?" (surprised) |
-| ACCUSE | DR-MORIARTY | "Dr. Moriarty, you are under arrest." |
+- `CIPHER-SOLVED`, `SECRET-PASSAGE-FOUND`, and `SECRET-PASSAGE-OPEN` become true.
+- `CASE-ACT` becomes 2.
+- Library and Entrance Hall descriptions change.
+- Secret Passage becomes persistently traversable to the Study.
 
-## Softlock Mitigation List
+Fair-failure responses:
 
-1. **Study Entry:** Lockpick alternative to key
-2. **Library Cipher:** Clear hint on torn page
-3. **Greenhouse Poison:** Labels match visibly
-4. **Final Confrontation:** Inspector arrives automatically
-5. **No Dead Ends:** All rooms have exit paths
-6. **No Time Limits:** Player explores at own pace
-7. **Multiple Solutions:** Some puzzles have alternatives
-8. **Hint System:** Available for stuck players
+- Wrong book: it springs back and the sequence resets.
+- Generic bookshelf push: points toward an order.
+- Repeating after success: acknowledges the passage is already open.
+
+## Puzzle 2 — Greenhouse Poison
+
+Goal: prove that the study vial and greenhouse plant are the same poison source.
+
+Required understanding:
+
+- The vial label says “Aconitum — Wolfsbane.”
+- The purple plant's label uses the same two names.
+- Moriarty admits keeping wolfsbane for research.
+
+Canonical solution:
+
+```text
+EXAMINE VIAL
+EXAMINE PLANTS
+EXAMINE LABELS
+USE VIAL ON PLANTS
+```
+
+Consequences:
+
+- `POISON-IDENTIFIED` becomes true.
+- The fact becomes the method link in the final case.
+- The clue satisfies the purple-flower engraving on the name dial.
+
+This puzzle must never require taking foxglove or charcoal. Those objects are optional until a separate antidote consequence is designed.
+
+## Puzzle 3 — Ashworth Name Dial
+
+Goal: open the fireplace box by identifying the person connecting its engravings.
+
+Examine text presents three engravings:
+
+1. Sealed letter → Ashworth threatened to expose Moriarty.
+2. Purple flower → wolfsbane/Aconitum from Moriarty's research.
+3. Columns of debt → secret ledger records Moriarty's £500 debt.
+
+Required state:
+
+- `DEAD-LETTER-FOUND`
+- `POISON-IDENTIFIED`
+- `SECRET-LEDGER-FOUND`
+
+Canonical solution:
+
+```text
+EXAMINE LOCKED BOX
+TURN LOCKED BOX TO MORIARTY
+```
+
+Consequences:
+
+- `LOCKED-BOX-OPENED` becomes true.
+- Box gains `OPENBIT` and reveals the bank statement.
+- Reading the statement independently records the motive corroboration.
+
+Fair-failure responses:
+
+- `OPEN BOX` or `UNLOCK BOX`: explains there is no keyhole and teaches `TURN BOX TO a name`.
+- Correct name too early: names the three unresolved clue categories without revealing their answer.
+- Wrong name: dial returns to blank.
+- Keyring/lockpick: must not bypass the deduction.
+
+## Puzzle 4 — Lestrade's Case Chain
+
+Goal: transform discoveries into an argument and choose how to present it.
+
+Act III arrival threshold:
+
+- `EVIDENCE-FOUND > 2`
+- `SUSPECTS-INTERVIEWED = 3`
+- Lestrade has not already arrived
+
+Lestrade requests three links:
+
+| Link | Item shown | Meaning | State flag |
+|---|---|---|---|
+| Threat | Unsent letter | Ashworth intended to expose Moriarty | `LETTER-PRESENTED` |
+| Method | Poison bottle | Wolfsbane connects sealed study to greenhouse/research | `POISON-PRESENTED` |
+| Motive | Bank statement | Corroborates the ledger's debt and blackmail | `MOTIVE-PRESENTED` |
+
+Canonical sequence:
+
+```text
+ASK INSPECTOR ABOUT CASE
+SHOW LETTER TO INSPECTOR
+SHOW BOTTLE TO INSPECTOR
+SHOW STATEMENT TO INSPECTOR
+ACCUSE MORIARTY
+```
+
+The bare accusation prompts a final choice:
+
+- `ACCUSE MORIARTY WITH LETTER` leads with Ashworth's voice and draws confirming testimony from Hudson and Lady Ashworth.
+- `ACCUSE MORIARTY WITH POISON` leads with physical evidence and provokes Moriarty into revealing knowledge he should not possess.
+
+Both endings must reference at least two earlier discoveries and imply the next case rather than ending at a numeric victory message.
+
+## Dependency Graph
+
+```text
+Opening telegram
+      |
+Library observations ──> Library sequence ──> Act II / secret route / study
+                                                   |
+                         letter ────────────────────┤
+study vial ──> greenhouse comparison ──────────────┼──> name dial ──> statement
+library ledger ────────────────────────────────────┘
+
+Hudson alibi + Lady alibi + Moriarty poison interview
+                         + 3 discoveries ──> Act III / Lestrade arrives
+
+letter + identified poison + statement ──> present case ──> chosen-proof accusation
+```
+
+## Likely Command Matrix
+
+| Attempt | Authored result required |
+|---|---|
+| `OPEN STUDY DOOR` | State-aware locked/unlocked/open response |
+| `UNLOCK STUDY DOOR WITH KEYRING` | Optional physical route succeeds |
+| `PUSH BOOKSHELF` | Teaches that individual books and an order matter |
+| Wrong colored book | Resets sequence with explicit feedback |
+| `USE VIAL ON PLANTS` | Identifies poison |
+| `TASTE VIAL` | Telegraphs danger and applies recoverable health loss |
+| `OPEN LOCKED BOX` | Teaches name-dial interaction |
+| `TURN BOX TO HUDSON/LADY` | Rejects wrong connection in-world |
+| `TURN BOX TO MORIARTY` early | Identifies missing categories without opening |
+| `ASK NPC` without topic | Prompts for a topic; never crashes |
+| `ASK INSPECTOR ABOUT CASE` | Explains threat/method/motive presentation |
+| `ACCUSE MORIARTY` early | Explains missing chain or absent Lestrade |
+| Bare final accusation | Offers letter/poison choice |
+
+## Softlock Rules
+
+- Cipher can be retried indefinitely.
+- All evidence counters are one-time guarded transitions.
+- Name dial cannot consume or destroy clues.
+- Wrong accusations do not end the game.
+- Lestrade arrival is checked after both evidence and interview changes.
+- Moriarty and Lestrade are physically co-located in the final hub.
+- Both final choices use evidence already required by the case chain.

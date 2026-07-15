@@ -1,212 +1,95 @@
-# The Limehouse Killings - Iteration Plan
+# The Limehouse Killings - Refactor and Iteration Plan
 
-## Current Status
+## Current Baseline
 
-**Version:** 1.0-alpha
-**Completion:** 85%
-**Known Issues:** 14 (from bug ledger)
-**Test Coverage:** 85% parser, 90% objects, 95% NPCs, 100% puzzles
+The July 15, 2026 story pass established a playable implementation baseline:
 
-## Priority 1: Critical Fixes (Must Fix)
+- Topicless `ASK/TELL` is nil-safe for every NPC.
+- `ASK INSPECTOR ABOUT CASE`, `LOCKPICK SET`, and `FOOTPRINT CAST` parse.
+- Lestrade begins offstage and arrives at the Act III threshold.
+- Library cipher/secret route and Ashworth name dial are fiction-understanding gates.
+- Poison is identified with `USE VIAL ON PLANTS`.
+- Hudson, Lady Ashworth, and Moriarty have initial, player-changed, and story-progress states.
+- The final case requires threat, method, and motive, then offers a letter/poison lead-proof choice.
+- Opening telegram supplies a visible object, quick reward, clue, warmth, and humor.
+- Key room prose uses concrete sensory details.
 
-### Fix Parser Synonyms
-**Impact:** High
-**Effort:** Low
-**Description:** Implement missing parser synonyms (LOOK AT, SEARCH)
-**Files:** actions.zil
-**Status:** Open
+Validation baseline:
 
-### Fix Disambiguation
-**Impact:** High
-**Effort:** Low
-**Description:** Rename objects with duplicate names (POTS, PORTRAITS)
-**Files:** dungeon.zil
-**Status:** Open
+- Parser-driven Limehouse walkthrough: 630/630 assertions passing.
+- Full `make test-pure-zil`: passing.
+- Vocabulary audit: zero critical findings.
 
-### Fix State Management
-**Impact:** High
-**Effort:** Medium
-**Description:** Ensure LOCKED-BOX requires key/lockpick, INSPECTOR appears after evidence
-**Files:** actions.zil, dungeon.zil
-**Status:** Open
+## Refactor Priority 1 — Make Documentation and Implementation Identical
 
-## Priority 2: Important Fixes (Should Fix)
+- [x] Update map, object registry, puzzle graph, story state, hints, prose, and transcript plan.
+- [ ] Copy canonical commands from `TRANSCRIPT_TESTS.md` into any player-facing hints.
+- [ ] Remove old references to `MATCH`, `FIND WOLFSBANE`, key-operated box, immediate Inspector, and held-item victory.
+- [ ] Update `DESIGN.md` and `PLAN.md` in a separate pass if they still describe four acts or the old finale.
 
-### Fix Softlock Potential
-**Impact:** Medium
-**Effort:** Medium
-**Description:** Block secret passage until study unlocked, require all evidence for accusation
-**Files:** dungeon.zil, actions.zil
-**Status:** Open
+Acceptance: a command documented anywhere either passes through `llm.lua` or is clearly labeled future work.
 
-### Fix NPC Responses
-**Impact:** Medium
-**Effort:** Low
-**Description:** Add missing NPC responses for invalid topics
-**Files:** actions.zil
-**Status:** Open
+## Refactor Priority 2 — Complete World-State Prose
 
-### Fix Object Interactions
-**Impact:** Medium
-**Effort:** Low
-**Description:** Ensure all object interactions work correctly
-**Files:** actions.zil
-**Status:** Open
+- [x] Add state-aware look logic for Gate, Dining Room, Greenhouse, Servants' Quarters, Pantry, and Secret Passage.
+- [ ] Add discovery text to all important objects without replaying it on every look.
+- [x] Remove evidence glints/listings after objects move.
+- [x] Ensure each act boundary changes at least two room descriptions and two NPC behaviors.
+- [x] Replace room-level mood labels such as “duty,” “secrets,” or “beckoning” with sensory/physical detail.
 
-## Priority 3: Polish (Nice to Have)
+Acceptance: every major room has one discovery moment, concise revisit prose, and correct mutable state.
 
-### Improve Object Descriptions
-**Impact:** Low
-**Effort:** Low
-**Description:** Enhance descriptions for atmosphere
-**Files:** dungeon.zil
-**Status:** Open
+## Refactor Priority 3 — Consequential Tools and Props
 
-### Add Sound Effects (Future)
-**Impact:** Low
-**Effort:** High
-**Description:** Add atmospheric sounds if engine supports it
-**Files:** N/A
-**Status:** Future
+- [x] Give magnifying glass an optional footprint-detail reveal used by Moriarty, Lestrade, and the ending.
+- [x] Rewrite the lantern as Hudson's maintained household keepsake, with optional passage color and no implied required utility.
+- [x] Give charcoal a safe recovery response to poison exposure and identify foxglove as another poison.
+- [x] Connect the unlatched wine cabinet to the missing private-laboratory delivery bottle.
 
-### Add Graphics (Future)
-**Impact:** Low
-**Effort:** High
-**Description:** Add location portraits if engine supports it
-**Files:** N/A
-**Status:** Future
+Acceptance: every major takeable object has a tool, clue, character, risk, joke, trophy, or memory function.
 
-## Iteration Schedule
+## Refactor Priority 4 — Deeper NPC Loops
 
-### Week 1: Critical Fixes
-- Day 1-2: Fix parser synonyms
-- Day 3-4: Fix disambiguation issues
-- Day 5-7: Fix state management
+- [x] Make intermediate confrontation states reachable and tested before Act III.
+- [x] Add repeat responses so testimony does not sound newly discovered twice.
+- [x] Add `SHOW/GIVE` responses for footprint, seal, ledger, and statement where they expose character.
+- [ ] Consider physical behavior beyond descriptions: Hudson moves tea, Lady changes table objects, Moriarty blocks/attempts an exit.
+- [ ] Ensure `GIVE` uses correct articles and NPC-specific reactions.
 
-### Week 2: Important Fixes
-- Day 1-3: Fix softlock potential
-- Day 4-5: Fix NPC responses
-- Day 6-7: Fix object interactions
+Acceptance: each NPC has three tested states and at least one action that changes world state, not dialogue alone.
 
-### Week 3: Polish
-- Day 1-3: Improve object descriptions
-- Day 4-5: Add missing content
-- Day 6-7: Final testing
+## Refactor Priority 5 — Ending Branch Quality
 
-### Week 4: Release Preparation
-- Day 1-2: Final bug fixes
-- Day 3-4: Create packaging files
-- Day 5-7: Final testing and release
+- [x] Replace held-item counter ending with three-link argument.
+- [x] Add lead-proof choice.
+- [ ] Give letter-led and poison-led branches one additional persistent distinction before convergence.
+- [ ] Test attempts to accuse before Lestrade, before presentations, without a lead proof, and with an irrelevant proof.
+- [ ] Confirm both branches reference discoveries and imply next events.
 
-## Subagent Prompts
+## Testing Workflow
 
-### Parser Fix Agent
-```
-Task: Fix parser synonyms in actions.zil
-1. Add LOOK AT as synonym for EXAMINE
-2. Add SEARCH as synonym for LOOK INSIDE
-3. Test all object interactions
-4. Verify no regressions
-```
+After each slice:
 
-### Disambiguation Agent
-```
-Task: Fix object name conflicts in dungeon.zil
-1. Rename POTS to COPPER-POTS
-2. Rename PORTRAITS to FAMILY-PORTRAITS
-3. Update all references
-4. Test object interactions
-```
-
-### State Management Agent
-```
-Task: Fix state management in actions.zil
-1. Require key/lockpick for LOCKED-BOX
-2. Trigger INSPECTOR after 5 evidence
-3. Require finding SECRET-LEDGER before taking
-4. Test all state transitions
-```
-
-### Softlock Prevention Agent
-```
-Task: Fix softlock potential in dungeon.zil and actions.zil
-1. Block SECRET-PASSAGE until CIPHER-SOLVED
-2. Require all evidence for accusation
-3. Test edge cases
-4. Verify no dead ends
-```
-
-### NPC Response Agent
-```
-Task: Add missing NPC responses in actions.zil
-1. Add responses for invalid topics
-2. Ensure all conversation paths work
-3. Test NPC interactions
-4. Verify interview tracking
-```
-
-### Content Polish Agent
-```
-Task: Improve object descriptions in dungeon.zil
-1. Enhance atmospheric descriptions
-2. Add more actionable details
-3. Ensure consistent tone
-4. Test player feedback
-```
-
-## Testing Strategy
-
-### After Each Fix
-1. Run walkthrough.zil
-2. Run regression tests
-3. Verify no new bugs
-4. Update bug ledger
-
-### Before Release
-1. Full regression test suite
-2. Playtest with new players
-3. Gather feedback
-4. Final polish
+1. Play the exact new command with `llm.lua` from a fresh save.
+2. Add it to `tests/test_limehouse_walkthrough.lua`.
+3. Run `make test-limehouse-walkthrough`.
+4. Run `lua5.4 scripts/check-vocab.lua books/limehouse-killings/dungeon.zil` for prose/vocabulary changes.
+5. Run `make test-pure-zil` before handoff.
+6. Update the work document controlling the changed behavior.
 
 ## Release Criteria
 
-### Must Have
-- [ ] All critical bugs fixed
-- [ ] All important bugs fixed
-- [ ] Parser works correctly
-- [ ] All puzzles solvable
-- [ ] No softlocks
-- [ ] All NPCs functional
-- [ ] Game completable
+- [x] Game completable through typed parser commands.
+- [x] Critical conversation and vocabulary bugs covered by regressions.
+- [x] Two major understanding-based gates.
+- [x] Three visible acts.
+- [x] Delayed Inspector arrival.
+- [x] Evidence-specific ending with player choice.
+- [x] All major rooms have state-aware discovery/revisit prose.
+- [x] All major props have clue, character, risk, recovery, or optional-route roles.
+- [x] NPC intermediate states and repeat responses have transcript coverage.
+- [ ] Organic playtest confirms the new deductions are fair without reading source/docs.
 
-### Should Have
-- [ ] Atmospheric descriptions
-- [ ] Hint system working
-- [ ] Score system working
-- [ ] Inventory system working
-- [ ] Save/restore (if engine supports)
+## Suggested Next Vertical Slice
 
-### Nice to Have
-- [ ] Sound effects
-- [ ] Graphics
-- [ ] Multiple solutions
-- [ ] Easter eggs
-- [ ] Developer commentary
-
-## Post-Release
-
-### Version 1.1
-- Fix any reported bugs
-- Add missing content
-- Improve parser feedback
-
-### Version 2.0
-- Add new puzzles
-- Add new NPCs
-- Expand story
-- Add new areas
-
-### Future
-- Sequel potential
-- Series expansion
-- Community contributions
+Add a second automated end-to-end run for the poison-led accusation and focused failure transcripts for premature and irrelevant-proof accusations. This would verify the remaining unchecked ending criteria without changing the established case architecture.
