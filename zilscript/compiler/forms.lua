@@ -483,6 +483,18 @@ function Forms.createHandlers(compiler, printNode)
     writeStringCall(buf, "SYNONYM", node)
   end
 
+  -- Infocom vocabulary sources distinguish verb/preposition aliases from the
+  -- generic SYNONYM directive.  They share the same dictionary representation
+  -- at runtime, so preserve the source spelling while lowering both forms to
+  -- the existing synonym implementation.
+  form["VERB-SYNONYM"] = function(buf, node, indent)
+    writeStringCall(buf, "DEFER_SYNONYM", node)
+  end
+
+  form["PREP-SYNONYM"] = function(buf, node, indent)
+    writeStringCall(buf, "DEFER_SYNONYM", node)
+  end
+
   -- GLOBAL and CONSTANT
   form.GLOBAL = function(buf, node, indent)
     local name = compiler.value(node[1])

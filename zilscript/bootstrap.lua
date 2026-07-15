@@ -127,6 +127,7 @@ local _obj_count = 0  -- number of declared objects; object IDs are 1.._obj_coun
 local _act_count = 0  -- number of registered actions; action IDs are 1.._act_count
 local _act_fn_to_id = {}  -- build-time reverse-lookup: fn_idx -> action_id
 local _pending_syntax = {}  -- SYNTAX entries deferred until action functions are defined
+local _pending_synonyms = {} -- vocabulary aliases applied after all object words exist
 local restart_snapshot
 local suggestions = {
 	READBIT = "READ",
@@ -298,6 +299,26 @@ mem = setmetatable({size=0},{__index={
 	end
 }})
 
+-- The Z-machine header occupies address zero in a story file, while this
+-- runtime keeps its compact object/table heap separately.  Model the handful
+-- of writable header bytes used by Infocom ZIL without reserving or aliasing
+-- heap memory.
+local z_header = {}
+
+function SET_HEADER(release, serial)
+	release = tonumber(release) or 0
+	z_header[2] = release & 0xff
+	z_header[3] = (release >> 8) & 0xff
+	serial = tostring(serial or "000000")
+	serial = (serial .. "000000"):sub(1, 6)
+	for i = 1, 6 do
+		z_header[17 + i] = serial:byte(i)
+	end
+	return true
+end
+
+SET_HEADER(0, "000000")
+
 local cache = {
 	verbs = {},
 	words = {},
@@ -321,6 +342,29 @@ function ROUTINE_NUM(f)
 end
 
 local learn
+
+local function merge_dictionary_word(target, source)
+	local old = mem:read(7, target)
+	local new = mem:read(7, source)
+	local old_flags = old:byte(5) or 0
+	local new_flags = new:byte(5) or 0
+	if old_flags == 0 then
+		mem:write(new, target)
+		return
+	end
+	local old_primary = old_flags & 3
+	local new_primary = new_flags & 3
+	local secondary = old:byte(7) or 0
+	if new_primary ~= old_primary then
+		secondary = new:byte(6) or secondary
+	end
+	mem:write(string.char(
+		old:byte(1), old:byte(2), old:byte(3), old:byte(4),
+		((old_flags | new_flags) & ~3) | old_primary,
+		old:byte(6) or 0,
+		secondary
+	), target)
+end
 
 local function register(tbl, value)
 	local n = 0
@@ -849,7 +893,7 @@ learn = function(word, atom, value)
 	for _, syn in ipairs(cache.synonyms[word_key] or {}) do
 		local syn_key = syn:lower():sub(1, 6)
 		if cache.words[syn_key] then
-			mem:write(mem:read(8, cache.words[word_key]), cache.words[syn_key])
+			merge_dictionary_word(cache.words[syn_key], cache.words[word_key])
 		end
 	end
 	
@@ -1308,11 +1352,21 @@ end
 
 function PUT(obj, i, val)
 	assert(type(obj) == 'number', "PUT: Only number types, not "..type(obj))
+	if obj == 0 then
+		val = type(val) == 'function' and fn(val) or val or 0
+		z_header[i * 2] = val & 0xff
+		z_header[i * 2 + 1] = (val >> 8) & 0xff
+		return
+	end
 	mem:write(makeword(type(val) == 'function' and fn(val) or val or 0), obj+i*2)
 end
 
 function PUTB(s, i, val) 
 	assert(type(s) == 'number', "PUTB: Only number types, not "..type(s))
+	if s == 0 then
+		z_header[i] = val & 0xff
+		return
+	end
 	mem:write(makebyte(val), s+i)
 end
 -- function GET(t, i) return type(t) == 'table' and t[i * 2] or 0 end
@@ -1320,7 +1374,7 @@ end
 
 function GETB(s, i)
 	assert(type(s) == 'number', "GETB: Only number types")
-	if s == 0 then return GET(s) end
+	if s == 0 then return z_header[i or 0] or 0 end
 	return mem:byte(s+i)
 	-- if s == 0 then return GET(s)
 	-- elseif type(s) == 'string' then return i==0 and #i or s:byte(i)
@@ -1332,14 +1386,6 @@ function GETB(s, i)
 end
 
 function GET(s, i)
-	if s == 0 then
-		-- Z-machine header mockup
-		s = {
-			[0] = 3,       -- version (not actually used)
-			[1] = 15,      -- release number (Release 15)
-			[8] = 0,       -- Flags 2 (transcript bit is bit 0)
-		}
-	end
 	if not i then return 0 end
 	if type(s) == 'number' then
 		return (GETB(s,i*2) or 0)|((GETB(s,i*2+1) or 0)<<8)
@@ -1448,11 +1494,15 @@ function SYNTAX(syn)
 end
 
 function FINALIZE_SYNTAX()
-	if #_pending_syntax == 0 then return end
 	local pending = _pending_syntax
 	_pending_syntax = {}
 	for _, syn in ipairs(pending) do
 		SYNTAX(syn)
+	end
+	local synonyms = _pending_synonyms
+	_pending_synonyms = {}
+	for _, args in ipairs(synonyms) do
+		SYNONYM(table.unpack(args))
 	end
 end
 
@@ -1463,6 +1513,11 @@ function BUZZ(...)
 	end
 end
 
+function DEFER_SYNONYM(...)
+	_pending_synonyms[#_pending_synonyms + 1] = {...}
+	return true
+end
+
 function SYNONYM(verb, ...)
 	verb = verb:lower():sub(1, 6)
 	cache.synonyms[verb] = {...}
@@ -1470,9 +1525,14 @@ function SYNONYM(verb, ...)
 		-- Truncate to 6 chars (Z-machine dictionary convention)
 		local syn_key = syn:lower():sub(1, 6)
 		if cache.words[verb] then
-			cache.words[syn_key] = mem:write(mem:read(8, cache.words[verb]))
+			if cache.words[syn_key] then
+				merge_dictionary_word(cache.words[syn_key], cache.words[verb])
+			else
+				cache.words[syn_key] = mem:write(mem:read(7, cache.words[verb]))
+			end
 		else
-			cache.words[syn_key] = mem:write(string.rep('\0', 8))
+			cache.words[syn_key] = cache.words[syn_key]
+				or mem:write(string.rep('\0', 7))
 		end
 		_G['WQ'..syn:upper()] = cache.words[syn_key]
   end
