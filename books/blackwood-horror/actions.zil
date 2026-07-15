@@ -37,6 +37,26 @@
                   <TELL " Steam hisses from the pipes overhead, filling the corridor with an acrid mist.">)>
            <TELL " To the east, a passage leads toward the sound of dripping water. West lies what might have been storage. North, another corridor descends toward deeper chambers." CR>)>>
 
+<ROUTINE BOILER-ROOM-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL "Coal dust softens every edge in this low brick chamber. A massive boiler occupies the far wall, with an iron coal bin beside it.">
+           <COND (,BOILER-LIT
+                  <TELL " The boiler is awake now: fire mutters behind its door and the pipes knock with gathering heat.">)
+                 (,BOILER-FUELED
+                  <TELL " Coal lies ready in the firebox, waiting for a flame.">)
+                 (T
+                  <TELL " The boiler is cold and silent.">)>
+           <TELL " A narrow doorway leads west." CR>)>>
+
+<ROUTINE HYDROTHERAPY-ROOM-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL "Rubber hoses dangle from fixtures above cracked porcelain tubs. A doorway west opens into the flooded chamber.">
+           <COND (,CABINET-THAWED
+                  <TELL " Water beads on the medicine cabinet where its coat of frost has melted.">)
+                 (T
+                  <TELL " A medicine cabinet on the far wall is sealed beneath thick white frost.">)>
+           <TELL CR>)>>
+
 <ROUTINE FLOODING-CHAMBER-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
            <TELL "The chamber is vast and dark, with arched stone ceilings disappearing into shadow.">
@@ -53,6 +73,8 @@
                   <TELL " The chapel door stands open, darkness visible beyond.">)
                  (T
                   <TELL " The chapel door is secured with a heavy iron lock.">)>
+           <COND (<IN? ,PATIENT-189 ,OVERGROWN-GARDEN>
+                  <TELL " Patient 189 stands among the dead roses, head tilted toward the chapel.">)>
            <TELL CR "South returns to the cafeteria." CR>)>>
 
 <ROUTINE DIRECTORS-OFFICE-FCN (RARG)
@@ -67,6 +89,12 @@
 ; === ACTION HANDLERS ===
 
 <SYNTAX SAY HELLO = V-SAY-HELLO>
+<SYNTAX HINT = V-HINTS>
+<SYNONYM HINT HINTS>
+<SYNTAX SCRAPE OBJECT = V-SCRAPE>
+<SYNTAX SCRAPE OBJECT WITH OBJECT = V-SCRAPE>
+<SYNTAX INJECT OBJECT WITH OBJECT = V-INJECT>
+<SYNTAX KINDLE OBJECT WITH OBJECT = V-IGNITE>
 
 <ROUTINE BRASS-PLAQUE-F ()
          <COND (<VERB? TAKE PULL>
@@ -181,7 +209,66 @@
 
 <ROUTINE BOILER-F ()
          <COND (<VERB? EXAMINE LOOK-INSIDE>
-                <TELL "The boiler is a hulking iron beast. Its door hangs open, revealing a chamber black with ancient soot. Inside, something gleams faintly." CR>
+                <COND (,BOILER-LIT
+                       <TELL "The boiler roars with renewed life. Its pressure needle trembles in the yellow band, and heat pulses through the pipes toward the flooded wing." CR>)
+                      (,BOILER-FUELED
+                       <TELL "The boiler's open firebox contains fresh coal. It needs a steady flame to catch." CR>)
+                      (T
+                       <TELL "The boiler is a hulking iron beast. Its open firebox is black with soot and empty of usable fuel." CR>)>
+                <RTRUE>)
+               (<AND <VERB? BURN>
+                     ,BOILER-LIT>
+                <TELL "The boiler is already burning steadily." CR>
+                <RTRUE>)
+               (<AND <VERB? BURN>
+                     <NOT ,BOILER-FUELED>>
+                <TELL "A flame alone will not wake it. The firebox needs coal." CR>
+                <RTRUE>)
+               (<AND <VERB? BURN>
+                     <NOT <EQUAL? ,PRSI ,OIL-LANTERN>>>
+                <TELL "You need a sustained flame, not a momentary spark." CR>
+                <RTRUE>)
+               (<AND <VERB? BURN>
+                     <NOT ,LANTERN-LIT-FLAG>>
+                <TELL "The lantern must be lit before it can kindle the coal." CR>
+                <RTRUE>)
+               (<VERB? BURN>
+                <TELL "You hold the lantern flame to the coal. Smoke rolls from the firebox; then orange light catches underneath. The boiler answers with a deep metallic thud as water begins moving through long-dead pipes." CR>
+                <SETG BOILER-LIT T>
+                <SETG BOILER-HEAT 0>
+                <RTRUE>)
+               (<VERB? LAMP-ON>
+                <TELL "The boiler has no switch. It must be fueled and lit with a flame." CR>
+                <RTRUE>)>>
+
+<ROUTINE COAL-BIN-F ()
+         <COND (<VERB? EXAMINE LOOK-INSIDE SEARCH>
+                <COND (<IN? ,LUMP-OF-COAL ,COAL-BIN>
+                       <TELL "Most of the coal has collapsed into wet black dust, but one solid lump could still burn. A shovel would keep the filthy slack off your hands." CR>)
+                      (T
+                       <TELL "Only damp coal dust remains in the bin." CR>)>
+                <RTRUE>)>>
+
+<ROUTINE COAL-F ()
+         <COND (<AND <VERB? TAKE>
+                     <NOT <IN? ,COAL-SHOVEL ,WINNER>>>
+                <TELL "The coal lies beneath wet, oily slack. You need something broad enough to scoop it free." CR>
+                <RTRUE>)
+               (<VERB? TAKE>
+                <TELL "Using the shovel, you pry a solid lump from the compacted coal and take it." CR>
+                <MOVE ,LUMP-OF-COAL ,WINNER>
+                <RTRUE>)
+               (<AND <VERB? PUT>
+                     <EQUAL? ,PRSI ,IRON-BOILER>>
+                <COND (,BOILER-FUELED
+                       <TELL "The firebox already has enough coal." CR>)
+                      (T
+                       <TELL "You place the coal in the boiler's firebox." CR>
+                       <SETG BOILER-FUELED T>
+                       <MOVE ,LUMP-OF-COAL ,IRON-BOILER>)>
+                <RTRUE>)
+               (<VERB? EXAMINE>
+                <TELL "A dense lump of old bituminous coal, dirty but dry at its center." CR>
                 <RTRUE>)>>
 
 <ROUTINE WORKBENCH-F ()
@@ -258,8 +345,22 @@
                 <RTRUE>)>>
 
 <ROUTINE MEDICINE-CABINET-F ()
-         <COND (<VERB? EXAMINE LOOK-INSIDE>
-                <TELL "The cabinet contains old medical supplies. Most are ruined, but a syringe and bandages remain usable." CR>
+         <COND (<AND <VERB? EXAMINE LOOK-INSIDE>
+                     <NOT ,CABINET-THAWED>>
+                <TELL "Frost has welded the medicine cabinet shut. Through the clouded glass you can just make out a syringe. Scraping removes only powder before the ice hardens again; the pipes behind the wall would have to warm." CR>
+                <RTRUE>)
+               (<VERB? EXAMINE LOOK-INSIDE>
+                <TELL "Meltwater runs down the cabinet door. Inside, among ruined dressings, a glass syringe remains usable." CR>
+                <RTRUE>)
+               (<AND <VERB? OPEN>
+                     <NOT ,CABINET-THAWED>>
+                <TELL "The frost holds the door more firmly than any lock." CR>
+                <RTRUE>)
+               (<AND <VERB? OPEN>
+                     ,CABINET-THAWED
+                     <NOT <FSET? ,MEDICINE-CABINET ,OPENBIT>>>
+                <TELL "You pull the thawed cabinet open. Meltwater patters onto the tile." CR>
+                <FSET ,MEDICINE-CABINET ,OPENBIT>
                 <RTRUE>)>>
 
 <ROUTINE CELL-DOORS-F ()
@@ -545,6 +646,98 @@
            <TELL "Patient 189 tilts its head. Green light flares in its eyes. Something cold reaches into your chest. You are not ready." CR>
            <RTRUE>)>>
 
+<ROUTINE SHOW-HINT (KEY ATTENTION DIRECTION ACTION COMMAND)
+    <COND (<EQUAL? ,HINT-KEY .KEY>
+           <COND (<L? ,HINT-LEVEL 4>
+                  <SETG HINT-LEVEL <+ ,HINT-LEVEL 1>>)>)
+          (T
+           <SETG HINT-KEY .KEY>
+           <SETG HINT-LEVEL 1>)>
+    <COND (<EQUAL? ,HINT-LEVEL 1> <TELL .ATTENTION CR>)
+          (<EQUAL? ,HINT-LEVEL 2> <TELL .DIRECTION CR>)
+          (<EQUAL? ,HINT-LEVEL 3> <TELL .ACTION CR>)
+          (T <TELL .COMMAND CR>)>
+    <RTRUE>>
+
+<ROUTINE V-HINTS ()
+    <COND (<NOT ,CHAINS-CUT-FLAG>
+           <SHOW-HINT 1
+              "The chained morgue door is meant to be opened."
+              "The operating theater contains a cutting instrument."
+              "Take the scalpel and use it on the chains."
+              "ATTACK CHAINS WITH SCALPEL">)
+          (<NOT ,VALVE-TURNED-FLAG>
+           <SHOW-HINT 2
+              "The sealed eastern door needs more than muscle."
+              "Follow the basement pipes back toward their valve."
+              "Open the valve in the basement corridor to release steam."
+              "TURN VALVE">)
+          (<NOT ,CABINET-THAWED>
+           <SHOW-HINT 3
+              "The syringe is visible, but the frozen cabinet will not open."
+              "The boiler-room pipes run toward hydrotherapy."
+              "Use the shovel to recover coal, put it in the boiler, then kindle it with the lit lantern."
+              "TAKE SHOVEL; TAKE COAL; PUT COAL IN BOILER; LIGHT LANTERN; KINDLE BOILER WITH LANTERN; WAIT">)
+          (<NOT ,CHAPEL-UNLOCKED>
+           <SHOW-HINT 4
+              "The chapel key was kept somewhere only Mordecai could reach."
+              "Search the director's office carefully."
+              "A conspicuous book hides the safe key; the safe contains the chapel key."
+              "OPEN BOOK; TAKE SAFE KEY; UNLOCK SAFE WITH SAFE KEY; TAKE CHAPEL KEY">)
+          (<NOT <FSET? ,WOODEN-BOX ,OPENBIT>>
+           <SHOW-HINT 5
+              "Patient 189 keeps looking toward the altar."
+              "Examine the wooden box beneath it."
+              "The scalpel can pry the rusted clasp apart."
+              "OPEN BOX">)
+          (<NOT ,GAME-WON>
+           <SHOW-HINT 6
+              "Three objects connect Mordecai's experiment to Patient 189."
+              "You need the relic, the serum, and the syringe."
+              "Carry all three to Patient 189 and use the syringe."
+              "INJECT PATIENT WITH SYRINGE">)
+          (T
+           <TELL "The ordinary night air is answer enough." CR>)>>
+
+<ROUTINE V-SCRAPE ()
+    <COND (<EQUAL? ,PRSO ,MEDICINE-CABINET>
+           <COND (,CABINET-THAWED
+                  <TELL "The remaining frost wipes away beneath your fingers." CR>)
+                 (T
+                  <TELL "You scrape away a patch of frost, but new crystals creep across the exposed metal almost immediately. The cabinet needs sustained heat." CR>)>)
+          (T
+           <TELL "Scraping it accomplishes nothing." CR>)>
+    <RTRUE>>
+
+<ROUTINE V-INJECT ()
+    <COND (<NOT <EQUAL? ,PRSI ,SYRINGE>>
+           <TELL "That is not suitable for an injection." CR>)
+          (<NOT <EQUAL? ,PRSO ,PATIENT-189>>
+           <TELL "You have no reason to inject " THE ,PRSO "." CR>)
+          (<NOT <IN? ,SYRINGE ,WINNER>>
+           <TELL "You need to be holding the syringe." CR>)
+          (T
+           <PATIENT-189-RESOLUTION-F>)>
+    <RTRUE>>
+
+<ROUTINE V-IGNITE ()
+    <COND (<NOT <EQUAL? ,PRSO ,IRON-BOILER>>
+           <TELL "You cannot safely ignite " THE ,PRSO "." CR>)
+          (<NOT <EQUAL? ,PRSI ,OIL-LANTERN>>
+           <TELL "That will not provide a steady flame." CR>)
+          (<NOT <OR ,BOILER-FUELED <IN? ,LUMP-OF-COAL ,IRON-BOILER>>>
+           <TELL "The boiler's firebox needs coal first." CR>)
+          (<NOT ,LANTERN-LIT-FLAG>
+           <TELL "The lantern must be lit first." CR>)
+          (,BOILER-LIT
+           <TELL "The boiler is already burning steadily." CR>)
+          (T
+           <TELL "You hold the lantern flame to the coal. Smoke rolls from the firebox; then orange light catches underneath. The boiler answers with a deep metallic thud as water begins moving through long-dead pipes." CR>
+           <SETG BOILER-FUELED T>
+           <SETG BOILER-LIT T>
+           <SETG BOILER-HEAT 0>)>
+    <RTRUE>>
+
 <ROUTINE V-SAY-HELLO ()
     <COND (<AND <EQUAL? ,HERE ,CHAPEL>
                 <IN? ,PATIENT-189 ,CHAPEL>>
@@ -713,14 +906,7 @@
                 <RTRUE>)
                (<VERB? GIVE>
                 <COND (<EQUAL? ,PRSO ,ANCIENT-RELIC>
-                       <TELL "You extend the relic toward Patient 189. Its hand rises—trembling—and closes around the silver cross. For one moment, its face softens into something almost human." CR>
-                       <TELL "A pressure builds in the chapel. The green candles flare white. Patient 189's form begins to brighten, to dissolve at the edges. It looks at you—truly looks—and the last of its fear drains away." CR>
-                       <TELL "When the light fades, the relic lies on the floor. Patient 189 is gone. But the air is warm now. Something has been set right." CR>
-                       <SETG GAME-WON T>
-                       <SETG PATIENT-STATE 3>
-                       <MOVE ,ANCIENT-RELIC ,CHAPEL>
-                       <REMOVE ,PATIENT-189>
-                       <RTRUE>)
+                       <PATIENT-189-RESOLUTION-F>)
                       (T
                        <TELL "Patient 189 shows no interest in that. It simply watches you with those glowing eyes." CR>
                        <RTRUE>)>)>>
@@ -974,29 +1160,91 @@
 ; === CLOCK-DRIVEN ATMOSPHERIC ROUTINES ===
 
 <ROUTINE I-WHISPER ()
+	<QUEUE I-WHISPER 8>
 	<COND (<EQUAL? ,HERE ,SANITARIUM-ENTRANCE ,PATIENT-WARD ,MORGUE ,CHAPEL>
 	       <TELL <PICK-ONE ,WHISPER-TABLE> CR>)>
 	<RTRUE>>
 
 <ROUTINE I-FOOTSTEPS ()
+	<QUEUE I-FOOTSTEPS 12>
 	<COND (<EQUAL? ,HERE ,SANITARIUM-ENTRANCE ,RECEPTION-ROOM ,OPERATING-THEATER>
 	       <TELL "Distant footsteps echo from somewhere above you." CR>)>
 	<RTRUE>>
 
 <ROUTINE I-FLICKERING ()
+	<QUEUE I-FLICKERING 10>
 	<COND (<AND ,LIT
 	            <EQUAL? ,HERE ,BASEMENT-STAIRS ,BOILER-ROOM ,MORGUE>>
 	       <TELL "The shadows seem to flicker and move of their own accord." CR>)>
 	<RTRUE>>
 
 <ROUTINE I-COLD-DRAFT ()
+	<QUEUE I-COLD-DRAFT 15>
 	<COND (<EQUAL? ,HERE ,MORGUE ,CHAPEL ,PATIENT-WARD>
 	       <TELL "A cold draft makes you shiver, though there are no open windows." CR>)>
 	<RTRUE>>
 
 <ROUTINE I-CREAKING ()
+    <QUEUE I-CREAKING 9>
     <COND (<EQUAL? ,HERE ,OPERATING-THEATER ,PATIENT-WARD ,ELECTROSHOCK-THEATER>
            <TELL "The building settles with a deep structural groan, as if exhaling." CR>)>
+    <RTRUE>>
+
+<ROUTINE I-BOILER-HEAT ()
+    <QUEUE I-BOILER-HEAT 1>
+    <COND (<AND ,BOILER-LIT <L? ,BOILER-HEAT 3>>
+           <SETG BOILER-HEAT <+ ,BOILER-HEAT 1>>
+           <COND (<EQUAL? ,BOILER-HEAT 1>
+                  <COND (<EQUAL? ,HERE ,BOILER-ROOM>
+                         <TELL "The boiler gives a rolling cough. One by one, the pipes begin to tick." CR>)>)
+                 (<EQUAL? ,BOILER-HEAT 2>
+                  <COND (<EQUAL? ,HERE ,BASEMENT-CORRIDOR ,FLOODING-CHAMBER>
+                         <TELL "A tremor passes through the pipes. Rust flakes fall as warmth travels east." CR>)>)
+                 (<EQUAL? ,BOILER-HEAT 3>
+                  <SETG CABINET-THAWED T>
+                  <COND (<EQUAL? ,HERE ,HYDROTHERAPY-ROOM>
+                         <TELL "Behind the wall, a pipe clangs. Frost slides from the medicine cabinet in translucent sheets." CR>)
+                        (<EQUAL? ,HERE ,BOILER-ROOM ,BASEMENT-CORRIDOR ,FLOODING-CHAMBER>
+                         <TELL "Farther along the pipework, ice breaks loose with a brittle crash." CR>)>)>)>
+    <RTRUE>>
+
+<ROUTINE I-COLD-EXPOSURE ()
+    <QUEUE I-COLD-EXPOSURE 1>
+    <COND (<AND <EQUAL? ,HERE ,MORGUE ,FLOODING-CHAMBER ,HYDROTHERAPY-ROOM>
+                <OR <EQUAL? ,HERE ,MORGUE>
+                    <NOT ,CABINET-THAWED>>>
+           <SETG COLD-EXPOSURE <+ ,COLD-EXPOSURE 1>>
+           <COND (<EQUAL? ,COLD-EXPOSURE 4>
+                  <TELL "The cold has worked through your clothes. Your fingers are beginning to stiffen." CR>)
+                 (<EQUAL? ,COLD-EXPOSURE 8>
+                  <TELL "Your teeth chatter hard enough to hurt. Staying here much longer would be dangerous." CR>)
+                 (<G? ,COLD-EXPOSURE 11>
+                  <JIGS-UP "The shivering stops. The tiles against your cheek feel almost warm; that is how you know the cold has won.">)>)
+          (T
+           <SETG COLD-EXPOSURE 0>)>
+    <RTRUE>>
+
+<ROUTINE I-PATIENT-AUTONOMY ()
+    <QUEUE I-PATIENT-AUTONOMY 4>
+    <COND (<AND <NOT ,GAME-WON>
+                <G? ,PATIENT-STATE 0>
+                <LOC ,PATIENT-189>>
+           <COND (<AND <EQUAL? ,PATIENT-STATE 1>
+                       <G? ,PATIENT-LORE 2>>
+                  <SETG PATIENT-STATE 2>
+                  <COND (<IN? ,PATIENT-189 ,HERE>
+                         <TELL "Patient 189's gaze sharpens. Something you uncovered elsewhere has reached it; recognition flickers behind the green light." CR>)>)>
+           <COND (<AND <IN? ,PATIENT-189 ,CHAPEL>
+                       <EQUAL? ,HERE ,OVERGROWN-GARDEN>>
+                  <MOVE ,PATIENT-189 ,OVERGROWN-GARDEN>
+                  <TELL "Bare feet whisper over stone behind you. Patient 189 has followed you into the garden." CR>)
+                 (<AND <IN? ,PATIENT-189 ,OVERGROWN-GARDEN>
+                       <EQUAL? ,HERE ,CHAPEL>>
+                  <MOVE ,PATIENT-189 ,CHAPEL>
+                  <TELL "Patient 189 glides past you and resumes its place before the altar." CR>)
+                 (<AND <IN? ,PATIENT-189 ,OVERGROWN-GARDEN>
+                       <NOT <EQUAL? ,HERE ,OVERGROWN-GARDEN ,CHAPEL>>>
+                  <MOVE ,PATIENT-189 ,CHAPEL>)>)>
     <RTRUE>>
 
 ; === ENTRY POINT ===
@@ -1008,11 +1256,14 @@
 	<SETG WINNER ,ADVENTURER>
 	<SETG PLAYER ,WINNER>
 	<MOVE ,WINNER ,HERE>
-	<QUEUE I-WHISPER 8>
-	<QUEUE I-FOOTSTEPS 12>
-	<QUEUE I-FLICKERING 10>
-	<QUEUE I-COLD-DRAFT 15>
-	<QUEUE I-CREAKING 9>
+	<ENABLE <QUEUE I-WHISPER 8>>
+	<ENABLE <QUEUE I-FOOTSTEPS 12>>
+	<ENABLE <QUEUE I-FLICKERING 10>>
+	<ENABLE <QUEUE I-COLD-DRAFT 15>>
+	<ENABLE <QUEUE I-CREAKING 9>>
+	<ENABLE <QUEUE I-BOILER-HEAT 1>>
+	<ENABLE <QUEUE I-COLD-EXPOSURE 1>>
+	<ENABLE <QUEUE I-PATIENT-AUTONOMY 4>>
       <V-LOOK>
       <MAIN-LOOP>
 	<AGAIN>>

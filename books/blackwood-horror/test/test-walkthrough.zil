@@ -41,7 +41,6 @@
 	<ASSERT-TEXT "iron" <CO-RESUME ,CO "examine boiler">> ;"See the massive iron furnace"
 	<ASSERT "Open the boiler" <CO-RESUME ,CO "open boiler"> <FSET? ,IRON-BOILER ,OPENBIT>>
 	<ASSERT "Take coal shovel" <CO-RESUME ,CO "take shovel" T> <==? <LOC ,COAL-SHOVEL> ,ADVENTURER>>
-	<ASSERT "Drop coal shovel (not needed)" <CO-RESUME ,CO "drop shovel" T> <N==? <LOC ,COAL-SHOVEL> ,ADVENTURER>>
 	<ASSERT-TEXT "flashlight" <CO-RESUME ,CO "examine workbench">> ;"Find tools"
 	<ASSERT "Take flashlight (dead batteries)" <CO-RESUME ,CO "take flashlight" T> <==? <LOC ,FLASHLIGHT> ,ADVENTURER>>
 	<ASSERT "Drop dead flashlight" <CO-RESUME ,CO "drop flashlight" T> <N==? <LOC ,FLASHLIGHT> ,ADVENTURER>>
@@ -61,6 +60,15 @@
 	<ASSERT-TEXT "patient 189" <CO-RESUME ,CO "read records">> ;"Learn about Patient 189"
 	<ASSERT "Drop medical records (no longer needed)" <CO-RESUME ,CO "drop records" T> <N==? <LOC ,MEDICAL-RECORDS> ,ADVENTURER>>
 	<ASSERT "Return to Basement Corridor" <CO-RESUME ,CO "walk east" T> <==? ,HERE ,BASEMENT-CORRIDOR>>
+	<ASSERT "Return to Boiler Room with shovel and lantern" <CO-RESUME ,CO "walk east" T> <==? ,HERE ,BOILER-ROOM>>
+	<ASSERT "Recover usable coal with the shovel" <CO-RESUME ,CO "take coal" T> <==? <LOC ,LUMP-OF-COAL> ,ADVENTURER>>
+	<ASSERT-TEXT "place the coal" <CO-RESUME ,CO "put coal in boiler">>
+	<ASSERT-TEXT "deep metallic thud" <CO-RESUME ,CO "kindle boiler with lantern">>
+	<ASSERT "Boiler is lit" ,BOILER-LIT>
+	<CO-RESUME ,CO "wait">
+	<ASSERT "Boiler heat thaws the remote medicine cabinet" ,CABINET-THAWED>
+	<ASSERT "Drop shovel after fueling boiler" <CO-RESUME ,CO "drop shovel" T> <N==? <LOC ,COAL-SHOVEL> ,ADVENTURER>>
+	<ASSERT "Return to Basement Corridor after lighting boiler" <CO-RESUME ,CO "walk west" T> <==? ,HERE ,BASEMENT-CORRIDOR>>
 	<ASSERT "Enter Flooding Chamber" <CO-RESUME ,CO "walk north" T> <==? ,HERE ,FLOODING-CHAMBER>>
 	<ASSERT-TEXT "cold" <CO-RESUME ,CO "examine water">> ;"Cold ankle-deep water"
 	<ASSERT-TEXT "steam" <CO-RESUME ,CO "examine door">> ;"Sealed door to east - needs steam"
@@ -70,8 +78,9 @@
 	<ASSERT "Take soggy notebook" <CO-RESUME ,CO "take notebook" T> <==? <LOC ,SOGGY-NOTEBOOK> ,ADVENTURER>>
 	<ASSERT-TEXT "water" <CO-RESUME ,CO "read notebook">> ;"Learn about water torture"
 	<ASSERT "Drop soggy notebook (no longer needed)" <CO-RESUME ,CO "drop notebook" T> <N==? <LOC ,SOGGY-NOTEBOOK> ,ADVENTURER>>
-	<ASSERT-TEXT "syringe" <CO-RESUME ,CO "examine cabinet">> ;"Medicine cabinet"
-	<ASSERT "Take syringe" <CO-RESUME ,CO "take syringe" T> <==? <LOC ,SYRINGE> ,ADVENTURER>>
+	<ASSERT-TEXT "syringe" <CO-RESUME ,CO "examine cabinet">> ;"Thawed medicine cabinet"
+	<ASSERT-TEXT "pull the thawed cabinet open" <CO-RESUME ,CO "open cabinet">>
+	<ASSERT-TEXT "taken" <CO-RESUME ,CO "take syringe">>
 	<ASSERT "Return to Flooding Chamber" <CO-RESUME ,CO "walk west" T> <==? ,HERE ,FLOODING-CHAMBER>>
 	<ASSERT "Enter Isolation Ward" <CO-RESUME ,CO "walk north" T> <==? ,HERE ,ISOLATION-WARD>>
 	<ASSERT-TEXT "metal" <CO-RESUME ,CO "examine doors">> ;"See the cell doors"

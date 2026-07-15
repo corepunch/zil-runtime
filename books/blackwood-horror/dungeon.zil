@@ -15,6 +15,13 @@
 <GLOBAL PATIENT-FILE-LORE <>>
 <GLOBAL WALL-SCRATCHES-LORE <>>
 <GLOBAL STRAITJACKET-LORE <>>
+<GLOBAL BOILER-FUELED <>>
+<GLOBAL BOILER-LIT <>>
+<GLOBAL BOILER-HEAT 0>
+<GLOBAL CABINET-THAWED <>>
+<GLOBAL COLD-EXPOSURE 0>
+<GLOBAL HINT-KEY 0>
+<GLOBAL HINT-LEVEL 0>
 <GLOBAL WHISPER-TABLE
     <LTABLE 0
         "A voice, barely audible, rasps: 'help... me...'"
@@ -101,7 +108,7 @@
 <ROOM BOILER-ROOM
       (IN ROOMS)
       (DESC "Boiler Room")
-      (LDESC "This dark room is thick with coal dust that covers everything. The room radiates a sense of dormant power, waiting to awaken. A narrow doorway to the west leads back out to the corridor.")
+      (ACTION BOILER-ROOM-FCN)
       (WEST TO BASEMENT-CORRIDOR)
       (FLAGS RLANDBIT ONBIT)>
 
@@ -125,7 +132,7 @@
 <ROOM HYDROTHERAPY-ROOM
       (IN ROOMS)
       (DESC "Hydrotherapy Room")
-      (LDESC "Rubber hoses dangle from fixtures overhead. The tiles are cracked and stained. A doorway to the west opens back into the flooded chamber.")
+      (ACTION HYDROTHERAPY-ROOM-FCN)
       (WEST TO FLOODING-CHAMBER)
       (FLAGS RLANDBIT)>
 
@@ -426,7 +433,8 @@
         (DESC "iron boiler")
         (FDESC "The room's centerpiece is a massive iron boiler, cold and silent as a tomb. Its hulking form crouches in the darkness like some dormant beast.")
         (LDESC "A massive iron boiler dominates the room, cold and silent.")
-        (FLAGS CONTBIT OPENBIT)
+        (FLAGS CONTBIT OPENBIT LIGHTBIT BURNBIT)
+        (CAPACITY 20)
         (ACTION BOILER-F)>
 
 <OBJECT COAL-SHOVEL
@@ -438,6 +446,25 @@
         (FLAGS TAKEBIT TOOLBIT)
         (SIZE 10)
         (ACTION SHOVEL-F)>
+
+<OBJECT COAL-BIN
+        (IN BOILER-ROOM)
+        (SYNONYM BIN HOPPER)
+        (ADJECTIVE COAL IRON)
+        (DESC "coal bin")
+        (LDESC "An iron coal bin crouches beside the boiler.")
+        (FLAGS CONTBIT OPENBIT)
+        (ACTION COAL-BIN-F)>
+
+<OBJECT LUMP-OF-COAL
+        (IN COAL-BIN)
+        (SYNONYM COAL LUMP FUEL)
+        (ADJECTIVE BLACK DUSTY)
+        (DESC "lump of coal")
+        (LDESC "A usable lump of coal rests among the damp slack.")
+        (FLAGS TAKEBIT)
+        (SIZE 4)
+        (ACTION COAL-F)>
 
 <OBJECT WORKBENCH
         (IN BOILER-ROOM)
@@ -504,7 +531,7 @@
         (ADJECTIVE OIL)
         (DESC "oil lantern")
         (LDESC "An old oil lantern. It still has fuel inside.")
-        (FLAGS TAKEBIT LIGHTBIT)
+        (FLAGS TAKEBIT LIGHTBIT FLAMEBIT)
         (SIZE 8)
         (ACTION LANTERN-F)>
 
@@ -561,8 +588,8 @@
         (SYNONYM CABINET CUPBOARD)
         (ADJECTIVE MEDICINE MEDICAL)
         (DESC "medicine cabinet")
-        (LDESC "A cabinet stands in the corner, its door hanging loose.")
-        (FLAGS CONTBIT OPENBIT)
+        (LDESC "A medicine cabinet is sealed beneath a skin of white frost.")
+        (FLAGS CONTBIT OPENABLEBIT)
         (ACTION MEDICINE-CABINET-F)>
 
 <OBJECT SYRINGE
