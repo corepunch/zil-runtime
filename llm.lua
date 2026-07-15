@@ -386,9 +386,26 @@ local function execute_action(action)
     return resume_action(action)
 end
 
+-- A memory dump cannot serialize a coroutine suspended inside YES?.  If the
+-- preceding one-command invocation stopped at a confirmation prompt, recreate
+-- that prompt in the fresh coroutine before delivering the answer.
+local function execute_action_with_confirmation(action)
+    local answer = action:lower():match("^%s*(.-)%s*$")
+    if answer == "y" or answer == "yes" or answer == "n" or answer == "no" then
+        local history = read_action_history(historyfile)
+        local previous = history[#history]
+        local prompt_action = previous and previous.action:lower():match("^%s*(.-)%s*$")
+        if prompt_action == "quit" or prompt_action == "q"
+                or prompt_action == "restart" or prompt_action == "restar" then
+            execute_action(previous.action)
+        end
+    end
+    return execute_action(action)
+end
+
 -- If we have an action, execute it
 if args.action then
-    local ok, output = pcall(execute_action, args.action)
+    local ok, output = pcall(execute_action_with_confirmation, args.action)
     
     if not ok then
         write_error_and_exit(output)
