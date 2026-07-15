@@ -14,6 +14,9 @@ ZIL_ObjectFlags = {
 
 D = 0xBAADF00D
 N = 0xBAADF00E
+TELL_A = 0xBAADF00F
+TELL_THE = 0xBAADF010
+TELL_CTHE = 0xBAADF011
 
 OQANY=1
 
@@ -92,6 +95,8 @@ DIRS = {}
 
 _VTBL = {}
 _OTBL = 0  -- mem address of 256×2-byte object pointer table; set on first DECL_OBJECT
+_CHILD_TBL = 0 -- parent object id -> first child object id
+_SIBLING_TBL = 0 -- object id -> next sibling object id
 
 T = true
 CR = "\n"
@@ -549,11 +554,33 @@ function TELL(...)
 	local number = false
 	for i = 1, select("#", ...) do
 		local v = select(i, ...)
-		if v == D then object = true
+		if v == D then object = "D"
+		elseif v == TELL_A then object = "A"
+		elseif v == TELL_THE then object = "THE"
+		elseif v == TELL_CTHE then object = "CTHE"
 		elseif v == N then number = true
 		elseif object then
+			local token = object
 			object = false
-			if v then io_write(GETP(v, _G["PQDESC"])) end
+			if v then
+				local printer = token == "A" and rawget(_G, "PRINTA")
+					or token == "THE" and rawget(_G, "THE_PRINT")
+					or token == "CTHE" and rawget(_G, "CTHE_PRINT")
+					or token == "D" and rawget(_G, "DPRINT")
+				if printer then
+					APPLY(printer, v)
+				else
+					local desc = GETP(v, _G["PQDESC"]) or ""
+					if token == "A" then
+						io_write(desc:match("^[AEIOUaeiou]") and "an " or "a ")
+					elseif token == "THE" then
+						io_write("the ")
+					elseif token == "CTHE" then
+						io_write("The ")
+					end
+					io_write(desc)
+				end
+			end
 		elseif number then number = false io_write(tostring(v))
 		elseif v == nil or v == false then -- FALSE expressions print nothing
 		elseif type(v) == "number" then io_write(mem:string(v))
@@ -689,7 +716,11 @@ MULL = MUL
 -- Object / room ops
 -- Returns the mem address of object num's property table block.
 -- _OTBL is the base of a 256×2-byte array allocated in mem by the first DECL_OBJECT call.
-local function getobj(num) return mem:word(_OTBL + (num-1)*2) end
+local function getobj(num)
+	if type(num) ~= "number" or num <= 0 then return nil end
+	local pointer = mem:word(_OTBL + (num-1)*2)
+	return pointer ~= 0 and pointer or nil
+end
 
 -- In ZIL, <VALUE var> gets the runtime value of a variable. Conditional exits
 -- store a variable number in their property bytes, so resolve those numbers
@@ -706,24 +737,51 @@ end
 
 function LOC(obj) return GETP(obj, PQLOC) end
 function INQ(obj, room) return GETP(obj, PQLOC) == room end
-function MOVE(obj, dest) PUTP(obj, PQLOC, dest) end
-function REMOVE(obj) PUTP(obj, PQLOC, 0) end
 
-function FIRSTQ(obj)
-	for n = 1, _obj_count do
-		if GETP(n, PQLOC) == obj then return n end
+local function unlink_object(obj)
+	local parent = LOC(obj)
+	if not parent or parent == 0 then return end
+	local child = mem:byte(_CHILD_TBL + parent)
+	local previous = 0
+	while child ~= 0 do
+		if child == obj then
+			local next_sibling = mem:byte(_SIBLING_TBL + child)
+			if previous == 0 then
+				mem:write(makebyte(next_sibling), _CHILD_TBL + parent)
+			else
+				mem:write(makebyte(next_sibling), _SIBLING_TBL + previous)
+			end
+			mem:write(makebyte(0), _SIBLING_TBL + child)
+			return
+		end
+		previous = child
+		child = mem:byte(_SIBLING_TBL + child)
 	end
 end
 
-function NEXTQ(obj)
-	local parent = GETP(obj, PQLOC)
-	local found = false
-	for n = 1, _obj_count do
-		if GETP(n, PQLOC) == parent then
-			if found then return n end
-			if n == obj then found = true end
-		end
+function MOVE(obj, dest)
+	unlink_object(obj)
+	PUTP(obj, PQLOC, dest)
+	if dest and dest ~= 0 then
+		local first = mem:byte(_CHILD_TBL + dest)
+		mem:write(makebyte(first), _SIBLING_TBL + obj)
+		mem:write(makebyte(obj), _CHILD_TBL + dest)
 	end
+end
+
+function REMOVE(obj)
+	unlink_object(obj)
+	PUTP(obj, PQLOC, 0)
+end
+
+function FIRSTQ(obj)
+	local child = mem:byte(_CHILD_TBL + obj)
+	return child ~= 0 and child or nil
+end
+
+function NEXTQ(obj)
+	local sibling = mem:byte(_SIBLING_TBL + obj)
+	return sibling ~= 0 and sibling or nil
 end
 
 function MAP_CONTENTS(container, callback, end_callback)
@@ -825,6 +883,7 @@ function FSETQ(obj, flag)
 end
 function GETPT(obj, prop)
 	local tbl = getobj(obj)
+	if not tbl then return nil end
 	local l = mem:byte(tbl)+tbl+1
 	local pname, psize = mem:byte(l), mem:byte(l+1)
 	local header = 2
@@ -909,9 +968,21 @@ function DECL_OBJECT(name)
 	if not _OTBL or _OTBL == 0 then
 		-- Allocate the 256×2-byte object pointer table on first use
 		_OTBL = mem:write(string.rep('\0\0', 256))
+		_CHILD_TBL = mem:write(string.rep('\0', 256))
+		_SIBLING_TBL = mem:write(string.rep('\0', 256))
 	end
-	_obj_count = _obj_count + 1
-	assert(_obj_count <= 255, "Too many objects (max 255)")
+	-- Direction properties are passed through PRSO for WALK. Several Infocom
+	-- parsers also use numeric pseudo-objects such as IT, so assigning an object
+	-- the same number as a direction makes a walk look like pronoun substitution.
+	-- Leave holes for direction-property numbers when allocating object IDs.
+	repeat
+		_obj_count = _obj_count + 1
+		local is_direction = false
+		for _, property in pairs(_DIRECTIONS) do
+			if property == _obj_count then is_direction = true break end
+		end
+	until not is_direction
+	assert(_obj_count <= 255, "Too many objects (max 255) while declaring " .. tostring(name))
 	if name then declared_objects[name] = _obj_count end
 	return _obj_count
 end
@@ -1120,6 +1191,21 @@ function OBJECT(object)
 	end
 	local tbl_addr = mem:write(table.concat(t) .. "\0\0")
 	mem:write(makeword(tbl_addr), _OTBL + (n-1)*2)
+	-- Initial object trees retain declaration order. Runtime MOVE uses the
+	-- Z-machine rule of inserting the object at the head of its new parent.
+	local parent = LOC(n)
+	if parent and parent ~= 0 then
+		local first = mem:byte(_CHILD_TBL + parent)
+		if first == 0 then
+			mem:write(makebyte(n), _CHILD_TBL + parent)
+		else
+			local sibling = first
+			while mem:byte(_SIBLING_TBL + sibling) ~= 0 do
+				sibling = mem:byte(_SIBLING_TBL + sibling)
+			end
+			mem:write(makebyte(n), _SIBLING_TBL + sibling)
+		end
+	end
 end
 
 function REST(s, i)
@@ -1266,6 +1352,27 @@ end
 
 function DIRECTIONS(...)
 	for _, dir in ipairs {...} do
+		-- Top-level object declarations are emitted before directive bodies. If
+		-- the next direction-property number aliases the numeric pseudo-object
+		-- IT, swap that still-forward declaration with the final object declared
+		-- in this module. Otherwise WALK WEST can look like pronoun substitution.
+		local next_property = 1
+		for _ in pairs(PROPERTIES) do next_property = next_property + 1 end
+		for object_name, object_id in pairs(declared_objects) do
+			if object_name == "IT" and object_id == next_property
+					and not getobj(object_id) then
+				for swap_name, swap_id in pairs(declared_objects) do
+					if swap_id == _obj_count and not getobj(swap_id) then
+						declared_objects[swap_name] = object_id
+						_G[swap_name] = object_id
+						break
+					end
+				end
+				declared_objects[object_name] = _obj_count
+				_G[object_name] = _obj_count
+				break
+			end
+		end
 		_DIRECTIONS[dir] = learn(dir, PSQDIRECTION, PROPERTIES)
 		if type(DIRS) == "table" and dir ~= "IN" and dir ~= "OUT" then
 			table.insert(DIRS, dir:lower())

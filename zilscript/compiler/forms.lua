@@ -192,13 +192,52 @@ function Forms.createHandlers(compiler, printNode)
     for i = 1, #node do
       buf.write(", ")
       local context = node[i].value
-      if context and ({BEG=true, CONTAINER=true, END=true, ENTER=true,
+      if context == "OBJDESC?" then
+        buf.write("M_OBJDESCQ")
+      elseif context and ({BEG=true, CONTAINER=true, END=true, ENTER=true,
           LEAVE=true, LOOK=true, OBJDESC=true})[context] then
         buf.write("M_%s", context)
       else
         printNode(buf, node[i], indent + 1)
       end
     end
+    buf.write(")")
+  end
+
+  -- P? is the compact Infocom predicate for matching the current verb,
+  -- direct object, indirect object, and actor. Its macro normally adds the
+  -- V? prefix to verb atoms; emitting a plain atom makes it nil at runtime,
+  -- which turns the verb slot into a wildcard and matches every command.
+  form["P?"] = function(buf, node, indent)
+    local dimensions = {
+      {predicate = "VERBQ", node = node[1], verb = true},
+      {predicate = "PRSOQ", node = node[2]},
+      {predicate = "PRSIQ", node = node[3]},
+      {predicate = "WINNERQ", node = node[4]},
+    }
+    local wrote = false
+    buf.write("PASS(")
+    for _, dimension in ipairs(dimensions) do
+      local argument = dimension.node
+      if argument and argument.value ~= "*" then
+        if wrote then buf.write(" and ") end
+        wrote = true
+        buf.write("%s(", dimension.predicate)
+        local values = argument.type == "list" and argument or {argument}
+        for i, value in ipairs(values) do
+          if dimension.verb and value.type == "ident" then
+            local verb = value.value == "THROUGH" and "ENTER" or value.value
+            compiler.current_verbs[#compiler.current_verbs + 1] = verb
+            buf.write("VQ%s", utils.normalizeIdentifier(verb))
+          else
+            printNode(buf, value, indent + 1)
+          end
+          if i < #values then buf.write(", ") end
+        end
+        buf.write(")")
+      end
+    end
+    if not wrote then buf.write("true") end
     buf.write(")")
   end
 
@@ -261,11 +300,22 @@ function Forms.createHandlers(compiler, printNode)
   end
 
   form.TELL = function(buf, node, indent)
+    -- TELL-TOKENS gives these identifiers formatting semantics distinct from
+    -- their ordinary globals (THE is also commonly an object flag).
+    local tokens = {
+      A = "TELL_A",
+      AN = "TELL_A",
+      THE = "TELL_THE",
+      CTHE = "TELL_CTHE",
+    }
     buf.write("TELL(")
     for i = 1, #node do
       local cond_node = utils.isCond(node[i]) and node[i]
         or (node[i].type == "placeholder" and utils.isCond(node[i][1]) and node[i][1])
-      if node[i].type == "placeholder" and node[i][1] and not cond_node then
+      local token = node[i].type == "ident" and tokens[node[i].value]
+      if token then
+        buf.write(token)
+      elseif node[i].type == "placeholder" and node[i][1] and not cond_node then
         buf.write("D, ")
         printNode(buf, node[i][1], indent + 1)
       elseif cond_node then

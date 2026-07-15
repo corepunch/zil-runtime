@@ -37,6 +37,29 @@ test.describe("Compiler - Basic Compilation", function(t)
 	end)
 end)
 
+test.describe("Compiler - game-specific TELL and description contexts", function(t)
+	t.it("should lower OBJDESC? to the M-OBJDESC? context", function(assert)
+		local ast = parser.parse([[<ROUTINE DESC (RARG) <RARG? OBJDESC?>>]])
+		local result = compiler.compile(ast)
+
+		assert.assert_match(result.declarations, "EQUALQ%(m_RARG, M_OBJDESCQ%)")
+	end)
+
+	t.it("should preserve article token identity in TELL", function(assert)
+		local ast = parser.parse([[<ROUTINE SAY (OBJ) <TELL A .OBJ " / " THE .OBJ " / " CTHE .OBJ>>]])
+		local result = compiler.compile(ast)
+
+		assert.assert_match(result.declarations, "TELL%(TELL_A, m_OBJ, \" / \", TELL_THE, m_OBJ, \" / \", TELL_CTHE, m_OBJ%)")
+	end)
+
+	t.it("should lower P? verb atoms and object alternatives", function(assert)
+		local ast = parser.parse([[<ROUTINE MATCH () <P? LISTEN (<> NOISE)>>]])
+		local result = compiler.compile(ast)
+
+		assert.assert_match(result.declarations, "PASS%(VERBQ%(VQLISTEN%) and PRSOQ%(nil, NOISE%)%)")
+	end)
+end)
+
 test.describe("Compiler - Object Compilation", function(t)
 	t.it("should compile simple object", function(assert)
 		local code = [[<OBJECT MAILBOX (DESC "mailbox")>]]

@@ -214,19 +214,40 @@ test.describe("LLM Mode", function(t)
 		cleanup(savefile)
 		local suffix = " --game lurkinghorror --save " .. shell_quote(savefile)
 
-		local code = run_command("lua5.4 llm.lua --new-game" .. suffix)
+		local code, opening = run_command("lua5.4 llm.lua --new-game" .. suffix)
 		assert.assert_equal(code, 0)
+		local _, hacker_descriptions = opening:gsub(
+			"Sitting at a terminal is a hacker whom you recognize%.", "")
+		assert.assert_equal(hacker_descriptions, 1)
 		local outlet_code, outlet_output = run_command(
 			"lua5.4 llm.lua --action " .. shell_quote("examine outlet") .. suffix)
 		assert.assert_equal(outlet_code, 0)
 		assert.assert_match(outlet_output, "nothing special")
+		local ask_code = run_command(
+			"lua5.4 llm.lua --action " .. shell_quote("ask hacker") .. suffix)
+		assert.assert_equal(ask_code, 0)
+		local master_code, master_output = run_command(
+			"lua5.4 llm.lua --action " .. shell_quote("ask hacker about master") .. suffix)
+		assert.assert_equal(master_code, 0)
+		assert.assert_match(master_output, "master keys")
 		local power_code = run_command(
 			"lua5.4 llm.lua --action " .. shell_quote("turn on pc") .. suffix)
 		assert.assert_equal(power_code, 0)
+		local examine_code, examine_output = run_command(
+			"lua5.4 llm.lua --action " .. shell_quote("examine pc") .. suffix)
+		assert.assert_equal(examine_code, 0)
+		assert.assert_match(examine_output, "On the screen you see a HELP key%.")
 		local login_code, login_output = run_command(
 			"lua5.4 llm.lua --action " .. shell_quote("type 872325412") .. suffix)
 		assert.assert_equal(login_code, 0)
 		assert.assert_match(login_output, "PASSWORD PLEASE")
+		local password_code = run_command(
+			"lua5.4 llm.lua --action " .. shell_quote("type uhlersoth") .. suffix)
+		assert.assert_equal(password_code, 0)
+		local menu_code, menu_output = run_command(
+			"lua5.4 llm.lua --action " .. shell_quote("examine pc") .. suffix)
+		assert.assert_equal(menu_code, 0)
+		assert.assert_match(menu_output, "On the screen you see a menu box%.")
 		for _ = 1, 12 do
 			local wait_code, wait_output = run_command("lua5.4 llm.lua --action wait" .. suffix)
 			assert.assert_equal(wait_code, 0)
@@ -235,6 +256,47 @@ test.describe("LLM Mode", function(t)
 		local south_code, south_output = run_command("lua5.4 llm.lua --action south" .. suffix)
 		assert.assert_equal(south_code, 0)
 		assert.assert_match(south_output, "second floor of the Computer Center")
+		local look_code, look_output = run_command("lua5.4 llm.lua --action look" .. suffix)
+		assert.assert_equal(look_code, 0)
+		assert.assert_match(look_output, "Second Floor")
+		local button_code, button_output = run_command(
+			"lua5.4 llm.lua --action " .. shell_quote("examine call button") .. suffix)
+		assert.assert_equal(button_code, 0)
+		assert.assert_match(button_output, "up%-arrow or the down%-arrow")
+		local west_code, west_output = run_command("lua5.4 llm.lua --action west" .. suffix)
+		assert.assert_equal(west_code, 0)
+		assert.assert_match(west_output, "Kitchen")
+
+		cleanup(savefile)
+	end)
+
+	t.it("should keep the Lurking Horror dream sequence interactive", function(assert)
+		local savefile = "/tmp/test-llm-lurking-horror-dream.sav"
+		cleanup(savefile)
+		local suffix = " --game lurkinghorror --save " .. shell_quote(savefile)
+		local commands = {
+			"turn on pc", "type 872325412", "type uhlersoth",
+			"edit classics paper", "touch paper", "read paper",
+			"touch more", "touch more", "touch more", "touch more",
+			"wait", "wait", "wait", "wait",
+		}
+
+		local new_code = run_command("lua5.4 llm.lua --new-game" .. suffix)
+		assert.assert_equal(new_code, 0)
+		for _, command in ipairs(commands) do
+			local code, output = run_command(
+				"lua5.4 llm.lua --action " .. shell_quote(command) .. suffix)
+			assert.assert_equal(code, 0)
+			assert.assert_true(not output:match("It sounds like supplication"))
+		end
+		local examine_code, examine_output = run_command(
+			"lua5.4 llm.lua --action " .. shell_quote("examine stone") .. suffix)
+		assert.assert_equal(examine_code, 0)
+		assert.assert_match(examine_output, "smooth, shiny piece")
+		local take_code, take_output = run_command(
+			"lua5.4 llm.lua --action " .. shell_quote("take stone") .. suffix)
+		assert.assert_equal(take_code, 0)
+		assert.assert_match(take_output, "Taken")
 
 		cleanup(savefile)
 	end)
