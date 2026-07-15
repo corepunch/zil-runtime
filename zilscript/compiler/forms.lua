@@ -30,6 +30,19 @@ end
 -- Helper: Generate a table constructor call (LTABLE, TABLE share same pattern)
 local function writeTableCall(buf, name, node, printNode)
   local first_is_storage_spec = utils.safeget(node[1], 'type') == "list"
+  if first_is_storage_spec then
+    local has_string, has_length = false, false
+    for _, spec in ipairs(node[1]) do
+      has_string = has_string or spec.value == "STRING"
+      has_length = has_length or spec.value == "LENGTH"
+    end
+    if has_string and node[2] and node[2].type == "string" and #node == 2 then
+      buf.write("STRING_TABLE(")
+      printNode(buf, node[2], 0)
+      buf.write(", %s)", has_length and "true" or "false")
+      return
+    end
+  end
   local start = first_is_storage_spec and 2 or 1
   buf.write("%s(", name)
   for i = start, #node do
@@ -117,6 +130,78 @@ end
 function Forms.createHandlers(compiler, printNode)
   local form = {}
 
+  local function writeMap(buf, node, indent, runtime_name, binder_count)
+    local bindings = node[1]
+    if not bindings or bindings.type ~= "list" or #bindings < binder_count + 1 then
+      error(runtime_name .. " requires a binding list")
+    end
+
+    local saved_local_vars = {}
+    for k, v in pairs(compiler.local_vars) do saved_local_vars[k] = v end
+    local binders = {}
+    for i = 1, binder_count do
+      compiler.registerLocalVar(bindings[i])
+      binders[i] = compiler.localVarName(bindings[i])
+    end
+
+    local end_clause
+    local body_start = 2
+    if node[2] and node[2].type == "list"
+        and utils.safeget(node[2][1], "value") == "END" then
+      end_clause = node[2]
+      body_start = 3
+    end
+
+    buf.write("%s(", runtime_name)
+    printNode(buf, bindings[#bindings], indent + 1)
+    buf.write(", function(%s) local __tmp", table.concat(binders, ", "))
+    for i = body_start, #node do
+      buf.write("; ")
+      if utils.needReturn(node[i]) then buf.write("__tmp = ") end
+      printNode(buf, node[i], indent + 1)
+    end
+    buf.write("; return __tmp end, ")
+    if end_clause then
+      buf.write("function() local __tmp")
+      for i = 2, #end_clause do
+        buf.write("; ")
+        if utils.needReturn(end_clause[i]) then buf.write("__tmp = ") end
+        printNode(buf, end_clause[i], indent + 1)
+      end
+      buf.write("; return __tmp end")
+    else
+      buf.write("nil")
+    end
+    buf.write(")")
+    compiler.local_vars = saved_local_vars
+  end
+
+  form["MAP-DIRECTIONS"] = function(buf, node, indent)
+    writeMap(buf, node, indent, "MAP_DIRECTIONS", 2)
+  end
+
+  form["MAP-CONTENTS"] = function(buf, node, indent)
+    local bindings = node[1]
+    local binder_count = bindings and (#bindings - 1) or 1
+    writeMap(buf, node, indent, "MAP_CONTENTS", binder_count)
+  end
+
+  form["RARG?"] = function(buf, node, indent)
+    local target = compiler.local_vars.RARG and "m_RARG" or "RARG"
+    buf.write("EQUALQ(%s", target)
+    for i = 1, #node do
+      buf.write(", ")
+      local context = node[i].value
+      if context and ({BEG=true, CONTAINER=true, END=true, ENTER=true,
+          LEAVE=true, LOOK=true, OBJDESC=true})[context] then
+        buf.write("M_%s", context)
+      else
+        printNode(buf, node[i], indent + 1)
+      end
+    end
+    buf.write(")")
+  end
+
   -- COND (if-elseif-else)
   form.COND = function(buf, node, indent)
     if node[1] and utils.safeget(node[1][1], 'value') == "ELSE" then
@@ -140,9 +225,9 @@ function Forms.createHandlers(compiler, printNode)
         if i > 1 then buf.write("else ") end
       else
         buf.write(i == 1 and "if " or "elseif ")
-        buf.write("APPLY(function() __tmp = ")
+        buf.write("ZIL_TRUE(APPLY(function() __tmp = ")
         printNode(buf, clause[1], indent + 1)
-        buf.write(" return __tmp end)")
+        buf.write(" return __tmp end))")
         buf.write(" then ")
       end
       
@@ -425,13 +510,17 @@ function Forms.createHandlers(compiler, printNode)
   end
 
   form.ITABLE = function(buf, node)
-    buf.write("ITABLE(")
-    if utils.safeget(node[1], "value") == "NONE" and node[2] then
-      printNode(buf, node[2], 0)
+    if node[1] and node[1].type == "number"
+        and not (node[2] and node[2].type == "list") then
+      buf.write("ITABLE_WORDS(%s, %d)", compiler.value(node[1]), math.max(1, #node - 1))
+    elseif utils.safeget(node[1], "value") == "NONE" and node[2] then
+      buf.write("ITABLE_WORDS(%s, 1)", compiler.value(node[2]))
     else
+      -- Preserve the established byte/LEXV buffer layout for flagged tables.
+      buf.write("ITABLE(")
       printNode(buf, node[1], 0)
+      buf.write(")")
     end
-    buf.write(")")
   end
 
   -- AND/OR

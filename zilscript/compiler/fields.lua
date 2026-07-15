@@ -163,6 +163,18 @@ end
 
 -- Write field using appropriate writer or default
 function Fields.writeField(buf, node, field_name, compiler)
+  if field_name == "THINGS" and node[2] and node[2].type == "expr"
+      and node[2].name == "PSEUDO" then
+    buf.write("PSEUDO_TABLE(")
+    for i, tuple in ipairs(node[2]) do
+      if i > 1 then buf.write(", ") end
+      local adjective = tuple[1] and tuple[1].value
+      local noun = tuple[2] and tuple[2].value
+      buf.write("{%s, %q}", adjective and string.format("%q", adjective) or "nil", noun)
+    end
+    buf.write(")")
+    return
+  end
   local writer = Fields.FIELD_WRITERS[field_name] or writeValueField
   writer(buf, node, compiler)
 end

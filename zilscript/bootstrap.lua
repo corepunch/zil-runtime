@@ -30,6 +30,22 @@ P1QVERB=1
 P1QADJECTIVE=2
 P1QDIRECTION=3
 
+-- Standard room-exit property layouts.  Some Infocom sources (including
+-- The Lurking Horror) treat these as substrate-provided constants and leave
+-- their local declarations commented out.
+REXIT=0
+UEXIT=1
+NEXIT=2
+FEXIT=3
+CEXIT=4
+DEXIT=5
+NEXITSTR=0
+FEXITFCN=0
+CEXITFLAG=1
+CEXITSTR=1
+DEXITOBJ=1
+DEXITSTR=1
+
 SH=128
 SC=64
 SIR=32
@@ -98,6 +114,8 @@ M_ENTER = 2
 M_LOOK = 3
 M_FLASH = 4
 M_OBJDESC = 5
+M_LEAVE = M_END
+M_CONTAINER = M_OBJECT
 
 local mem
 local _obj_count = 0  -- number of declared objects; object IDs are 1.._obj_count
@@ -533,8 +551,11 @@ function TELL(...)
 		local v = select(i, ...)
 		if v == D then object = true
 		elseif v == N then number = true
-		elseif object then object = false io_write(GETP(v, _G["PQDESC"]))
+		elseif object then
+			object = false
+			if v then io_write(GETP(v, _G["PQDESC"])) end
 		elseif number then number = false io_write(tostring(v))
+		elseif v == nil or v == false then -- FALSE expressions print nothing
 		elseif type(v) == "number" then io_write(mem:string(v))
 		elseif v == '>' then -- skip
 		else io_write(tostring(v)) end
@@ -623,6 +644,7 @@ end
 
 -- Logic / bitwise
 function NOT(a) return not a or a == 0 end
+function ZIL_TRUE(value) return value ~= nil and value ~= false and value ~= 0 end
 function PASS(a) return a end
 function BAND(a, b) return (a or 0) & (b or 0) end
 function BOR(a, b) return (a or 0) | (b or 0) end
@@ -653,6 +675,11 @@ function ADD(a, b) return (a or 0) + (b or 0) end
 function SUB(a, b) return (a or 0) - (b or 0) end
 function DIV(a, b) return (a or 0) // (b or 0) end
 function MUL(a, b) return (a or 0) * (b or 0) end
+function MOD(a, b) return (a or 0) % (b or 0) end
+
+-- Audio is optional in the current text-only host.  Preserve the opcode's
+-- successful control-flow behavior even when no sound backend is attached.
+function SOUND(...) return true end
 
 -- function GQ(a, b) return a > b end
 -- IGRTRQ = GQ
@@ -697,6 +724,35 @@ function NEXTQ(obj)
 			if n == obj then found = true end
 		end
 	end
+end
+
+function MAP_CONTENTS(container, callback, end_callback)
+	local object = FIRSTQ(container)
+	local result
+	while object do
+		local next_object = NEXTQ(object)
+		result = callback(object, next_object)
+		object = next_object
+	end
+	if end_callback then return end_callback() end
+	return result
+end
+
+function MAP_DIRECTIONS(room, callback, end_callback)
+	local directions = {}
+	for _, property in pairs(_DIRECTIONS) do
+		directions[#directions + 1] = property
+	end
+	table.sort(directions)
+	local result
+	for _, property in ipairs(directions) do
+		local property_table = GETPT(room, property)
+		if property_table then
+			result = callback(property, property_table)
+		end
+	end
+	if end_callback then return end_callback() end
+	return result
 end
 
 learn = function(word, atom, value)
@@ -807,7 +863,11 @@ function GETP(obj, prop)
 	local ptr = GETPT(obj, prop)
 	local ptsize = PTSIZE(ptr)
 	if ptsize == 1 then return mem:byte(ptr) end
-	if ptsize == 2 then return mem:word(ptr) ~= 0 and mem:string(mem:word(ptr)) or nil end
+	if ptsize == 2 then
+		local value = mem:word(ptr)
+		if prop == rawget(_G, "PQTHINGS") then return value ~= 0 and value or nil end
+		return value ~= 0 and mem:string(value) or nil
+	end
 	if ptsize == 4 then return mem:dword(ptr) end
 	if ptsize == 8 then return mem:qword(ptr) end
 	assert(false, "Unsupported property to get")
@@ -897,10 +957,13 @@ end
 
 function DEFINE_ROUTINE(name, routine)
 	assert(type(routine) == "function", "DEFINE_ROUTINE expected function for "..tostring(name))
+	-- Register every named routine when it is defined.  A routine can otherwise
+	-- receive its first numeric pointer only when GO queues it; restored llm.lua
+	-- sessions skip GO, leaving that saved pointer beyond the rebuilt table.
+	local routine_index = fn(routine)
 	local pending = pending_routine_refs[name]
 	if not pending then return routine end
 
-	local routine_index = fn(routine)
 	for _, ref in ipairs(pending) do
 		if ref.kind == "exit" then
 			local ptr = GETPT(ref.object, ref.property)
@@ -912,6 +975,17 @@ function DEFINE_ROUTINE(name, routine)
 	end
 	pending_routine_refs[name] = nil
 	return routine
+end
+
+local function sorted_keys(tbl)
+	local keys = {}
+	for key in pairs(tbl) do
+		keys[#keys + 1] = key
+	end
+	table.sort(keys, function(a, b)
+		return tostring(a) < tostring(b)
+	end)
+	return keys
 end
 
 function OBJECT(object)
@@ -942,7 +1016,12 @@ function OBJECT(object)
 	local n = _G[object_name]
 	local t = {string.char(#object_name), object_name}
 	assert(n, "DECL_OBJECT not called for "..tostring(object_name))
-	for k, v in pairs(object) do
+	-- Object declarations are Lua tables, whose hash iteration order varies from
+	-- process to process.  Property numbers and function-pointer slots are both
+	-- assigned while walking these fields, so an unstable order makes a memory
+	-- dump written by one llm.lua process incompatible with the next one.
+	for _, k in ipairs(sorted_keys(object)) do
+		local v = object[k]
 		if k == "ZIL_NAME" then
 		elseif k == "SYNONYM" then
 			local body = table.concat2(v, function(syn)
@@ -973,6 +1052,8 @@ function OBJECT(object)
 		-- using PQACTION for ACTION property, commented out original function support
 		elseif k == "ACTION" or k == "DESCFCN" then 
 			table.insert(t, makeprop(function_prop(v, k, n), k))
+		elseif k == "THINGS" and type(v) == "number" then
+			table.insert(t, makeprop(makeword(v), k))
 		elseif type(v) == 'string' then table.insert(t, makeprop(mem:stringprop(v), k))
 		elseif type(v) == 'number' then table.insert(t, makeprop(makebyte(v), k))
 		elseif type(v) == 'function' then table.insert(t, makeprop(mem:stringprop(fn(v)), k))
@@ -1299,6 +1380,32 @@ function ITABLE(size, maybe_size)
 	local address = mem:write_word(size)
 	mem:write(string.rep("\0", size))
 	return address
+end
+
+function ITABLE_WORDS(count, pattern_width)
+	count = count or 0
+	pattern_width = pattern_width or 1
+	return mem:write(string.rep("\0\0", count * pattern_width))
+end
+
+function STRING_TABLE(value, with_length)
+	value = tostring(value or "")
+	if with_length then
+		assert(#value <= 255, "Length-prefixed STRING table exceeds 255 bytes")
+		return mem:write(string.char(#value) .. value)
+	end
+	return mem:write(value)
+end
+
+function PSEUDO_TABLE(...)
+	local entries = {...}
+	local words = {}
+	for _, entry in ipairs(entries) do
+		local adjective = entry[1] and VOC(entry[1], ADJECTIVE) or 0
+		local noun = entry[2] and VOC(entry[2], NOUN) or 0
+		words[#words + 1] = makeword(adjective) .. makeword(noun)
+	end
+	return mem:write(makeword(#entries * 2) .. table.concat(words))
 end
 
 local pending_table_refs = {}
