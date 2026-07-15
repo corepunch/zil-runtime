@@ -186,6 +186,7 @@ test-horror-playtest-regressions:
 	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-something
 	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-scenery
 	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-lore
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-systems
 
 test-horror-all: test-horror-helpers test-horror-partial test-horror-failures test-horror-playtest-regressions test-horror
 	@echo "All horror tests completed!"
