@@ -217,7 +217,7 @@
     <PERFORM ,V?GO-SOUTH ,ROOMS>
     <PERFORM ,V?GO-EAST ,ROOMS>
     <ASSERT <==? ,HERE ,STUDY> "Should be in study">
-    <PERFORM ,V?OPEN ,LOCKED-BOX>
+    <PERFORM ,V?TURN ,LOCKED-BOX ,MORIARTY-TOPIC>
     <ASSERT ,LOCKED-BOX-OPENED "Box should be opened">
 
     ; Test 36: Take bank statement
@@ -232,7 +232,10 @@
 
     ; Test 38: Accuse Dr. Moriarty
     <TELL CR "Test 38: Accuse Dr. Moriarty" CR>
-    <PERFORM ,V?ACCUSE ,DR-MORIARTY>
+    <PERFORM ,V?SHOW ,DEAD-LETTER ,INSPECTOR>
+    <PERFORM ,V?SHOW ,POISON-BOTTLE ,INSPECTOR>
+    <PERFORM ,V?SHOW ,BANK-STATEMENT ,INSPECTOR>
+    <PERFORM ,V?ACCUSE ,DR-MORIARTY ,DEAD-LETTER>
     <ASSERT ,KILLER-ACCUSED "Killer should be accused">
     <ASSERT ,CORRECT-ACCUSATION "Accusation should be correct">
     <ASSERT ,GAME-WON "Game should be won">

@@ -32,13 +32,23 @@
 <GLOBAL SECRET-LEDGER-FOUND <>>
 <GLOBAL BANK-STATEMENT-FOUND <>>
 <GLOBAL PLAYER-HEALTH 3>
+<GLOBAL CASE-ACT 1>
+<GLOBAL HUDSON-CONFRONTED <>>
+<GLOBAL LADY-CONFRONTED <>>
+<GLOBAL MORIARTY-CONFRONTED <>>
+<GLOBAL BOX-CLUE-SEEN <>>
+<GLOBAL LETTER-PRESENTED <>>
+<GLOBAL POISON-PRESENTED <>>
+<GLOBAL MOTIVE-PRESENTED <>>
+<GLOBAL FOOTPRINT-DETAIL-FOUND <>>
+<GLOBAL CABINET-CLUE-SEEN <>>
 
 ; === ROOMS ===
 
 <ROOM ASHWORTH-MANOR-GATE
       (IN ROOMS)
       (DESC "Ashworth Manor Gate")
-      (LDESC "The iron gates of Ashworth Manor loom before you, their rusted bars silhouetted against the fog-choked sky. A gravel path leads north to the manor house, disappearing into the mist. The gas lamps along the path flicker weakly, casting long shadows that dance like specters. The air smells of coal smoke and river damp.")
+      (ACTION GATE-FCN)
       (NORTH TO ASHWORTH-ENTRANCE-HALL)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL FOG GATES PATH)>
@@ -53,13 +63,12 @@
       (WEST TO DINING-ROOM)
       (DOWN TO KITCHEN)
       (FLAGS RLANDBIT ONBIT)
-      (GLOBAL CHANDELIER PORTRAITS RUG STUDY-DOOR)>
+      (GLOBAL CHANDELIER PORTRAITS RUG STUDY-DOOR BELL-WIRE)>
 
 <ROOM STUDY
       (IN ROOMS)
       (DESC "Study")
       (ACTION STUDY-FCN)
-      (LDESC "The study is a crime scene. A chalk outline marks where the body lay, the victim struck down in this very room. The air hangs heavy with the memory of violence. A doorway leads north back to the entrance hall.")
       (NORTH TO ASHWORTH-ENTRANCE-HALL IF STUDY-DOOR IS OPEN ELSE "The study door is closed.")
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL DESK FIREPLACE WINDOW CHALK-OUTLINE STUDY-DOOR)>
@@ -68,7 +77,6 @@
       (IN ROOMS)
       (DESC "Library")
       (ACTION LIBRARY-FCN)
-      (LDESC "Floor-to-ceiling bookshelves line the walls, their contents ranging from leather-bound classics to modern scientific texts. The fire is cold, but the room retains a scholarly warmth. A doorway leads west back to the entrance hall.")
       (WEST TO ASHWORTH-ENTRANCE-HALL)
       (EAST TO SECRET-PASSAGE IF CIPHER-SOLVED)
       (SOUTH TO SECRET-PASSAGE IF CIPHER-SOLVED)
@@ -78,7 +86,7 @@
 <ROOM DINING-ROOM
       (IN ROOMS)
       (DESC "Dining Room")
-      (LDESC "A long dining table dominates the room, set for two but used by only one. Portraits of the family hang above, their expressions disapproving. The air smells of polish and unused cutlery. A doorway leads east back to the entrance hall, and a door to the north leads to the pantry.")
+      (ACTION DINING-ROOM-FCN)
       (EAST TO ASHWORTH-ENTRANCE-HALL)
       (NORTH TO PANTRY)
       (FLAGS RLANDBIT ONBIT)
@@ -88,17 +96,15 @@
       (IN ROOMS)
       (DESC "Kitchen")
       (ACTION KITCHEN-FCN)
-      (LDESC "A kitchen that has seen better days. The hearth is cold, its last fire long extinguished. A staircase leads up to the entrance hall, and a doorway west leads to the garden.")
       (UP TO ASHWORTH-ENTRANCE-HALL)
       (WEST TO GARDEN)
       (FLAGS RLANDBIT ONBIT)
-      (GLOBAL POTS HEARTH SERVANT-BELL DRAWER)>
+      (GLOBAL POTS HEARTH SERVANT-BELL DRAWER KETTLE)>
 
 <ROOM GARDEN
       (IN ROOMS)
       (DESC "Garden")
       (ACTION GARDEN-FCN)
-      (LDESC "An overgrown garden sprawls before you, its paths choked with weeds. A fountain stands at the center, dry and silent. Hedge mazes line the paths, their shadows hiding secrets. A doorway east leads to the kitchen, paths lead north to the greenhouse and south to the servants' quarters.")
       (EAST TO KITCHEN)
       (NORTH TO GREENHOUSE)
       (SOUTH TO SERVANTS-QUARTERS)
@@ -108,7 +114,7 @@
 <ROOM GREENHOUSE
       (IN ROOMS)
       (DESC "Greenhouse")
-      (LDESC "A glass greenhouse filled with exotic plants. Labels mark the pots, identifying species from around the world. The air is warm and humid, a stark contrast to the fog outside. A doorway leads south back to the garden.")
+      (ACTION GREENHOUSE-FCN)
       (SOUTH TO GARDEN)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL PLANTS LABELS BENCH)>
@@ -116,7 +122,7 @@
 <ROOM SERVANTS-QUARTERS
       (IN ROOMS)
       (DESC "Servants' Quarters")
-      (LDESC "Sparse rooms with simple beds for the household staff. The air smells of old laundry and duty. A doorway leads north back to the garden.")
+      (ACTION SERVANTS-QUARTERS-FCN)
       (NORTH TO GARDEN)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL BEDS TRUNK UNIFORMS MR-HUDSON)>
@@ -124,7 +130,7 @@
 <ROOM SECRET-PASSAGE
       (IN ROOMS)
       (DESC "Secret Passage")
-      (LDESC "A narrow stone passage, its walls slick with moisture. Dust and cobwebs fill the air, undisturbed for years. The passage leads west to the library and east to the study, a hidden route through the manor's heart.")
+      (ACTION SECRET-PASSAGE-FCN)
       (WEST TO LIBRARY)
       (EAST TO STUDY)
       (FLAGS RLANDBIT ONBIT)
@@ -133,12 +139,22 @@
 <ROOM PANTRY
       (IN ROOMS)
       (DESC "Pantry")
-      (LDESC "A small pantry with shelves of food and wine. The air is cool and dry, preserving the contents. A doorway leads south back to the dining room.")
+      (ACTION PANTRY-FCN)
       (SOUTH TO DINING-ROOM)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL SHELVES FOXGLOVE CHARCOAL)>
 
 ; === OBJECTS ===
+
+<OBJECT TELEGRAM
+      (IN ASHWORTH-MANOR-GATE)
+      (DESC "creased telegram")
+      (FDESC "A creased telegram has been pinned beneath a stone beside the open gate.")
+      (LDESC "The rain-spotted telegram bears Lady Ashworth's hand and a hurried postscript.")
+      (SYNONYM TELEGRAM MESSAGE WIRE)
+      (ADJECTIVE CREASED RAIN-SPOTTED)
+      (FLAGS TAKEBIT READBIT)
+      (ACTION TELEGRAM-F)>
 
 <OBJECT STUDY-DOOR
       (IN LOCAL-GLOBALS)
@@ -175,10 +191,10 @@
       (IN STUDY)
       (DESC "locked box")
       (FDESC "A small locked box sits among the cold ashes in the fireplace, its brass clasp gleaming dully.")
-      (LDESC "A small ornate box, its surface carved with intricate patterns. A keyhole stares up at you, promising secrets within.")
+      (LDESC "A small ornate box with a four-letter name dial instead of a keyhole. Fine engraving circles the dial.")
       (SYNONYM BOX CASE CONTAINER)
       (ADJECTIVE LOCKED)
-      (FLAGS CONTBIT SEARCHBIT)
+      (FLAGS CONTBIT SEARCHBIT TURNBIT)
       (ACTION LOCKED-BOX-F)>
 
 <OBJECT POISON-BOTTLE
@@ -228,8 +244,8 @@
       (IN LEATHER-ROLL)
       (DESC "lockpick set")
       (LDESC "A set of metal picks, their tips worn from use. Tools of the trade for those who need to open locked doors.")
-      (SYNONYM SET PICKS TOOLS LOCKPICK-SET)
-      (ADJECTIVE LOCKPICK)
+      (SYNONYM SET PICKS TOOLS LOCKPICK LOCKPICK-SET)
+      (ADJECTIVE LOCKPICK BURGLAR BURGLARS)
       (FLAGS TAKEBIT TOOLBIT)
       (ACTION LOCKPICK-SET-F)>
 
@@ -237,7 +253,7 @@
       (IN SERVANTS-QUARTERS)
       (DESC "lantern")
       (FDESC "An oil lantern sits on the trunk, its glass clean and fuel full.")
-      (LDESC "A brass lantern, its glass clouded with age. When lit, it casts a warm glow that pushes back the darkness.")
+      (LDESC "A brass lantern kept scrupulously clean and full. Hudson has etched each former servant's initial beneath its base.")
       (SYNONYM LAMP LIGHT LANTERN)
       (ADJECTIVE OIL BRASS)
       (FLAGS TAKEBIT LIGHTBIT)
@@ -277,8 +293,8 @@
       (DESC "footprint cast")
       (FDESC "A plaster cast of a footprint sits near the fountain, preserving the evidence.")
       (LDESC "A plaster cast of a boot print, size 10. Too large for Lady Ashworth, too small for Mr. Hudson.")
-      (SYNONYM FOOTPRINT-CAST CAST MOLD FOOTPRINT)
-      (ADJECTIVE FOOTPRINT)
+      (SYNONYM FOOTPRINT-CAST CAST MOLD FOOTPRINT IMPRESSION)
+      (ADJECTIVE FOOTPRINT PLASTER)
       (FLAGS TAKEBIT)
       (ACTION FOOTPRINT-CAST-F)>
 
@@ -295,6 +311,7 @@
 <OBJECT BANK-STATEMENT
       (IN LOCKED-BOX)
       (DESC "bank statement")
+      (FDESC "A bank statement rests inside the opened box.")
       (LDESC "A financial statement showing Dr. Moriarty's account overdrawn. A large withdrawal for 'experimental supplies' catches your eye.")
       (SYNONYM STATEMENT RECEIPT BANK-STATEMENT)
       (ADJECTIVE BANK)
@@ -390,10 +407,10 @@
 <OBJECT WINE-CABINET
       (IN DINING-ROOM)
       (DESC "wine cabinet")
-      (LDESC "A glass-fronted cabinet, its shelves filled with fine wines and spirits. A lock secures its contents.")
+      (LDESC "A glass-fronted cabinet stands unlatched. One bottle-shaped gap interrupts the dust on its medicinal-wine shelf.")
       (SYNONYM CABINET WINE-CABINET)
       (ADJECTIVE WINE)
-      (FLAGS NDESCBIT)
+      (FLAGS NDESCBIT CONTBIT SEARCHBIT)
       (ACTION WINE-CABINET-F)>
 
 <OBJECT POTS
@@ -422,6 +439,24 @@
       (ADJECTIVE SERVANT)
       (FLAGS NDESCBIT)
       (ACTION SERVANT-BELL-F)>
+
+<OBJECT KETTLE
+      (IN LOCAL-GLOBALS)
+      (DESC "blue kettle")
+      (LDESC "A blue enamel kettle waits on the range, warm enough to mist its spout.")
+      (SYNONYM KETTLE POT)
+      (ADJECTIVE BLUE ENAMEL)
+      (FLAGS NDESCBIT)
+      (ACTION KETTLE-F)>
+
+<OBJECT BELL-WIRE
+      (IN LOCAL-GLOBALS)
+      (DESC "bell wire")
+      (LDESC "A thin servant-bell wire runs beside the study door.")
+      (SYNONYM WIRE CORD)
+      (ADJECTIVE BELL SERVANT)
+      (FLAGS NDESCBIT)
+      (ACTION BELL-WIRE-F)>
 
 <OBJECT DRAWER
       (IN KITCHEN)
@@ -545,7 +580,7 @@
 <OBJECT FOXGLOVE
       (IN PANTRY)
       (DESC "foxglove")
-      (LDESC "A bottle of foxglove, its label faded but legible. An antidote ingredient.")
+      (LDESC "A bottle of dried foxglove leaves. The label warns that digitalis may steady a failing heart or stop a healthy one.")
       (SYNONYM FOXGLOVE DIGITALIS)
       (FLAGS TAKEBIT)
       (ACTION FOXGLOVE-F)>
@@ -553,7 +588,7 @@
 <OBJECT CHARCOAL
       (IN PANTRY)
       (DESC "charcoal")
-      (LDESC "A container of charcoal, used for filtering poisons. An antidote ingredient.")
+      (LDESC "A tin of powdered charcoal, labeled for emergency use after swallowed poisons.")
       (SYNONYM CHARCOAL COAL)
       (FLAGS TAKEBIT)
       (ACTION CHARCOAL-F)>
@@ -623,7 +658,7 @@
       (LDESC "Mr. Hudson, the butler, stands nervously in the servants' quarters. His expression is troubled, his hands fidgeting with a keyring.")
       (SYNONYM HUDSON BUTLER MR-HUDSON)
       (ADJECTIVE MR MISTER)
-      (FLAGS ACTORBIT NDESCBIT)
+      (FLAGS ACTORBIT)
       (ACTION MR-HUDSON-F)>
 
 <OBJECT LADY-ASHWORTH
@@ -632,7 +667,7 @@
       (LDESC "Lady Ashworth sits at the dining table, her expression cold and calculating. She watches you with sharp eyes.")
       (SYNONYM ASHWORTH WIFE LADY-ASHWORTH)
       (ADJECTIVE LADY)
-      (FLAGS ACTORBIT NDESCBIT)
+      (FLAGS ACTORBIT)
       (ACTION LADY-ASHWORTH-F)>
 
 <OBJECT DR-MORIARTY
@@ -645,7 +680,6 @@
       (ACTION DR-MORIARTY-F)>
 
 <OBJECT INSPECTOR
-      (IN ASHWORTH-ENTRANCE-HALL)
       (DESC "Inspector Lestrade")
       (LDESC "Inspector Lestrade of Scotland Yard stands in the entrance hall, his expression professional and skeptical. He waits for your evidence.")
       (SYNONYM INSPECTOR LESTRADE OFFICER DETECTIVE POLICE SCOTLAND-YARD)
