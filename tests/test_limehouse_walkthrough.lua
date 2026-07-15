@@ -27,15 +27,17 @@ test.describe("Limehouse Killings walkthrough", function(t)
 		assert.assert_equal(code, 0)
 
 		local actions = {
-			"go north", {"go south", "The study door is closed."},
+			"go north", "take magnifying glass", {"go south", "The study door is closed."},
 			{"open study door", "need the study key or a lockpick"},
 			"go east", "examine reading-desk", "take torn-page", "read torn-page",
 			"examine colored-markers", "push red book", "push yellow book", "push green book",
 			"push blue book", "go south", "go east", "examine chalk-outline", "examine desk", "take dead-letter",
 			"read dead-letter", "take poison-bottle", "examine poison-bottle",
 			{"open study door", "interior bolt"}, "go north", "go west",
-			"examine table", "take wax-seal", "go north", "examine shelves", "take foxglove",
-			"take charcoal", "go south", "go east", "go down",
+			"examine table", {"examine wine cabinet", "missing squat bottle"},
+			{"open wine cabinet", "opens freely"}, "take wax-seal", "go north", "examine shelves", "take foxglove",
+			"take charcoal", {"taste vial", "vision swims"},
+			{"use charcoal", "dizziness recedes"}, "go south", "go east", "go down",
 			{"examine drawer", "The drawer is closed"},
 			{"open drawer", "Inside is a leather roll"},
 			{"examine drawer", "A leather roll lies in the open drawer"},
@@ -44,19 +46,33 @@ test.describe("Limehouse Killings walkthrough", function(t)
 			{"close leather roll", "You close the leather roll"},
 			{"examine leather roll", "The leather roll is closed"},
 			{"open leather roll", "The leather roll contains:"},
-			"take lockpick-set", "go west", "examine hedges", "take blood-stained-knife",
-			"take footprint-cast", "go north", "examine plants", "examine labels", "go south",
+			"take lockpick set", "go west", "examine hedges", "take blood-stained-knife",
+			"take footprint cast", {"use magnifying glass on footprint cast", "outside edge of the right heel"},
+			"go north", "examine plants", "examine labels",
+			{"use vial on plants", "match the poison bottle label"}, "go south",
 			"go south", {"examine trunk", "The trunk contains:"},
 			{"close trunk", "You close the trunk"},
 			{"examine trunk", "The trunk is closed"},
 			{"open trunk", "The trunk contains:"},
 			{"examine trunk", "The trunk contains:"},
-			"ask hudson about master", "ask hudson about alibi",
-			"ask hudson about key", "take keyring", "ask hudson about moriarty", "go north", "go east",
-			"go up", "go west", "ask lady about marriage", "ask lady about alibi", "go east", "go east",
-			"ask moriarty about experiments", "ask moriarty about poison", "take secret-ledger",
-			"read secret-ledger", "go west", "go south", "examine locked-box", "open locked-box",
-			"take bank-statement", "read bank-statement", "go north", "ask inspector about case",
+			"ask hudson", "tell hudson", "ask hudson about master", "ask hudson about alibi",
+			"ask hudson about key", "take keyring", "ask hudson about moriarty",
+			{"show letter to hudson", "polishing cloth goes still"},
+			{"show letter to hudson", "Nine twenty"},
+			{"examine hudson", "stopped polishing"}, "go north", "go east",
+			"go up", "go west", "ask lady", "tell lady", "ask lady about marriage", "ask lady about alibi",
+			{"show letter to lady", "paper rattles"},
+			{"show letter to lady", "first draft named the laboratory account"},
+			{"examine lady", "wedding ring"}, "go east", "go east",
+			"ask moriarty", "tell moriarty", "ask moriarty about experiments",
+			{"show letter to moriarty", "Blackmail"}, {"examine moriarty", "sweat darkens"},
+			{"show letter to moriarty", "already performed that trick"},
+			"ask moriarty about poison", "take secret-ledger",
+			"read secret-ledger", "go west", "go south", "examine locked-box",
+			"turn locked box to moriarty", "take bank-statement", "read bank-statement", "go north",
+			"ask inspector", "tell inspector", "ask inspector about case", "show letter to inspector",
+			"show bottle to inspector", "show statement to inspector",
+			{"show footprint cast to inspector", "crescent nicks meet"},
 		}
 
 		for _, entry in ipairs(actions) do
@@ -79,9 +95,9 @@ test.describe("Limehouse Killings walkthrough", function(t)
 		assert.assert_match(score, "Suspects interviewed: 3 of 3")
 
 		local accuse_code, ending = run_command(
-			"lua5.4 llm.lua --action " .. shell_quote("accuse dr-moriarty") .. suffix)
+			"lua5.4 llm.lua --action " .. shell_quote("accuse moriarty with letter") .. suffix)
 		assert.assert_equal(accuse_code, 0)
-		assert.assert_match(ending, "Congratulations! You have solved the murder")
+		assert.assert_match(ending, "THE LIMEHOUSE KILLINGS %-%- SOLVED")
 
 		cleanup(savefile)
 	end)
@@ -108,11 +124,12 @@ test.describe("Limehouse Killings walkthrough", function(t)
 			{"pull servant bell", "distant bell rings"},
 			{"use servant bell", "distant bell rings"},
 			{"go west", "Garden"},
-			{"take footprint-cast", "take the footprint cast"},
+			{"take footprint cast", "take the footprint cast"},
 			{"go south", "Servants' Quarters"},
 			{"examine mister hudson", "Mr. Hudson"},
+			{"ask hudson", "What do you want to ask Mr. Hudson about"},
 			{"tell hudson about footprint-cast", "don't know anything about that"},
-			{"show footprint-cast to hudson", "examines the item"},
+			{"show footprint-cast to hudson", "doctor's right heel"},
 		}
 
 		for _, entry in ipairs(actions) do
@@ -126,6 +143,18 @@ test.describe("Limehouse Killings walkthrough", function(t)
 			assert.assert_match(output, entry[2], "Unexpected output for: " .. entry[1])
 		end
 
+		cleanup(savefile)
+	end)
+
+	t.it("should keep Lestrade offstage until the case reaches act three", function(assert)
+		local savefile = "/tmp/test-limehouse-inspector-arrival.sav"
+		cleanup(savefile)
+		local suffix = " --save " .. shell_quote(savefile) .. " --game limehouse-killings"
+		assert.assert_equal(run_command("lua5.4 llm.lua --new-game" .. suffix), 0)
+		assert.assert_equal(run_command("lua5.4 llm.lua --action 'go north'" .. suffix), 0)
+		local code, output = run_command("lua5.4 llm.lua --action 'examine inspector'" .. suffix)
+		assert.assert_equal(code, 0)
+		assert.assert_match(output, "can't see any inspector here")
 		cleanup(savefile)
 	end)
 

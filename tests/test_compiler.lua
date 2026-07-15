@@ -81,6 +81,13 @@ test.describe("Compiler - Object Compilation", function(t)
 end)
 
 test.describe("Compiler - Constants and Globals", function(t)
+	t.it("should preserve STRING and LENGTH table storage", function(assert)
+		local code = [[<CONSTANT LOGIN-ID <TABLE (PURE LENGTH STRING) "872325412">>]]
+		local result = compiler.compile(parser.parse(code))
+
+		assert.assert_match(result.combined, 'STRING_TABLE%("872325412", true%)')
+	end)
+
 	t.it("should compile CONSTANT", function(assert)
 		local code = [[<CONSTANT MAX-SCORE 100>]]
 		local ast = parser.parse(code)
@@ -98,6 +105,27 @@ test.describe("Compiler - Constants and Globals", function(t)
 		
 		assert.assert_not_nil(result)
 		assert.assert_type(result.declarations, "string")
+	end)
+end)
+
+test.describe("Compiler - Mapping Forms", function(t)
+	t.it("should lower MAP-DIRECTIONS with local bindings", function(assert)
+		local code = [[<ROUTINE WALK-EXITS (ROOM "AUX" COUNT)
+			<MAP-DIRECTIONS (D P .ROOM) <SET COUNT <PTSIZE .P>>>
+		>]]
+		local result = compiler.compile(parser.parse(code))
+
+		assert.assert_match(result.declarations, "MAP_DIRECTIONS%(m_ROOM, function%(m_D, m_P%)")
+		assert.assert_match(result.declarations, "PTSIZE%(m_P%)")
+	end)
+
+	t.it("should lower MAP-CONTENTS with current and next bindings", function(assert)
+		local code = [[<ROUTINE WALK-CONTENTS (BOX)
+			<MAP-CONTENTS (ITEM NEXT .BOX) <SET ITEM .NEXT>>
+		>]]
+		local result = compiler.compile(parser.parse(code))
+
+		assert.assert_match(result.declarations, "MAP_CONTENTS%(m_BOX, function%(m_ITEM, m_NEXT%)")
 	end)
 end)
 

@@ -208,6 +208,36 @@ test.describe("LLM Mode", function(t)
 
 		cleanup(savefile)
 	end)
+
+	t.it("should preserve Lurking Horror clocks and function exits across processes", function(assert)
+		local savefile = "/tmp/test-llm-lurking-horror.sav"
+		cleanup(savefile)
+		local suffix = " --game lurkinghorror --save " .. shell_quote(savefile)
+
+		local code = run_command("lua5.4 llm.lua --new-game" .. suffix)
+		assert.assert_equal(code, 0)
+		local outlet_code, outlet_output = run_command(
+			"lua5.4 llm.lua --action " .. shell_quote("examine outlet") .. suffix)
+		assert.assert_equal(outlet_code, 0)
+		assert.assert_match(outlet_output, "nothing special")
+		local power_code = run_command(
+			"lua5.4 llm.lua --action " .. shell_quote("turn on pc") .. suffix)
+		assert.assert_equal(power_code, 0)
+		local login_code, login_output = run_command(
+			"lua5.4 llm.lua --action " .. shell_quote("type 872325412") .. suffix)
+		assert.assert_equal(login_code, 0)
+		assert.assert_match(login_output, "PASSWORD PLEASE")
+		for _ = 1, 12 do
+			local wait_code, wait_output = run_command("lua5.4 llm.lua --action wait" .. suffix)
+			assert.assert_equal(wait_code, 0)
+			assert.assert_true(not wait_output:match("ERROR:"))
+		end
+		local south_code, south_output = run_command("lua5.4 llm.lua --action south" .. suffix)
+		assert.assert_equal(south_code, 0)
+		assert.assert_match(south_output, "second floor of the Computer Center")
+
+		cleanup(savefile)
+	end)
 end)
 
 local success = test.summary()
