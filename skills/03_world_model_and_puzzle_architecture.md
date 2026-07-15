@@ -105,6 +105,44 @@ The earthquake (I-CLEFT) dynamically alters the dungeon, opening new passages an
 
 **Rule:** Every major story event must change at least 2 existing rooms — either through updated dynamic descriptions (ACTION + M-LOOK), changed object states (FCLEAR flags), or new objects appearing. Use the pattern from Zork I's `EAST-HOUSE` and the skill 04 rule 7: never freeze mutable state into LDESC. Rooms with state changes should omit LDESC and use ACTION routines with M-LOOK.
 
+### 5. NPC Autonomy: Characters That Move Through the World
+
+**BAD (Blackwood — `actions.zil:568-598`):**
+Patient-189 handles five verbs and is permanently static. It never moves, never approaches, never wanders. It is a puzzle object with ACTORBIT.
+
+**GOOD (The Lurking Horror — `frob.zil:346-435`):**
+The urchin uses a true pathfinding routine (`I-URCHIN`) that evaluates all available exits from its current room and moves to a valid adjacent room not occupied by another NPC. It has states (scared, armed, fleeing), responds differently based on what the player holds, and operates on an independent clock schedule.
+
+**GOOD (The Lurking Horror — `hacker.zil`):**
+The hacker has a full 12-topic dialogue tree, a multi-stage help sequence (takes over terminal → mumbles → fixes file system → wanders away), food preferences (will only accept properly heated Chinese food), and a corruption arc (if player reaches inner lair, the hacker follows, gets absorbed, and emerges transformed).
+
+**Rule:** An ACTORBIT object must have at least one autonomous behavior (movement, approach, state change) driven by a clock daemon. It must change state based on player actions AND on purely internal triggers (time passing, other puzzles solved). The weakest NPC in a commercial Infocom game has more autonomy than Blackwood's only NPC.
+
+### 6. Object Interaction Depth: Tool Chains and System Combinations
+
+**BAD (Blackwood):**
+Every puzzle is a single verb on a single object: USE SCALPEL ON CHAINS, UNLOCK DOOR WITH KEY, OPEN BOX WITH SCALPEL. No puzzle requires chaining two objects together or considering object state (temperature, power, saturation) as a puzzle variable.
+
+**GOOD (The Lurking Horror):**
+- The liquid nitrogen puzzle: find nitrogen flask → pour on slime curtain → nitrogen freezes slime → shatter frozen slime → open ancient door. Four steps, two objects, one state change (temperature).
+- The Chinese food puzzle: find Chinese food carton (frozen) → heat in microwave at specific setting (2 minutes, HIGH) → give to hacker → receive master key. Objects have temperature states that affect NPC behavior.
+- The power line puzzle: find axe → cross water while wearing rubber boots + gloves → cut high-voltage line → plug into repeater box → electrocute boss. Requires tool, protective equipment, environmental navigation, and correct ordering.
+
+**Rule:** At least 2 major puzzles must require chaining 3+ objects or considering an object's state (hot/cold, charged/drained, wet/dry) as a puzzle variable. Every object that can hold state should have visible EXAMINE feedback showing its current state. A game where no object has plural states and every puzzle is single-step is a fetch quest, not an adventure.
+
+### 7. Clock-Driven Mechanical Depth: Systems That Simulate, Not Just Decorate
+
+**BAD (Blackwood — `actions.zil:854`):**
+Clock routines (I-WHISPER, I-CREAKING, I-FOOTSTEPS, I-FLICKERING, I-COLD-DRAFT) fire atmospheric flavor text on timers. None of them interact with game state. None create mechanical consequences. They are wallpaper that the player tunes out after the third repetition.
+
+**GOOD (The Lurking Horror):**
+- **Flashlight battery drain** (`cs.zil:1407-1434`): I-FLASHLIGHT daemon dims the flashlight through 5 stages (FRESH → DIM → VERY-DIM → ALMOST-GONE → OUT). Each stage has unique descriptive text and affects whether the player can see in dark rooms. Running out of light at the wrong moment is a real danger.
+- **Freeze-to-death clock** (`cs.zil:60-80`): I-FREEZE-TO-DEATH tracks cumulative exposure to cold. First warning at 3 ticks, then 6, then 9, then death at 12. The player must find shelter or warm clothing before the timer expires.
+- **NPC AI scheduling** (`frob.zil:346-435`): The urchin moves on a clock daemon, not on player triggers. It enters rooms, steals objects, and flees independently, creating a dynamic world where NPCs have agendas.
+- **Temperature decay** (`cs.zil:130-148`): I-COOL tracks object temperature. The Chinese food cools over time, becoming less appealing to the hacker. The nitrogen flask warms, affecting how much slime it can freeze.
+
+**Rule:** Every clock daemon must do at least one of: (a) advance a numerical state that has gameplay consequences, (b) cause autonomous NPC behavior, or (c) modify object state that another system reads. Atmosphere-only daemons may exist but should be outnumbered 2:1 by mechanical daemons. The player should be able to observe clock effects through EXAMINE and gameplay consequences, not just read flavor text.
+
 ## Acceptance Checks
 - No puzzle depends on inaccessible prerequisites.
 - Reasonable command attempts have authored responses.

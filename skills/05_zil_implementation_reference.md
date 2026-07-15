@@ -505,3 +505,126 @@ When an NPC carries an item meant to be given in conversation, guard the item's 
 ```
 
 Otherwise the player can `TAKE KEYRING` directly from the NPC's inventory and skip the conversation gate. The item's initial `(IN MR-HUDSON)` places it inside the NPC object, but `TAKEBIT` on the item allows the parser to retrieve it from containers whose `SEARCHBIT` or `OPENBIT` grant access.
+
+### 13. Pronoun resolution with THIS-IS-IT
+
+The substrate's `THIS-IS-IT` macro binds `IT` to an object for subsequent commands. After any TELL that names an object, call `THIS-IS-IT` so the player can refer to it by pronoun:
+
+```zil
+<ROUTINE LENS-F ()
+    <COND (<VERB? EXAMINE>
+           <TELL "The Fresnel lens is magnificent but dark." CR>
+           <THIS-IS-IT ,FRESNEL-LENS>   ; now "EXAMINE IT" or "TAKE IT" works
+           <RTRUE>)>>
+```
+
+Apply this to every object with an ACTION routine that produces text naming the object. The most important objects to bind are: the current room's most visible feature, the last NPC spoken to, the last object examined, the last object taken or dropped.
+
+**Implementation notes:**
+- `THIS-IS-IT` sets the substrate's internal `P-IT-OBJECT` variable.
+- The substrate also supports `P-HIM-OBJECT` for ACTORBIT NPCs. After TELL about an NPC, call `THIS-IS-IT` with the NPC object and it will also set `P-HIM-OBJECT`.
+- Pronoun binding survives across turns but not across save/restore cycles in the current substrate.
+
+### 14. Autonomous NPC movement with clock daemons
+
+An NPC that moves independently creates a living world. The pattern: define a clock daemon that evaluates the NPC's current location and picks a valid adjacent room.
+
+```zil
+<GLOBAL GUARD-DIRECTION <>>  ; which way the guard is currently patrolling
+
+<ROUTINE I-GUARD-PATROL ()
+    <COND (<EQUAL? <LOC ,GUARD> ,ENTRANCE-HALL>
+           <MOVE ,GUARD ,CORRIDOR>
+           <SETG GUARD-DIRECTION 'FURTHER>)
+          (<EQUAL? <LOC ,GUARD> ,CORRIDOR>
+           <COND (<==? ,GUARD-DIRECTION 'FURTHER>
+                  <MOVE ,GUARD ,GUARD-ROOM>
+                  <SETG GUARD-DIRECTION 'RETURN>)
+                 (T
+                  <MOVE ,GUARD ,ENTRANCE-HALL>
+                  <SETG GUARD-DIRECTION 'OUT>)>)
+          (<EQUAL? <LOC ,GUARD> ,GUARD-ROOM>
+           <MOVE ,GUARD ,CORRIDOR>
+           <SETG GUARD-DIRECTION 'RETURN>)>
+    <RTRUE>>
+```
+
+Queue at interval 3-5 in GO. The guard moves every few turns, changing which rooms are occupied or dangerous.
+
+**Key considerations:**
+- An NPC's action routine must handle the case where the player is in the same room when the NPC arrives. Use M-ENTER for room entry handlers.
+- Guard NPC movement against the `GAME-WON` flag so patrols stop after the game ends.
+- If multiple NPCs patrol, ensure they don't occupy the same room simultaneously, or handle the overlap case.
+- Test: the player waits in a room and the NPC eventually arrives or passes through.
+
+### 15. Mechanical stateful clock daemons
+
+Atmosphere-only clock daemons (whispers, creaks) become wallpaper. Mechanical daemons that track numerical state create real gameplay decisions.
+
+**Pattern 1 — Battery drain (resource management):**
+
+```zil
+<GLOBAL FLASHLIGHT-CHARGE 100>  ; starts full
+
+<ROUTINE I-FLASHLIGHT ()
+    <COND (<AND <FSET? ,FLASHLIGHT ,ONBIT>
+                <IN? ,FLASHLIGHT ,WINNER>>
+           <SETG FLASHLIGHT-CHARGE <- ,FLASHLIGHT-CHARGE 1>>
+           <COND (<EQUAL? ,FLASHLIGHT-CHARGE 75>
+                  <TELL "Your flashlight flickers slightly." CR>)
+                 (<EQUAL? ,FLASHLIGHT-CHARGE 50>
+                  <TELL "The flashlight beam grows noticeably dimmer." CR>)
+                 (<EQUAL? ,FLASHLIGHT-CHARGE 25>
+                  <TELL "The flashlight casts only a faint yellow glow." CR>)
+                 (<EQUAL? ,FLASHLIGHT-CHARGE 0>
+                  <TELL "Your flashlight sputters and dies." CR>
+                  <FCLEAR ,FLASHLIGHT ,ONBIT>)>)>
+    <RTRUE>>
+```
+
+**Pattern 2 — Environmental exposure (cumulative hazard):**
+
+```zil
+<GLOBAL COLD-EXPOSURE 0>
+
+<ROUTINE I-FREEZE-CHECK ()
+    <COND (<EQUAL? ,HERE ,COLD-ROOM ,FREEZER ,ICE-CAVE>
+           <SETG COLD-EXPOSURE <+ ,COLD-EXPOSURE 1>>
+           <COND (<EQUAL? ,COLD-EXPOSURE 3>
+                  <TELL "You shiver. The cold is seeping through your clothes." CR>)
+                 (<EQUAL? ,COLD-EXPOSURE 6>
+                  <TELL "Your fingers are numb. Movement is getting harder." CR>
+                  <SETG PLAYER-STRENGTH <- ,PLAYER-STRENGTH 10>>)
+                 (<EQUAL? ,COLD-EXPOSURE 9>
+                  <TELL "The cold crushes the warmth from your chest. Your vision narrows." CR>)
+                 (<EQUAL? ,COLD-EXPOSURE 12>
+                  <TELL "You collapse. The cold takes you." CR>
+                  ; trigger death
+                  )>)>
+    <RTRUE>>
+```
+
+**Pattern 3 — Object state decay (temperature, freshness):**
+
+```zil
+<GLOBAL CHINESE-FOOD-TEMP 5>  ; 5 = frozen, 10 = perfect, 15 = burnt
+
+<ROUTINE I-FOOD-TEMP ()
+    <COND (<AND ,CHINESE-FOOD-HEATING
+                <EQUAL? ,HERE ,KITCHEN>>
+           <SETG CHINESE-FOOD-TEMP <+ ,CHINESE-FOOD-TEMP 1>>
+           <COND (<EQUAL? ,CHINESE-FOOD-TEMP 8>
+                  <TELL "The microwave beeps. The food is now hot." CR>
+                  <SETG CHINESE-FOOD-HEATING <>>
+                  ; tell the hacker it's ready
+                  )>)>
+    <COND (<AND <NOT ,CHINESE-FOOD-HEATING>
+                <IN? ,CHINESE-FOOD ,WINNER>
+                <G? ,CHINESE-FOOD-TEMP 0>>
+           <SETG CHINESE-FOOD-TEMP <- ,CHINESE-FOOD-TEMP 1>>
+           <COND (<EQUAL? ,CHINESE-FOOD-TEMP 2>
+                  <TELL "The Chinese food is getting cold again." CR>)>)>
+    <RTRUE>>
+```
+
+**Rule:** Every mechanical clock daemon must: (1) have visible feedback at each stage threshold, (2) stage notifications at intervals the player can notice and react to, (3) either interact with or be readable through EXAMINE on relevant objects. The player should never die or lose progress without warning. Telegraph, then escalate, then execute.

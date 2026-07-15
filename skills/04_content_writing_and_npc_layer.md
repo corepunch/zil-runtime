@@ -166,6 +166,116 @@ Nearly every object has a FIRST?/FDESC discovery moment. Revisiting a room after
 
 **Rule:** Every major room (15+) and every important object should have FDESC discovery text. Discovery text should only appear *once* — it creates a moment. After that, revisit text should be concise and state-aware.
 
+### 9. Parser Depth: Pronoun Resolution, GWIM, OOPS, Disambiguation
+
+**BAD (Blackwood):**
+The substrate parser is used as-is. `TAKE ALL` may not work reliably. `DROP IT` after EXAMINEing a key produces "You can't see any such thing." Mistyped words (`EXAMIN`) produce generic failure. Two objects sharing a synonym (`KEY` for both iron key and safe key) in the same room produce an unhandled error.
+
+**GOOD (The Lurking Horror — `parser.zil`):**
+- **Pronoun resolution** (`misc.zil:469`): `OBJECT-SUBSTITUTE` replaces `IT` and `HIM` with the last referenced object, tracked via `P-IT-OBJECT` and `P-HIM-OBJECT`. The `THIS-IS-IT` routine updates these references after any TELL mentioning an object.
+- **GWIM (Get What I Mean)** (`parser.zil:1089`): When the player types a verb with no object that needs one, the GWIM routine supplies a default object from context. Typing `OPEN` near a closed door auto-fills the door object.
+- **OOPS correction** (`parser.zil`): Full OOPS system with `OOPS-TABLE`, `OOPS-INBUF`, and `AGAIN-LEXV` machinery. Player can type `OOPS DOOR` to retry with the corrected word.
+- **Disambiguation** (`parser.zil:1458`): `WHICH-PRINT` handles ambiguous references with "Which X do you mean, the Y or the Z?" and `P-ACLAUSE` for follow-up clarification.
+- **Orphan merging** (`parser.zil:656`): When the player types `EXAMINE` alone, the parser prompts for a noun (`WHAT?`). On the next input, `ORPHAN-MERGE` combines the two inputs into a full command.
+- **ALL/EXCEPT** (`parser.zil`): `SNARF-OBJECTS`, `MANY-CHECK`, and 80-byte `P-PRSO`/`P-PRSI` tables support `TAKE ALL`, `DROP ALL EXCEPT THE KEY`.
+
+**Rule:** At minimum, implement pronoun resolution (`THIS-IS-IT`) and GWIM defaults for your game. These are the lowest-effort, highest-impact parser improvements. Add disambiguation when two objects in the same scope share a head noun. OOPS is aspirational but transforms how forgiving the game feels.
+
+**Implementation pattern (pronouns):**
+```zil
+<ROUTINE YOUR-OBJECT-F ()
+    <COND (<VERB? EXAMINE>
+           <TELL "Description text here." CR>
+           <THIS-IS-IT ,YOUR-OBJECT>
+           <RTRUE>)>>
+```
+
+**Implementation pattern (GWIM for TAKE):**
+```zil
+<ROUTINE V-TAKE ()
+    <COND (<NOT ,PRSO>
+           ; player typed TAKE with no object
+           <COND (<SET ,PRSO <GWIM-DEFAULT ,HERE>>
+                  <TELL "(the " D ,PRSO ")" CR>
+                  <MOVE ,PRSO ,WINNER>)
+                 (T
+                  <TELL "What do you want to take?" CR>)>
+           <RTRUE>)>>
+```
+
+### 10. NPC Dialogue Trees: Back-and-Forth Conversation
+
+**BAD (Blackwood — `actions.zil:522-726`):**
+Patient-189 handles five verbs with single-shot responses. `ASK PATIENT ABOUT SERUM` produces the same text regardless of what the player already knows or has done. There is no follow-up, no branching dialogue, no way to drill into a topic. The NPC has exactly one line per verb per game state.
+
+**GOOD (The Lurking Horror — `hacker.zil`):**
+The hacker has a full dialogue tree supporting `TELL HACKER ABOUT` on 12+ topics (KEYS, STUDENTS, THE PROGRAM, LOVECRAFT, CHINESE FOOD, THE MASTER KEY, YOURSELF, etc.). Each topic has first-visit text, revisit text, and text that changes based on whether the player has already done related actions (e.g., the Chinese food topic changes after the player heats the food).
+
+**GOOD (Limehouse Killings — `actions.zil`):**
+NPCs have topic objects indexed by `PRSI`. Each topic checks whether it's been discussed before, whether prerequisite evidence has been found, and whether the NPC is in the right state. The response matrix is testable via parser commands.
+
+**Rule:** Each NPC must have at least 3 topics that change based on game state. Responses should be: (1) first time asked, (2) asked again without progress, (3) asked again after related progress elsewhere. Use GLOBAL flags per topic to track whether it's been broached. The player should feel like they're having a conversation, not triggering a vending machine.
+
+**Implementation pattern:**
+```zil
+<GLOBAL DISCUSSED-SERUM <>>
+<GLOBAL DISCUSSED-MORDECAI <>>
+
+<ROUTINE PATIENT-189-F ()
+    <COND (<VERB? TELL>
+           <COND (<EQUAL? ,PRSI ,SERUM-TOPIC>
+                  <COND (,DISCUSSED-SERUM
+                         <TELL "Patient 189 turns away. It has nothing more to say about the serum." CR>)
+                        (,SERUM-FOUND
+                         <TELL "Its eyes fix on the serum vial in your hand. A sound escapes its throat — almost a word." CR>
+                         <SETG DISCUSSED-SERUM T>)
+                        (T
+                         <TELL "Patient 189 tilts its head. It does not understand the word 'serum.'" CR>)>)
+                 (<EQUAL? ,PRSI ,MORDECAI-TOPIC>
+                  <COND (,DISCUSSED-MORDECAI
+                         <TELL "It only stares." CR>)
+                        (T
+                         <TELL "At the name 'Mordecai,' Patient 189 flinches. Something green flickers deep in its eyes." CR>
+                         <SETG DISCUSSED-MORDECAI T>)>)>
+           <RTRUE>)>>
+```
+
+### 11. Unique Death Text: Every Death a Discovery Moment
+
+**BAD (Blackwood):**
+There is no death system. The game has exactly one ending (victory). No environmental hazard can kill the player. The cold, the dark, the Patient — none are dangerous. This removes all tension from exploration.
+
+**GOOD (The Lurking Horror):**
+Every death has unique, characterful text:
+- Freezing: "You are suffused with a warm, blissful numbness. It is marred only by the knowledge that before you wake again, you will die."
+- Electrocution: "Four thousand volts of electricity course through your body! The result is shocking."
+- Slime: "The slime engulfs your nose! You cough, choke, and begin to suffocate!"
+- The FROB: "The creature leaps, a mountain falling on you, and the darkness swallows you, never to brighten again."
+- The flier: "Something gnawing on your <random body part> thinks it's pretty wonderful, or at least fairly tasty."
+- Generic: Unique text when eaten, dissolved, crushed, or absorbed.
+
+**Rule:** Every distinct death type must have unique text that reveals something about the world or the monster. Generic "You have died" is never acceptable. Death text is a writing opportunity — it's the last thing the player reads before restoring, and it should be memorable. Aim for: (1) a sensory detail the player hasn't seen before, (2) a hint about what killed them, (3) tonal consistency with the game. Add at least 3 death states to any horror game.
+
+### 12. Tonal Range: Contrast Makes Every Mood Hit Harder
+
+**EXPANDED FROM SECTION 4:**
+
+A horror game without contrast desensitizes the player. The Lurking Horror proves this by shifting between four distinct tones:
+
+- **Academic comedy**: "You miss. (Now you know why few technical schools make it to the Rose Bowl.)"
+- **Wonder**: The Yuggoth sequence — alien, beautiful, cosmic.
+- **Body horror**: The slime, the mass, the hand in the tub.
+- **Dark humor**: The hacker's "Mumble. Frotz." dialogue, the dark flier's taste for your body parts.
+
+Blackwood has exactly one tone (grim gothic) across 890 lines of source. No jokes, no beauty, no warmth.
+
+**Rule:** Divide your game into thirds. In the first third, the player should encounter at least ONE thing that is beautiful, ONE thing that is funny, and ONE thing that is warm (even if hollow). The horror that follows will hit harder because the player has something to contrast it against. Use this checklist:
+- [ ] One beautiful room or object description
+- [ ] One moment of humor (dark comedy counts)
+- [ ] One moment of warmth or humanity (a letter, a photograph, a memory)
+- [ ] No more than 2 uses of "dread," "ominous," or "feels wrong" in the entire game
+- [ ] At least 3 concrete sensory details per room (sight, sound, smell, texture, temperature) that replace emotion-label adjectives
+
 ## Acceptance Checks
 - Tone remains consistent.
 - Room prose implies meaningful actions.
