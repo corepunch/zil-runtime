@@ -63,10 +63,10 @@ This doesn't change the game's mechanics — it recontextualizes the player's mo
 
 ### 5. Earned Ending — Serum + Syringe + Relic
 
-**Why:** Saying "hello" to win is anticlimactic. The game has STRANGE-SERUM, SYRINGE, and ANCIENT-RELIC as objects but no purpose for two of them.
+**Why:** A bare `HELLO` action as the win trigger is anticlimactic and collides with Zork's generic greeting behavior. The game has STRANGE-SERUM, SYRINGE, and ANCIENT-RELIC as objects but no purpose for two of them.
 
 **What:**
-Replace `<VERB? HELLO>` win condition in PATIENT-189-F:
+Use the explicit `SAY HELLO` phrase for the win condition, leaving the standard `HELLO` action unchanged:
 - If player lacks ANCIENT-RELIC: "Patient 189 tilts its head. Green light flares in its eyes. Something cold reaches into your chest. You are not ready."
 - If player has relic but not serum+syringe: "The relic glows warm. Patient 189 shivers, eyes flickering. But something still binds it. The serum — if returned to its source..."
 - If player has all three: Multi-line victory text. Inject the serum. The green light dies. Patient 189 looks at you with human eyes and whispers 'I remember who I was.' It crumbles to ash. The candles go out. You're free.

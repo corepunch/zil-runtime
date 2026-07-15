@@ -10,6 +10,11 @@
 <GLOBAL CHAPEL-UNLOCKED <>>
 <GLOBAL CHAINS-CUT-FLAG <>>
 <GLOBAL GAME-WON <>>
+<GLOBAL PATIENT-STATE 0> ;"0=absent, 1=aware, 2=twitching, 3=liberated"
+<GLOBAL PATIENT-LORE 0> ;"count of distinct lore discoveries and first-time topics"
+<GLOBAL PATIENT-FILE-LORE <>>
+<GLOBAL WALL-SCRATCHES-LORE <>>
+<GLOBAL STRAITJACKET-LORE <>>
 <GLOBAL WHISPER-TABLE
     <LTABLE 0
         "A voice, barely audible, rasps: 'help... me...'"
@@ -46,6 +51,7 @@
       (LDESC "This cramped room once served as the sanitarium's reception. Filing cabinets line the opposite wall, their drawers hanging open like gaping mouths. A doorway to the east opens back to the entrance hall.")
       (EAST TO SANITARIUM-ENTRANCE)
       (FLAGS RLANDBIT ONBIT)
+      (GLOBAL FILING-CABINETS)
       (PSEUDO "NEST" NEST-PSEUDO "ASHES" ASHES-PSEUDO "ASH" ASHES-PSEUDO)>
 
 <ROOM OPERATING-THEATER
@@ -165,7 +171,8 @@
       (SOUTH TO OBSERVATION-DECK)
       (EAST TO DIRECTORS-OFFICE)
       (NORTH TO STAFF-QUARTERS)
-      (FLAGS RLANDBIT ONBIT)>
+      (FLAGS RLANDBIT ONBIT)
+      (GLOBAL FILING-CABINETS)>
 
 <ROOM DIRECTORS-OFFICE
       (IN ROOMS)
@@ -207,7 +214,8 @@
       (ACTION CHAPEL-FCN)
       (SOUTH TO OVERGROWN-GARDEN)
       (FLAGS RLANDBIT ONBIT)
-      (VALUE 15)>
+      (VALUE 15)
+      (GLOBAL TOPIC-MORDECAI TOPIC-TREATMENT TOPIC-IDENTITY TOPIC-SANITARIUM TOPIC-CHAPEL)>
 
 ; === OBJECTS ===
 
@@ -217,9 +225,10 @@
         (ADJECTIVE BRASS CORRODED)
         (DESC "brass plaque")
         (LDESC "A corroded brass plaque hangs askew on the gate.")
-        (FLAGS READBIT TAKEBIT)
+        (FLAGS READBIT)
         (TEXT "The plaque reads: 'Blackwood Sanitarium - Est. 1898 - Closed by Order 1952'")
-        (SIZE 5)>
+        (SIZE 5)
+        (ACTION BRASS-PLAQUE-F)>
 
 <OBJECT WALLPAPER
         (IN SANITARIUM-ENTRANCE)
@@ -273,6 +282,7 @@
         (SYNONYM TABLE)
         (ADJECTIVE OPERATING STAINED)
         (DESC "operating table")
+        (FDESC "Tiers of wooden benches circle a central operating table. Cold metal trays sit abandoned on carts. A single overhead lamp, long dead, still points down at the table like an accusation.")
         (LDESC "A stained operating table dominates the center of the room.")
         (FLAGS SURFACEBIT CONTBIT OPENBIT)
         (TEXT "The operating table is covered in dark brown stains that you hope are just rust. Leather restraints dangle from all four corners. Deep gouges mar the metal surface, as if someone struggled violently against the bindings.")>
@@ -311,8 +321,17 @@
         (SYNONYM BEDS FRAMES BED FRAME)
         (ADJECTIVE RUSTED)
         (DESC "bed frames")
+        (FDESC "Dozens of bed frames line the walls. Most mattresses have rotted away, leaving only rusted springs. Among the debris, you notice a child's crayon drawing pinned to one bedframe—a crude sun, a stick figure, the word 'HOME' in wobbly letters.")
         (LDESC "Rusted bed frames line the corridor.")
         (TEXT "Dozens of bed frames line the walls. The mattresses have rotted away, leaving only rusted springs and metal frames. Some still have restraint straps attached.")>
+
+<OBJECT CHILD-DRAWING
+        (IN PATIENT-WARD)
+        (SYNONYM DRAWING PICTURE CRAYON ART)
+        (ADJECTIVE CHILD CRAYON)
+        (DESC "child's drawing")
+        (FLAGS NDESCBIT READBIT)
+        (ACTION CHILD-DRAWING-F)>
 
 <OBJECT HEAVY-DOOR
         (IN PATIENT-WARD)
@@ -566,7 +585,7 @@
 
 <OBJECT WALL-SCRATCHES
         (IN ISOLATION-WARD)
-        (SYNONYM SCRATCHES MARKS TALLIES)
+        (SYNONYM SCRATCHES MARKS TALLIES WRITING WORDS MESSAGE)
         (ADJECTIVE WALL)
         (DESC "wall scratches")
         (LDESC "Thousands of scratch marks covering the cell walls.")
@@ -599,16 +618,16 @@
 
 <OBJECT PADDING
         (IN PADDED-CELL)
-        (SYNONYM PADDING WALLS)
-        (ADJECTIVE ROTTING TORN)
+        (SYNONYM PADDING WALLS WRITING WORDS MESSAGE)
+        (ADJECTIVE ROTTING TORN BLOOD DRIED)
         (DESC "padded walls")
         (LDESC "Every surface is covered in rotting padding, now torn and hanging in strips.")
         (ACTION PADDING-F)>
 
 <OBJECT STRAITJACKET
         (IN PADDED-CELL)
-        (SYNONYM STRAITJACKET JACKET)
-        (ADJECTIVE STRAIT)
+        (SYNONYM STRAITJACKET JACKET TAG LABEL)
+        (ADJECTIVE STRAIT NAME COLLAR)
         (DESC "straitjacket")
         (FDESC "A straitjacket lies in the corner, its straps unbuckled as if someone left in a hurry.")
         (LDESC "A straitjacket lies in the corner.")
@@ -709,7 +728,7 @@
 <OBJECT SAFE-KEY
         (IN HOLLOW-BOOK)
         (SYNONYM KEY)
-        (ADJECTIVE SAFE SMALL)
+        (ADJECTIVE SAFE NUMBERED)
         (DESC "safe key")
         (LDESC "A small key with a numbered tag: S-001.")
         (FLAGS TAKEBIT)
@@ -842,11 +861,11 @@
 
 <OBJECT PATIENT-189
         (IN CHAPEL)
-        (SYNONYM PATIENT FIGURE BEING)
+        (SYNONYM PATIENT FIGURE BEING MONSTER SOUL GHOST SOMETHING)
         (ADJECTIVE PATIENT 189)
         (DESC "Patient 189")
         (FDESC "Something is standing at the altar. It doesn't move. It doesn't breathe. But somehow, horribly, you know it knows you're here.")
-        (LDESC "A figure stands motionless at the altar. It turns to face you—its eyes glow faintly in the darkness. This is Patient 189, if you can still call it that.")
+        (LDESC "A figure stands motionless at the altar. It turns to face you—its eyes glow faintly in the darkness.")
         (FLAGS ACTORBIT)
         (ACTION PATIENT-189-F)>
 
@@ -867,6 +886,49 @@
     (DESC "dead oak tree")
     (FLAGS NDESCBIT)
     (ACTION DEAD-OAK-TREE-F)>
+
+<OBJECT FILING-CABINETS
+    (IN LOCAL-GLOBALS)
+    (SYNONYM CABINETS CABINET DRAWERS FILES)
+    (ADJECTIVE FILING FILE OVERTURNED)
+    (DESC "filing cabinets")
+    (FLAGS NDESCBIT)
+    (ACTION FILING-CABINETS-F)>
+
+; === TOPIC OBJECTS (ASK/TELL vocabulary for NPC interaction) ===
+
+<OBJECT TOPIC-MORDECAI
+    (IN LOCAL-GLOBALS)
+    (SYNONYM MORDECAI DIRECTOR DOCTOR)
+    (ADJECTIVE HEINRICH)
+    (DESC "Dr. Mordecai")
+    (FLAGS NDESCBIT)>
+
+<OBJECT TOPIC-TREATMENT
+    (IN LOCAL-GLOBALS)
+    (SYNONYM TREATMENT EXPERIMENT SERUM THERAPY)
+    (ADJECTIVE EXPERIMENTAL)
+    (DESC "treatment")
+    (FLAGS NDESCBIT)>
+
+<OBJECT TOPIC-IDENTITY
+    (IN LOCAL-GLOBALS)
+    (SYNONYM NAME IDENTITY MEMORY PAST)
+    (DESC "identity")
+    (FLAGS NDESCBIT)>
+
+<OBJECT TOPIC-SANITARIUM
+    (IN LOCAL-GLOBALS)
+    (SYNONYM SANITARIUM HOSPITAL BLACKWOOD)
+    (ADJECTIVE BLACKWOOD)
+    (DESC "sanitarium")
+    (FLAGS NDESCBIT)>
+
+<OBJECT TOPIC-CHAPEL
+    (IN LOCAL-GLOBALS)
+    (SYNONYM CHAPEL ALTAR)
+    (DESC "chapel")
+    (FLAGS NDESCBIT)>
 
 <OBJECT BOTTOM-DRAWER
         (IN OAK-DESK)

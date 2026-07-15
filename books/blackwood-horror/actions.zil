@@ -66,6 +66,29 @@
 
 ; === ACTION HANDLERS ===
 
+<SYNTAX SAY HELLO = V-SAY-HELLO>
+
+<ROUTINE BRASS-PLAQUE-F ()
+         <COND (<VERB? TAKE PULL>
+                <TELL "The plaque is bolted firmly to the iron gate." CR>
+                <RTRUE>)>>
+
+<ROUTINE CHILD-DRAWING-F ()
+         <COND (<VERB? EXAMINE READ>
+                <TELL "A child's crayon drawing is pinned to the bedframe: a yellow sun above a stick figure with outstretched arms, and the word 'HOME' pressed so hard into the paper that the crayon tore through in places." CR>
+                <RTRUE>)
+               (<VERB? TAKE PULL>
+                <TELL "The brittle paper would crumble if you tried to remove it from the rusted pin." CR>
+                <RTRUE>)>>
+
+<ROUTINE FILING-CABINETS-F ()
+         <COND (<VERB? EXAMINE SEARCH LOOK-INSIDE OPEN>
+                <COND (<EQUAL? ,HERE ,RECEPTION-ROOM>
+                       <TELL "The reception cabinets stand open and empty. Their labels have faded, and damp has fused the remaining scraps of paper into gray pulp." CR>)
+                      (T
+                       <TELL "The overturned cabinets have been emptied. Bent drawers gape open among waterlogged administrative forms." CR>)>
+                <RTRUE>)>>
+
 <ROUTINE DESK-F ()
          <COND (<VERB? EXAMINE LOOK-INSIDE>
                 <TELL "The desk has three drawers. The top two are broken and empty. The bottom drawer is intact but locked." CR>
@@ -73,6 +96,9 @@
 
 <ROUTINE PATIENT-FILE-F ()
          <COND (<VERB? READ EXAMINE>
+                <COND (<NOT ,PATIENT-FILE-LORE>
+                       <SETG PATIENT-FILE-LORE T>
+                       <SETG PATIENT-LORE <+ ,PATIENT-LORE 1>>)>
                 <TELL "A file folder labeled 'Patient 189 - CONFIDENTIAL'. Inside are medical records and notes. 'Subject shows extraordinary resistance to pain. Mental state deteriorating. Recommending transfer to isolation wing. Dr. Mordecai has expressed personal interest in this case. Update: Patient transferred to chapel for experimental treatment. Nov 1, 1952.'" CR>
                 <RTRUE>)>>
 
@@ -249,7 +275,11 @@
                 <TELL "You run your fingers over the scratches. They're deep—gouged by fingernails over years of desperation." CR>
                 <RTRUE>)
                (<VERB? READ>
-                <TELL "Among the chaos of scratches, you can make out words: 'HELP ME' 'NO MORE' 'PLEASE'. The largest message reads: 'PATIENT 189 STILL ALIVE IN THE CHAPEL'. And then, in a corner you nearly missed — scratched in handwriting that looks disturbingly like your own: 'YOU ARE 189. YOU ALWAYS WERE.'" CR>
+                <TELL "Among the chaos of scratches, you can make out words: 'HELP ME' 'NO MORE' 'PLEASE'. The largest message reads: 'PATIENT 189 STILL ALIVE IN THE CHAPEL'.">
+                <TELL " And then, in a corner, smaller and more recent: the date '1947' and a single word—'remember'—carved with unusual precision." CR>
+                <COND (<NOT ,WALL-SCRATCHES-LORE>
+                       <SETG WALL-SCRATCHES-LORE T>
+                       <SETG PATIENT-LORE <+ ,PATIENT-LORE 1>>)>
                 <RTRUE>)>>
 
 <ROUTINE SHOCK-CHAIR-F ()
@@ -296,10 +326,17 @@
 
 <ROUTINE STRAITJACKET-F ()
          <COND (<VERB? EXAMINE>
-                <TELL "A heavy canvas straitjacket with multiple leather buckles and straps. Dark stains cover the fabric. And on the collar — a name tag. Your name. YOUR name is on this straitjacket." CR>
+                <TELL "A heavy canvas straitjacket with multiple leather buckles and straps. Dark stains cover the fabric. On the collar—a name tag, the ink nearly faded.">
+                <COND (<NOT ,STRAITJACKET-LORE>
+                       <SETG STRAITJACKET-LORE T>
+                       <SETG PATIENT-LORE <+ ,PATIENT-LORE 1>>
+                       <TELL " You can make out a few letters, a date. The handwriting seems... familiar.">)
+                      (T
+                       <TELL " The name on the tag is illegible now, but the date is clear: 1947.">)>
+                <TELL CR>
                 <RTRUE>)
                (<VERB? READ>
-                <TELL "The tag reads a name you know. Your name. Dated 1947. Five years before the sanitarium closed." CR>
+                <TELL "The tag reads a name—the ink is smeared, but the date is unmistakable. 1947. Five years before the sanitarium closed. You stare at it longer than you meant to." CR>
                 <RTRUE>)
                (<VERB? WEAR>
                 <TELL "You'd rather not." CR>
@@ -313,7 +350,11 @@
 
 <ROUTINE MIRROR-F ()
          <COND (<VERB? EXAMINE LOOK-INSIDE>
-                <TELL "Through the mirror, you can see the electroshock theater below. The shock chair sits in the center like a throne of suffering." CR>
+                <COND (<G? ,PATIENT-LORE 0>
+                       <TELL "Through the mirror, you can see the electroshock theater below. The shock chair sits in the center.">
+                       <TELL " In the glass, your reflection is barely visible—a dark shape that seems to shift when you try to focus on it. You look away." CR>)
+                      (T
+                       <TELL "Through the mirror, you can see the electroshock theater below. The shock chair sits in the center like a throne of suffering." CR>)>
                 <RTRUE>)>>
 
 <ROUTINE OBSERVATION-LOGBOOK-F ()
@@ -478,12 +519,48 @@
                 <TELL "You press your ear against the door. From within comes a faint sound—breathing? Or just the wind?" CR>
                 <RTRUE>)>>
 
+<ROUTINE PATIENT-189-RESOLUTION-F ()
+    <COND (<AND <IN? ,ANCIENT-RELIC ,WINNER>
+                <IN? ,STRANGE-SERUM ,WINNER>
+                <IN? ,SYRINGE ,WINNER>>
+           <TELL "You hold out the relic. Patient 189 stills completely. You draw the serum into the syringe and step forward—every instinct screaming—and inject it." CR>
+           <TELL "The green light in its eyes gutters. Patient 189 shudders, mouth opening in a soundless cry. The green flames around the chapel gutter and die." CR>
+           <TELL "Then it speaks, in a voice like someone remembering how: 'I remember... who I was.'" CR>
+           <COND (<G? ,PATIENT-LORE 2>
+                  <TELL " It looks at you with recognition—not as a stranger, but as someone who understands what it endured." CR>)
+                 (T
+                  <TELL " Its eyes pass over you without recognition. You freed it, but it never knew you." CR>)>
+           <TELL "It crumbles to ash. The candles go out. The air suddenly smells like rain and grass—ordinary, living air. You're free." CR>
+           <SETG GAME-WON T>
+           <SETG PATIENT-STATE 3>
+           <REMOVE ,PATIENT-189>
+           <RTRUE>)
+          (<IN? ,ANCIENT-RELIC ,WINNER>
+           <TELL "The relic glows warm. Patient 189 shivers, eyes flickering. But something still binds it. The serum—if returned to its source..." CR>
+           <RTRUE>)
+          (<G? ,PATIENT-STATE 1>
+           <TELL "Patient 189 acknowledges you—a slight inclination of the head. But words alone won't end this. You need the means to free it." CR>
+           <RTRUE>)
+          (T
+           <TELL "Patient 189 tilts its head. Green light flares in its eyes. Something cold reaches into your chest. You are not ready." CR>
+           <RTRUE>)>>
+
+<ROUTINE V-SAY-HELLO ()
+    <COND (<AND <EQUAL? ,HERE ,CHAPEL>
+                <IN? ,PATIENT-189 ,CHAPEL>>
+           <PATIENT-189-RESOLUTION-F>)
+          (T
+           <TELL "Nothing happens." CR>)>>
+
 <ROUTINE CHAPEL-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
            <COND (,GAME-WON
                   <TELL "The chapel is just a room now. The candles are dark. The altar is bare. Whatever was here is gone -- and so is whatever held you." CR>)
                  (T
-                  <TELL "The chapel is small and suffocating. Cold green light from unnatural candles makes everything look like a corpse. At the far end, before the altar, something stands perfectly still." CR>)>
+                  <TELL "The chapel is small and suffocating. Cold green light from unnatural candles makes everything look like a corpse. At the far end, before the altar, something stands perfectly still. You have the uneasy sense that it is waiting for you to speak.">
+                  <COND (<NOT ,PATIENT-STATE>
+                         <SETG PATIENT-STATE 1>)>
+                  <TELL CR>)>
            <RTRUE>)>>
 
 <ROUTINE PEWS-F ()
@@ -562,40 +639,91 @@
                 <TELL "The cross seems too important to discard." CR>
                 <RTRUE>)
                (<VERB? GIVE>
-                <TELL "The cross seems too important to give away." CR>
-                <RTRUE>)>>
+                <COND (<EQUAL? ,PRSI ,PATIENT-189>
+                       <RFALSE>)
+                      (T
+                       <TELL "The cross seems too important to give away." CR>
+                       <RTRUE>)>)>>
 
 <ROUTINE PATIENT-189-F ()
          <COND (<VERB? EXAMINE>
-                <TELL "PATIENT 189 stands impossibly still. Its skin is pale as death, its eyes glowing faintly green. It watches you with an intelligence that is distinctly not human. Dr. Mordecai's greatest achievement—and greatest horror." CR>
+                <TELL "PATIENT 189 stands impossibly still. Its skin is pale as death, its eyes glowing faintly green.">
+                <COND (<G? ,PATIENT-STATE 1>
+                       <TELL " Its gaze follows you now, tracking your movements with a terrible patience.">)
+                      (T
+                       <TELL " It watches you with an intelligence that is distinctly not human.">)>
+                <TELL CR>
                 <RTRUE>)
-               (<VERB? ATTACK KILL>
+               (<AND <VERB? TELL>
+                     <EQUAL? ,PRSI ,TOPIC-MORDECAI>>
+                <COND (<NOT <FSET? ,TOPIC-MORDECAI ,TOUCHBIT>>
+                       <FSET ,TOPIC-MORDECAI ,TOUCHBIT>
+                       <TELL "You speak the name. Patient 189's eyes flare, the green intensifying. Its jaw works soundlessly, as if trying to form words long forgotten." CR>
+                       <SETG PATIENT-LORE <+ ,PATIENT-LORE 1>>)
+                      (T
+                       <TELL "Patient 189 responds to the name again—a spasm, quickly suppressed, as if even remembering is painful." CR>)>
+                <SETG PATIENT-STATE 2>
+                <RTRUE>)
+               (<AND <VERB? TELL>
+                     <EQUAL? ,PRSI ,TOPIC-TREATMENT>>
+                <COND (<NOT <FSET? ,TOPIC-TREATMENT ,TOUCHBIT>>
+                       <FSET ,TOPIC-TREATMENT ,TOUCHBIT>
+                       <TELL "At the word, Patient 189 shudders. Its hands—claw-like, translucent—rise to its temples. You realize it is miming the electrode placement. A memory. A very bad one." CR>
+                       <SETG PATIENT-LORE <+ ,PATIENT-LORE 1>>)
+                      (T
+                       <TELL "Patient 189 lowers its hands slowly. Its expression never changes, but something in the tilt of its head conveys a bottomless weariness." CR>)>
+                <SETG PATIENT-STATE 2>
+                <RTRUE>)
+               (<AND <VERB? TELL>
+                     <EQUAL? ,PRSI ,TOPIC-IDENTITY>>
+                <COND (<NOT <FSET? ,TOPIC-IDENTITY ,TOUCHBIT>>
+                       <FSET ,TOPIC-IDENTITY ,TOUCHBIT>
+                       <TELL "Patient 189 stills completely. Its lips part. A sound emerges—not a word, but a tone, a single note held impossibly long like a tuning fork. It fades. Then, almost inaudibly: '...remember...'" CR>
+                       <SETG PATIENT-LORE <+ ,PATIENT-LORE 1>>)
+                      (T
+                       <TELL "Patient 189 watches you silently. Whatever it might have said is gone now, lost in years of isolation." CR>)>
+                <SETG PATIENT-STATE 2>
+                <RTRUE>)
+               (<AND <VERB? TELL>
+                     <EQUAL? ,PRSI ,TOPIC-SANITARIUM>>
+                <COND (<NOT <FSET? ,TOPIC-SANITARIUM ,TOUCHBIT>>
+                       <FSET ,TOPIC-SANITARIUM ,TOUCHBIT>
+                       <TELL "Patient 189 tilts its head toward the chapel ceiling, toward the building above. When it looks back at you, there is something new in those green eyes—a plea, perhaps. Or an accusation." CR>
+                       <SETG PATIENT-LORE <+ ,PATIENT-LORE 1>>)
+                      (T
+                       <TELL "Patient 189's gaze drifts upward, then returns to you. The silent exchange is complete: you both know what this place is." CR>)>
+                <SETG PATIENT-STATE 2>
+                <RTRUE>)
+               (<AND <VERB? TELL>
+                     <EQUAL? ,PRSI ,TOPIC-CHAPEL>>
+                <COND (<NOT <FSET? ,TOPIC-CHAPEL ,TOUCHBIT>>
+                       <FSET ,TOPIC-CHAPEL ,TOUCHBIT>
+                       <TELL "Patient 189 gestures—the first real movement you've seen—toward the altar, toward the wooden box beneath it. The meaning is clear: what lies in that box matters." CR>
+                       <SETG PATIENT-LORE <+ ,PATIENT-LORE 1>>)
+                      (T
+                       <TELL "Patient 189's eyes return to the altar. Whatever waits there, it has waited a very long time." CR>)>
+                <SETG PATIENT-STATE 2>
+                <RTRUE>)
+               (<AND <VERB? ATTACK KILL MUNG>
+                     <NOT ,GAME-WON>>
                 <TELL "You cannot bring yourself to approach it. Some primal instinct holds you back." CR>
                 <RTRUE>)
-               (<VERB? HELLO>
-                <COND (<NOT <IN? ,ANCIENT-RELIC ,WINNER>>
-                       <TELL "Patient 189 tilts its head. Green light flares in its eyes. Something cold reaches into your chest. You are not ready." CR>
-                       <RTRUE>)
-                      (<AND <IN? ,ANCIENT-RELIC ,WINNER>
-                            <OR <NOT <IN? ,STRANGE-SERUM ,WINNER>>
-                                <NOT <IN? ,SYRINGE ,WINNER>>>>
-                       <TELL "The relic glows warm. Patient 189 shivers, eyes flickering. But something still binds it. The serum—if returned to its source..." CR>
-                       <RTRUE>)
-                      (<AND <IN? ,ANCIENT-RELIC ,WINNER>
-                            <IN? ,STRANGE-SERUM ,WINNER>
-                            <IN? ,SYRINGE ,WINNER>>
-                       <TELL "You hold out the relic. Patient 189 stills completely. You draw the serum into the syringe and step forward—every instinct screaming—and inject it." CR>
-                       <TELL "The green light in its eyes gutters. Patient 189 shudders, mouth opening in a soundless cry. The green flames around the chapel gutter and die. Then it speaks, in a voice like someone remembering how: 'I remember... who I was.'" CR>
-                       <TELL "It crumbles to ash. The candles go out. The air suddenly smells like rain and grass—ordinary, living air. You're free." CR>
-                       <SETG GAME-WON T>
-                       <REMOVE ,PATIENT-189>
-                       <RTRUE>)>)
                (<VERB? RUB>
                 <TELL "You reach toward Patient 189, but stop yourself. The air around it feels wrong—cold and electric." CR>
                 <RTRUE>)
                (<VERB? GIVE>
-                <TELL "Patient 189 shows no interest in earthly possessions. It simply watches you with those glowing eyes." CR>
-                <RTRUE>)>>
+                <COND (<EQUAL? ,PRSO ,ANCIENT-RELIC>
+                       <TELL "You extend the relic toward Patient 189. Its hand rises—trembling—and closes around the silver cross. For one moment, its face softens into something almost human." CR>
+                       <TELL "A pressure builds in the chapel. The green candles flare white. Patient 189's form begins to brighten, to dissolve at the edges. It looks at you—truly looks—and the last of its fear drains away." CR>
+                       <TELL "When the light fades, the relic lies on the floor. Patient 189 is gone. But the air is warm now. Something has been set right." CR>
+                       <SETG GAME-WON T>
+                       <SETG PATIENT-STATE 3>
+                       <MOVE ,ANCIENT-RELIC ,CHAPEL>
+                       <REMOVE ,PATIENT-189>
+                       <RTRUE>)
+                      (T
+                       <TELL "Patient 189 shows no interest in that. It simply watches you with those glowing eyes." CR>
+                       <RTRUE>)>)>>
 
 <ROUTINE DRAWER-F ()
          <COND (<AND <VERB? EXAMINE>
@@ -870,16 +998,6 @@
     <COND (<EQUAL? ,HERE ,OPERATING-THEATER ,PATIENT-WARD ,ELECTROSHOCK-THEATER>
            <TELL "The building settles with a deep structural groan, as if exhaling." CR>)>
     <RTRUE>>
-
-; === HELLO OVERRIDE FOR CHAPEL ===
-
-<ROUTINE PRE-HELLO-CHAPEL ()
-    <COND (<AND <EQUAL? ,HERE ,CHAPEL>
-                <NOT ,GAME-WON>>
-           <SETG PRSO ,PATIENT-189>)>
-    <RFALSE>>
-
-<SYNTAX HELLO = V-HELLO PRE-HELLO-CHAPEL>
 
 ; === ENTRY POINT ===
 

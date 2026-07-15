@@ -12,7 +12,7 @@ This is a complete walkthrough for the horror.zil adventure game - an expansion 
 
 - **Total Rooms:** 22
 - **Total Objects:** 59 (added HOLLOW-BOOK, SANITARIUM-BUILDING, DEAD-OAK-TREE)
-- **Win condition:** Relic + Serum + Syringe — say hello to Patient 189 while holding all three
+- **Win condition:** Relic + Serum + Syringe — `say hello` while holding all three
 - **Verbs Used:** Only standard Zork1 verbs
 
 ## Complete Room List
@@ -175,7 +175,7 @@ This is a complete walkthrough for the horror.zil adventure game - an expansion 
 - The syringe (from hydrotherapy medicine cabinet)
 
 109. `examine patient` or `examine figure` - Patient 189, Dr. Mordecai's greatest achievement and horror
-110. `hello` - **Win condition!** With relic, serum, and syringe in hand — you inject the serum, the green light dies, Patient 189 whispers "I remember who I was" and crumbles to ash. The chapel goes dark. You're free.
+110. `say hello` - **Win condition!** With relic, serum, and syringe in hand — you inject the serum, the green light dies, Patient 189 whispers "I remember who I was" and crumbles to ash. The chapel goes dark. You're free.
 
 ## Puzzle Elements
 
@@ -192,7 +192,7 @@ This is a complete walkthrough for the horror.zil adventure game - an expansion 
 
 5. **Safe Puzzle:** Find safe key hidden in hollow red leather book (Director's Office) to unlock wall safe containing chapel key
 
-6. **Earned Ending:** Say hello to Patient 189 while holding all three items: ancient relic + strange serum + syringe. Partial combinations give staged rejections — no relic: "You are not ready"; relic only: "The serum — if returned to its source..."
+6. **Earned Ending:** Use `say hello` while holding all three items: ancient relic + strange serum + syringe. Partial combinations give staged rejections — no relic: "You are not ready"; relic only: "The serum — if returned to its source..."
 
 7. **Container Puzzles:** Objects within objects
    - Medical bag (in shelves) contains bandages and morphine vial
@@ -225,7 +225,7 @@ These events fire at different intervals throughout gameplay, enhancing immersio
 ✓ **Movement:** NORTH, SOUTH, EAST, WEST, UP, DOWN  
 ✓ **Examination:** EXAMINE, LOOK-INSIDE, READ, SEARCH, COUNT  
 ✓ **Manipulation:** TAKE, OPEN, UNLOCK, TURN, ATTACK, LIGHT (LAMP-ON/LAMP-OFF), RING, BOARD  
-✓ **Social:** HELLO  
+✓ **Social:** SAY HELLO
 ✓ **Other:** DRINK, WEAR
 
 ## Story Overview

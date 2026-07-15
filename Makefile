@@ -1,5 +1,5 @@
 # Targets
-.PHONY: test test-all test-unit test-integration test-game-startup test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-read-mailbox test-walk-around-house test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-all test-limehouse-walkthrough test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look test-zilch test-flow-control lint-zil
+.PHONY: test test-all test-unit test-integration test-game-startup test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-read-mailbox test-walk-around-house test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-playtest-regressions test-horror-all test-limehouse-walkthrough test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look test-zilch test-flow-control lint-zil
 
 help:
 	@echo "Available targets:"
@@ -42,6 +42,7 @@ help:
 	@echo "Horror game tests:"
 	@echo "  test-horror-helpers - Run horror test helpers"
 	@echo "  test-horror-partial - Run horror partial walkthrough"
+	@echo "  test-horror-playtest-regressions - Run isolated Blackwood playtest regressions"
 	@echo "  test-horror-failures - Run horror failing conditions tests"
 	@echo "  test-horror       - Run horror complete walkthrough"
 	@echo "  test-horror-all   - Run all horror tests"
@@ -177,7 +178,16 @@ test-horror-failures:
 	@echo "Running horror failing conditions tests..."
 	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-failures
 
-test-horror-all: test-horror-helpers test-horror-partial test-horror-failures test-horror
+test-horror-playtest-regressions:
+	@echo "Running isolated Blackwood playtest regressions..."
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-safe-key
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-say-ending
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-give-relic
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-something
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-scenery
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-lore
+
+test-horror-all: test-horror-helpers test-horror-partial test-horror-failures test-horror-playtest-regressions test-horror
 	@echo "All horror tests completed!"
 
 test-pure-zil:

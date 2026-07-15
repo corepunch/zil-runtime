@@ -1,11 +1,4 @@
-<INSERT-FILE "infocom/zork1/globals">
-<INSERT-FILE "infocom/zork1/clock">
-<INSERT-FILE "books/blackwood-horror/dungeon">
-<INSERT-FILE "books/blackwood-horror/actions">
-<INSERT-FILE "infocom/zork1/parser">
-<INSERT-FILE "infocom/zork1/verbs">
-<INSERT-FILE "infocom/zork1/syntax">
-<INSERT-FILE "infocom/zork1/main">
+<INSERT-FILE "books/blackwood-horror/blackwood-horror">
 
 <CONSTANT RELEASEID 1>
 
@@ -20,11 +13,9 @@
     ;"Test check-inventory when object is NOT in inventory (plaque not taken yet)"
     <ASSERT "Plaque NOT in inventory initially" <N==? <LOC ,BRASS-PLAQUE> ,ADVENTURER>>
     
-    ;"Take the plaque"
-    <ASSERT "Take brass plaque" <CO-RESUME ,CO "take plaque" T> <==? <LOC ,BRASS-PLAQUE> ,ADVENTURER>>
-    
-    ;"Test check-inventory when object IS in inventory"
-    <ASSERT "Plaque IS in inventory after taking" <==? <LOC ,BRASS-PLAQUE> ,ADVENTURER>>
+    ;"The fixed plaque refuses removal and remains outside inventory"
+    <ASSERT-TEXT "bolted firmly" <CO-RESUME ,CO "take plaque">>
+    <ASSERT "Plaque remains outside inventory" <N==? <LOC ,BRASS-PLAQUE> ,ADVENTURER>>
     
     ;"Move to reception room to test flags"
     <ASSERT "Enter sanitarium" <CO-RESUME ,CO "north" T> <==? ,HERE ,SANITARIUM-ENTRANCE>>

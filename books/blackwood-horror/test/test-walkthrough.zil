@@ -1,20 +1,12 @@
-<INSERT-FILE "infocom/zork1/globals">
-<INSERT-FILE "infocom/zork1/clock">
-<INSERT-FILE "books/blackwood-horror/actions">
-<INSERT-FILE "books/blackwood-horror/dungeon">
-<INSERT-FILE "books/blackwood-horror/actions">
-<INSERT-FILE "infocom/zork1/parser">
-<INSERT-FILE "infocom/zork1/verbs">
-<INSERT-FILE "infocom/zork1/syntax">
-<INSERT-FILE "infocom/zork1/main">
+<INSERT-FILE "books/blackwood-horror/blackwood-horror">
 
 <GLOBAL CO <CO-CREATE GO>>
 
 <ROUTINE RUN-TEST ()
 	<ASSERT "Start at Sanitarium Gate" <CO-RESUME ,CO "look" T> <==? ,HERE ,,SANITARIUM-GATE>>
 	<ASSERT-TEXT "blackwood" <CO-RESUME ,CO "examine plaque">> ;"Learn about Blackwood Sanitarium"
-	<ASSERT "Take the brass plaque" <CO-RESUME ,CO "take plaque" T> <==? <LOC ,BRASS-PLAQUE> ,ADVENTURER>>
-	<ASSERT "Drop brass plaque (no longer needed)" <CO-RESUME ,CO "drop plaque" T> <N==? <LOC ,BRASS-PLAQUE> ,ADVENTURER>>
+	<ASSERT-TEXT "bolted firmly" <CO-RESUME ,CO "take plaque">> ;"Plaque is fixed to the gate"
+	<ASSERT "Brass plaque remains on the gate" <==? <LOC ,BRASS-PLAQUE> ,SANITARIUM-GATE>>
 	<ASSERT "Enter Sanitarium Entrance Hall" <CO-RESUME ,CO "walk north" T> <==? ,HERE ,SANITARIUM-ENTRANCE>>
 	<ASSERT-TEXT "victorian" <CO-RESUME ,CO "examine wallpaper">> ;"Notice the Victorian-era decay"
 	<ASSERT "Go to Reception Room" <CO-RESUME ,CO "walk west" T> <==? ,HERE ,RECEPTION-ROOM>>
@@ -26,6 +18,7 @@
 	<ASSERT-TEXT "scalpel" <CO-RESUME ,CO "examine cabinet">> ;"Notice the medical cabinet"
 	<ASSERT "Take scalpel - important tool" <CO-RESUME ,CO "take scalpel" T> <==? <LOC ,SCALPEL> ,ADVENTURER>>
 	<ASSERT "Take ether bottle" <CO-RESUME ,CO "take bottle" T> <==? <LOC ,ETHER-BOTTLE> ,ADVENTURER>>
+	<ASSERT "Drop ether bottle (not needed)" <CO-RESUME ,CO "drop bottle" T> <N==? <LOC ,ETHER-BOTTLE> ,ADVENTURER>>
 	<ASSERT "Return to Entrance Hall" <CO-RESUME ,CO "walk south" T> <==? ,HERE ,SANITARIUM-ENTRANCE>>
 	<ASSERT "Go to Patient Ward" <CO-RESUME ,CO "walk east" T> <==? ,HERE ,PATIENT-WARD>>
 	<ASSERT-TEXT "frames" <CO-RESUME ,CO "examine beds">> ;"See the deteriorated ward"
@@ -48,8 +41,10 @@
 	<ASSERT-TEXT "iron" <CO-RESUME ,CO "examine boiler">> ;"See the massive iron furnace"
 	<ASSERT "Open the boiler" <CO-RESUME ,CO "open boiler"> <FSET? ,IRON-BOILER ,OPENBIT>>
 	<ASSERT "Take coal shovel" <CO-RESUME ,CO "take shovel" T> <==? <LOC ,COAL-SHOVEL> ,ADVENTURER>>
+	<ASSERT "Drop coal shovel (not needed)" <CO-RESUME ,CO "drop shovel" T> <N==? <LOC ,COAL-SHOVEL> ,ADVENTURER>>
 	<ASSERT-TEXT "flashlight" <CO-RESUME ,CO "examine workbench">> ;"Find tools"
 	<ASSERT "Take flashlight (dead batteries)" <CO-RESUME ,CO "take flashlight" T> <==? <LOC ,FLASHLIGHT> ,ADVENTURER>>
+	<ASSERT "Drop dead flashlight" <CO-RESUME ,CO "drop flashlight" T> <N==? <LOC ,FLASHLIGHT> ,ADVENTURER>>
 	<ASSERT "Return to Basement Corridor" <CO-RESUME ,CO "walk west" T> <==? ,HERE ,BASEMENT-CORRIDOR>>
 	<ASSERT "Enter Storage Room" <CO-RESUME ,CO "walk west" T> <==? ,HERE ,STORAGE-ROOM>>
 	<ASSERT-TEXT "bag" <CO-RESUME ,CO "examine shelves">> ;"Find supplies including medical bag"
@@ -87,7 +82,7 @@
 	<ASSERT "Enter Padded Cell" <CO-RESUME ,CO "walk west" T> <==? ,HERE ,PADDED-CELL>>
 	<ASSERT-TEXT "189" <CO-RESUME ,CO "examine padding">> ;"Blood message about chapel and Patient 189"
 	<ASSERT "Take straitjacket" <CO-RESUME ,CO "take jacket" T> <==? <LOC ,STRAITJACKET> ,ADVENTURER>>
-	<ASSERT-TEXT "your name" <CO-RESUME ,CO "examine jacket">> ;"Identity twist -- your name is on the tag"
+	<ASSERT-TEXT "name tag" <CO-RESUME ,CO "examine jacket">> ;"Identity twist -- name tag with familiar handwriting"
 	<ASSERT-TEXT "1947" <CO-RESUME ,CO "read jacket">> ;"Tag dated 1947, five years before closure"
 	<ASSERT "Drop straitjacket (no longer needed)" <CO-RESUME ,CO "drop jacket" T> <N==? <LOC ,STRAITJACKET> ,ADVENTURER>>
 	<ASSERT "Return to Electroshock Theater" <CO-RESUME ,CO "walk east" T> <==? ,HERE ,ELECTROSHOCK-THEATER>>
@@ -124,6 +119,7 @@
 	<ASSERT-TEXT "dead" <CO-RESUME ,CO "examine garden">> ;"Wild tangle of dead plants"
 	<ASSERT-TEXT "hope" <CO-RESUME ,CO "examine door">> ;"Chapel door with ominous message"
 	<ASSERT "Use chapel key to unlock final area" <CO-RESUME ,CO "unlock door with key"> ,CHAPEL-UNLOCKED>
+	<ASSERT "Drop chapel key after unlocking" <CO-RESUME ,CO "drop key" T> <N==? <LOC ,CHAPEL-KEY> ,ADVENTURER>>
 	<ASSERT "Enter Chapel - Final Location" <CO-RESUME ,CO "walk north" T> <==? ,HERE ,CHAPEL>>
 	<ASSERT-TEXT "symbols" <CO-RESUME ,CO "examine pews">> ;"Strange carved symbols"
 	<ASSERT-TEXT "green" <CO-RESUME ,CO "examine candles">> ;"Unnatural green flames"
@@ -134,5 +130,9 @@
 	<ASSERT-TEXT "189" <CO-RESUME ,CO "examine patient">> ;"Patient 189 - Dr. Mordecai's achievement"
 	<ASSERT-TEXT "glowing" <CO-RESUME ,CO "examine serum">> ;"Confirm serum still accessible"
 	<ASSERT-TEXT "needle" <CO-RESUME ,CO "examine syringe">> ;"Confirm syringe still accessible"
-	<ASSERT "WIN - freed with relic and serum and syringe" <CO-RESUME ,CO "hello" T> ,GAME-WON>
+	<ASSERT "Relic is carried before SAY HELLO" <==? <LOC ,ANCIENT-RELIC> ,ADVENTURER>>
+	<ASSERT "Serum is carried before SAY HELLO" <==? <LOC ,STRANGE-SERUM> ,ADVENTURER>>
+	<ASSERT "Syringe is carried before SAY HELLO" <==? <LOC ,SYRINGE> ,ADVENTURER>>
+	<ASSERT-TEXT "I remember... who I was" <CO-RESUME ,CO "say hello">>
+	<ASSERT "WIN - freed with relic and serum and syringe" ,GAME-WON>
 >
