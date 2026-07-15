@@ -3,6 +3,7 @@
 	(c) Copyright 1986 Infocom, Inc. All Rights Reserved."
 
 <SNAME "H1">
+<SET-HEADER 15 "870918">
 
 <PRINC "
 *** The Lurking Horror: Interactive Horror ***
