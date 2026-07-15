@@ -4,8 +4,7 @@ local test = require 'tests.test_framework'
 local runtime = require 'zilscript.runtime'
 
 local function run_command(command)
-	local quoted = "'" .. command:gsub("'", "'\\''") .. "'"
-	local pipe = assert(io.popen("zsh -lc " .. quoted .. " 2>&1", "r"))
+	local pipe = assert(io.popen(command .. " 2>&1", "r"))
 	local output = pipe:read("*a")
 	local ok, why, code = pipe:close()
 	local exit_code
