@@ -38,6 +38,17 @@ test.describe("Compiler - Basic Compilation", function(t)
 end)
 
 test.describe("Compiler - game-specific TELL and description contexts", function(t)
+	t.it("should lower Infocom verb and preposition synonym directives", function(assert)
+		local ast = parser.parse([[
+			<VERB-SYNONYM EXAMINE X>
+			<PREP-SYNONYM THROUGH THRU>
+		]])
+		local result = compiler.compile(ast)
+
+		assert.assert_match(result.body, 'DEFER_SYNONYM%("EXAMINE", "X"%)')
+		assert.assert_match(result.body, 'DEFER_SYNONYM%("THROUGH", "THRU"%)')
+	end)
+
 	t.it("should lower OBJDESC? to the M-OBJDESC? context", function(assert)
 		local ast = parser.parse([[<ROUTINE DESC (RARG) <RARG? OBJDESC?>>]])
 		local result = compiler.compile(ast)

@@ -216,9 +216,26 @@ test.describe("LLM Mode", function(t)
 
 		local code, opening = run_command("lua5.4 llm.lua --new-game" .. suffix)
 		assert.assert_equal(code, 0)
+		assert.assert_match(opening, "Release 15 / Serial number 870918")
 		local _, hacker_descriptions = opening:gsub(
 			"Sitting at a terminal is a hacker whom you recognize%.", "")
 		assert.assert_equal(hacker_descriptions, 1)
+		local x_code, x_output = run_command(
+			"lua5.4 llm.lua --action " .. shell_quote("x pc") .. suffix)
+		assert.assert_equal(x_code, 0)
+		assert.assert_match(x_output, "HELP key")
+		local inventory_code, inventory_output = run_command(
+			"lua5.4 llm.lua --action inventory" .. suffix)
+		assert.assert_equal(inventory_code, 0)
+		assert.assert_match(inventory_output, "empty%-handed")
+		local talk_code, talk_output = run_command(
+			"lua5.4 llm.lua --action " .. shell_quote("talk to hacker") .. suffix)
+		assert.assert_equal(talk_code, 0)
+		assert.assert_true(not talk_output:match("I don't know the word"))
+		local help_code, help_output = run_command(
+			"lua5.4 llm.lua --action help" .. suffix)
+		assert.assert_equal(help_code, 0)
+		assert.assert_match(help_output, "Perhaps you should turn on the computer")
 		local outlet_code, outlet_output = run_command(
 			"lua5.4 llm.lua --action " .. shell_quote("examine outlet") .. suffix)
 		assert.assert_equal(outlet_code, 0)
@@ -266,6 +283,23 @@ test.describe("LLM Mode", function(t)
 		local west_code, west_output = run_command("lua5.4 llm.lua --action west" .. suffix)
 		assert.assert_equal(west_code, 0)
 		assert.assert_match(west_output, "Kitchen")
+
+		cleanup(savefile)
+	end)
+
+	t.it("should continue Lurking Horror quit confirmation across processes", function(assert)
+		local savefile = "/tmp/test-llm-lurking-horror-quit.sav"
+		cleanup(savefile)
+		local suffix = " --game lurkinghorror --save " .. shell_quote(savefile)
+
+		local new_code = run_command("lua5.4 llm.lua --new-game" .. suffix)
+		assert.assert_equal(new_code, 0)
+		local quit_code, quit_output = run_command("lua5.4 llm.lua --action quit" .. suffix)
+		assert.assert_equal(quit_code, 0)
+		assert.assert_match(quit_output, "Do you wish to leave the game")
+		local yes_code, yes_output = run_command("lua5.4 llm.lua --action y" .. suffix)
+		assert.assert_equal(yes_code, 0)
+		assert.assert_true(not yes_output:match("I don't know the word"))
 
 		cleanup(savefile)
 	end)
