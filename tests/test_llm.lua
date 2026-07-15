@@ -227,7 +227,7 @@ test.describe("LLM Mode", function(t)
 		local inventory_code, inventory_output = run_command(
 			"lua5.4 llm.lua --action inventory" .. suffix)
 		assert.assert_equal(inventory_code, 0)
-		assert.assert_match(inventory_output, "empty%-handed")
+		assert.assert_match(inventory_output, "assignment")
 		local talk_code, talk_output = run_command(
 			"lua5.4 llm.lua --action " .. shell_quote("talk to hacker") .. suffix)
 		assert.assert_equal(talk_code, 0)
@@ -331,6 +331,16 @@ test.describe("LLM Mode", function(t)
 			"lua5.4 llm.lua --action " .. shell_quote("take stone") .. suffix)
 		assert.assert_equal(take_code, 0)
 		assert.assert_match(take_output, "Taken")
+		assert.assert_match(take_output, "dimness becomes darkness")
+		local first_wait_code, first_wait_output = run_command(
+			"lua5.4 llm.lua --action wait" .. suffix)
+		assert.assert_equal(first_wait_code, 0)
+		assert.assert_match(first_wait_output, "darkness before you, now visible, is a creature")
+		local second_wait_code, second_wait_output = run_command(
+			"lua5.4 llm.lua --action wait" .. suffix)
+		assert.assert_equal(second_wait_code, 0)
+		assert.assert_match(second_wait_output, "you fall unconscious")
+		assert.assert_match(second_wait_output, "Terminal Room")
 
 		cleanup(savefile)
 	end)

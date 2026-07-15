@@ -107,6 +107,17 @@ test.describe("Runtime - Bootstrap Loading", function(t)
 		assert.assert_type(env.VERIFY, "function")
 	end)
 
+	t.it("should preserve signed Z-machine word arithmetic", function(assert)
+		local env = runtime.create_game_env()
+		runtime.init(env, true)
+
+		assert.assert_equal(env.SUB(4), -4)
+		assert.assert_equal(env.SUB(10, 3, 2), 5)
+		assert.assert_equal(env.SIGNED_WORD(0xffff), -1)
+		assert.assert_equal(env.SIGNED_WORD(0x8000), -32768)
+		assert.assert_equal(env.SIGNED_WORD(0x7fff), 32767)
+	end)
+
 	t.it("should link routine-valued properties defined later", function(assert)
 		local env = runtime.create_game_env()
 		assert.assert_true(runtime.init(env, true))

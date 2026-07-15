@@ -736,6 +736,13 @@ function EQUALQ(a, ...)
 end
 function GASSIGNEDQ(name) return rawget(_G, tostring(name)) ~= nil end
 function NEQUALQ(a, b) return not EQUALQ(a, b) end
+function SIGNED_WORD(value)
+	value = value or 0
+	if type(value) == "number" and value >= 0x8000 and value <= 0xffff then
+		return value - 0x10000
+	end
+	return value
+end
 function GQ(a, b) return (a or 0) > (b or 0) end
 function LQ(a, b) return (a or 0) < (b or 0) end
 function GEQ(a, b) return (a or 0) >= (b or 0) end
@@ -743,7 +750,14 @@ function LEQ(a, b) return (a or 0) <= (b or 0) end
 function ZEROQ(a) return (a or 0) == 0 end
 function ONEQ(a) return a == 1 end
 function ADD(a, b) return (a or 0) + (b or 0) end
-function SUB(a, b) return (a or 0) - (b or 0) end
+function SUB(a, ...)
+	if select("#", ...) == 0 then return -(a or 0) end
+	local result = a or 0
+	for i = 1, select("#", ...) do
+		result = result - (select(i, ...) or 0)
+	end
+	return result
+end
 function DIV(a, b) return (a or 0) // (b or 0) end
 function MUL(a, b) return (a or 0) * (b or 0) end
 function MOD(a, b) return (a or 0) % (b or 0) end
