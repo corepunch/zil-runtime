@@ -95,6 +95,12 @@
 <SYNTAX SCRAPE OBJECT WITH OBJECT = V-SCRAPE>
 <SYNTAX INJECT OBJECT WITH OBJECT = V-INJECT>
 <SYNTAX KINDLE OBJECT WITH OBJECT = V-IGNITE>
+<SYNTAX TURN OBJECT (FIND TURNBIT) (HELD CARRIED ON-GROUND IN-ROOM) = V-TURN-BARE>
+<SYNTAX LISTEN = V-LISTEN-AROUND>
+<SYNTAX SMELL = V-SMELL-AROUND>
+<SYNTAX SITDOWN = V-SIT-DOWN>
+<SYNTAX GREET = V-BARE-HELLO>
+<SYNTAX GREET OBJECT = V-GREET-OBJECT>
 
 <ROUTINE BRASS-PLAQUE-F ()
          <COND (<VERB? TAKE PULL>
@@ -194,18 +200,22 @@
                 <RTRUE>)>>
 
 <ROUTINE VALVE-F ()
-         <COND (<AND <VERB? TURN>
+         <COND (<AND <VERB? TURN TURN-BARE>
                      <NOT ,VALVE-TURNED-FLAG>>
                 <TELL "You grip the " D ,VALVE " and turn with all your strength. It resists, then suddenly gives way with a shriek of metal. Steam hisses from somewhere below." CR>
                 <SETG VALVE-TURNED-FLAG T>
                 <RTRUE>)
-               (<AND <VERB? TURN>
+               (<AND <VERB? TURN TURN-BARE>
                      ,VALVE-TURNED-FLAG>
                 <TELL "The " D ,VALVE " is already open. Steam continues to hiss somewhere in the basement." CR>
                 <RTRUE>)
                (<VERB? EXAMINE>
                 <TELL "A large wheel valve covered in rust and grime." CR>
                 <RTRUE>)>>
+
+<ROUTINE V-TURN-BARE ()
+    <TELL "Turning " THE ,PRSO " has no effect." CR>
+    <RTRUE>>
 
 <ROUTINE BOILER-F ()
          <COND (<VERB? EXAMINE LOOK-INSIDE>
@@ -385,7 +395,7 @@
 
 <ROUTINE SHOCK-CHAIR-F ()
          <COND (<VERB? EXAMINE>
-                <TELL "The chair is bolted to the floor. Leather restraints hang from the arms and legs. Electrodes are positioned where they would contact a victim's temples. You feel sick looking at it." CR>
+                <TELL "The chair is bolted to the floor. Leather restraints hang from the arms and legs, polished smooth where wrists and ankles fought them. Electrodes wait at temple height; beneath one, the metal has been bitten through." CR>
                 <RTRUE>)
                (<VERB? BOARD>
                 <TELL "You have no desire to sit in that terrible chair." CR>
@@ -405,7 +415,10 @@
                 <TELL "The machine has various dials and switches. Labels indicate voltage levels up to dangerous levels. The electrodes are stained dark." CR>
                 <RTRUE>)
                (<VERB? TURN SWITCH-ON>
-                <TELL "You reach for a switch, but think better of it. Who knows what might happen if you activated this nightmare device." CR>
+                <COND (<IN? ,WINNER ,SHOCK-CHAIR>
+                       <JIGS-UP "The switch closes with a hard ceramic snap. White fire crosses the electrodes, and the room vanishes before you can scream.">)
+                      (T
+                       <TELL "You throw the switch. A blue arc cracks between the empty electrodes, filling the room with the smell of scorched dust. You shut it off before the ancient wiring can do worse." CR>)>
                 <RTRUE>)
                (<VERB? RUB>
                 <TELL "You touch one of the electrodes. It's cold and stained with something dark. You feel a faint tingle and quickly pull your hand away." CR>
@@ -562,7 +575,7 @@
 
 <ROUTINE BELL-F ()
          <COND (<VERB? RING>
-                <TELL "You ring the bell. The tinny sound echoes through the empty cafeteria. No one comes." CR>
+                <TELL "You ring the bell. The tinny sound echoes through " THE ,HERE ". No one comes." CR>
                 <RTRUE>)
                (<VERB? EXAMINE>
                 <TELL "A small brass bell with a button on top. It still works." CR>
@@ -627,7 +640,9 @@
            <TELL "You hold out the relic. Patient 189 stills completely. You draw the serum into the syringe and step forward—every instinct screaming—and inject it." CR>
            <TELL "The green light in its eyes gutters. Patient 189 shudders, mouth opening in a soundless cry. The green flames around the chapel gutter and die." CR>
            <TELL "Then it speaks, in a voice like someone remembering how: 'I remember... who I was.'" CR>
-           <COND (<G? ,PATIENT-LORE 2>
+           <COND (<G? ,PATIENT-LORE 4>
+                  <TELL " It looks into you, and the missing years return—not as a story you learned, but as your own memory: the straps, Mordecai's voice, the name Patient 189 replacing yours. The figure is not your double. It is the pain they cut away from you and locked here. When you take its hand, it folds into your shadow, and for the first time since 1947 you are whole." CR>)
+                 (<G? ,PATIENT-LORE 2>
                   <TELL " It looks at you with recognition—not as a stranger, but as someone who understands what it endured." CR>)
                  (T
                   <TELL " Its eyes pass over you without recognition. You freed it, but it never knew you." CR>)>
@@ -712,6 +727,8 @@
 <ROUTINE V-INJECT ()
     <COND (<NOT <EQUAL? ,PRSI ,SYRINGE>>
            <TELL "That is not suitable for an injection." CR>)
+          (<EQUAL? ,PRSO ,WINNER>
+           <JIGS-UP "The serum enters your vein like ice. For one lucid instant you remember the chapel from inside its locked door; then a green light opens behind your eyes and never closes.">)
           (<NOT <EQUAL? ,PRSO ,PATIENT-189>>
            <TELL "You have no reason to inject " THE ,PRSO "." CR>)
           (<NOT <IN? ,SYRINGE ,WINNER>>
@@ -743,7 +760,52 @@
                 <IN? ,PATIENT-189 ,CHAPEL>>
            <PATIENT-189-RESOLUTION-F>)
           (T
-           <TELL "Nothing happens." CR>)>>
+           <TELL "Your greeting receives no answer, but at least the building does not mistake it for a farewell." CR>)>>
+
+<ROUTINE V-HELLO ()
+    <V-SAY-HELLO>>
+
+<ROUTINE V-BARE-HELLO ()
+    <TELL "Your greeting receives no answer, but at least the building does not mistake it for a farewell. If you mean to address someone, try SAY HELLO." CR>
+    <RTRUE>>
+
+<ROUTINE V-GREET-OBJECT ()
+    <COND (<FSET? ,PRSO ,ACTORBIT>
+           <TELL THE ,PRSO " bows his head to you in greeting." CR>)
+          (T
+           <TELL "Your greeting is wasted on " THE ,PRSO "." CR>)>
+    <RTRUE>>
+
+<ROUTINE V-LISTEN-AROUND ()
+    <COND (,GAME-WON
+           <TELL "For the first time, the building is quiet: no whispers, no footsteps, only wind moving through broken glass." CR>)
+          (<EQUAL? ,HERE ,BOILER-ROOM>
+           <TELL "Water ticks in the pipes and coal shifts softly in the bin." CR>)
+          (<EQUAL? ,HERE ,OVERGROWN-GARDEN ,SANITARIUM-GATE>
+           <TELL "The crows make no sound. Far off, branches scrape against stone." CR>)
+          (T
+           <TELL "Beyond your breathing, the sanitarium answers with a distant creak and something that might be a footstep." CR>)>
+    <RTRUE>>
+
+<ROUTINE V-SMELL-AROUND ()
+    <COND (,GAME-WON
+           <TELL "Rain, wet stone, and grass—the ordinary smells of a night outside." CR>)
+          (<EQUAL? ,HERE ,SANITARIUM-ENTRANCE>
+           <TELL "Mildew, wet plaster, and the mineral chill of a long-sealed building." CR>)
+          (<EQUAL? ,HERE ,STORAGE-ROOM>
+           <TELL "Moldy linen and a sour medicinal residue catch at the back of your throat." CR>)
+          (<EQUAL? ,HERE ,PADDED-CELL>
+           <TELL "Wet padding, rust, and the copper trace of old blood." CR>)
+          (T
+           <TELL "The air smells of damp stone, dust, and something antiseptic that decades have not erased." CR>)>
+    <RTRUE>>
+
+<ROUTINE V-SIT-DOWN ()
+    <COND (<EQUAL? ,HERE ,CHAPEL>
+           <TELL "You sit briefly on a pew; the carved wood is cold enough to drive you back to your feet." CR>)
+          (T
+           <TELL "You lower yourself for a moment, then decide this is no place to become comfortable." CR>)>
+    <RTRUE>>
 
 <ROUTINE CHAPEL-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
@@ -1150,43 +1212,69 @@
     <COND (<VERB? EXAMINE>
            <TELL "A massive dead oak, leafless and grey, its bark bleached to bone. Its branches claw at the sky like desperate hands. Crows shift silently in the upper reaches." CR>
            <RTRUE>)
-          (<VERB? CLIMB>
+          (<VERB? CLIMB CLIMB-FOO CLIMB-UP>
            <TELL "The lower branches are too high to reach, and you have no desire to scramble up a dead tree in an abandoned sanitarium grounds." CR>
            <RTRUE>)
           (<VERB? LISTEN>
            <TELL "The crows in the upper branches are utterly silent. They watch you." CR>
            <RTRUE>)>>
 
+<ROUTINE IRON-GATES-F ()
+    <COND (<VERB? EXAMINE>
+           <TELL "The rusted iron gates stand open. Flakes of old black paint cling to bars bent by years of weather." CR>)
+          (<VERB? OPEN>
+           <TELL "The gates are already open." CR>)
+          (<VERB? CLOSE>
+           <TELL "The hinges resist your weight. You leave the gates as you found them." CR>)>
+    <RTRUE>>
+
+<ROUTINE GRAND-STAIRCASE-F ()
+    <COND (<VERB? EXAMINE CLIMB>
+           <TELL "The grand staircase climbs toward a collapsed landing. The safe routes through the sanitarium lie east, west, north, and down." CR>)>
+    <RTRUE>>
+
+<ROUTINE COAL-DUST-F ()
+    <COND (<VERB? EXAMINE RUB>
+           <TELL "Fine coal dust coats the brick and leaves a black crescent on your fingertip." CR>)
+          (<VERB? TAKE>
+           <TELL "The damp dust is useless as fuel; the coal bin may hold something better." CR>)>
+    <RTRUE>>
+
 ; === CLOCK-DRIVEN ATMOSPHERIC ROUTINES ===
 
 <ROUTINE I-WHISPER ()
 	<QUEUE I-WHISPER 8>
-	<COND (<EQUAL? ,HERE ,SANITARIUM-ENTRANCE ,PATIENT-WARD ,MORGUE ,CHAPEL>
+	<COND (<AND <NOT ,GAME-WON>
+	            <EQUAL? ,HERE ,SANITARIUM-ENTRANCE ,PATIENT-WARD ,MORGUE ,CHAPEL>>
 	       <TELL <PICK-ONE ,WHISPER-TABLE> CR>)>
 	<RTRUE>>
 
 <ROUTINE I-FOOTSTEPS ()
 	<QUEUE I-FOOTSTEPS 12>
-	<COND (<EQUAL? ,HERE ,SANITARIUM-ENTRANCE ,RECEPTION-ROOM ,OPERATING-THEATER>
+	<COND (<AND <NOT ,GAME-WON>
+	            <EQUAL? ,HERE ,SANITARIUM-ENTRANCE ,RECEPTION-ROOM ,OPERATING-THEATER>>
 	       <TELL "Distant footsteps echo from somewhere above you." CR>)>
 	<RTRUE>>
 
 <ROUTINE I-FLICKERING ()
 	<QUEUE I-FLICKERING 10>
-	<COND (<AND ,LIT
+	<COND (<AND <NOT ,GAME-WON>
+	            ,LIT
 	            <EQUAL? ,HERE ,BASEMENT-STAIRS ,BOILER-ROOM ,MORGUE>>
 	       <TELL "The shadows seem to flicker and move of their own accord." CR>)>
 	<RTRUE>>
 
 <ROUTINE I-COLD-DRAFT ()
 	<QUEUE I-COLD-DRAFT 15>
-	<COND (<EQUAL? ,HERE ,MORGUE ,CHAPEL ,PATIENT-WARD>
+	<COND (<AND <NOT ,GAME-WON>
+	            <EQUAL? ,HERE ,MORGUE ,CHAPEL ,PATIENT-WARD>>
 	       <TELL "A cold draft makes you shiver, though there are no open windows." CR>)>
 	<RTRUE>>
 
 <ROUTINE I-CREAKING ()
     <QUEUE I-CREAKING 9>
-    <COND (<EQUAL? ,HERE ,OPERATING-THEATER ,PATIENT-WARD ,ELECTROSHOCK-THEATER>
+    <COND (<AND <NOT ,GAME-WON>
+                <EQUAL? ,HERE ,OPERATING-THEATER ,PATIENT-WARD ,ELECTROSHOCK-THEATER>>
            <TELL "The building settles with a deep structural groan, as if exhaling." CR>)>
     <RTRUE>>
 
@@ -1214,13 +1302,17 @@
                 <OR <EQUAL? ,HERE ,MORGUE>
                     <NOT ,CABINET-THAWED>>>
            <SETG COLD-EXPOSURE <+ ,COLD-EXPOSURE 1>>
-           <COND (<EQUAL? ,COLD-EXPOSURE 4>
+           <COND (<EQUAL? ,COLD-EXPOSURE 6>
                   <TELL "The cold has worked through your clothes. Your fingers are beginning to stiffen." CR>)
-                 (<EQUAL? ,COLD-EXPOSURE 8>
+                 (<EQUAL? ,COLD-EXPOSURE 12>
                   <TELL "Your teeth chatter hard enough to hurt. Staying here much longer would be dangerous." CR>)
-                 (<G? ,COLD-EXPOSURE 11>
+                 (<G? ,COLD-EXPOSURE 17>
                   <JIGS-UP "The shivering stops. The tiles against your cheek feel almost warm; that is how you know the cold has won.">)>)
           (T
+           <COND (<AND <G? ,COLD-EXPOSURE 0>
+                       <EQUAL? ,HERE ,BOILER-ROOM>
+                       ,BOILER-LIT>
+                  <TELL "Heat from the boiler works the numbness from your hands." CR>)>
            <SETG COLD-EXPOSURE 0>)>
     <RTRUE>>
 
@@ -1255,6 +1347,9 @@
 	<SETG LIT T>
 	<SETG WINNER ,ADVENTURER>
 	<SETG PLAYER ,WINNER>
+	<VOC-EXACT-FIRST "SIT" "SITDOWN">
+	<VOC-EXACT-FIRST "HELLO" "GREET">
+	<VOC-EXACT "SCALPELS" "INSTRUMENTS">
 	<MOVE ,WINNER ,HERE>
 	<ENABLE <QUEUE I-WHISPER 8>>
 	<ENABLE <QUEUE I-FOOTSTEPS 12>>

@@ -42,6 +42,19 @@
 <GLOBAL MOTIVE-PRESENTED <>>
 <GLOBAL FOOTPRINT-DETAIL-FOUND <>>
 <GLOBAL CABINET-CLUE-SEEN <>>
+<GLOBAL WRONG-ATTEMPTS 0>
+<GLOBAL BELL-WIRE-PULLED <>>
+<GLOBAL GATE-SEEN <>>
+<GLOBAL HALL-SEEN <>>
+<GLOBAL STUDY-SEEN <>>
+<GLOBAL LIBRARY-SEEN <>>
+<GLOBAL GARDEN-SEEN <>>
+<GLOBAL DINING-SEEN <>>
+<GLOBAL KITCHEN-SEEN <>>
+<GLOBAL GREENHOUSE-SEEN <>>
+<GLOBAL SERVANTS-SEEN <>>
+<GLOBAL PASSAGE-SEEN <>>
+<GLOBAL PANTRY-SEEN <>>
 
 ; === ROOMS ===
 
@@ -192,7 +205,7 @@
       (DESC "locked box")
       (FDESC "A small locked box sits among the cold ashes in the fireplace, its brass clasp gleaming dully.")
       (LDESC "A small ornate box with a four-letter name dial instead of a keyhole. Fine engraving circles the dial.")
-      (SYNONYM BOX CASE CONTAINER)
+      (SYNONYM BOX CONTAINER)
       (ADJECTIVE LOCKED)
       (FLAGS CONTBIT SEARCHBIT TURNBIT)
       (ACTION LOCKED-BOX-F)>
@@ -234,7 +247,7 @@
       (DESC "leather roll")
       (FDESC "A leather roll lies in the open drawer, its contents glinting steel.")
       (LDESC "A roll of soft leather, neatly tied. Something metallic shifts inside.")
-      (SYNONYM ROLL CASE)
+      (SYNONYM ROLL WRAP)
       (ADJECTIVE LEATHER)
       (FLAGS CONTBIT TAKEBIT)
       (CAPACITY 5)
@@ -450,7 +463,7 @@
       (ACTION KETTLE-F)>
 
 <OBJECT BELL-WIRE
-      (IN LOCAL-GLOBALS)
+      (IN ASHWORTH-ENTRANCE-HALL)
       (DESC "bell wire")
       (LDESC "A thin servant-bell wire runs beside the study door.")
       (SYNONYM WIRE CORD)
@@ -596,6 +609,7 @@
 ; === GLOBAL OBJECTS ===
 
 <OBJECT FOG
+      (IN LOCAL-GLOBALS)
       (DESC "fog")
       (LDESC "Cold river fog curls through the manor gates.")
       (SYNONYM FOG MIST HAZE)
@@ -682,8 +696,8 @@
 <OBJECT INSPECTOR
       (DESC "Inspector Lestrade")
       (LDESC "Inspector Lestrade of Scotland Yard stands in the entrance hall, his expression professional and skeptical. He waits for your evidence.")
-      (SYNONYM INSPECTOR LESTRADE OFFICER DETECTIVE POLICE SCOTLAND-YARD)
-      (ADJECTIVE INSPECTOR SCOTLAND)
+      (SYNONYM LESTRADE OFFICER DETECTIVE POLICE SCOTLAND-YARD YARDMAN)
+      (ADJECTIVE SCOTLAND)
       (FLAGS ACTORBIT NDESCBIT ARTICLEBIT)
       (ACTION INSPECTOR-F)>
 
@@ -719,8 +733,8 @@
       (SYNONYM POISON WOLFSBANE)>
 <OBJECT CASE-TOPIC
       (IN GLOBAL-OBJECTS)
-      (DESC "case")
-      (SYNONYM CASE MURDER)>
+      (DESC "investigation")
+      (SYNONYM CASE MURDER INVESTIGATION CRIME)>
 
 ; === STARTING LOCATION ===
 

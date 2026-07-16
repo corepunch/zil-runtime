@@ -156,6 +156,7 @@ test-llm:
 
 test-limehouse-walkthrough:
 	@echo "Running Limehouse Killings golden-path walkthrough..."
+	@lua5.4 run-zil-test.lua books/limehouse-killings/test/test-report-regressions
 	@lua5.4 tests/test_limehouse_walkthrough.lua
 
 test-zilch:
@@ -180,6 +181,7 @@ test-horror-failures:
 
 test-horror-playtest-regressions:
 	@echo "Running isolated Blackwood playtest regressions..."
+	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-report-regressions
 	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-safe-key
 	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-say-ending
 	@lua5.4 run-zil-test.lua books/blackwood-horror/test/test-playtest-give-relic

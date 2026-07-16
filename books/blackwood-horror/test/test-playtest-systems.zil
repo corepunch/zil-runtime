@@ -28,7 +28,7 @@
     ;"Cold exposure is telegraphed before the fatal threshold."
     <SETG HERE ,MORGUE>
     <MOVE ,WINNER ,MORGUE>
-    <SETG COLD-EXPOSURE 3>
+    <SETG COLD-EXPOSURE 5>
     <ASSERT-TEXT "fingers are beginning to stiffen" <CO-RESUME ,CO "look">>
 
     ;"Patient 189 reacts to discoveries and follows the player into the garden."

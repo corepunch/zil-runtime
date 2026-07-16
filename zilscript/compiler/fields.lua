@@ -91,6 +91,20 @@ local function writeObjectField(buf, node, compiler)
   if node[2] then writeObjectRef(buf, node[2], compiler) end
 end
 
+-- Zork room PSEUDO properties are alternating vocabulary words and action
+-- routines.  Keep routine names symbolic because adventure actions commonly
+-- load after dungeon objects.
+local function writePseudoField(buf, node, compiler)
+  buf.write("PSEUDO_TABLE(")
+  for i = 2, #node, 2 do
+    if i > 2 then buf.write(", ") end
+    local word = node[i]
+    local routine = node[i + 1]
+    buf.write("%q, ROUTINE_REF(%q)", tostring(word.value), compiler.value(routine))
+  end
+  buf.write(")")
+end
+
 -- Field writer dispatch table
 Fields.FIELD_WRITERS = {
   FLAGS = writeListString,
@@ -103,6 +117,7 @@ Fields.FIELD_WRITERS = {
   DESCFCN = writeRoutineField,
   IN = writeObjectField,
   GLOBAL = writeObjectList,
+  PSEUDO = writePseudoField,
 }
 
 -- Navigation direction writer

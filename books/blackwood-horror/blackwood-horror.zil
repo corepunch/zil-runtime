@@ -21,5 +21,5 @@
 
 ;"Book-specific overrides"
 
-<INSERT-FILE "dungeon">
 <INSERT-FILE "actions">
+<INSERT-FILE "dungeon">

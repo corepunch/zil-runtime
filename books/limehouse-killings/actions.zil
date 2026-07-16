@@ -302,7 +302,10 @@
 
 <ROUTINE READING-DESK-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "A reading desk with a torn page lying on it." CR>
+           <COND (<IN? ,TORN-PAGE ,LIBRARY>
+                  <TELL "A reading desk with a torn page lying among its scattered papers." CR>)
+                 (T
+                  <TELL "A reading desk, its surface now bare except for scattered papers and the clean rectangle where the torn page lay." CR>)>
            <RTRUE>)>>
 
 <ROUTINE TABLE-F ()
@@ -319,6 +322,13 @@
            <FSET ,WINE-CABINET ,OPENBIT>
            <SETG CABINET-CLUE-SEEN T>
            <TELL "The glass door opens freely. The missing medicinal bottle's clean dust-shadow and the words 'private laboratory' are easier to see, but the shelf holds nothing else relevant." CR>
+           <RTRUE>)
+          (<VERB? CLOSE>
+           <COND (<FSET? ,WINE-CABINET ,OPENBIT>
+                  <FCLEAR ,WINE-CABINET ,OPENBIT>
+                  <TELL "You close the wine cabinet's glass door." CR>)
+                 (T
+                  <TELL "The wine cabinet is already closed." CR>)>
            <RTRUE>)
           (<VERB? UNLOCK>
            <TELL "There is no lock to solve; the glass door is merely closed." CR>
@@ -348,16 +358,22 @@
            <RTRUE>)
           (<VERB? TAKE>
            <TELL "The kettle belongs on the range; its warmth is more useful here than in your pocket." CR>
+           <RTRUE>)
+          (<VERB? SMELL>
+           <TELL "Steam carries the clean tannic scent of strong black tea." CR>
            <RTRUE>)>>
 
 <ROUTINE BELL-WIRE-F ()
     <COND (<VERB? EXAMINE>
-           <COND (<==? ,CASE-ACT 1>
+           <COND (,BELL-WIRE-PULLED
+                  <TELL "The servant-bell wire hangs slightly crooked after your tug. From below comes the faint clink of Hudson setting down a teacup." CR>)
+                 (<==? ,CASE-ACT 1>
                   <TELL "The servant-bell wire is still beside the study door." CR>)
                  (T
                   <TELL "The servant-bell wire trembles where the hidden wall's movement disturbed it, a small physical echo of the secret route." CR>)>
            <RTRUE>)
-          (<VERB? MOVE USE>
+          (<VERB? MOVE USE PULL>
+           <SETG BELL-WIRE-PULLED T>
            <TELL "You tug the wire. From below comes one bright kitchen bell, followed by Hudson's dry voice: 'The kettle remains where I left it.'" CR>
            <RTRUE>)>>
 
@@ -372,17 +388,31 @@
 
 <ROUTINE FOUNTAIN-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "The fountain is dry, with coins at the bottom. A footprint cast lies nearby." CR>
+           <TELL "The fountain is dry, with tarnished coins at the bottom">
+           <COND (<IN? ,FOOTPRINT-CAST ,GARDEN>
+                  <TELL ". A footprint cast lies nearby">)>
+           <TELL "." CR>
+           <RTRUE>)
+          (<VERB? SMELL>
+           <TELL "The empty basin smells of rainwater, old copper, and wet stone." CR>
            <RTRUE>)>>
 
 <ROUTINE HEDGES-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "The hedge is thick and overgrown. Something glints in the branches." CR>
+           <TELL "The hedge is thick and overgrown">
+           <COND (<IN? ,BLOOD-STAINED-KNIFE ,GARDEN>
+                  <TELL ". Something glints in the branches">)
+                 (T
+                  <TELL "; one cut branch still shows where the knife was lodged">)>
+           <TELL "." CR>
            <RTRUE>)>>
 
 <ROUTINE PLANTS-F ()
     <COND (<VERB? EXAMINE>
            <TELL "Exotic plants fill the greenhouse. One plant has distinctive purple flowers - wolfsbane." CR>
+           <RTRUE>)
+          (<VERB? SMELL>
+           <TELL "Damp loam and bruised leaves nearly mask the peppery, numbing scent of the purple wolfsbane." CR>
            <RTRUE>)
           (<AND <VERB? USE-ON>
                 <EQUAL? ,PRSO ,POISON-BOTTLE>>
@@ -423,7 +453,7 @@
 
 <ROUTINE FOXGLOVE-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "The foxglove label names digitalis and gives a narrow medicinal dose, followed by a skull. It is another poison, not an antidote to wolfsbane." CR>
+           <TELL "The foxglove label names digitalis and gives a narrow medicinal dose, followed by a skull: medicine at one dose, a stopped heart at another." CR>
            <RTRUE>)
           (<VERB? TAKE>
            <TELL "You take the foxglove." CR>
@@ -453,6 +483,9 @@
 
 <ROUTINE GATE-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
+           <COND (<NOT ,GATE-SEEN>
+                  <SETG GATE-SEEN T>
+                  <TELL "For one breath the fog parts, revealing every wet gable of Ashworth Manor before the river mist closes again. ">)>
            <COND (<IN? ,TELEGRAM ,ASHWORTH-MANOR-GATE>
                   <TELL "Wet iron bars divide the river fog into pale strips. Coal smoke catches at the back of your throat, and a gravel path runs north toward the manor. A creased telegram is pinned beneath a stone beside the open gate." CR>)
                  (T
@@ -460,6 +493,9 @@
 
 <ROUTINE STUDY-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
+           <COND (<NOT ,STUDY-SEEN>
+                  <SETG STUDY-SEEN T>
+                  <TELL "The locked room has preserved its violence with museum care. ">)>
            <TELL "A chalk outline interrupts the Turkey carpet; beside it, three dark drops have dried almost black. Cold ash grits beneath your shoes.">
            <COND (,LOCKED-BOX-OPENED
                   <TELL " The locked box in the fireplace lies open, its contents revealed.">)
@@ -479,6 +515,9 @@
 
 <ROUTINE LIBRARY-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
+           <COND (<NOT ,LIBRARY-SEEN>
+                  <SETG LIBRARY-SEEN T>
+                  <TELL "Lamplight climbs the shelves and turns their gilt titles into a second, coded skyline. ">)>
            <TELL "Floor-to-ceiling bookshelves line the walls, their contents ranging from leather-bound classics to modern scientific texts. The fire is cold, but the room retains a scholarly warmth.">
            <COND (,CIPHER-SOLVED
                   <TELL " The shifted bookcase exposes a stone passage east toward the study.">)
@@ -490,6 +529,9 @@
 
 <ROUTINE KITCHEN-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
+           <COND (<NOT ,KITCHEN-SEEN>
+                  <SETG KITCHEN-SEEN T>
+                  <TELL "The kettle's small thread of steam is the first warm thing you have seen in the house. ">)>
            <TELL "A kitchen that has seen better days. The hearth is cold, its last fire long extinguished.">
            <COND (<FSET? ,DRAWER ,OPENBIT>
                   <TELL " The drawer in the counter stands open, a leather roll inside.">)
@@ -499,6 +541,9 @@
 
 <ROUTINE GARDEN-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
+           <COND (<NOT ,GARDEN-SEEN>
+                  <SETG GARDEN-SEEN T>
+                  <TELL "A single white rose has survived the rain, luminous among the black hedges. ">)>
            <TELL "Rain beads along the overgrown hedges and darkens the gravel around a dry stone fountain.">
            <COND (<IN? ,BLOOD-STAINED-KNIFE ,GARDEN>
                   <TELL " Something glints in the branches near the fountain.">)>
@@ -508,6 +553,9 @@
 
 <ROUTINE DINING-ROOM-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
+           <COND (<NOT ,DINING-SEEN>
+                  <SETG DINING-SEEN T>
+                  <TELL "Candlelight preserves a dinner interrupted at the instant grief became suspicion. ">)>
            <TELL "Two places are set at the long table, but a skin has formed over the soup before Lady Ashworth and the knife beside it is exactly parallel to her plate.">
            <COND (<IN? ,WAX-SEAL ,DINING-ROOM>
                   <TELL " A crimson wax seal lies at the unused place.">)>
@@ -523,6 +571,9 @@
 
 <ROUTINE GREENHOUSE-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
+           <COND (<NOT ,GREENHOUSE-SEEN>
+                  <SETG GREENHOUSE-SEEN T>
+                  <TELL "After the manor's brown shadows, the greenhouse opens in a startling wash of green and violet. ">)>
            <TELL "Humidity beads on every glass pane. Purple wolfsbane flowers rise above the potting bench, and their paper labels curl in the damp.">
            <COND (,POISON-IDENTIFIED
                   <TELL " One clipped stem matches the plant material suspended in the study vial.">)>
@@ -530,6 +581,9 @@
 
 <ROUTINE SERVANTS-QUARTERS-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
+           <COND (<NOT ,SERVANTS-SEEN>
+                  <SETG SERVANTS-SEEN T>
+                  <TELL "Here, unlike upstairs, every repaired seam and polished buckle records someone choosing to care. ">)>
            <TELL "Clean but worn linen is folded across the narrow beds. A wooden trunk stands beneath a brass lantern kept brighter than anything else in the room.">
            <COND (<==? ,CASE-ACT 3>
                   <TELL " Hudson's packed carpetbag rests by the north door; his coat is buttoned one hole wrong.">)
@@ -541,6 +595,9 @@
 
 <ROUTINE SECRET-PASSAGE-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
+           <COND (<NOT ,PASSAGE-SEEN>
+                  <SETG PASSAGE-SEEN T>
+                  <TELL "The opening bookshelf exhales a century of cold stone and trapped dust. ">)>
            <TELL "The passage is narrow enough for cobwebs to catch at both sleeves. Moisture slicks the stone, while a single trail cuts the dust between the library to the west and the study to the east.">
            <COND (<AND <IN? ,LANTERN ,WINNER> <FSET? ,LANTERN ,ONBIT>>
                   <TELL " Your lantern warms the wet wall to amber and picks out the recent heel marks.">)>
@@ -548,10 +605,16 @@
 
 <ROUTINE PANTRY-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
+           <COND (<NOT ,PANTRY-SEEN>
+                  <SETG PANTRY-SEEN T>
+                  <TELL "Order survives here in rows of labels: nourishment, medicine, and poison separated by ink and dosage. ">)>
            <TELL "Cool, dry air smells of apples and charcoal dust. The shelves hold preserves, a warning-labeled bottle of foxglove, and powdered charcoal for swallowed poisons. The dining room lies south." CR>)>>
 
 <ROUTINE ENTRANCE-HALL-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
+           <COND (<NOT ,HALL-SEEN>
+                  <SETG HALL-SEEN T>
+                  <TELL "The hall receives you with the measured hush of a house listening from behind its doors. ">)>
            <TELL "Dust has softened the chandelier's crystal edges, and beeswax polish sharpens the smell of old oak. Doorways lead north to the gate, east to the library, west to the dining room, and down to the kitchen.">
            <COND (<FSET? ,STUDY-DOOR ,OPENBIT>
                   <TELL " The solid oak study door to the south stands open, revealing the study beyond.">)
@@ -572,6 +635,9 @@
 <ROUTINE FOG-F ()
     <COND (<VERB? EXAMINE>
            <TELL "The fog swirls around your feet, cold and damp." CR>
+           <RTRUE>)
+          (<VERB? SMELL>
+           <TELL "The fog smells of river mud, coal smoke, and rain on iron." CR>
            <RTRUE>)>>
 
 <ROUTINE GATES-F ()
@@ -637,6 +703,9 @@
                   <RTRUE>)
                  (<EQUAL? ,PRSI ,MORIARTY-TOPIC>
                   <TELL "Dr. Moriarty visited often. He and the master had serious disagreements." CR>
+                  <RTRUE>)
+                 (<EQUAL? ,PRSI ,CASE-TOPIC>
+                  <TELL "'His lordship called it a private quarrel,' Hudson says. 'Private quarrels do not usually leave poison bottles and policemen in the hall.'" CR>
                   <RTRUE>)
                  (<OR <IN? ,PRSI ,INTQUOTE> <IN? ,PRSI ,QUOTE>>
                   <TELL "I'm not sure what you mean." CR>
@@ -717,6 +786,9 @@
                          <SETG LADY-INTERVIEWED T>
                          <SETG SUSPECTS-INTERVIEWED <+ ,SUSPECTS-INTERVIEWED 1>>
                          <CHECK-CASE-PROGRESS>)>
+                  <RTRUE>)
+                 (<EQUAL? ,PRSI ,CASE-TOPIC>
+                  <TELL "'Call it a case if that helps you keep your distance,' Lady Ashworth says. 'To me it is my husband's murder. Find who crossed that locked door.'" CR>
                   <RTRUE>)
                  (<OR <IN? ,PRSI ,INTQUOTE> <IN? ,PRSI ,QUOTE>>
                   <TELL "I'm not sure what you mean." CR>
@@ -864,6 +936,8 @@
     <COND (<VERB? EXAMINE>
            <COND (<AND ,LETTER-PRESENTED ,POISON-PRESENTED ,MOTIVE-PRESENTED>
                   <TELL "Inspector Lestrade has filled three pages of his notebook. His pencil now rests beneath the words THREAT, METHOD, and MOTIVE." CR>)
+                 (<OR ,LETTER-PRESENTED ,POISON-PRESENTED ,MOTIVE-PRESENTED>
+                  <TELL "Inspector Lestrade has begun a chain of evidence across one notebook page, leaving deliberate gaps for what you have not yet proved." CR>)
                  (T
                   <TELL "Inspector Lestrade stands beneath the chandelier with rain silvering his shoulders. His notebook is open to a clean page." CR>)>
            <RTRUE>)
@@ -1035,6 +1109,13 @@
                          <TELL " The crescent nick you found under the magnifying glass fits Moriarty's right heel; the surgical knife and his attempt to reach the door complete the route." CR>)
                         (T
                          <TELL " The size-ten footprint, the surgical knife, and his attempt to reach the door complete the route." CR>)>
+                  <COND (<IN? ,WAX-SEAL ,WINNER>
+                         <TELL " The wax seal ties the private delivery to Moriarty's mark.">)>
+                  <COND (<IN? ,TRUNK-LETTER ,WINNER>
+                         <TELL " The servant's hidden warning shows that the locked-room deception was feared before the murder.">)>
+                  <COND (<AND <IN? ,FOXGLOVE ,WINNER> <IN? ,CHARCOAL ,WINNER>>
+                         <TELL " Your pantry finds distinguish dangerous medicine from the specific wolfsbane method.">)>
+                  <CRLF>
                   <TELL CR "'Dr. Moriarty,' Lestrade says, closing one cuff around the gloved wrist, 'you are under arrest for the murder of Lord Ashworth.'" CR>
                   <SETG KILLER-ACCUSED T>
                   <SETG CORRECT-ACCUSATION T>
@@ -1125,10 +1206,6 @@
           (<==? ,HERE ,DINING-ROOM>
            <SETG HERE ,ASHWORTH-ENTRANCE-HALL>
            <TELL "You return to the entrance hall." CR>
-           <RTRUE>)
-          (<==? ,HERE ,KITCHEN>
-           <SETG HERE ,GARDEN>
-           <TELL "You enter the garden." CR>
            <RTRUE>)
           (<==? ,HERE ,SECRET-PASSAGE>
            <SETG HERE ,STUDY>
@@ -1297,6 +1374,39 @@
 <SYNTAX ACCUSE OBJECT (FIND ACTORBIT) (IN-ROOM) WITH OBJECT (HAVE) = V-ACCUSE>
 <SYNTAX LOOK AT OBJECT (HELD CARRIED ON-GROUND IN-ROOM) = V-EXAMINE>
 <SYNTAX SEARCH OBJECT (HELD CARRIED ON-GROUND IN-ROOM) = V-EXAMINE>
+<SYNTAX PULL OBJECT (ON-GROUND IN-ROOM) = V-MOVE PRE-LIMEHOUSE-MOVE>
+<SYNTAX LISTEN = V-LISTEN-AROUND>
+<SYNTAX SMELL = V-SMELL-AROUND>
+
+<ROUTINE PRE-LIMEHOUSE-MOVE ()
+    <COND (<EQUAL? ,PRSO ,BELL-WIRE>
+           <RFALSE>)
+          (<HELD? ,PRSO>
+           <TELL "You aren't an accomplished enough juggler." CR>
+           <RTRUE>)>
+    <RFALSE>>
+
+<ROUTINE V-LISTEN-AROUND ()
+    <COND (<EQUAL? ,HERE ,ASHWORTH-MANOR-GATE>
+           <TELL "The Thames sounds close but invisible: water against pilings, a ship's bell, wheels hissing on wet streets." CR>)
+          (<EQUAL? ,HERE ,KITCHEN>
+           <TELL "The kettle murmurs on the range; above it, the servant bells are still." CR>)
+          (<EQUAL? ,HERE ,GARDEN ,GREENHOUSE>
+           <TELL "Rain ticks on leaves and greenhouse glass. Somewhere beyond the wall, Limehouse traffic passes." CR>)
+          (T
+           <TELL "The manor answers with settling timber, distant rain, and the faint scrape of someone trying not to be heard." CR>)>
+    <RTRUE>>
+
+<ROUTINE V-SMELL-AROUND ()
+    <COND (<EQUAL? ,HERE ,ASHWORTH-MANOR-GATE>
+           <TELL "River fog, coal smoke, and wet iron." CR>)
+          (<EQUAL? ,HERE ,KITCHEN>
+           <TELL "Black tea, cold ash, and copper warmed by the range." CR>)
+          (<EQUAL? ,HERE ,GREENHOUSE>
+           <TELL "Wet earth, crushed leaves, and the sharp medicinal trace of wolfsbane." CR>)
+          (T
+           <TELL "Beeswax, old oak, and damp wool: a lived-in house holding its breath." CR>)>
+    <RTRUE>>
 
 <ROUTINE GO ()
 	<SETG HERE ,ASHWORTH-MANOR-GATE>
@@ -1305,7 +1415,9 @@
 	<SETG PLAYER ,WINNER>
 	<VOC "SET" OBJECT>
 	<VOC "CAST" OBJECT>
-	<VOC "INSPECTOR" OBJECT>
+	<VOC-EXACT "INSPECTOR" "LESTRADE">
+	<VOC-EXACT "MURDER" "CASE">
+	<VOC-EXACT "INVESTIGATION" "CASE">
 	<MOVE ,WINNER ,HERE>
 	<V-LOOK>
 	<MAIN-LOOP>>

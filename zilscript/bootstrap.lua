@@ -323,6 +323,7 @@ local cache = {
 	verbs = {},
 	words = {},
 	synonyms = {},
+	exact_words = {},
 }
 
 local function fn(f) 
@@ -447,6 +448,23 @@ function VOC(word, kind)
 		return learn(word, PSQADJECTIVE, ADJECTIVES)
 	end
 	return learn(word, PSQOBJECT, nil)
+end
+
+-- Register a full-input spelling as an alias without applying the Z-machine's
+-- six-character dictionary truncation.  This is useful for the rare case where
+-- a long noun (for example INSPECTOR) collides with a shorter verb (INSPECT).
+function VOC_EXACT(word, target)
+	local target_key = tostring(target):lower():sub(1, 6)
+	local target_word = cache.words[target_key]
+	cache.exact_words[tostring(word):lower()] = target_key
+	return target_word or 0
+end
+
+function VOC_EXACT_FIRST(word, target)
+	local target_key = tostring(target):lower():sub(1, 6)
+	local target_word = cache.words[target_key]
+	cache.exact_words[tostring(word):lower()] = { target = target_key, first = true }
+	return target_word or 0
 end
 
 function RANDOM(base)
@@ -705,8 +723,16 @@ function READ(inbuf, parse)
 	local p = {}
 	for pos, word in s:gmatch("()(%S+)") do
 		-- Z-machine truncates dictionary words to 6 characters
-		local truncated = word:lower():sub(1, 6)
-		local index = cache.words[truncated] or 0
+		local normalized = word:lower()
+		local truncated = normalized:sub(1, 6)
+		local exact_spec = cache.exact_words[normalized]
+		local exact_target
+		if type(exact_spec) == "table" then
+			if not exact_spec.first or #p == 0 then exact_target = exact_spec.target end
+		else
+			exact_target = exact_spec
+		end
+		local index = (exact_target and cache.words[exact_target]) or cache.words[truncated] or 0
 		table.insert(p, makeword(index).. string.char(#word, pos&0xff))
 	end
 	mem:write(s: lower()..'\0', inbuf+1)
@@ -1071,7 +1097,7 @@ function ROUTINE_REF(name)
 	return {__routine_ref = name}
 end
 
-local function defer_routine_ref(name, object_id, property_name, kind)
+local function defer_routine_ref(name, object_id, property_name, kind, offset)
 	local pending = pending_routine_refs[name]
 	if not pending then
 		pending = {}
@@ -1081,6 +1107,7 @@ local function defer_routine_ref(name, object_id, property_name, kind)
 		object = object_id,
 		property = register(PROPERTIES, property_name),
 		kind = kind,
+		offset = offset,
 	}
 end
 
@@ -1094,10 +1121,10 @@ function DEFINE_ROUTINE(name, routine)
 	if not pending then return routine end
 
 	for _, ref in ipairs(pending) do
-		if ref.kind == "exit" then
+		if ref.kind == "exit" or ref.kind == "property-offset" then
 			local ptr = GETPT(ref.object, ref.property)
-			assert(ptr, "Missing deferred routine exit property: "..tostring(name))
-			mem:write(makeword(routine_index), ptr)
+			assert(ptr, "Missing deferred routine property: "..tostring(name))
+			mem:write(makeword(routine_index), ptr + (ref.offset or 0))
 		else
 			PUTP(ref.object, ref.property, routine)
 		end
@@ -1152,6 +1179,11 @@ function OBJECT(object)
 	for _, k in ipairs(sorted_keys(object)) do
 		local v = object[k]
 		if k == "ZIL_NAME" then
+		elseif type(v) == "table" and v.__property_bytes then
+			table.insert(t, makeprop(v.__property_bytes, k))
+			for _, ref in ipairs(v.__routine_refs or {}) do
+				defer_routine_ref(ref.name, n, k, "property-offset", ref.offset)
+			end
 		elseif k == "SYNONYM" then
 			local body = table.concat2(v, function(syn)
 				return makeword(learn(syn, PSQOBJECT, nil))
@@ -1578,8 +1610,34 @@ function STRING_TABLE(value, with_length)
 	return mem:write(value)
 end
 
+local pending_table_refs = {}
+
 function PSEUDO_TABLE(...)
 	local entries = {...}
+	-- Room PSEUDO property: alternating noun spelling and routine reference.
+	if type(entries[1]) == "string" then
+		local words = {}
+		local refs = {}
+		local offset = 0
+		for i = 1, #entries, 2 do
+			local noun = VOC(entries[i], NOUN)
+			local routine = entries[i + 1]
+			words[#words + 1] = makeword(noun)
+			offset = offset + 2
+			if type(routine) == "function" then
+				words[#words + 1] = mem:stringprop(fn(routine))
+			elseif type(routine) == "table" and routine.__routine_ref then
+				words[#words + 1] = makeword(0)
+				refs[#refs + 1] = { name = routine.__routine_ref, offset = offset }
+			else
+				error("PSEUDO_TABLE expected an action routine reference")
+			end
+			offset = offset + 2
+		end
+		return { __property_bytes = table.concat(words), __routine_refs = refs }
+	end
+
+	-- Legacy THINGS/PSEUDO tuple form.
 	local words = {}
 	for _, entry in ipairs(entries) do
 		local adjective = entry[1] and VOC(entry[1], ADJECTIVE) or 0
@@ -1588,8 +1646,6 @@ function PSEUDO_TABLE(...)
 	end
 	return mem:write(makeword(#entries * 2) .. table.concat(words))
 end
-
-local pending_table_refs = {}
 
 local function table_word(value, pending, offset)
 	if type(value) == 'string' then return makeword(mem:writestring2(value)) end
@@ -1894,6 +1950,22 @@ function SAVE(filename)
 		write_int64(file, addr)
 	end
 
+	-- Save exact-input aliases separately from the six-character dictionary.
+	-- Type 5 = exact_words: count(2) + source/target strings and first-word flag.
+	local exact_count = 0
+	for _ in pairs(cache.exact_words) do exact_count = exact_count + 1 end
+	file:write(string.char(5))
+	file:write(makeword(exact_count))
+	for source, spec in pairs(cache.exact_words) do
+		local target = type(spec) == "table" and spec.target or spec
+		local first = type(spec) == "table" and spec.first or false
+		local source_len = math.min(#source, 255)
+		local target_len = math.min(#target, 255)
+		file:write(string.char(source_len) .. source:sub(1, source_len))
+		file:write(string.char(target_len) .. target:sub(1, target_len))
+		file:write(string.char(first and 1 or 0))
+	end
+
 	file:close()
 	return true
 end
@@ -2006,6 +2078,33 @@ function RESTORE(filename)
 				restored_words[word] = read_int64(addr_bytes)
 			end
 			cache.words = restored_words
+		end
+
+		local exact_section_type = file:read(1)
+		if exact_section_type and exact_section_type:byte() == 5 then
+			local count_bytes = file:read(2)
+			if not count_bytes or #count_bytes < 2 then
+				file:close()
+				return false
+			end
+			local exact_count = count_bytes:byte(1) | (count_bytes:byte(2) << 8)
+			local restored_exact_words = {}
+			for _ = 1, exact_count do
+				local source_len = file:read(1)
+				if not source_len then file:close(); return false end
+				local source = file:read(source_len:byte())
+				local target_len = file:read(1)
+				if not source or not target_len then file:close(); return false end
+				local target = file:read(target_len:byte())
+				local flags = file:read(1)
+				if not target or not flags then file:close(); return false end
+				if flags:byte() & 1 ~= 0 then
+					restored_exact_words[source] = { target = target, first = true }
+				else
+					restored_exact_words[source] = target
+				end
+			end
+			cache.exact_words = restored_exact_words
 		end
 	end
 

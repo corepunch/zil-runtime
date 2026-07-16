@@ -1166,7 +1166,7 @@ OOPS-INBUF, leaving the appropriate pointers in AGAIN-LEXV"
 		        <RETURN>)>>>
 
 
-<ROUTINE GLOBAL-CHECK (TBL "AUX" LEN RMG RMGL (CNT 0) OBJ OBITS FOO)
+<ROUTINE GLOBAL-CHECK (TBL "AUX" LEN RMG RMGL (CNT 0) OBJ OBITS)
 	<SET LEN <GET .TBL ,P-MATCHLEN>>
 	<SET OBITS ,P-SLOCBITS>
 	<COND (<SET RMG <GETPT ,HERE ,P?GLOBAL>>
@@ -1183,10 +1183,6 @@ OOPS-INBUF, leaving the appropriate pointers in AGAIN-LEXV"
 			      <PUTP ,PSEUDO-OBJECT
 				    ,P?ACTION
 				    <GET .RMG <+ <* .CNT 2> 1>>>
-			      <SET FOO
-				   <BACK <GETPT ,PSEUDO-OBJECT ,P?ACTION> 5>>
-			      <PUT .FOO 0 <GET ,P-NAM 0>>
-			      <PUT .FOO 1 <GET ,P-NAM 1>>
 			      <OBJ-FOUND ,PSEUDO-OBJECT .TBL>
 			      <RETURN>)
 		             (<IGRTR? CNT .RMGL> <RETURN>)>>)>

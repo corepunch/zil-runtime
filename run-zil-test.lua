@@ -58,6 +58,17 @@ function ASSERT_TEXT(expected, ok, actual)
 	end
 end
 
+function ASSERT_NOT_TEXT(unexpected, ok, actual)
+	local label = format_assertion("not: " .. unexpected)
+	if ok and not actual:lower():find(unexpected:lower(), 1, true) then
+		print(GREEN .. "[PASS] " .. label .. RESET)
+		return true
+	else
+		print(RED .. "[FAIL] " .. label .. '\n' .. actual .. RESET)
+		fail_fast("Unexpected text: " .. unexpected)
+	end
+end
+
 local zil = require "zilscript"
 require "zilscript.bootstrap"
 

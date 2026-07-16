@@ -37,7 +37,8 @@
       (LDESC "You stand before the rusted iron gates of an abandoned sanitarium. The structure looms against the darkening sky, its windows like hollow eye sockets. Weeds choke the gravel path leading north to the entrance.")
       (NORTH TO SANITARIUM-ENTRANCE)
       (FLAGS RLANDBIT ONBIT)
-      (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)>
+      (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)
+      (PSEUDO "GATE" IRON-GATES-F "GATES" IRON-GATES-F)>
 
 <ROOM SANITARIUM-ENTRANCE
       (IN ROOMS)
@@ -49,7 +50,8 @@
       (EAST TO PATIENT-WARD)
       (DOWN TO BASEMENT-STAIRS)
       (FLAGS RLANDBIT ONBIT)
-      (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)>
+      (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)
+      (PSEUDO "STAIRCASE" GRAND-STAIRCASE-F "STAIRS" GRAND-STAIRCASE-F)>
 
 <ROOM RECEPTION-ROOM
       (IN ROOMS)
@@ -64,7 +66,7 @@
 <ROOM OPERATING-THEATER
       (IN ROOMS)
       (DESC "Operating Theater")
-      (LDESC "The circular theater rises in tiers where students once observed procedures. Cold metal trays sit abandoned on carts. The air here is thick with an oppressive dread.")
+      (LDESC "The circular theater rises in tiers where students once observed procedures. Cold metal trays sit abandoned on carts. The air is motionless; even your sleeve brushing the door sounds indecently loud.")
       (SOUTH TO SANITARIUM-ENTRANCE)
       (FLAGS RLANDBIT ONBIT)
       (PSEUDO "INSTRUMENTS" INSTRUMENTS-PSEUDO "SCALPELS" INSTRUMENTS-PSEUDO "TRAYS" TRAYS-PSEUDO "BENCHES" BENCHES-PSEUDO "BENCH" BENCHES-PSEUDO "TIERS" BENCHES-PSEUDO)>
@@ -81,7 +83,7 @@
 <ROOM MORGUE
       (IN ROOMS)
       (DESC "Morgue")
-      (LDESC "The temperature drops as you enter the morgue. Medical instruments hang on the wall. This place feels wrong, as though something lingers here still. The only exit is a passage leading south to the patient ward.")
+      (LDESC "The temperature drops as you enter the morgue. Medical instruments hang on the wall, and condensation beads on drawer handles untouched by your breath. The only exit is a passage leading south to the patient ward.")
       (SOUTH TO PATIENT-WARD)
       (FLAGS RLANDBIT ONBIT)
       (VALUE 10)>
@@ -110,7 +112,8 @@
       (DESC "Boiler Room")
       (ACTION BOILER-ROOM-FCN)
       (WEST TO BASEMENT-CORRIDOR)
-      (FLAGS RLANDBIT ONBIT)>
+      (FLAGS RLANDBIT ONBIT)
+      (PSEUDO "DUST" COAL-DUST-F "SOOT" COAL-DUST-F)>
 
 <ROOM STORAGE-ROOM
       (IN ROOMS)
@@ -213,7 +216,8 @@
       (SOUTH TO CAFETERIA)
       (NORTH TO CHAPEL IF CHAPEL-UNLOCKED)
       (FLAGS RLANDBIT ONBIT)
-      (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)>
+      (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)
+      (PSEUDO "BENCH" BENCHES-PSEUDO "BENCHES" BENCHES-PSEUDO)>
 
 <ROOM CHAPEL
       (IN ROOMS)
@@ -845,6 +849,7 @@
         (ADJECTIVE CHAPEL HEAVY LOCKED)
         (DESC "chapel door")
         (LDESC "The chapel door is secured with a heavy lock.")
+        (FLAGS NDESCBIT)
         (ACTION CHAPEL-DOOR-F)>
 
 <OBJECT PEWS
@@ -911,7 +916,7 @@
     (SYNONYM TREE OAK CROWS)
     (ADJECTIVE DEAD BARE)
     (DESC "dead oak tree")
-    (FLAGS NDESCBIT)
+    (FLAGS NDESCBIT CLIMBBIT)
     (ACTION DEAD-OAK-TREE-F)>
 
 <OBJECT FILING-CABINETS

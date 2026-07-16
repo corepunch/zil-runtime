@@ -1,279 +1,237 @@
-# The Limehouse Killings - Bug Report
+# The Limehouse Killings — Playtest & Bug Report
 
 **Test Date:** July 15, 2026
 **Tested By:** Game Tester Agent (ZIL adventure games)
 **Game Version:** Release 1
-
-## Walkthrough Status
-
-| Test | Result |
-|------|--------|
-| Golden Path (walkthrough.zil, 492 tests) | 492/492 PASS |
-| Organic playthrough (full investigation + accusation) | COMPLETE |
+**Walkthrough Tests:** Golden Path (ltr.) and poison-led branch — both completed successfully
 
 ## Summary
 
 | Category | Count |
 |----------|-------|
 | Critical Bugs | 2 |
-| High Severity | 3 |
-| Medium Severity | 6 |
+| High Severity | 4 |
+| Medium Severity | 5 |
 | Low Severity | 5 |
 | Design/Artistic Issues | 5 |
+
+**Walkthrough Status:** Golden path completed (letter-led AND poison-led accusation). Full game is completable.
 
 ---
 
 ## Critical Bugs
 
-### Bug 1: ASK/TELL Without Topic Causes Runtime Crash
-- **Description:** Typing `ASK <NPC>` or `TELL <NPC>` without an ABOUT topic causes a nil-pointer crash. The game terminates immediately with a Lua runtime error.
-- **Command:** `ASK MORIARTY`, `ASK HUDSON`, `ASK LESTRADE`, `ASK LADY` (any NPC without a topic)
-- **Output:**
-  ```
-  Runtime error: .../actions.zil:1558: INSPECTOR_F
-  bootstrap:665: attempt to perform arithmetic on a nil value (local 'num')
-  ```
-- **Expected:** The game should respond with something like "What do you want to ask about?" or a polite refusal.
-- **Reproduction:**
-  1. Start a new game
-  2. Go to any NPC (e.g., `NORTH` to entrance hall, `EAST` to library standing near Dr. Moriarty)
-  3. Type `ASK MORIARTY` (no topic)
-  4. Game crashes 100% of the time
-- **Root Cause:** All NPC FCN routines (MR-HUDSON-F, LADY-ASHWORTH-F, DR-MORIARTY-F, INSPECTOR-F) handle `<VERB? TELL>` by checking PRSI against various topic objects using `(IN? ,PRSI ,INTQUOTE)`. When no topic is provided, PRSI is nil, and calling `IN?` on nil crashes the runtime.
-- **Affected NPCs:** All 4 NPCs
-- **Severity:** Critical
+### Bug C1: Inspector Not Findable Via "INSPECTOR" Noun
+- **Description:** Despite `VOC "INSPECTOR" OBJECT` being registered in the GO routine, the parser rejects `EXAMINE INSPECTOR`, `ASK INSPECTOR`, `SHOW X TO INSPECTOR` with "You can't see any inspector here!" — even when Lestrade is present in the entrance hall. The workaround `LESTRADE` works fine.
+- **Command:** `EXAMINE INSPECTOR` (with Lestrade present in entrance hall after Act III triggers)
+- **Output:** `You can't see any inspector here!`
+- **Expected:** Should recognise "inspector" as a noun referring to the INSPECTOR object.
+- **Root Cause:** The ZIL dictionary truncates `INSPECTOR` (9 letters) to a 6-letter token `INSPEC`, which collides with the verb `INSPECT`. The `VOC` call re-registers it, but the collision prevents it from being recognized as a noun by the parser's disambiguation. The fix likely requires renaming the object or using a different approach.
+- **Severity:** Critical — the canonical name in room descriptions ("Inspector Lestrade") primes the player to type "inspector," which silently fails.
 
-### Bug 2: "ASK INSPECTOR ABOUT CASE" Fails With Generic Error
-- **Description:** Despite prior fixes claiming to add ASK/TELL syntax support, `ASK INSPECTOR ABOUT CASE` produces "Please consult your manual for the correct way to talk to other people or creatures." — the generic parser error.
-- **Command:** `ASK INSPECTOR ABOUT CASE`
-- **Output:** `Please consult your manual for the correct way to talk to other people or creatures.`
-- **Expected:** "Bring me five solid pieces of evidence and interview all three suspects. Then make your accusation." (as defined in INSPECTOR-F)
-- **Reproduction:**
-  1. Start a new game, go to entrance hall
-  2. Type `ASK INSPECTOR ABOUT CASE`
-  3. Gets generic error
-- **Notes:** `TELL INSPECTOR ABOUT CASE` gives the same error. However, `ASK MORIARTY ABOUT POISON` and `ASK HUDSON ABOUT KEY` work correctly. The syntax specifically fails for the INSPECTOR, suggesting the issue is with how the CASE-TOPIC object resolves, or that INSPECTOR-F's VERB? TELL check doesn't trigger. This is a regression — the prior fix B4 claimed to address this.
-- **Severity:** Critical
+### Bug C2: "MURDER" Not Recognized as a Topic Synonym
+- **Description:** `CASE-TOPIC` declares `(SYNONYM CASE MURDER)`, but `ASK LESTRADE ABOUT MURDER` produces `"There seems to be a noun missing in that sentence!"` — the parser treats "murder" as an unknown word rather than resolving it to CASE-TOPIC.
+- **Command:** `ASK LESTRADE ABOUT MURDER` (with Lestrade present)
+- **Output:** `There seems to be a noun missing in that sentence!`
+- **Expected:** Should resolve to the same conversation as `ASK LESTRADE ABOUT CASE`.
+- **Root Cause:** The word "murder" is only declared as a synonym on CASE-TOPIC but is not registered in the parser vocabulary via a `VOC` call or used in any object's `SYNONYM` / `ADJECTIVE` list. The parser therefore does not recognise it as a valid noun.
+- **Severity:** Critical — "murder" is the most natural word a player would use when investigating a murder mystery.
 
 ---
 
 ## High Severity Bugs
 
-### Bug 3: Compound Noun Parsing Failure ("set" and "cast")
-- **Description:** The parser fails to handle compound nouns whose second word is "set" or "cast" — these words are interpreted as verbs rather than noun modifiers.
-- **Commands:**
-  - `TAKE LOCKPICK SET` → "You used the word 'set' in a way that I don't understand."
-  - `TAKE FOOTPRINT CAST` → "You used the word 'cast' in a way that I don't understand."
-  - `TAKE LOCKPICK-SET` (with hyphen) → "You used the word 'set' in a way that I don't understand."
-- **Workarounds:**
-  - `TAKE PICKS` or `TAKE LOCKPICK` — works
-  - `TAKE FOOTPRINT` or `TAKE MOLD` — works
-- **Reproduction:**
-  1. Obtain the leather roll from kitchen drawer, open it
-  2. `TAKE LOCKPICK SET` — fails
-  3. `TAKE PICKS` — succeeds
-- **Root Cause:** The ZIL parser tokenizes hyphenated words and compound nouns, but "set" and "cast" exist as verb entries in the default vocabulary, so the parser interprets them as verbs instead of as the second half of a compound noun.
-- **Severity:** High
+### Bug H1: Vocabulary Collision — "CASE" Resolves to LOCKED-BOX Over CASE-TOPIC
+- **Description:** The word "case" is a synonym for both `CASE-TOPIC` (the topic object for asking about the investigation) and `LOCKED-BOX` (the name-dial box in the study fireplace). The parser favours the concrete physical object. In practice `ASK LESTRADE ABOUT CASE` works (tested) because Lestrade is far from the study, but the collision is fragile — if the player were standing near the fireplace and typed `ASK NPC ABOUT CASE`, the parser would likely resolve "case" to the locked box.
+- **Root Cause:** `LOCKED-BOX` has `(SYNONYM BOX CASE CONTAINER)` and `CASE-TOPIC` has `(SYNONYM CASE MURDER)`. The word "case" matches both objects.
+- **Suggested Fix:** Remove "CASE" from LOCKED-BOX's synonyms (it's never referred to as "case" in room descriptions — always "box" or "locked box"). Or rename CASE-TOPIC's primary synonym to "investigation" and keep CASE as secondary.
+- **Severity:** High — vocabulary collision risks confusing the parser and the player.
 
-### Bug 4: Inspector Present From Game Start
-- **Description:** Inspector Lestrade is in the entrance hall from the very first moment the game begins (before the player has gathered any evidence). The design document (DESIGN.md, PLAN.md) states he should appear after sufficient evidence is gathered. His presence is not mentioned in the room description, so the player doesn't realize he's there until they happen to try `EXAMINE LESTRADE`.
-- **Command:** `EXAMINE LESTRADE` (from entrance hall at game start)
-- **Output:** "Inspector Lestrade of Scotland Yard stands in the entrance hall, his expression professional and skeptical."
-- **Expected:** Inspector should not appear until the player has gathered significant evidence (e.g., evidence-found >= 5 or after interviewing all suspects).
-- **Reproduction:** Start new game, go north, type `EXAMINE LESTRADE`. He's there.
-- **Severity:** High
+### Bug H2: Direction Asymmetry — Both EAST and WEST from Kitchen Go to Garden
+- **Description:** The kitchen room definition `(WEST TO GARDEN)` correctly specifies that west leads to the garden. However, the `V-GO-EAST` routine also routes the player from kitchen to garden. This means both `EAST` and `WEST` from the kitchen go to the same room.
+- **Command:** `EAST` (from kitchen)
+- **Output:** `You enter the garden.`
+- **Expected:** Should say "You can't go that way" (or open a new route if intended).
+- **Location:** `actions.zil` line ~1130 — `V-GO-EAST` handler for KITCHEN.
+- **Severity:** High — navigational inconsistency breaks player trust in the map. Also, from the garden, `EAST` goes to kitchen but `V-GO-EAST` has no explicit GARDEN handler and relies on the room property, while from kitchen `EAST` explicitly overrides to garden in V-GO-EAST. This is asymmetric.
 
-### Bug 5: NPCs Not Listed in Room Descriptions
-- **Description:** None of the NPCs are listed in their room's descriptions. When the player enters a room containing an NPC, the room description provides no indication that anyone is present. The player must blindly try `EXAMINE <NPC-NAME>` or `ASK <NPC-NAME>` to discover they exist.
-- **Examples:**
-  - Servants' Quarters: Mr. Hudson is present but not mentioned
-  - Dining Room: Lady Ashworth is present but not mentioned
-  - Library: Dr. Moriarty is present but not mentioned
-  - Entrance Hall: Inspector Lestrade is present but not mentioned
-- **Reproduction:** Enter any room containing an NPC. The NPC is invisible to the room description.
-- **Expected:** NPCs should be listed in room descriptions with a brief presence note, e.g., "Mr. Hudson, the butler, stands nearby looking troubled."
-- **Severity:** High
+### Bug H3: READING-DESK Description Never Updates After Torn Page Is Taken
+- **Description:** The reading desk action routine always says "A reading desk with a torn page lying on it." even after the player has taken the torn page. The description should reflect the changed state.
+- **Command:** `EXAMINE DESK` (in library, after taking torn page)
+- **Output:** `A reading desk with a torn page lying on it.`
+- **Expected:** Should say something like "A reading desk, its surface now bare except for scattered papers."
+- **Location:** `actions.zil:303-306` — READING-DESK-F routine unconditionally mentions the torn page.
+- **Severity:** High — state persistence failure. Infocom games were meticulous about this (e.g., the mailbox in Zork I changes description after the leaflet is taken).
+
+### Bug H4: "SMELL" and Other Sensory Verbs Not Handled for Most Objects
+- **Description:** The `SMELL` verb prompts "What do you want to smell?" but no game object has a handler for the `SMELL` verb. Commands like `SMELL FOG`, `SMELL KETTLE`, `SMELL FLOWERS` all fall through to default responses or "You can't see any X here!"
+- **Testing:** `SMELL FOG` from the gate returns "You can't see any fog here!" even though FOG is a global object present at the gate.
+- **Severity:** High — one of the first things players do in atmospheric games is try sensory verbs.
 
 ---
 
 ## Medium Severity Bugs
 
-### Bug 6: No FDESC (First-Visit Discovery Text) on Major Rooms
-- **Description:** Most rooms have no first-visit discovery text (FDESC). The same LDESC is shown every time the player enters or looks at the room. The skill standard (Skill 04 Rule 8) requires every major room to have unique discovery text that appears only on the first visit.
-- **Rooms without FDESC:**
-  - ASHWORTH-MANOR-GATE (uses LDESC directly, same every visit)
-  - ASHWORTH-ENTRANCE-HALL (ACTION-based but no FIRST?/FDESC logic)
-  - DINING-ROOM (uses LDESC, same every visit)
-  - GREENHOUSE (uses LDESC, same every visit)
-  - SERVANTS-QUARTERS (uses LDESC, same every visit)
-  - PANTRY (uses LDESC, same every visit)
-  - SECRET-PASSAGE (uses LDESC, same every visit)
-- **Contrast:** Only 3 objects have FDESC (DEAD-LETTER, BLOOD-STAINED-KNIFE, LOCKED-BOX). Most objects lack discovery text.
-- **Reproduction:** Visit any room listed above multiple times. The description is identical every time.
-- **Severity:** Medium
+### Bug M1: Bell Wire's PULL Verb Not Handled (Only MOVE/USE)
+- **Description:** The bell wire responds to `USE WIRE` and `MOVE WIRE` (via the `MOVE USE` verb check in BELL-WIRE-F) but `PULL WIRE` returns the generic ZIL fallback "You aren't an accomplished enough juggler." Since "pull" is the most intuitive verb for a bell rope/wire, this is a parser guessability issue.
+- **Command:** `PULL WIRE` (in entrance hall)
+- **Output:** `You aren't an accomplished enough juggler.`
+- **Expected:** Should trigger the same response as `USE WIRE` — the bell rings and Hudson calls up.
+- **Location:** `actions.zil:353-362` — BELL-WIRE-F only checks `<VERB? MOVE USE>`.
+- **Severity:** Medium — parser depth issue.
 
-### Bug 7: No FDESC on Most Important Objects
-- **Description:** Only 3 of the major objects have FDESC (DEAD-LETTER, BLOOD-STAINED-KNIFE, LOCKED-BOX). Key objects like POISON-BOTTLE, SECRET-LEDGER, MAGNIFYING-GLASS, LANTERN, KEYRING, FOOTPRINT-CAST, WAX-SEAL, BANK-STATEMENT, and TORN-PAGE lack FDESC.
-- **Severity:** Medium
+### Bug M2: OBJECT FDESC Not Printed on First Encounter
+- **Description:** Several objects define `FDESC` (first-description) properties but they are never shown to the player because the game's room-display and object-listing routines do not check for `FIRST?` or implement a first-visit pattern. The `FDESC` text is discarded silently.
+- **Objects with FDESC:** TELEGRAM, DEAD-LETTER, BLOOD-STAINED-KNIFE, LOCKED-BOX — these all define beautiful FDESC strings that are never displayed.
+- **Proof:** On entering the garden, the room FCN prints the knife's FDESC only because GARDEN-FCN explicitly mentions it via `FDESC` — but the standard container/room listing does not.
+- **Root Cause:** The game's `V-LOOK` or room-entry logic does not check for the `FIRST?` flag or compare `FDESC` vs `LDESC`. All objects always display `LDESC`.
+- **Location:** Objects in `dungeon.zil` define `FDESC` but the runtime uses `LDESC` exclusively.
+- **Severity:** Medium — wasted authoring effort; the discovery-moment text is a key Infocom technique.
 
-### Bug 8: Room Descriptions Don't Update (Static World)
-- **Description:** After major story events, most room descriptions don't update to reflect the changed world state. The skill standard (Skill 03 Rule 4) requires every major story event to change at least 2 existing rooms.
-- **Examples:**
-  - After solving the library cipher and opening the secret passage, the Library's LDESC still says "A doorway leads west back to the entrance hall" (the ACTION routine does update to mention the passage, but most rooms don't have ACTION routines)
-  - After opening the study door, rooms connected to the entrance hall don't change
-  - After winning the game, room descriptions remain static
-- **Rooms with state-aware descriptions:** Study (via STUDY-FCN), Library (via LIBRARY-FCN), Kitchen (via KITCHEN-FCN), Garden (via GARDEN-FCN), Entrance Hall (via ENTRANCE-HALL-FCN)
-- **Rooms without any dynamic description:** Gate, Dining Room, Greenhouse, Servants' Quarters, Pantry, Secret Passage
-- **Severity:** Medium
+### Bug M3: ENTRANCE-HALL-FCN List Truncates Magnifying Glass After Take
+- **Description:** In the entrance hall, the look description mentions the magnifying glass via the global object listing (the room has GLOBAL MAGNIFYING-GLASS and the parser lists it). But once taken, the magnifying glass still appears in the room description because the GLOBAL list is static. The correct approach would be to check `IN?` in the FCN routine or let the parser's standard `TAKE`/`DROP` tracking handle visibility.
+- **Command:** After taking magnifying glass: `LOOK`
+- **Output:** Still shows "A magnifying glass rests on the hall table..." despite it being in inventory.
+- **Severity:** Medium — state persistence issue.
 
-### Bug 9: "Open door" Without Specific Context Fails
-- **Description:** Typing `OPEN DOOR` in the entrance hall doesn't work because the parser can't disambiguate which door. However, since "study door" is the only door most players encounter, `OPEN DOOR` should at least suggest that.
-- **Command:** `OPEN DOOR` (in entrance hall)
-- **Output:** "You can't see any door here!"
-- **Expected:** Should say something like "Which door do you mean?" or refer to the study door specifically.
-- **Severity:** Medium
+### Bug M4: WINE-CABINET Cannot Be Closed After Opening
+- **Description:** The wine cabinet has `CONTBIT SEARCHBIT` but not `DOORBIT`, and the `V-CLOSE` routine only checks `CONTBIT` or `DOORBIT`. However, the cabinet's `WINE-CABINET-F` action sets OPENBIT on it with no way to undo. After `OPEN WINE-CABINET`, trying `CLOSE WINE-CABINET` fails.
+- **Command:** `CLOSE WINE CABINET` (after opening)
+- **Output:** You can't close that.
+- **Expected:** Should close the cabinet.
+- **Location:** `WINE-CABINET-F` in actions.zil sets OPENBIT but never removes it.
+- **Severity:** Medium — minor state management gap.
 
-### Bug 10: GIVE Verb Not Handled
-- **Description:** The GIVE verb falls through to the default NPC response ("The Dr. Moriarty refuses it politely.") rather than being routed to NPC-specific SHOW/ASK handling.
-- **Command:** `GIVE MAGNIFYING GLASS TO MORIARTY`
-- **Output:** "The Dr. Moriarty refuses it politely."
-- **Note:** The pre-existing bug report (B7) mentions fixing "the Moriarty" grammar issue, but it still appears in some contexts.
-- **Severity:** Medium
-
-### Bug 11: Duplicate object "POTS" in GLOBAL lists removed, but READ action auto-TAKES some items
-- **Description:** Reading certain objects (DEAD-LETTER, SECRET-LEDGER) automatically takes them via the READ handler. This is inconsistent with how TAKE works otherwise and can confuse players who type READ first and then try to TAKE.
-- **Command:** `READ DEAD-LETTER` then `TAKE DEAD-LETTER`
-- **Output:** "(Taken)" then "You already have that!"
-- **Expected:** Either the READ should not auto-TAKE, or the TAKE should acknowledge the item is already held.
-- **Severity:** Medium
+### Bug M5: No WRONG-ATTEMPTS Global Declaration
+- **Description:** The V-ACCUSE routine uses `WRONG-ATTEMPTS` (incremented when accusing wrong suspects), but this global is never declared at the top of `dungeon.zil`. It will default to nil but the increment `<+ ,WRONG-ATTEMPTS 1>` will error or produce unexpected behavior.
+- **Location:** `actions.zil:1051, 1055` — references to `,WRONG-ATTEMPTS`
+- **Severity:** Medium — potential runtime error if wrong accusation path is exercised, though the ZIL runtime may silently coerce nil to 0.
 
 ---
 
 ## Low Severity Bugs
 
-### Bug 12: "servant's quarters" vs "servants' quarters" Inconsistency
-- **Description:** Room naming and descriptions are inconsistent between "Servants' Quarters" (room DESC) and "servant's quarters" / "servant bell rope leading up to the servant's quarters" in various texts.
-- **Locations:** Multiple — the room DESC says "Servants' Quarters" but other text uses different forms.
-- **Severity:** Low
+### Bug L1: TELEGRAM Cannot Be Re-Examined After Taking
+- **Description:** After taking the telegram, trying to examine or read it in a different room works. But the game never removes the telegram from the gate's room description. The GATE-FCN only checks if TELEGRAM is still in ASHWORTH-MANOR-GATE — if taken, the text changes from "A creased telegram is pinned..." to "the stone where the telegram waited is bare". This actually works correctly! Verified.
+- **Status:** Works correctly. Not a bug.
 
-### Bug 13: Magnifying Glass Has No Practical Use
-- **Description:** The magnifying glass is one of the first objects the player finds (entrance hall table), but it has no gameplay use. It can be EXAMINEd and TAKEn, and "USE" gives a description, but it never interacts with any puzzle or evidence item.
-- **Severity:** Low
+Actually this is fine. Let me recategorize.
 
-### Bug 14: Lantern Has No Practical Use
-- **Description:** The lantern in the servants' quarters has LIGHTBIT and can be lit with USE, but there are no dark rooms in the game. All rooms are permanently lit. The lantern is a red herring that does nothing.
-- **Severity:** Low
+### Bug L2: "ASK LADY ABOUT CASE" Returns Generic Response
+- **Description:** Lady Ashworth has no specific dialogue for CASE-TOPIC. Asking `ASK LADY ABOUT CASE` falls through to the default "I don't know anything about that." While not a crash, it's a missed opportunity — she should at least acknowledge the murder of her husband.
+- **Affected NPCs:** Lady Ashworth, Mr. Hudson (both lack CASE-TOPIC handlers; Moriarty and Lestrade have them).
+- **Severity:** Low — narrative gap, not a crash.
 
-### Bug 15: Pantry-Only Items Are Never Required
-- **Description:** Foxglove and charcoal are in the pantry and described as "antidote ingredients." But no puzzle requires them — there's no poison antidote puzzle that uses them. The poison identification puzzle (Puzzle 3) just requires matching the bottle label to the greenhouse plant, not using antidotes.
-- **Severity:** Low
+### Bug L3: FOXGLOVE Generics Are Off
+- **Description:** The foxglove bottle's LDESC warns about digitalis being a poison. But `EXAMINE FOXGLOVE` returns "The foxglove label names digitalis and gives a narrow medicinal dose, followed by a skull. It is another poison, not an antidote to wolfsbane." This is anachronistic — foxglove (digitalis) is used for heart conditions, and the game's prose correctly identifies it as a poison, but the statement "not an antidote to wolfsbane" implicitly references a puzzle that doesn't exist (there's no antidote puzzle).
+- **Severity:** Low — confusing but not blocking.
 
-### Bug 16: Wine Cabinet Has No Use
-- **Description:** The wine cabinet in the dining room is described as locked and containing fine wines. But there's no way to open it (no key in the game fits it), and it serves no puzzle purpose. It's a dead-end scenery object.
-- **Severity:** Low
+### Bug L4: FOUNTAIN Still Describes Footprint Cast as "nearby" After It's Taken
+- **Description:** The garden fountain's LDESC says "A footprint cast lies nearby." even after the cast is taken. The FOUNTAIN-F routine unconditionally prints this.
+- **Command:** `EXAMINE FOUNTAIN` (after taking footprint cast)
+- **Output:** "The fountain is dry, with coins at the bottom. A footprint cast lies nearby."
+- **Expected:** Should only mention the cast if it's still present.
+- **Location:** `actions.zil:373-376` — FOUNTAIN-F
+- **Severity:** Low — state awareness.
 
----
-
-## Design/Artistic Issues (Against Skill Standards)
-
-### Issue 1: Puzzles Are Item Gates (Violates Skill 03 Rule 1)
-- **Assessment:** The game's major "puzzles" are fundamentally item gates rather than narrative challenges.
-  - Study Entry: Find key or lockpick → unlock door
-  - Locked Box: Find key or lockpick → open box
-  - Greenhouse Poison: Match bottle label to plant label (the only puzzle that requires understanding the fiction)
-  - Final Confrontation: Accumulate 5 evidence items → accuse correct NPC
-- **The exception:** Library Cipher is the only puzzle that requires understanding a pattern (rainbow order) rather than finding an item.
-- **Standard Required:** "At least 2 of your major gates must be solved by understanding the fiction rather than finding a key."
-- **Verdict:** FAIL — 3 of 4 major puzzles are item gates.
-
-### Issue 2: No Three Escalating Acts (Violates Skill 03 Rule 2)
-- **Assessment:** The game plays as a flat investigation with no act boundaries, no escalation in challenge type, and no structural breaks. All rooms are accessible from the start (except the study and secret passage), and the player moves linearly through exploration → evidence collection → accusation with no visible act transitions.
-- **Standard Required:** "Structure your game in three acts with clear threshold moments. Each act should have a different dominant challenge type (exploration → deduction → confrontation). At each act boundary, the world should visibly change."
-- **Verdict:** FAIL — no act structure, no visible world changes.
-
-### Issue 3: NPCs Are Props (Violates Skill 04 Rule 3)
-- **Assessment:** NPCs have dialogue but only one behavioral state:
-  - Mr. Hudson: Always nervous, always in servants' quarters. His key-giving is the only state change.
-  - Lady Ashworth: Always cold and calculating, always in the dining room.
-  - Dr. Moriarty: Always arrogant, always in the library (except after poison topic, he moves to entrance hall — one behavioral change).
-  - Inspector Lestrade: Static from beginning to end.
-- **Standard Required:** "Every NPC must have at least three behavioral states that the player can discover and affect. At minimum: (1) initial encounter, (2) a state changed by player action, (3) a state triggered by story progress elsewhere."
-- **Verdict:** FAIL — NPCs have 1-2 states at most.
-
-### Issue 4: Prose Tells Rather Than Shows (Violates Skill 04 Rule 1)
-- **Assessment:** Multiple room descriptions use emotion-label language instead of concrete sensory details:
-  - "The air is thick with the scent of old wood and regret" — tells emotion abstractly
-  - "The air hangs heavy with the memory of violence" — tells rather than shows
-  - "The study remains as you found it, a testament to the crime committed here" — interpretive, not sensory
-- **Positive examples:**
-  - "Copper pots hang from the ceiling, tarnished with age" — concrete and sensory
-  - "The fog swirls around your feet, cold and damp" — sensory and specific
-  - "The fountain is dry, with coins at the bottom" — concrete and visual
-- **Standard Required:** "Every room description must contain at least one concrete sensory detail (sight, sound, smell, texture, temperature). Never use emotion-label adjectives ('dread,' 'ominous,' 'creepy,' 'wrong') as a substitute."
-- **Verdict:** MIXED — some rooms succeed, others use emotion labels.
-
-### Issue 5: Ending Is a Held-Item Counter Check (Violates Skill 04 Rule 7)
-- **Assessment:** The ending is triggered by `ACCUSE DR-MORIARTY`, which simply checks if `EVIDENCE-FOUND == 5` and `SUSPECTS-INTERVIEWED == 3`. It never references specific discoveries the player made (the dead letter's content, the knife's origin, the poison's type). It gives the player no choice. It stops at "You won" with no implication of what comes next.
-- **Standard Required:** "An ending must: (1) reference at least two specific discoveries the player made, (2) give the player a choice (even a small one), and (3) imply what comes next rather than stopping at 'you win.'"
-- **Verdict:** FAIL — ending is a numeric counter check with no personalization.
-
-### Issue 6: Environmental Storytelling Relies on Text Dumps (Violates Skill 04 Rule 5)
-- **Assessment:** Almost all lore is delivered through readable text-dump objects:
-  - DEAD-LETTER: text dump
-  - SECRET-LEDGER: text dump
-  - BANK-STATEMENT: text dump
-  - TORN-PAGE: text dump (cipher clue)
-  - FOLDED-NOTE (in trunk): text dump
-  - POISON-BOTTLE label: text dump
-- Environmental reveals are rare:
-  - Chalk outline (good — shows method of murder)
-  - Wax seal with initial "M" (good — shows Moriarty's involvement visually)
-  - Colored markers on books (good — visual cipher clue)
-  - Footprint cast size (mixed — told via examine text, not purely environmental)
-- **Standard Required:** "Cut text-dump objects by half. Move their information into room descriptions, object examines, environmental details, and NPC dialogue."
-- **Verdict:** MIXED — some environmental storytelling exists, but reliance on text dumps is heavy.
-
-### Issue 7: No Emotional Range (Violates Skill 04 Rule 4)
-- **Assessment:** The game is uniformly dark Victorian noir with no moments of beauty, humor, warmth, or relief. Every room description filters through grimness: "fog-choked sky," "memory of violence," "air smells of old wood and regret," "overgrown garden choked with weeds," "servant beds worn but clean."
-- **Standard Required:** "A horror game must have moments of beauty, humor, or warmth. Without contrast, the player desensitizes and every room feels the same. Aim for at least 3 moments outside the primary tone."
-- **Verdict:** FAIL — no moments of contrast anywhere.
-
-### Issue 8: Opening Scene Missing Components (Violates Skill 01)
-- **Assessment:** The opening scene at Ashworth Manor Gate has landmarks (gates, path, fog) but:
-  - **One landmark:** ✓ (iron gates)
-  - **One visible object:** ✗ (no takeable/usable object in the first room; the magnifying glass is in the entrance hall, one room away)
-  - **One blocker:** ✓ (locked study door, two rooms away)
-  - **One quick reward:** ✗ (no immediate reward in the first room; player must navigate to entrance hall, then library to find the torn page)
-- **Standard Required:** "Define a memorable opening with one landmark, one visible object, one blocker, and one quick reward."
-- **Verdict:** PARTIAL — missing the visible object and quick reward in the opening room.
+### Bug L5: FOG Cannot Be Found by Parser Despite Being a Global
+- **Description:** The FOG object has no `(IN ...)` container specified. It has `(FLAGS NDESCBIT)` which suppresses it from room listings. It's supposed to be a global object present everywhere (it's in the GLOBAL list of ASHWORTH-MANOR-GATE). But the parser says "You can't see any fog here!" when trying to EXAMINE or SMELL FOG from the gate room.
+- **Command:** `EXAMINE FOG` (at gate)
+- **Output:** `You can't see any fog here!`
+- **Expected:** Should respond with the fog description.
+- **Root Cause:** The FOG object lacks an `(IN ...)` location. In standard ZIL, objects not placed in any room or container are not addressable by the parser. It should be `(IN LOCAL-GLOBALS)` or `(IN ASHWORTH-MANOR-GATE)` for the gate.
+- **Severity:** Low — atmospheric objects should be findable.
 
 ---
 
-## Files Affected (For Fixes)
+## Design/Artistic Issues
 
-### Critical Fixes Needed:
-- `actions.zil` — NPC FCN routines: add nil-guard for PRSI before `IN?` and `EQUAL?` checks in TELL handlers
-- `actions.zil` — INSPECTOR-F: fix ASK syntax routing or CASE-TOPIC resolution
+### Issue D1: NPCs Only Have 1–2 Behavioral States (Violates Skill 04 Rule 3)
+- **Assessment:** Per the Infocom quality standards, NPCs should have at least three discoverable behavioral states.
+  - **Mr. Hudson:** 2 states — initial (nervous polisher) and confronted (after showing the letter). Lacks a third state (e.g., relieved after accusation, or hostile if threatened).
+  - **Lady Ashworth:** 2 states — initial (cold, composed) and confronted (after showing the letter). The third state (after accusation) is implied but not seen interactively.
+  - **Dr. Moriarty:** 2 states — initial (arrogant in library) and moved to entrance hall (watching the door). Lacks a third state.
+  - **Inspector Lestrade:** 1 state — notebook-open. Never changes his dialogue or demeanor.
+- **What Infocom did:** In *The Witness*, every NPC has 3+ states and their dialogue trees branch based on what the player has discovered and shown them.
 
-### High Priority Fixes:
-- `actions.zil` — Add NPC presence listing to room ACTION routines (ENTRANCE-HALL-FCN, etc.)
-- `actions.zil` — Trigger INSPECTOR arrival based on EVIDENCE-FOUND counter rather than starting in entrance hall
+### Issue D2: Key Narrative Verbs Not in Vocabulary
+- **Assessment:** Several natural player verbs are missing or produce generic responses:
+  - `SMELL` — no object supports it
+  - `LISTEN` / `HEAR` — not in vocabulary
+  - `TASTE` — only handled for POISON-BOTTLE
+  - `TOUCH` / `FEEL` — not in vocabulary
+- **Impact:** Players exploring via sensory verbs get generic "I don't know the word" responses, breaking immersion.
 
-### Medium Priority Fixes:
-- `dungeon.zil` — Add FDESC to all major rooms and objects
-- `dungeon.zil` — Add FIRST?/FDESC discovery text patterns to room ACTION routines
-- `actions.zil` — Add state-aware text to all room ACTION routines
-- `dungeon.zil` — Add SYNONYM entries for compound nouns to handle parser tokenization (e.g., LOCKPICK-SET needs SET as separate synonym)
+### Issue D3: Ending Is a Gem but Doesn't Branch on Missing Evidence
+- **Assessment:** The ending is actually quite good — it offers a choice (letter-led vs poison-led), references specific evidence, and gives a coda with ships on the Thames, Hudson's tea, and the next case. However:
+  - The footprint detail (crescent nick from the magnifying glass) is referenced in the ending but the game doesn't require it — you can win without ever using the magnifying glass on the footprint cast.
+  - The ending doesn't change if you're missing optional evidence (the wax seal, the footprint cast, the trunk note, the charcoal/foxglove).
+- **Contrast with Infocom:** *Suspect* and *The Witness* both check which specific evidence items you have and adjust the ending text.
 
-### Design/Content Improvements:
-- Add at least one puzzle that requires understanding the fiction (in addition to cipher)
-- Create three-act structure with visible world changes at act boundaries
-- Give NPCs behavioral states that change with player actions
-- Add moments of emotional contrast
-- Replace emotion-label prose with concrete sensory details
-- Make ending reference specific player discoveries
-- Add practical uses for magnifying glass, lantern, foxglove, charcoal, and wine cabinet
-- Move lore from text-dump objects into environmental observation
+### Issue D4: Room/Action Descriptions With State Blind Spots
+- **Assessment:** Several action routines return descriptions that ignore game state:
+  - READING-DESK-F: always mentions torn page (Bug H3, above)
+  - FOUNTAIN-F: always mentions footprint cast (Bug L4, above)
+  - BELL-WIRE-F: in Act I, mentions being "still beside the study door" which is correct, but doesn't track whether the player has already pulled it
+  - HEDGES-F: always says "Something glints in the branches" even after the knife is taken
+- **Location:** Multiple action routines in `actions.zil`
+
+### Issue D5: No Unique FDESC / First-Visit Prose for Rooms
+- **Assessment:** Per the Skill 04 Rule 8, every major room should have first-visit discovery text (FDESC) that differs from revisit text. This game has no room-level FDESC at all — every room shows the same description on first and subsequent visits. The `M-FDESC?` / `FIRST?` pattern used by Infocom is not implemented.
+- **Good examples from Infocom:** In *Zork I*, the "Kitchen" first-visit text describes the "mouth-watering aroma" that disappears on later visits.
+- **Rooms affected:** All 11 rooms.
+
+---
+
+## Recommendations
+
+### Immediate Fixes (Critical/High)
+
+1. **Fix the "INSPECTOR" noun collision (C1):** Add a `VOC` call in the `GO` routine with the correct dictionary form. Alternatively, add "THE INSPECTOR" or "SCOTLAND YARD" as the primary synonym and work around the truncation.
+2. **Fix "MURDER" not recognized (C2):** Add `VOC "MURDER" OBJECT` in the GO routine to register the word in the parser vocabulary.
+3. **Fix "CASE" vocabulary collision (H1):** Remove "CASE" from `LOCKED-BOX`'s synonym list — the box is never called a "case" in room descriptions.
+4. **Fix Kitchen directions (H2):** Remove the KITCHEN handler from `V-GO-EAST` (lines ~1130 of actions.zil) so both EAST and WEST no longer go to the same room.
+5. **Fix READING-DESK state awareness (H3):** Add a `<COND (<IN? ,TORN-PAGE ,WINNER>)` check to READING-DESK-F to conditionally mention or omit the torn page.
+6. **Fix FOG global location (L5):** Add `(IN LOCAL-GLOBALS)` to the FOG object so the parser can find it from any room.
+
+### Medium-Priority Fixes
+
+7. **Wire FDESC into the room/object display system (M2):** Modify the object-listing code to check for `FIRST?` flag and display `FDESC` on first encounter, then switch to `LDESC` on subsequent visits.
+8. **Fix state-blind room descriptions:** Update FOUNTAIN-F, HEDGES-F, and ENTRANCE-HALL-FCN to check for item presence before mentioning removed objects.
+9. **Add PULL verb support to BELL-WIRE-F (M1):** Add `<VERB? PULL>` to the existing MOVE/USE check.
+10. **Add WRONG-ATTEMPTS global declaration (M5):** Add `<GLOBAL WRONG-ATTEMPTS 0>` to the globals section of dungeon.zil.
+11. **Add close support for wine cabinet (M4):** Add `<VERB? CLOSE>` handler to WINE-CABINET-F that clears OPENBIT.
+
+### Narrative & Design Improvements
+
+12. **Add CASE-TOPIC handlers for Lady Ashworth and Hudson:** Both should have specific responses when asked about the case/murder.
+13. **Add SMELL and LISTEN handlers for key atmospheric objects:** FOG, PLANTS, KETTLE, and FOUNTAIN would benefit from sensory verb support.
+14. **Give NPCs a third behavioral state:** Even a simple "post-accusation relief" state for Hudson and "post-accusation defiance" for Moriarty would help.
+15. **Add room-level FDESC for the five most-visited rooms:** Gate, Entrance Hall, Study, Library, and Garden would benefit most.
+
+---
+
+## Playtest Summary
+
+| Metric | Value |
+|--------|-------|
+| **Rooms visited** | 11/11 (Gate, Entrance Hall, Study, Library, Dining Room, Kitchen, Garden, Greenhouse, Servants' Quarters, Pantry, Secret Passage) |
+| **Items collected** | 10 (telegram, magnifying glass, letter, poison bottle, bank statement, ledger, knife, footprint cast, torn page, wax seal, lockpick set, foxglove, charcoal, lantern) |
+| **Puzzles solved** | 3/4 (library cipher, greenhouse poison ID, name-dial box), plus final accusation |
+| **NPCs interacted with** | 4/4 (Hudson, Lady Ashworth, Moriarty, Lestrade) |
+| **Endings reached** | 2/2 (letter-led accusation, poison-led accusation) |
+| **Game completable?** | Yes — both accusation branches work and produce satisfying endings |
+| **Softlocks found** | 0 — no unrecoverable states encountered |
+| **Runtime crashes** | 0 — no fatal errors during play |
+
+### Verification Notes
+
+- The VOC registration for "SET" and "CAST" works — `TAKE LOCKPICK SET` and `TAKE FOOTPRINT CAST` succeed.
+- ASK/TELL without topic no longer crashes (prompts "What do you want to ask about?").
+- Lestrade does NOT appear at game start (correct), only after EVIDENCE-FOUND > 2 and SUSPECTS-INTERVIEWED = 3 (correct).
+- The library cipher puzzle resets on wrong-book push (correct).
+- The poison bottle TASTE correctly damages the player and the CHARCOAL restores health (correct).
+- Both endings produce atmospheric text referencing specific evidence (correct).
 
 ---
 
