@@ -1781,16 +1781,33 @@ function INSERT_FILE(filename, source_filename)
 	local name_path = filename:gsub("%.", "/")
 	local file, filepath
 
-	local function try_candidate(path)
-		if not path or path == "" then return nil end
-		file, filepath = try_open(path)
-		if file then return true end
-		if not path:match("%.zil$") then
-			file, filepath = try_open(path .. ".zil")
-			if file then return true end
+		local function lowercase_basename(path)
+			local prefix, name = path:match("^(.*[/\\])([^/\\]+)$")
+			if prefix then
+				return prefix .. name:lower()
+			end
+			return path:lower()
 		end
-		return false
-	end
+
+		local function try_candidate(path)
+			if not path or path == "" then return nil end
+			file, filepath = try_open(path)
+			if file then return true end
+			if not path:match("%.zil$") then
+				file, filepath = try_open(path .. ".zil")
+				if file then return true end
+			end
+			local lower_path = lowercase_basename(path)
+			if lower_path ~= path then
+				file, filepath = try_open(lower_path)
+				if file then return true end
+				if not lower_path:match("%.zil$") then
+					file, filepath = try_open(lower_path .. ".zil")
+					if file then return true end
+				end
+			end
+			return false
+		end
 
 	local base_dir = dirname(source_filename)
 	if base_dir and not name_path:match("^/") and try_candidate(base_dir .. "/" .. name_path) then
