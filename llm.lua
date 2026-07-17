@@ -79,6 +79,18 @@ local GAMES = {
             "infocom.zork1.main",
         }
     },
+    zork3 = {
+        modules = {
+            "infocom.zork3.gglobals",
+            "infocom.zork3.gclock",
+            "infocom.zork3.gparser",
+            "infocom.zork3.gverbs",
+            "infocom.zork3.gsyntax",
+            "infocom.zork3.3actions",
+            "infocom.zork3.3dungeon",
+            "infocom.zork3.gmain",
+        }
+    },
     lurkinghorror = {
         modules = {"infocom.lurkinghorror.h1"}
     },

@@ -1,16 +1,22 @@
 "TEST-ZORK3.ZIL - Test routine for Zork III transcript"
 
-<INSERT-FILE "infocom/zork3/globals">
-<INSERT-FILE "infocom/zork3/parser">
-<INSERT-FILE "infocom/zork3/verbs">
-<INSERT-FILE "infocom/zork3/syntax">
-<INSERT-FILE "infocom/zork3/main">
+<SETG ZORK-NUMBER 3>
+
+<INSERT-FILE "infocom/zork3/gglobals">
+<INSERT-FILE "infocom/zork3/gclock">
+<INSERT-FILE "infocom/zork3/gparser">
+<INSERT-FILE "infocom/zork3/gverbs">
+<INSERT-FILE "infocom/zork3/gsyntax">
+<DIRECTIONS NORTH EAST WEST SOUTH NE NW SE SW UP DOWN IN OUT LAND CROSS ENTER>
+<INSERT-FILE "infocom/zork3/3actions">
+<INSERT-FILE "infocom/zork3/3dungeon">
+<INSERT-FILE "infocom/zork3/gmain">
 
 <CONSTANT RELEASEID 1>
 
 <GLOBAL CO <CO-CREATE GO>>
 
-<ROUTINE RUN-ZORK3-TEST ()
+<ROUTINE RUN-TEST ()
 	<TELL "Testing Zork III transcript..." CR>
 	
 	;"Test 1: Start at Endless Stairs"
@@ -49,4 +55,4 @@
 		<==? <LOC ,BREAD> ,ADVENTURER>>
 	
 	<TELL CR "Zork III transcript test completed!" CR>
->>
+>

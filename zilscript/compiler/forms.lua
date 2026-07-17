@@ -576,7 +576,9 @@ function Forms.createHandlers(compiler, printNode)
         and not (node[2] and node[2].type == "list") then
       buf.write("ITABLE_WORDS(%s, %d)", compiler.value(node[1]), math.max(1, #node - 1))
     elseif utils.safeget(node[1], "value") == "NONE" and node[2] then
-      buf.write("ITABLE_WORDS(%s, 1)", compiler.value(node[2]))
+      buf.write("ITABLE_WORDS(")
+      printNode(buf, node[2], 0)
+      buf.write(", 1)")
     else
       -- Preserve the established byte/LEXV buffer layout for flagged tables.
       buf.write("ITABLE(")
