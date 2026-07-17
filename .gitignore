@@ -16,3 +16,4 @@ lib/openai/api_key.lua
 # Archive files
 *.zip
 *.actions
+.opencode/node_modules/

@@ -1,6 +1,8 @@
-# Skill 07: Workflow, Subagents, And Hint UX
+---
+name: workflow-hints
+description: Run specialized review passes (puzzle fairness, vocabulary audit, state audit) and maintain progressive parent-child hint UX
+---
 
-## Goal
 Operationalize iterative development with specialized passes and parent-child hint UX.
 
 ## Inputs
@@ -42,6 +44,6 @@ Operationalize iterative development with specialized passes and parent-child hi
 - Co-play flow supports parent guidance without immediate spoilers.
 - No iteration batch contains multiple unplayed puzzles; each completed slice has parser-driven coverage before the next begins.
 
-## Primary Source Coverage
-- `ZIL_TEXT_ADVENTURE_AGENTS.md`: sections 9, 11, 13
-- `WRITING_ADVENTURES.md`: Tips for LLM-Driven Adventure Creation
+## Reference Sources
+- `skills/source_zil_text_adventure_agents.md`: sections 9, 11, 13
+- `skills/source_writing_adventures.md`: Tips for LLM-Driven Adventure Creation

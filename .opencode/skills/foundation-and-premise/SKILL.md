@@ -1,6 +1,8 @@
-# Skill 01: Foundation And Premise
+---
+name: foundation-and-premise
+description: Define the premise, tone, win/lose conditions, and core fantasy for a ZIL adventure before any coding begins
+---
 
-## Goal
 Define what game is being built before coding.
 
 ## Inputs
@@ -33,6 +35,6 @@ Define what game is being built before coding.
 - Opening scene is instantly actionable and teaches parser play naturally.
 - Core fantasy and emotional target are strong enough to pitch in one sentence.
 
-## Primary Source Coverage
-- `ZIL_TEXT_ADVENTURE_AGENTS.md`: sections 0, 1.1, 2.1, 2.2
-- `WRITING_ADVENTURES.md`: Part I sections 1, 2, 5
+## Reference Sources
+- `skills/source_zil_text_adventure_agents.md`: sections 0, 1.1, 2.1, 2.2
+- `skills/source_writing_adventures.md`: Part I sections 1, 2, 5

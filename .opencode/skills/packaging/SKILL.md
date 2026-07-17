@@ -1,6 +1,8 @@
-# Skill 08: Packaging, Checklists, And Release
+---
+name: packaging
+description: Prepare final adventure package with COVER, TAGLINE, SYNOPSIS, REVIEWS, METADATA artifacts and verify definition-of-done criteria
+---
 
-## Goal
 Prepare final adventure package and verify definition-of-done criteria.
 
 ## Inputs
@@ -35,6 +37,6 @@ Prepare final adventure package and verify definition-of-done criteria.
 - Episode hooks and transition text preserve emotional continuity.
 - The release walkthrough uses the exact commands published in testing/hint materials and passes across separate saved invocations.
 
-## Primary Source Coverage
-- `ZIL_TEXT_ADVENTURE_AGENTS.md`: section 12
-- `WRITING_ADVENTURES.md`: Adventure Folder Files, Checklist
+## Reference Sources
+- `skills/source_zil_text_adventure_agents.md`: section 12
+- `skills/source_writing_adventures.md`: Adventure Folder Files, Checklist

@@ -25,6 +25,29 @@ Start with [ARCHITECTURE.md](ARCHITECTURE.md). It is the canonical high-level su
 
 To play a game programmatically (e.g. to test playability or run a walkthrough), see [PLAYING.md](PLAYING.md). It documents `llm.lua` for one-command-at-a-time game interaction.
 
+## Writing Adventures
+
+To create a new ZIL adventure from premise through release, invoke the **@game-writer** subagent:
+```
+@game-writer Design, implement, test, and release a ZIL adventure about <your-premise-here>.
+```
+It orchestrates all eight stages (design docs → working materials → puzzle architecture → prose → ZIL implementation → testing → hint UX → packaging) into a single agent workflow. Each stage loads a corresponding skill (e.g. `skill foundation-and-premise`) for detailed guidance.
+
+## Available Skills
+
+The `.opencode/skills/` directory provides stage-specific skills loadable with the `skill` tool:
+
+| Skill | Use When |
+|-------|----------|
+| `skill foundation-and-premise` | Defining premise, tone, and design doc |
+| `skill working-materials` | Building MAP, OBJECTS, PUZZLES, STORY_STATE, TRANSCRIPT_TESTS |
+| `skill world-model` | Validating puzzle fairness, parser vocabulary, softlock prevention |
+| `skill content-writing` | Writing prose, NPC dialogue, layered hints |
+| `skill zil-implementation` | Writing dungeon.zil, actions.zil, critical implementation rules |
+| `skill testing` | Running transcripts, persistence tests, walkthrough hardening |
+| `skill workflow-hints` | Review passes, hint UX, iteration planning |
+| `skill packaging` | Release artifacts, definition of done |
+
 ## Current Repo Notes
 
 - Imported Infocom materials are vendored as regular folders, not git submodules.

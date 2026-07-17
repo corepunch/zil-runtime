@@ -1,6 +1,8 @@
-# Skill 02: Working Materials And Design Docs
+---
+name: working-materials
+description: Create the design artifacts (MAP, OBJECTS, PUZZLES, STORY_STATE, TRANSCRIPT_TESTS) that externalize world structure and puzzle logic
+---
 
-## Goal
 Create the design artifacts that externalize world structure and puzzle logic.
 
 ## Inputs
@@ -46,6 +48,6 @@ Create the design artifacts that externalize world structure and puzzle logic.
 - Every golden-path command is valid player input rather than an internal object ID or direct `PERFORM` shorthand.
 - Every noun in the opening slice has an explicit parser-vocabulary plan before ZIL implementation begins.
 
-## Primary Source Coverage
-- `ZIL_TEXT_ADVENTURE_AGENTS.md`: section 1, sections 2.3-2.4, section 5.3
-- `WRITING_ADVENTURES.md`: Working Materials section
+## Reference Sources
+- `skills/source_zil_text_adventure_agents.md`: section 1, sections 2.3-2.4, section 5.3
+- `skills/source_writing_adventures.md`: Working Materials section

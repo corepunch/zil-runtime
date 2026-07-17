@@ -1,25 +1,35 @@
-# Adventure Skills Pipeline
+# Adventure Skills Reference
 
-This folder splits adventure creation into stage-oriented skills.
-Each stage consumes intermediate artifacts from prior stages and emits files for the next stage.
+This folder contains reference source materials for the stage-specific skills located under `.opencode/skills/`.
 
-## Stage Order
+## Source Mirrors
 
-1. `01_foundation_and_premise.md`
-2. `02_working_materials_and_design_docs.md`
-3. `03_world_model_and_puzzle_architecture.md`
-4. `04_content_writing_and_npc_layer.md`
-5. `05_zil_implementation_reference.md`
-6. `06_testing_transcripts_and_debugging.md`
-7. `07_workflow_subagents_and_hints_ui.md`
-8. `08_packaging_checklists_and_release.md`
+These preserve the full canonical source material used by the individual skills:
 
-## Canonical Source Mirrors
+- `source_zil_text_adventure_agents.md` — Full design & implementation reference (830 lines)
+- `source_writing_adventures.md` — Full craft + technical manual (1911 lines)
+- `source_design_lessons.md` — Design lessons and principles
 
-To preserve all source information verbatim, these full mirrors are included:
+## Skill Pipeline
 
-- `source_zil_text_adventure_agents.md`
-- `source_writing_adventures.md`
+The staged adventure-building guidance lives in `.opencode/skills/`. Each skill folder contains a `SKILL.md` with detailed instructions for that stage. Load a skill with:
+
+```
+skill <name>
+```
+
+Available skills:
+
+| Skill | Covers |
+|-------|--------|
+| `foundation-and-premise` | Premise, tone, design doc |
+| `working-materials` | MAP, OBJECTS, PUZZLES, STORY_STATE, TRANSCRIPT_TESTS |
+| `world-model` | Puzzle fairness, parser vocabulary, simulation checks |
+| `content-writing` | Prose craft, NPC depth, artistic quality patterns |
+| `zil-implementation` | ZIL syntax, critical rules, clock daemons, patterns |
+| `testing` | Transcript execution, bug categorization, walkthrough hardening |
+| `workflow-hints` | Review passes, hint UX, iteration planning |
+| `packaging` | Release artifacts, definition of done |
 
 ## Adventure Folder Structure
 
@@ -51,51 +61,6 @@ adventure-name/
     └── METADATA.md        # Technical details
 ```
 
-## Intermediate Artifact Contract
-
-### Stage 1 output
-- `DESIGN.md` (premise, tone, win/lose, core fantasy)
-
-### Stage 2 output (goes in `work/`)
-- `MAP.md`
-- `OBJECTS.md`
-- `PUZZLES.md`
-- `STORY_STATE.md`
-- `TRANSCRIPT_TESTS.md`
-
-### Stage 3 output
-- Dependency graph updates in `PUZZLES.md`
-- Verb/object coverage matrix
-- Softlock prevention notes
-
-### Stage 4 output (goes in `work/`)
-- `PROSE.md` (draft room/object prose, NPC topic tables)
-- `HINTS.md` (layered hint copy)
-
-### Stage 5 output
-- `dungeon.zil`
-- `actions.zil`
-
-### Stage 6 output (goes in `test/`)
-- `TESTING.md` (regression transcripts, bug ledger, fix list)
-
-### Stage 7 output (goes in `work/`)
-- `ITERATION.md` (iteration plan and subagent prompts)
-- Updated `HINTS.md` (parent-child hint panel text)
-
-### Stage 8 output (goes in `package/`)
-- `COVER.md`
-- `TAGLINE.md`
-- `SYNOPSIS.md`
-- `REVIEWS.md`
-- `METADATA.md`
-
-## Notes
-
-- Stage files are intentionally scoped so an agent can run one stage at a time.
-- Full source mirrors remain available for exact wording and complete reference.
-- The `work/`, `test/`, and `package/` subfolders keep adventures organized as they grow.
-
 ## Non-Negotiable: Play As You Build
 
 Do not write the whole adventure and wait for Stage 6 to play it. Build vertical slices:
@@ -118,93 +83,27 @@ The walkthrough grows with the game. At every commit-sized milestone, all implem
 3. **Room descriptions use `P?LDESC` not `P?DESC`** — `P?DESC` is the room name, `P?LDESC` is the full description.
 4. **Every `<TELL>` must close with `>`** — unclosed TELL swallows subsequent code.
 5. **GO must exist in actions.zil** — entry point for the game.
-6. **Room descriptions don't embed item descriptions** — items describe themselves via `FDESC`/`LDESC`/`DESCFCN`. This keeps content modular and lets items adapt to state changes.
-7. **Never freeze mutable state into `LDESC`** — follow Zork I's `EAST-HOUSE` pattern: rooms with open/closed, lit/unlit, locked/unlocked, moved, revealed, or depleted elements should omit the duplicated static `LDESC` and use an ACTION routine with `M-LOOK` to compose the full live description from object state. The object's ACTION routine separately handles `EXAMINE` and manipulation.
-8. **Object IDs and DESC text are not parser vocabulary** — every reachable object needs explicit `SYNONYM` nouns and `ADJECTIVE` modifiers matching the exact transcript commands, including hyphenated forms when used.
-9. **Opening a container must make contents reachable** — use container/search flags, set `OPENBIT`, and verify contents can be taken after a separate save/reload invocation.
-10. **Evidence and milestone counters must be idempotent** — guard one-time increments with per-clue flags so repeated EXAMINE/READ/TAKE cannot inflate progress.
-11. **Default verb routines never redispatch themselves** — `PERFORM` already visits object actions before the default; calling the same action again creates recursion.
-12. **Parser syntax and action routines are separate deliverables** — a `V-*` routine does not register a typed verb. Test `USE`, `SHOW`, `HINTS`, custom verbs, and substrate aliases through `llm.lua`.
-13. **ASK uses the TELL action and `PRSI` topic** — NPC routines test `<VERB? TELL>` and compare the topic in `PRSI`; do not depend on a separate `V?ASK`.
+6. **Room descriptions don't embed item descriptions** — items describe themselves via `FDESC`/`LDESC`/`DESCFCN`.
+7. **Never freeze mutable state into `LDESC`** — follow Zork I's `EAST-HOUSE` pattern.
+8. **Object IDs and DESC text are not parser vocabulary** — every reachable object needs explicit `SYNONYM` nouns and `ADJECTIVE` modifiers.
+9. **Opening a container must make contents reachable** — use container/search flags, set `OPENBIT`.
+10. **Evidence and milestone counters must be idempotent** — guard one-time increments with per-clue flags.
+11. **Default verb routines never redispatch themselves** — `PERFORM` already visits object actions before the default.
+12. **Parser syntax and action routines are separate deliverables** — a `V-*` routine does not register a typed verb.
+13. **ASK uses the TELL action and `PRSI` topic** — NPC routines test `<VERB? TELL>` and compare the topic in `PRSI`.
 14. **Puzzle clues and executable sequences must agree** — reconcile prose, hints, object availability, implementation order, and the parser-driven walkthrough before shipping.
-11. **FDESC/LDESC text is the parser vocabulary contract** — every concrete noun in description text that a player might reasonably type must resolve to that object or another object in scope. When FDESC describes an item inside a container (e.g., "A leather roll lies in the open drawer"), create a container object for the described item rather than adding the description noun as a synonym on the contained object. `scripts/check-vocab.lua` checks that printed `DESC` names contain a registered synonym; transcript playtesting must cover the broader prose contract.
-12. **ACTION routine text must match game objects** — when a TELL inside an ACTION routine mentions an object by name ("contains a letter", "sits on the table"), that object must exist in the game world with the right parent and matching SYNONYM. Players will immediately type the noun they just read.
-13. **Don't override EXAMINE on containers** — the Zork engine automatically lists contents via `V-LOOK-INSIDE` → `PRINT-CONT`. Containers with `CONTBIT` print "The X contains: Y, Z" when open, "closed" when closed. Place objects inside containers with `(IN CONTAINER)` rather than printing their names manually.
-14. **Physical nouns are objects, not Boolean shortcuts** — if prose says there is a door, window, switch, drawer, rope, vehicle, or other thing the player could reasonably EXAMINE, OPEN, CLOSE, UNLOCK, TAKE, or refer to as IT, create an `OBJECT` for it. Put shared fixtures in `LOCAL-GLOBALS`, list them in each relevant room's `GLOBAL`, and use object flags such as `OPENBIT` in exits and descriptions. A global may supplement the object for state the object model does not represent (for example, locked versus closed), but must not replace the object itself. Never print a physical obstacle while implementing only `(SOUTH TO ROOM IF SOME-FLAG)`; that produces scenery the parser cannot interact with.
-15. **Custom V-GO routines must mirror every conditional exit** — if you write `V-GO-NORTH`/`V-GO-SOUTH`/etc., every conditional exit (`IF CIPHER-SOLVED`, `IF DOOR IS OPEN`) declared on rooms must be replicated inside the matching V-GO routine. Missing the check silently bypasses the puzzle. Also ensure every room with an exit for that direction appears in the routine.
-16. **NPCs and key objects need generous, overlap-tested vocabulary** — give every NPC role-based synonyms, title adjectives, and `ARTICLEBIT` where "the X" is natural. Add hyphenated compound forms as `SYNONYM`. Pre-register every verb the DESIGN.md promises (ASK, SEARCH, LOOK AT) with explicit `SYNTAX` entries. Test all transcript noun phrases through the parser.
-17. **No two objects in overlapping scope may share DESC or SYNONYM sets** — identical `DESC` strings on objects that can be in scope together cause disambiguation loops. Give unique DESCs, use distinct adjectives, and audit room `GLOBAL` lists so objects don't pseudo-appear in rooms where they don't belong.
-18. **Dynamic room text must faithfully reflect object state** — every state-dependent phrase in a room ACTION routine must be paired with the exact flag check that produces it. Don't say "slightly ajar" for a closed drawer or contradict what the object's own EXAMINE reports.
-19. **NPC-given items must guard against early TAKE** — if an NPC carries an item meant to be given during conversation, the item's TAKE handler must check the relevant global (e.g., `HUDSON-KEY-GIVEN`) before allowing the player to take it.
+15. **FDESC/LDESC text is the parser vocabulary contract** — every concrete noun in description text that a player might reasonably type must resolve to that object or another object in scope.
+16. **ACTION routine text must match game objects** — when a TELL inside an ACTION routine mentions an object by name, that object must exist in the game world.
+17. **Don't override EXAMINE on containers** — the Zork engine automatically lists contents via `V-LOOK-INSIDE` → `PRINT-CONT`.
+18. **Physical nouns are objects, not Boolean shortcuts** — if prose says there is a door, window, switch, drawer, rope, vehicle, or other thing, create an `OBJECT` for it.
+19. **Custom V-GO routines must mirror every conditional exit** — every conditional exit declared on rooms must be replicated inside the matching V-GO routine.
+20. **NPCs and key objects need generous, overlap-tested vocabulary** — give every NPC role-based synonyms, title adjectives, and `ARTICLEBIT`.
+21. **No two objects in overlapping scope may share DESC or SYNONYM sets** — identical `DESC` strings on objects that can be in scope together cause disambiguation loops.
+22. **Dynamic room text must faithfully reflect object state** — every state-dependent phrase must be paired with the exact flag check that produces it.
+23. **NPC-given items must guard against early TAKE** — if an NPC carries an item meant to be given during conversation, the item's TAKE handler must check the relevant global.
 
-See `05_zil_implementation_reference.md` for details.
+See `skills/source_writing_adventures.md` and `skills/source_zil_text_adventure_agents.md` for full details, or load `skill zil-implementation` for the critical implementation rules.
 
-## Critical: Room and Object Flags
+## Room and Object Flags
 
-**This is a common source of bugs. Always set flags correctly.**
-
-### Room Flags
-
-Every room MUST have `(IN ROOMS)` and appropriate flags:
-
-| Flag | Meaning | When to Use |
-|------|---------|-------------|
-| `RLANDBIT` | Land-based room (standard) | **Always** for normal rooms |
-| `ONBIT` | Room is lit (no light source needed) | Omit for dark rooms |
-| `SACREDBIT` | Cannot be touched/destroyed | For rooms that should be immune to player actions |
-
-**Examples:**
-```zil
-; Lit outdoor room
-<ROOM GARDEN
-      (IN ROOMS)
-      (FLAGS RLANDBIT ONBIT)>
-
-; Dark room (needs light source)
-<ROOM BASEMENT
-      (IN ROOMS)
-      (FLAGS RLANDBIT)>  ; No ONBIT = dark room
-```
-
-### Vehicle Rooms
-
-For rooms that can be entered only via vehicle (boats, etc.):
-- Room should NOT have `RLANDBIT` (use `NONLANDBIT` instead)
-- Vehicle object needs `VEHBIT` flag
-
-### Object Flags
-
-| Flag | Meaning | When to Use |
-|------|---------|-------------|
-| `TAKEBIT` | Can be picked up | For portable objects |
-| `READBIT` | Can be READ | For readable items |
-| `CONTBIT` | Is a container | For boxes, bags, etc. |
-| `OPENBIT` | Container is open | For open containers/doors |
-| `LIGHTBIT` | Can provide light | For lanterns, torches |
-| `ONBIT` | Light source is on | For active light sources |
-| `ACTORBIT` | Is an NPC | For talkable characters |
-| `WEAPONBIT` | Can be used as weapon | For swords, knives |
-| `TOOLBIT` | Can be used as tool | For keys, lockpicks |
-| `SCENERY` | Don't auto-describe | For background objects |
-| `NDESCBIT` | Don't auto-describe | For objects described in room text |
-| `VEHBIT` | Is a vehicle | For boats, carts |
-| `SURFACEBIT` | Things can be put on it | For tables, benches |
-| `TRANSBIT` | Container is transparent | For glass containers |
-
-### Common Flag Mistakes
-
-1. **Missing `RLANDBIT`**: Room may not work for navigation
-2. **Missing `ONBIT`**: Room is dark when it should be lit
-3. **Extra `ONBIT` on dark room**: Room is always lit
-4. **Missing `TAKEBIT`**: Object can't be picked up
-5. **Missing `CONTBIT`**: Container doesn't work
-6. **Missing `OPENBIT`**: Container starts closed when it should be open
-
-### Testing Flags
-
-After setting flags, test:
-1. Can player enter the room?
-2. Is the room lit (if ONBIT) or dark (if no ONBIT)?
-3. Can player take objects (if TAKEBIT)?
-4. Can player open and close containers (if `CONTBIT`)?
-5. Can player talk to NPCs (if ACTORBIT)?
+See the individual skills under `.opencode/skills/` for flag reference tables.
