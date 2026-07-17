@@ -30,6 +30,8 @@ Available skills:
 | `testing` | Transcript execution, bug categorization, walkthrough hardening |
 | `workflow-hints` | Review passes, hint UX, iteration planning |
 | `packaging` | Release artifacts, definition of done |
+| `playtesting` | Running game-tester play sessions and collecting bug reports |
+| `bug-fixing` | Fixing ZIL bugs (missing synonyms, broken containers, door/exit issues, parser gaps, state corruption) |
 
 ## Adventure Folder Structure
 
