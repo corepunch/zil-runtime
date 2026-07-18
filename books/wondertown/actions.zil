@@ -83,28 +83,20 @@
 <ROUTINE COUNTERTOP-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
            <TELL "You are on the countertop -- the toy display. A dusty glass case holds forgotten treasures, and through the frosted shop window you can see the snowy street outside, the clock tower visible in the distance.">
-           <COND (,MARZIPAN-BUTTON
-                  <TELL " The rag doll now has both button eyes. She watches you with a warm, knowing smile.">)
-                 (T
-                  <TELL " A rag doll with one button eye sits against the window, her stitched mouth curved in a permanent smile.">)>
            <TELL " Stairs lead back down to the tool bench." CR>)>>
 
 <ROUTINE STORAGE-LOFT-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
            <TELL "The storage loft is dusty and dim, cobwebs draping the rafters like grey curtains.">
-           <COND (,OLD-TICK-HEARD
-                  <TELL " The old cuckoo clock seems more alert now, its hands no longer frozen.">)
-                 (T
-                  <TELL " An old cuckoo clock sits silent among the shadows, its hands frozen at five to midnight.">)>
            <TELL " A cardboard box sits in the corner. Stairs lead back down." CR>)>>
 
 <ROUTINE SCRAP-YARD-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
            <TELL "The scrap-yard is a sad place. Broken toys are piled everywhere.">
            <COND (,CART-MOVED
-                  <TELL " The scrap cart has rolled aside, and the iron gate to the east stands open now.">)
+                  <TELL " The iron gate to the east stands open now.">)
                  (T
-                  <TELL " A scrap-metal cart creaks along a track, blocking the way east.">)>
+                  <TELL " The way east is blocked.">)>
            <TELL " Snow covers the piles of discarded playthings." CR>)>>
 
 <ROUTINE FOX-DEN-FCN (RARG)

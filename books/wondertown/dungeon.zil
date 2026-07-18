@@ -38,7 +38,7 @@
 <ROOM WORKSHOP-FLOOR
       (IN ROOMS)
       (DESC "Workshop Floor")
-      (LDESC "You are in Grandfather Tolliver's workshop. The enormous workbench towers above you, its surface cluttered with tools and half-finished toys. A brass key hook on the wall hangs empty — only a frayed string still dangles from it. Your tiny broom leans against the bench. Soft sawdust covers the floorboards like a golden blanket. A small pet door is cut into the workshop's main door to the north. An old cuckoo clock ticks softly on the wall. To the east, the tool bench — a staircase of giant wooden spools leads upward, though its mechanism looks worryingly rusted.")
+      (LDESC "You are in Grandfather Tolliver's workshop. A brass key hook on the wall hangs empty — only a frayed string still dangles from it. Your tiny broom leans against the bench. Soft sawdust covers the floorboards like a golden blanket. A small pet door is cut into the workshop's main door to the north. An old cuckoo clock ticks softly on the wall. To the east, the tool bench — a staircase of giant wooden spools leads upward, though its mechanism looks worryingly rusted.")
       (EAST TO TOOL-BENCH)
       (NORTH TO SNOWY-ALLEY)
       (UP TO STORAGE-LOFT IF LADDER-OILED)
@@ -49,7 +49,7 @@
 <ROOM TOOL-BENCH
       (IN ROOMS)
       (DESC "Tool Bench")
-      (LDESC "The tool bench stretches away, a landscape of enormous chisels and planes. A painted wooden nutcracker stands at attention near a thread spool staircase, frozen mid-stride as if someone pressed pause on his parade. A pot of varnish sits open nearby, its contents gone tacky. The spool staircase leads up toward the countertop, but the nutcracker blocks the way.")
+      (LDESC "The tool bench stretches away, a landscape of enormous chisels and planes. A pot of varnish sits open nearby, its contents gone tacky. The spool staircase leads up toward the countertop, but the nutcracker blocks the way.")
       (WEST TO WORKSHOP-FLOOR)
       (UP TO COUNTERTOP IF BERTRAND-WOUND)
       (FLAGS RLANDBIT ONBIT)
@@ -59,7 +59,7 @@
       (IN ROOMS)
       (DESC "Countertop")
       (ACTION COUNTERTOP-FCN)
-      (LDESC "You are on the countertop — the toy display. A dusty glass case holds forgotten treasures, and through the frosted shop window you can see the snowy street outside, the clock tower visible in the distance. A rag doll with one button eye sits against the window, her stitched mouth curved in a permanent smile. She's humming a little tune.")
+      (LDESC "You are on the countertop — the toy display. A dusty glass case holds forgotten treasures, and through the frosted shop window you can see the snowy street outside, the clock tower visible in the distance.")
       (DOWN TO TOOL-BENCH)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL WORKSHOP-BUILDING TOPIC-TOLLIVER TOPIC-KEY TOPIC-FOX)>
@@ -68,7 +68,7 @@
       (IN ROOMS)
       (DESC "Storage Loft")
       (ACTION STORAGE-LOFT-FCN)
-      (LDESC "The storage loft is dusty and dim, cobwebs draping the rafters like grey curtains. An old cuckoo clock — the twin of the one downstairs — sits silent among the shadows, its hands frozen at five to midnight. A cardboard box labelled 'Broken - For Repair' sits in the corner. This was where Tolliver kept toys he meant to fix.")
+      (LDESC "The storage loft is dusty and dim, cobwebs draping the rafters like grey curtains. A cardboard box labelled 'Broken - For Repair' sits in the corner. This was where Tolliver kept toys he meant to fix.")
       (DOWN TO WORKSHOP-FLOOR)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL TOPIC-TOLLIVER)>
@@ -85,7 +85,7 @@
 <ROOM CLOCK-SQUARE
       (IN ROOMS)
       (DESC "Clock Square")
-      (LDESC "The clock tower dominates the square, its great face showing the hours until dawn with unnerving clarity. Abandoned shopfronts line the square — a bakery, a cobbler — each window displaying a toy frozen in its work. Tin toy lamps dot the cobblestones, their light weak and flickering. A brass winding mechanism sits at the clock tower's base, just out of reach for someone your size.")
+      (LDESC "The clock tower dominates the square. Abandoned shopfronts line the square — a bakery, a cobbler — each window displaying a toy frozen in its work. Tin toy lamps dot the cobblestones, their light weak and flickering. A brass winding mechanism sits at the clock tower's base, just out of reach for someone your size.")
       (WEST TO SNOWY-ALLEY)
       (EAST TO MAILBOX-CORNER)
       (SOUTH TO SCRAP-YARD)
@@ -95,7 +95,7 @@
 <ROOM MAILBOX-CORNER
       (IN ROOMS)
       (DESC "Mailbox Corner")
-      (LDESC "At the corner, a red tin mailbox tilts slightly into the snow. Its flap hangs open, and scattered letters lie half-buried. The mailbox shivers — or maybe it was just the wind. A red wool scarf lies abandoned in the snow. More fox footprints continue back west, toward the clock tower.")
+      (LDESC "At the corner, scattered letters lie half-buried in the snow. A red wool scarf lies abandoned nearby. More fox footprints continue back west, toward the clock tower.")
       (WEST TO CLOCK-SQUARE)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL MOON TOPIC-FOX TOPIC-TOLLIVER)>
@@ -104,7 +104,7 @@
       (IN ROOMS)
       (DESC "Scrap-Yard")
       (ACTION SCRAP-YARD-FCN)
-      (LDESC "The scrap-yard is a sad place. Broken toys are piled everywhere — a headless porcelain doll, a three-legged horse, toys that someone loved once and then discarded. A scrap-metal cart creaks along a track, gathering up the broken things. Behind the cart, an iron gate leads east.")
+      (LDESC "The scrap-yard is a sad place. Broken toys are piled everywhere — a headless porcelain doll, a three-legged horse, toys that someone loved once and then discarded. Behind the cart, an iron gate leads east.")
       (NORTH TO CLOCK-SQUARE)
       (EAST TO FOX-DEN IF CART-MOVED)
       (FLAGS RLANDBIT ONBIT)
@@ -131,7 +131,7 @@
 <ROOM WORKSHOP-HEART
       (IN ROOMS)
       (DESC "Workshop Heart")
-      (LDESC "You are inside the workshop's heart — a vast chamber hidden behind the clock. Giant brass gears surround you, motionless. A central winding mechanism waits, its keyhole dark. Around the walls, dozens of toys stand frozen — silent witnesses. This is where the magic lives. This is what needs rewinding.")
+      (LDESC "You are inside the workshop's heart — a vast chamber hidden behind the clock. Around the walls, dozens of toys stand frozen — silent witnesses. This is where the magic lives. This is what needs rewinding.")
       (UP TO TOLLIVER-STUDY)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL TOPIC-HEART TOPIC-TOLLIVER)>

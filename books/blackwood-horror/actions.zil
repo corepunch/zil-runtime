@@ -39,7 +39,7 @@
 
 <ROUTINE BOILER-ROOM-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
-           <TELL "Coal dust softens every edge in this low brick chamber. A massive boiler occupies the far wall, with an iron coal bin beside it.">
+           <TELL "Coal dust softens every edge in this low brick chamber.">
            <COND (,BOILER-LIT
                   <TELL " The boiler is awake now: fire mutters behind its door and the pipes knock with gathering heat.">)
                  (,BOILER-FUELED
@@ -79,7 +79,7 @@
 
 <ROUTINE DIRECTORS-OFFICE-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
-           <TELL "A large office with wood paneling. Bookshelves line the walls, filled with medical texts and journals.">
+           <TELL "A large office with wood paneling. Bookshelves line the walls.">
            <COND (<FSET? ,WALL-SAFE ,OPENBIT>
                   <TELL " A wall safe is visible behind a moved painting.">)
                  (<FSET? ,MORDECAI-PORTRAIT ,TOUCHBIT>
@@ -812,7 +812,7 @@
            <COND (,GAME-WON
                   <TELL "The chapel is just a room now. The candles are dark. The altar is bare. Whatever was here is gone -- and so is whatever held you." CR>)
                  (T
-                  <TELL "The chapel is small and suffocating. Cold green light from unnatural candles makes everything look like a corpse. At the far end, before the altar, something stands perfectly still. You have the uneasy sense that it is waiting for you to speak.">
+                   <TELL "The chapel is small and suffocating. Cold green light from unnatural candles makes everything look like a corpse.">
                   <COND (<NOT ,PATIENT-STATE>
                          <SETG PATIENT-STATE 1>)>
                   <TELL CR>)>

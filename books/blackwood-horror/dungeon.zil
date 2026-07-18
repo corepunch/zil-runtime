@@ -66,7 +66,7 @@
 <ROOM OPERATING-THEATER
       (IN ROOMS)
       (DESC "Operating Theater")
-      (LDESC "The circular theater rises in tiers where students once observed procedures. Cold metal trays sit abandoned on carts. The air is motionless; even your sleeve brushing the door sounds indecently loud.")
+      (LDESC "The circular theater rises in tiers where students once observed procedures. The air is motionless; even your sleeve brushing the door sounds indecently loud.")
       (SOUTH TO SANITARIUM-ENTRANCE)
       (FLAGS RLANDBIT ONBIT)
       (PSEUDO "INSTRUMENTS" INSTRUMENTS-PSEUDO "SCALPELS" INSTRUMENTS-PSEUDO "TRAYS" TRAYS-PSEUDO "BENCHES" BENCHES-PSEUDO "BENCH" BENCHES-PSEUDO "TIERS" BENCHES-PSEUDO)>

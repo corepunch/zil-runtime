@@ -486,10 +486,10 @@
            <COND (<NOT ,GATE-SEEN>
                   <SETG GATE-SEEN T>
                   <TELL "For one breath the fog parts, revealing every wet gable of Ashworth Manor before the river mist closes again. ">)>
-           <COND (<IN? ,TELEGRAM ,ASHWORTH-MANOR-GATE>
-                  <TELL "Wet iron bars divide the river fog into pale strips. Coal smoke catches at the back of your throat, and a gravel path runs north toward the manor. A creased telegram is pinned beneath a stone beside the open gate." CR>)
-                 (T
-                  <TELL "River fog beads on the open iron gate. Wet gravel leads north to Ashworth Manor; the stone where the telegram waited is bare." CR>)>)>>
+            <COND (<IN? ,TELEGRAM ,ASHWORTH-MANOR-GATE>
+                   <TELL "Wet iron bars divide the river fog into pale strips. Coal smoke catches at the back of your throat, and a gravel path runs north toward the manor." CR>)
+                  (T
+                   <TELL "River fog beads on the open iron gate. Wet gravel leads north to Ashworth Manor; the stone where the telegram waited is bare." CR>)>)>>
 
 <ROUTINE STUDY-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
@@ -497,10 +497,6 @@
                   <SETG STUDY-SEEN T>
                   <TELL "The locked room has preserved its violence with museum care. ">)>
            <TELL "A chalk outline interrupts the Turkey carpet; beside it, three dark drops have dried almost black. Cold ash grits beneath your shoes.">
-           <COND (,LOCKED-BOX-OPENED
-                  <TELL " The locked box in the fireplace lies open, its contents revealed.">)
-                 (T
-                  <TELL " A small locked box sits among the cold ashes in the fireplace.">)>
            <COND (<FSET? ,WINDOW ,OPENBIT>
                   <TELL " The window stands open, letting in the chill night air.">)
                  (T
@@ -534,7 +530,7 @@
                   <TELL "The kettle's small thread of steam is the first warm thing you have seen in the house. ">)>
            <TELL "A kitchen that has seen better days. The hearth is cold, its last fire long extinguished.">
            <COND (<FSET? ,DRAWER ,OPENBIT>
-                  <TELL " The drawer in the counter stands open, a leather roll inside.">)
+                  <TELL " The drawer in the counter stands open.">)
                  (T
                   <TELL " A drawer in the counter is closed.">)>
            <TELL CR "A blue kettle sits ready on the range, a small domestic kindness in a silenced house. A staircase leads up to the entrance hall, and a doorway west leads to the garden." CR>)>>
@@ -545,10 +541,6 @@
                   <SETG GARDEN-SEEN T>
                   <TELL "A single white rose has survived the rain, luminous among the black hedges. ">)>
            <TELL "Rain beads along the overgrown hedges and darkens the gravel around a dry stone fountain.">
-           <COND (<IN? ,BLOOD-STAINED-KNIFE ,GARDEN>
-                  <TELL " Something glints in the branches near the fountain.">)>
-           <COND (<IN? ,FOOTPRINT-CAST ,GARDEN>
-                  <TELL " A white plaster footprint cast rests against the fountain's blackened basin.">)>
            <TELL CR "A doorway east leads to the kitchen, paths lead north to the greenhouse and south to the servants' quarters." CR>)>>
 
 <ROUTINE DINING-ROOM-FCN (RARG)
@@ -557,8 +549,6 @@
                   <SETG DINING-SEEN T>
                   <TELL "Candlelight preserves a dinner interrupted at the instant grief became suspicion. ">)>
            <TELL "Two places are set at the long table, but a skin has formed over the soup before Lady Ashworth and the knife beside it is exactly parallel to her plate.">
-           <COND (<IN? ,WAX-SEAL ,DINING-ROOM>
-                  <TELL " A crimson wax seal lies at the unused place.">)>
            <COND (,CABINET-CLUE-SEEN
                   <TELL " The unlatched wine cabinet shows the clean outline of its missing medicinal bottle.">)
                  (T
@@ -584,7 +574,7 @@
            <COND (<NOT ,SERVANTS-SEEN>
                   <SETG SERVANTS-SEEN T>
                   <TELL "Here, unlike upstairs, every repaired seam and polished buckle records someone choosing to care. ">)>
-           <TELL "Clean but worn linen is folded across the narrow beds. A wooden trunk stands beneath a brass lantern kept brighter than anything else in the room.">
+           <TELL "Clean but worn linen is folded across the narrow beds. A wooden trunk stands in the corner.">
            <COND (<==? ,CASE-ACT 3>
                   <TELL " Hudson's packed carpetbag rests by the north door; his coat is buttoned one hole wrong.">)
                  (,HUDSON-CONFRONTED
