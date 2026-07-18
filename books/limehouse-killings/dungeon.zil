@@ -70,8 +70,8 @@
       (IN ROOMS)
       (DESC "Ashworth Manor Entrance Hall")
       (ACTION ENTRANCE-HALL-FCN)
-      (SOUTH TO STUDY IF STUDY-DOOR IS OPEN ELSE "The study door is closed.")
-      (NORTH TO ASHWORTH-MANOR-GATE)
+      (NORTH TO STUDY IF STUDY-DOOR IS OPEN ELSE "The study door is closed.")
+      (SOUTH TO ASHWORTH-MANOR-GATE)
       (EAST TO LIBRARY)
       (WEST TO DINING-ROOM)
       (DOWN TO KITCHEN)
@@ -82,7 +82,8 @@
       (IN ROOMS)
       (DESC "Study")
       (ACTION STUDY-FCN)
-      (NORTH TO ASHWORTH-ENTRANCE-HALL IF STUDY-DOOR IS OPEN ELSE "The study door is closed.")
+      (SOUTH TO ASHWORTH-ENTRANCE-HALL IF STUDY-DOOR IS OPEN ELSE "The study door is closed.")
+      (WEST TO GARDEN IF WINDOW IS OPEN ELSE "The window is closed.")
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL DESK FIREPLACE WINDOW CHALK-OUTLINE STUDY-DOOR)>
 

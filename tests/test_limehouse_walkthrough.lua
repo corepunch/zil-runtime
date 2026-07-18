@@ -27,13 +27,13 @@ test.describe("Limehouse Killings walkthrough", function(t)
 		assert.assert_equal(code, 0)
 
 		local actions = {
-			"go north", "take magnifying glass", {"go south", "The study door is closed."},
+			"go north", "take magnifying glass", {"go north", "The study door is closed."},
 			{"open study door", "need the study key or a lockpick"},
 			"go east", "examine reading-desk", "take torn-page", "read torn-page",
 			"examine colored-markers", "push red book", "push yellow book", "push green book",
 			"push blue book", "go south", "go east", "examine chalk-outline", "examine desk", "take dead-letter",
 			"read dead-letter", "take poison-bottle", "examine poison-bottle",
-			{"open study door", "interior bolt"}, "go north", "go west",
+			{"open study door", "interior bolt"}, "go south", "go west",
 			"examine table", {"examine wine cabinet", "missing squat bottle"},
 			{"open wine cabinet", "opens freely"}, "take wax-seal", "go north", "examine shelves", "take foxglove",
 			"take charcoal", {"taste vial", "vision swims"},
@@ -68,8 +68,8 @@ test.describe("Limehouse Killings walkthrough", function(t)
 			{"show letter to moriarty", "Blackmail"}, {"examine moriarty", "sweat darkens"},
 			{"show letter to moriarty", "already performed that trick"},
 			"ask moriarty about poison", "take secret-ledger",
-			"read secret-ledger", "go west", "go south", "examine locked-box",
-			"turn locked box to moriarty", "take bank-statement", "read bank-statement", "go north",
+			"read secret-ledger", "go west", "go north", "examine locked-box",
+			"turn locked box to moriarty", "take bank-statement", "read bank-statement", "go south",
 			"ask inspector", "tell inspector", "ask inspector about case", "show letter to inspector",
 			"show bottle to inspector", "show statement to inspector",
 			{"show footprint cast to inspector", "crescent nicks meet"},
@@ -178,7 +178,7 @@ test.describe("Limehouse Killings walkthrough", function(t)
 			{"look", "closed but unlocked"},
 			{"open study door", "You open the study door"},
 			{"look", "stands open, revealing the study beyond"},
-			{"go south", "Study"},
+			{"go north", "Study"},
 		}
 
 		for _, entry in ipairs(actions) do

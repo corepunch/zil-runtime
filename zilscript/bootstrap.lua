@@ -218,6 +218,10 @@ local function add_exits(room)
 			table.insert(exits, {d, desc})
 		elseif PTSIZE(pp) == 2 then
 			table.insert(exits, {d, string.format("\"%s\"", mem:string(GET(pp, 0)))})
+		elseif PTSIZE(pp) == 4 then
+			table.insert(exits, {d, GETP(GETB(pp, REXIT), PQDESC)})
+		elseif PTSIZE(pp) == 5 then
+			table.insert(exits, {d, GETP(GETB(pp, REXIT), PQDESC)})
 		end
 	end
 	return exits

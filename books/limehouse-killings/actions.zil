@@ -506,15 +506,15 @@
                   <TELL "The locked room has preserved its violence with museum care. ">)>
            <TELL "A chalk outline interrupts the Turkey carpet; beside it, three dark drops have dried almost black. Cold ash grits beneath your shoes.">
            <COND (<FSET? ,WINDOW ,OPENBIT>
-                  <TELL " The window stands open, letting in the chill night air.">)
+                  <TELL " The window stands open, leading to the garden.">)
                  (T
                   <TELL " A window looks out to the garden, its latch rusted but intact.">)>
            <COND (<FSET? ,STUDY-DOOR ,OPENBIT>
-                  <TELL " The solid oak study door to the north stands open onto the entrance hall.">)
+                  <TELL " The solid oak study door to the south stands open onto the entrance hall.">)
                  (,STUDY-UNLOCKED
-                  <TELL " The solid oak study door to the north is closed but unlocked.">)
+                  <TELL " The solid oak study door to the south is closed but unlocked.">)
                  (T
-                  <TELL " The solid oak study door to the north is closed and locked.">)>
+                  <TELL " The solid oak study door to the south is closed and locked.">)>
            <CRLF>)>>
 
 <ROUTINE LIBRARY-FCN (RARG)
@@ -613,13 +613,13 @@
            <COND (<NOT ,HALL-SEEN>
                   <SETG HALL-SEEN T>
                   <TELL "The hall receives you with the measured hush of a house listening from behind its doors. ">)>
-           <TELL "Dust has softened the chandelier's crystal edges, and beeswax polish sharpens the smell of old oak. Doorways lead north to the gate, east to the library, west to the dining room, and down to the kitchen.">
+           <TELL "Dust has softened the chandelier's crystal edges, and beeswax polish sharpens the smell of old oak. Doorways lead south to the gate, east to the library, west to the dining room, and down to the kitchen.">
            <COND (<FSET? ,STUDY-DOOR ,OPENBIT>
-                  <TELL " The solid oak study door to the south stands open, revealing the study beyond.">)
+                  <TELL " The solid oak study door to the north stands open, revealing the study beyond.">)
                  (,STUDY-UNLOCKED
-                  <TELL " The solid oak study door to the south is closed but unlocked.">)
+                  <TELL " The solid oak study door to the north is closed but unlocked.">)
                  (T
-                  <TELL " The solid oak study door to the south is closed and locked.">)>
+                  <TELL " The solid oak study door to the north is closed and locked.">)>
            <COND (<AND ,INSPECTOR-PRESENT <IN? ,INSPECTOR ,ASHWORTH-ENTRANCE-HALL>>
                   <TELL " Inspector Lestrade has arrived beneath the chandelier, notebook open.">)>
            <COND (<==? ,CASE-ACT 2>
@@ -1135,121 +1135,6 @@
            <RTRUE>)
           (T
            <TELL "You must name a specific suspect." CR>
-           <RTRUE>)>>
-
-<ROUTINE V-GO-NORTH ()
-    <COND (<==? ,HERE ,ASHWORTH-MANOR-GATE>
-           <SETG HERE ,ASHWORTH-ENTRANCE-HALL>
-           <TELL "You enter the manor." CR>
-           <RTRUE>)
-          (<==? ,HERE ,ASHWORTH-ENTRANCE-HALL>
-           <SETG HERE ,ASHWORTH-MANOR-GATE>
-           <TELL "You leave the manor." CR>
-           <RTRUE>)
-          (<==? ,HERE ,GARDEN>
-           <SETG HERE ,GREENHOUSE>
-           <TELL "You enter the greenhouse." CR>
-           <RTRUE>)
-          (<==? ,HERE ,SERVANTS-QUARTERS>
-           <SETG HERE ,GARDEN>
-           <TELL "You return to the garden." CR>
-           <RTRUE>)
-          (T
-           <TELL "You can't go that way." CR>
-           <RTRUE>)>>
-
-<ROUTINE V-GO-SOUTH ()
-    <COND (<==? ,HERE ,ASHWORTH-ENTRANCE-HALL>
-           <COND (<FSET? ,STUDY-DOOR ,OPENBIT>
-                  <SETG HERE ,STUDY>
-                  <TELL "You enter the study." CR>
-                  <RTRUE>)
-                 (,STUDY-UNLOCKED
-                  <TELL "The study door is closed." CR>
-                  <RTRUE>)
-                 (T
-                  <TELL "The study door is locked." CR>
-                  <RTRUE>)>)
-          (<==? ,HERE ,GARDEN>
-           <SETG HERE ,SERVANTS-QUARTERS>
-           <TELL "You enter the servants' quarters." CR>
-           <RTRUE>)
-          (<==? ,HERE ,GREENHOUSE>
-           <SETG HERE ,GARDEN>
-           <TELL "You return to the garden." CR>
-           <RTRUE>)
-          (<==? ,HERE ,LIBRARY>
-           <COND (,CIPHER-SOLVED
-                  <SETG HERE ,SECRET-PASSAGE>
-                  <TELL "You enter the secret passage." CR>)
-                 (T
-                  <TELL "You can't go that way." CR>)>
-           <RTRUE>)
-          (T
-           <TELL "You can't go that way." CR>
-           <RTRUE>)>>
-
-<ROUTINE V-GO-EAST ()
-    <COND (<==? ,HERE ,ASHWORTH-ENTRANCE-HALL>
-           <SETG HERE ,LIBRARY>
-           <TELL "You enter the library." CR>
-           <RTRUE>)
-          (<==? ,HERE ,LIBRARY>
-           <COND (,CIPHER-SOLVED
-                  <SETG HERE ,SECRET-PASSAGE>
-                  <TELL "You enter the secret passage." CR>)
-                 (T
-                  <TELL "You can't go that way." CR>)>
-           <RTRUE>)
-          (<==? ,HERE ,DINING-ROOM>
-           <SETG HERE ,ASHWORTH-ENTRANCE-HALL>
-           <TELL "You return to the entrance hall." CR>
-           <RTRUE>)
-          (<==? ,HERE ,SECRET-PASSAGE>
-           <SETG HERE ,STUDY>
-           <TELL "You enter the study." CR>
-           <RTRUE>)
-          (T
-           <TELL "You can't go that way." CR>
-           <RTRUE>)>>
-
-<ROUTINE V-GO-WEST ()
-    <COND (<==? ,HERE ,ASHWORTH-ENTRANCE-HALL>
-           <SETG HERE ,DINING-ROOM>
-           <TELL "You enter the dining room." CR>
-           <RTRUE>)
-          (<==? ,HERE ,LIBRARY>
-           <SETG HERE ,ASHWORTH-ENTRANCE-HALL>
-           <TELL "You return to the entrance hall." CR>
-           <RTRUE>)
-          (<==? ,HERE ,KITCHEN>
-           <SETG HERE ,GARDEN>
-           <TELL "You enter the garden." CR>
-           <RTRUE>)
-          (<==? ,HERE ,SECRET-PASSAGE>
-           <SETG HERE ,LIBRARY>
-           <TELL "You enter the library." CR>
-           <RTRUE>)
-          (T
-           <TELL "You can't go that way." CR>
-           <RTRUE>)>>
-
-<ROUTINE V-GO-UP ()
-    <COND (<==? ,HERE ,KITCHEN>
-           <SETG HERE ,ASHWORTH-ENTRANCE-HALL>
-           <TELL "You return to the entrance hall." CR>
-           <RTRUE>)
-          (T
-           <TELL "You can't go that way." CR>
-           <RTRUE>)>>
-
-<ROUTINE V-GO-DOWN ()
-    <COND (<==? ,HERE ,ASHWORTH-ENTRANCE-HALL>
-           <SETG HERE ,KITCHEN>
-           <TELL "You enter the kitchen." CR>
-           <RTRUE>)
-          (T
-           <TELL "You can't go that way." CR>
            <RTRUE>)>>
 
 <ROUTINE V-INVENTORY ()
