@@ -435,8 +435,7 @@
         (SYNONYM BOILER FURNACE)
         (ADJECTIVE IRON MASSIVE)
         (DESC "iron boiler")
-        (FDESC "The room's centerpiece is a massive iron boiler, cold and silent as a tomb. Its hulking form crouches in the darkness like some dormant beast.")
-        (LDESC "A massive iron boiler dominates the room, cold and silent.")
+        (DESCFCN IRON-BOILER-DESC-F)
         (FLAGS CONTBIT OPENBIT LIGHTBIT BURNBIT)
         (CAPACITY 20)
         (ACTION BOILER-F)>

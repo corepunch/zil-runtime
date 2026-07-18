@@ -32,7 +32,10 @@ Prove completion path, catch regressions, and close parser/content gaps.
 19. Add a prose-to-world transcript pass: follow every direction named in room prose, examine every named fixture from the room where it is described, and type each player-facing head noun verbatim.
 20. Test every conversation topic via parser commands in every room where the NPC interaction can occur; direct routine calls do not prove topic scope.
 21. Test syntax variants separately when the parser has distinct grammar lines or flag gates, including bare versus prepositional forms such as `CLIMB BENCH` and `CLIMB UP BENCH`.
-22. **Check for duplicate item descriptions:** When entering a room, verify no item is described twice — once in the room's M-LOOK/LDESC text and again via the item's FDESC. Room prose should describe the space; items describe themselves. Flag any item whose name appears in both room text and FDESC as a duplicate.
+22. **Test description ownership through rendered output:** Capture `LOOK` on first entry, immediate repeat, after examining/taking/opening focal objects, and after every relevant state transition. Verify each feature is introduced once, remains spatially understandable, and never contradicts current state. A noun may appear briefly in room prose and still own a separate object line, but the two paths must not repeat the same facts.
+23. **Audit `FDESC`/`NDESCBIT` combinations:** Treat an object with both as suspicious. Prove its `FDESC` is printed deliberately by code; otherwise the prose is dead and must move to the room/room action or the suppression flag must be removed.
+24. **Test scenery affordances:** For every concrete noun in room or object prose, issue at least `EXAMINE <noun>` in the described scope. Use real, GLOBAL, grouped, or PSEUDO scenery rather than forcing every noun into an automatic `LOOK` line.
+25. **Test untouched dynamic objects:** On this substrate, an untouched object's `FDESC` bypasses `DESCFCN`. For every object with `DESCFCN`, test a changed state before any command touches that object and ensure no static `FDESC` shadows the dynamic text.
 
 ## Play-As-You-Build Loop
 
@@ -69,7 +72,8 @@ For direct ZIL tests, keep each assertion atomic. A successful coroutine resume 
 - The exact documented compound nouns, conversation topics, and custom verbs parse successfully.
 - No test combines a coroutine resume and its postcondition as multiple arguments to `ASSERT`.
 - Every object action routine has at least one test proving an unhandled generic verb still reaches the substrate default.
-- No item is described twice on room entry (once in room prose, once via FDESC).
+- Every room has rendered-output checks showing one coherent description owner per feature on first entry, repeat `LOOK`, and relevant post-state views.
+- No intended automatic `FDESC` is silently suppressed by `NDESCBIT`, and no room-owned scenery noun is parser-dead.
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: section 8

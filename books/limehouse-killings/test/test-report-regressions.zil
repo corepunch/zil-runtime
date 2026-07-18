@@ -29,6 +29,14 @@
     <ASSERT-NOT-TEXT "cast lies nearby" <CO-RESUME ,CO "examine fountain">>
     <ASSERT-TEXT "where the knife was lodged" <CO-RESUME ,CO "examine hedges">>
 
+    ;"The puzzle box owns a persistent, state-aware room description."
+    <SETG HERE ,STUDY>
+    <MOVE ,WINNER ,STUDY>
+    <SETG LOCKED-BOX-OPENED T>
+    <FSET ,LOCKED-BOX ,OPENBIT>
+    <ASSERT-TEXT "box lies open among the cold ashes" <CO-RESUME ,CO "look">>
+    <ASSERT-NOT-TEXT "small locked box" <CO-RESUME ,CO "look">>
+
     ;"The kitchen map has only the documented west exit."
     <SETG HERE ,KITCHEN>
     <MOVE ,WINNER ,KITCHEN>

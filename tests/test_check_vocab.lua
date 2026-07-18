@@ -62,6 +62,34 @@ test.describe("Vocabulary checker", function(t)
 		assert.assert_match(output, "object has SYNONYM but no DESC")
 		os.remove(path)
 	end)
+
+	t.it("rejects FDESC suppressed by NDESCBIT", function(assert)
+		local path = write_fixture("suppressed-fdesc", [[
+<OBJECT CLOCK
+      (DESC "clock")
+      (FDESC "A clock dominates the room.")
+      (SYNONYM CLOCK)
+      (FLAGS NDESCBIT)>
+]])
+		local code, output = run_checker(path)
+		assert.assert_not_equal(code, 0)
+		assert.assert_match(output, "FDESC is suppressed by NDESCBIT")
+		os.remove(path)
+	end)
+
+	t.it("rejects static FDESC shadowing DESCFCN", function(assert)
+		local path = write_fixture("shadowed-descfcn", [[
+<OBJECT BOILER
+      (DESC "boiler")
+      (FDESC "A cold boiler is here.")
+      (DESCFCN BOILER-DESC-F)
+      (SYNONYM BOILER)>
+]])
+		local code, output = run_checker(path)
+		assert.assert_not_equal(code, 0)
+		assert.assert_match(output, "untouched FDESC shadows the dynamic DESCFCN")
+		os.remove(path)
+	end)
 end)
 
 local success = test.summary()

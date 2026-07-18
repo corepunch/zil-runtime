@@ -10,7 +10,7 @@ Write player-facing text and interactions that teach play and maintain tone.
 
 ## Required Actions
 1. Write first-visit and revisit room text with actionable nouns.
-2. **Ensure every mentioned noun is handled** — every object, person, or feature mentioned in room or object text must be reachable through the parser. Use objects for interactive items (doors, containers, NPCs), PSEUDO for scenery that players might EXAMINE (paintings, fireplaces, rubble), and NDESCBIT for background atmosphere.
+2. **Ensure every conspicuous noun is handled** — every object, person, or feature a player might reasonably type must resolve through the parser. Use objects for interactive items (doors, containers, NPCs), PSEUDO or grouped scenery for minor fixtures, and GLOBAL/LOCAL-GLOBALS for shared scenery. `NDESCBIT` only suppresses automatic listing; it does not make an unimplemented noun interactive.
 3. Author object text to support puzzle affordances.
 4. Author NPC behavior scope and conversation patterns (ASK/TELL/GIVE/SHOW).
 5. Author layered hints (attention, direction, action, command).
@@ -52,11 +52,19 @@ A twist should be discoverable, not stated. The reveal should be the first momen
 ### Endings: Interactive Resolution, Not Held-Item Check
 An ending must: (1) reference at least two specific discoveries, (2) give the player a choice, (3) imply what comes next.
 
-### Discovery Text: FDESC on Everything Worth Finding
-Every major room and every important object should have FDESC discovery text.
+### Discovery Text: FDESC on Things Worth Discovering
+Give portable, surprising, or focal objects `FDESC` discovery text when the room does not already introduce them. Never combine an intended automatic `FDESC` with `NDESCBIT`; suppressed scenery must be introduced by room text or a room action.
 
-### No Duplicate Descriptions
-An item must not be described twice on room entry. If room prose mentions an item (e.g. "a telegram lies on the desk"), do NOT also give that item an FDESC — the room text already covers it. Reserve FDESC for items the room text does not mention. The rule: room describes the space, items describe themselves.
+For stateful automatic objects on this substrate, prefer `DESCFCN` without `FDESC`: untouched `FDESC` text is emitted before `DESCFCN` and can shadow the current state.
+
+### Assign One Visible Description Owner
+Use the Infocom hybrid rather than an absolute room/object split:
+- Let portable, newly discovered, or independently changing focal objects describe themselves through `FDESC`, `LDESC`, or `DESCFCN`.
+- Describe permanent architectural scenery and multi-object spatial relationships in room `LDESC`/`M-LOOK`, backed by real or pseudo objects with `NDESCBIT`.
+- Keep stateful prose in one dynamic owner. A room action may own the state of a rug/trap door or boiler; an object `DESCFCN` may own its own state. Do not leave a static `FDESC` contradicting either.
+- Naming an object briefly for spatial orientation is allowed, but do not repeat the same discovery facts in the room paragraph and automatic object line.
+
+Every concrete noun promised by either path must still parse. Rich interaction coverage does not require every scenery noun to produce a separate line during `LOOK`.
 
 ### Parser Depth: Pronoun Resolution, GWIM, OOPS
 At minimum, implement pronoun resolution (`THIS-IS-IT`) and GWIM defaults for your game.
@@ -77,7 +85,8 @@ Divide your game into thirds. In the first third, the player should encounter at
 - Revisited text is concise and state-aware.
 - NPC interactions produce observable world or puzzle consequences.
 - Every emphasized clue noun and every noun used in a hint resolves through the parser exactly as written.
-- No item is described twice on room entry (once in room prose, once via FDESC).
+- Every visible feature has exactly one coherent description owner on room entry; automatic object lines neither duplicate room prose nor contradict current state.
+- Every `FDESC` intended to appear automatically is on an object without `NDESCBIT`.
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: sections 6, 7, 11, 14

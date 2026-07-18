@@ -80,15 +80,26 @@
 
 ; === ROOM ACTION ROUTINES ===
 
+<ROUTINE TOOL-BENCH-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL "The tool bench stretches away, a landscape of enormous chisels and planes. A staircase made of giant wooden spools leads toward the countertop.">
+           <COND (,LADDER-OILED
+                  <TELL " Its lifting mechanism moves freely now.">)
+                 (T
+                  <TELL " Its lifting mechanism is frozen with rust.">)>
+           <COND (<NOT ,BERTRAND-WOUND>
+                  <TELL " The way upward is blocked.">)>
+           <TELL CR>)>>
+
 <ROUTINE COUNTERTOP-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
-           <TELL "You are on the countertop -- the toy display. A dusty glass case holds forgotten treasures, and through the frosted shop window you can see the snowy street outside, the clock tower visible in the distance.">
+           <TELL "You are on the countertop -- the toy display. Through the frosted shop window you can see the snowy street outside, the clock tower visible in the distance.">
            <TELL " Stairs lead back down to the tool bench." CR>)>>
 
 <ROUTINE STORAGE-LOFT-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
            <TELL "The storage loft is dusty and dim, cobwebs draping the rafters like grey curtains.">
-           <TELL " A cardboard box sits in the corner. Stairs lead back down." CR>)>>
+           <TELL " Stairs lead back down." CR>)>>
 
 <ROUTINE SCRAP-YARD-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
@@ -102,17 +113,53 @@
 <ROUTINE FOX-DEN-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
            <TELL "A cosy den made of rags and twigs, tucked between old crates. A tiny toy candle burns inside, casting warm shadows.">
-           <COND (<IN? ,NUTMEG ,FOX-DEN>
-                  <COND (<G? ,NUTMEG-TRUST 2>
-                         <TELL " Nutmeg watches you with soft eyes. She seems almost ready to smile.">)
-                        (<EQUAL? ,NUTMEG-TRUST -1>
-                         <TELL " Nutmeg is curled in the farthest corner, refusing to look at you.">)
-                        (T
-                         <TELL " The fox toy curls in her nest, watching you warily.">)>)
-                 (<AND <NOT <IN? ,NUTMEG ,FOX-DEN>>
-                       ,KEY-FOUND>
-                  <TELL " Nutmeg is not here. The den feels empty without her.">)>
            <TELL " The exit leads west to the scrap-yard." CR>)>>
+
+; === DYNAMIC OBJECT DESCRIPTIONS ===
+
+<ROUTINE BERTRAND-DESC-F (RARG)
+    <COND (<EQUAL? .RARG ,M-OBJDESC>
+           <COND (,BERTRAND-WOUND
+                  <TELL "Captain Bertrand stands proudly beside the now-clear way upward, his jaw fully operational." CR>)
+                 (<NOT <IN? ,BERTRAND-KEY ,TOOL-BENCH>>
+                  <TELL "A painted wooden nutcracker stands frozen mid-stride beside the spool staircase, the winding socket in his back empty." CR>)
+                 (T
+                  <TELL "A painted wooden nutcracker stands frozen mid-stride beside the spool staircase. A tiny brass winding key protrudes from his back." CR>)>
+           <RTRUE>)>>
+
+<ROUTINE MARZIPAN-DESC-F (RARG)
+    <COND (<EQUAL? .RARG ,M-OBJDESC>
+           <COND (,MARZIPAN-BUTTON
+                  <TELL "Marzipan sits against the window with two mismatched button eyes, humming warmly." CR>)
+                 (T
+                  <TELL "A rag doll with one button eye sits against the window, humming a soft, meandering tune." CR>)>
+           <RTRUE>)>>
+
+<ROUTINE OLD-TICK-DESC-F (RARG)
+    <COND (<EQUAL? .RARG ,M-OBJDESC>
+           <COND (,OLD-TICK-HEARD
+                  <TELL "The old cuckoo clock ticks steadily among the shadows, its wooden bird alert behind its little door." CR>)
+                 (T
+                  <TELL "An old cuckoo clock sits silent among the shadows, its hands frozen at five to midnight." CR>)>
+           <RTRUE>)>>
+
+<ROUTINE SCRAP-CART-DESC-F (RARG)
+    <COND (<EQUAL? .RARG ,M-OBJDESC>
+           <COND (,CART-MOVED
+                  <TELL "The scrap cart rests beside the track, its bed still full of carefully rescued toys." CR>)
+                 (T
+                  <TELL "A scrap-metal cart creaks along a rusted track, gathering broken toys into its bed rather than destroying them." CR>)>
+           <RTRUE>)>>
+
+<ROUTINE NUTMEG-DESC-F (RARG)
+    <COND (<EQUAL? .RARG ,M-OBJDESC>
+           <COND (<G? ,NUTMEG-TRUST 2>
+                  <TELL "Nutmeg watches you with soft button eyes, the place around her neck where the workshop key hung now empty." CR>)
+                 (<EQUAL? ,NUTMEG-TRUST -1>
+                  <TELL "Nutmeg curls in the farthest corner with her back to you, clutching the workshop key close." CR>)
+                 (T
+                  <TELL "A patchy fox toy curls in a nest of rags, watching you warily. The workshop key ticks faintly around her neck." CR>)>
+           <RTRUE>)>>
 
 ; === V-WIND HANDLER ===
 
@@ -657,6 +704,7 @@
            <SETG KEY-FOUND T>
            <SETG NUTMEG-KEY-METHOD 1>
            <MOVE ,WORKSHOP-KEY ,WINNER>
+           <FCLEAR ,WORKSHOP-KEY ,NDESCBIT>
             <THIS-IS-IT ,WORKSHOP-KEY>
             <RTRUE>)>>
 

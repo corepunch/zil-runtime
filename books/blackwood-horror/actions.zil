@@ -40,13 +40,17 @@
 <ROUTINE BOILER-ROOM-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
            <TELL "Coal dust softens every edge in this low brick chamber.">
-           <COND (,BOILER-LIT
-                  <TELL " The boiler is awake now: fire mutters behind its door and the pipes knock with gathering heat.">)
-                 (,BOILER-FUELED
-                  <TELL " Coal lies ready in the firebox, waiting for a flame.">)
-                 (T
-                  <TELL " The boiler is cold and silent.">)>
            <TELL " A narrow doorway leads west." CR>)>>
+
+<ROUTINE IRON-BOILER-DESC-F (RARG)
+    <COND (<EQUAL? .RARG ,M-OBJDESC>
+           <COND (,BOILER-LIT
+                  <TELL "The massive iron boiler is awake now: fire mutters behind its door and the pipes knock with gathering heat." CR>)
+                 (,BOILER-FUELED
+                  <TELL "The massive iron boiler crouches in the darkness with fresh coal waiting in its firebox." CR>)
+                 (T
+                  <TELL "The room's centerpiece is a massive iron boiler, cold and silent as a tomb." CR>)>
+           <RTRUE>)>>
 
 <ROUTINE HYDROTHERAPY-ROOM-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>

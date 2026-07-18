@@ -85,7 +85,7 @@ The walkthrough grows with the game. At every commit-sized milestone, all implem
 3. **Room descriptions use `P?LDESC` not `P?DESC`** — `P?DESC` is the room name, `P?LDESC` is the full description.
 4. **Every `<TELL>` must close with `>`** — unclosed TELL swallows subsequent code.
 5. **GO must exist in actions.zil** — entry point for the game.
-6. **Room descriptions don't embed item descriptions** — items describe themselves via `FDESC`/`LDESC`/`DESCFCN`.
+6. **Assign one visible description owner** — focal/portable objects usually own `FDESC`/`LDESC`/`DESCFCN`; permanent or stateful scenery may be room-owned and backed by `NDESCBIT` objects or pseudos. Test rendered `LOOK` output for duplication, dead `FDESC`, and stale state.
 7. **Never freeze mutable state into `LDESC`** — follow Zork I's `EAST-HOUSE` pattern.
 8. **Object IDs and DESC text are not parser vocabulary** — every reachable object needs explicit `SYNONYM` nouns and `ADJECTIVE` modifiers.
 9. **Opening a container must make contents reachable** — use container/search flags, set `OPENBIT`.

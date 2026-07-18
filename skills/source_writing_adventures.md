@@ -936,18 +936,20 @@ which is ">
 
 The window object itself handles OPEN/CLOSE actions. The room just reads the flag to describe the current state. This is the pattern: **objects own their state, rooms read it**.
 
-### Item Descriptions Belong to Items, Not Rooms
+### Description Ownership: Rooms and Objects
 
-Room descriptions should describe the **space**, not the objects in it. Each object describes itself via `FDESC` (first-time) or `LDESC` (static) or `DESCFCN` (dynamic).
+Assign each visible feature one description owner. Portable, surprising, or focal objects usually describe themselves via `FDESC` (discovery), `LDESC` (static), or `DESCFCN` (dynamic). Permanent architectural scenery and spatial relationships may stay in room `LDESC`/`M-LOOK`, backed by real, GLOBAL, or PSEUDO objects with `NDESCBIT`. Do not repeat the same facts through both paths, and never expect an `FDESC` on an `NDESCBIT` object to print automatically.
 
-**Wrong** (room embeds item descriptions):
+On this substrate, untouched objects with `FDESC` are emitted directly before `DESCFCN` is consulted. Omit `FDESC` when `DESCFCN` must own a stateful object's automatic room listing from the outset.
+
+**Wrong** (portable items are frozen into room text and will remain after they move):
 ```zil
 (LDESC "The kitchen has copper pots hanging from the ceiling.
 A bottle is sitting on the table. A nasty-looking knife lies
 near the sink.")
 ```
 
-**Right** (room describes space, items describe themselves):
+**Right** (room owns atmosphere and fixed scenery; portable items describe themselves):
 ```zil
 ; room
 (LDESC "A cozy kitchen with copper pots hanging from the ceiling.
@@ -970,7 +972,7 @@ The back door is to the north.")
 ```
 
 **Why this matters:**
-1. **State changes**: If the bottle is taken, the room shouldn't still say "a bottle is sitting on the table." When items describe themselves, they disappear from the room description automatically (after TOUCHBIT is set).
+1. **State changes**: If the bottle is taken, the room should not still say "a bottle is sitting on the table." Object-owned listing follows the object's actual location automatically.
 2. **Modularity**: Adding or removing items doesn't require rewriting room descriptions.
 3. **Dynamic state**: An item can change its own description based on flags (locked/unlocked, open/closed, full/empty).
 
@@ -1825,8 +1827,9 @@ Use this checklist before submitting your adventure:
 - [ ] Containers have `CONTBIT` (and `OPENBIT` if they start open)
 - [ ] Objects in containers are `(IN CONTAINER-NAME)`
 - [ ] Objects with custom behavior have an `(ACTION routine-name)` property
-- [ ] **Room descriptions do NOT embed item descriptions** — items describe themselves via `FDESC`, `LDESC`, or `DESCFCN`
-- [ ] Every visible object has an `FDESC` or `LDESC` so it appears in room descriptions
+- [ ] **Each visible feature has one coherent description owner** — automatic object text does not duplicate room prose or contradict current state
+- [ ] Every intended automatic `FDESC` is on an object without `NDESCBIT`, unless code explicitly prints it
+- [ ] Every visible object has an `FDESC`, `LDESC`, or `DESCFCN`, unless `NDESCBIT` deliberately makes the room its description owner
 - [ ] **PLAYER object has NO LDESC** — player identity belongs in SYNOPSIS.md/DESIGN.md, not in-game text
 
 ### Puzzles

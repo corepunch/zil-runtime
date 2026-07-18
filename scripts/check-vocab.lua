@@ -8,6 +8,8 @@
 -- What it checks:
 --   CRITICAL: Player-addressable objects have a DESC.
 --   CRITICAL: At least one noun from DESC appears in SYNONYM.
+--   CRITICAL: NDESCBIT does not silently suppress FDESC.
+--   CRITICAL: Static FDESC does not shadow a dynamic DESCFCN.
 --
 -- Determining whether every prose word in FDESC/LDESC is an interactive noun
 -- requires language and world-model context. This script deliberately does not
@@ -78,6 +80,9 @@ local function parse_zil_objects(content)
 
                 local synonyms = extract_property("SYNONYM") or {}
                 local desc = extract_property("DESC")
+                local fdesc = extract_property("FDESC")
+                local descfcn = extract_property("DESCFCN")
+                local flags = extract_property("FLAGS") or {}
 
                 local syn_set = {}
                 if type(synonyms) == "table" then
@@ -89,6 +94,9 @@ local function parse_zil_objects(content)
                     synonyms = syn_set,
                     has_synonyms = next(syn_set) ~= nil,
                     desc = desc,
+                    fdesc = fdesc,
+                    descfcn = descfcn,
+                    flags = flags,
                 })
 
                 pos = obj_end + 1
@@ -154,6 +162,32 @@ local function check_object(obj)
                 msg = "no DESC word appears in SYNONYM — parser won't match the printed name",
             })
         end
+    end
+
+    local has_ndescbit = false
+    if type(obj.flags) == "table" then
+        for _, flag in ipairs(obj.flags) do
+            if flag == "ndescbit" then
+                has_ndescbit = true
+                break
+            end
+        end
+    end
+
+    if obj.fdesc and has_ndescbit then
+        table.insert(issues, {
+            level = "CRITICAL",
+            field = "FDESC",
+            msg = "FDESC is suppressed by NDESCBIT and will not print automatically",
+        })
+    end
+
+    if obj.fdesc and obj.descfcn then
+        table.insert(issues, {
+            level = "CRITICAL",
+            field = "DESCFCN",
+            msg = "untouched FDESC shadows the dynamic DESCFCN on this substrate",
+        })
     end
 
     return issues

@@ -203,8 +203,7 @@
 <OBJECT LOCKED-BOX
       (IN STUDY)
       (DESC "locked box")
-      (FDESC "A small locked box sits among the cold ashes in the fireplace, its brass clasp gleaming dully.")
-      (LDESC "A small ornate box with a four-letter name dial instead of a keyhole. Fine engraving circles the dial.")
+      (DESCFCN LOCKED-BOX-DESC-F)
       (SYNONYM BOX CONTAINER)
       (ADJECTIVE LOCKED)
       (FLAGS CONTBIT SEARCHBIT TURNBIT)

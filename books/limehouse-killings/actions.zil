@@ -62,6 +62,14 @@
                   <TELL "There is no keyhole to pick. The name dial is the lock; examine the box, then TURN BOX TO a name." CR>
                   <RTRUE>)>)>>
 
+<ROUTINE LOCKED-BOX-DESC-F (RARG)
+    <COND (<EQUAL? .RARG ,M-OBJDESC>
+           <COND (,LOCKED-BOX-OPENED
+                  <TELL "The ornate name-dial box lies open among the cold ashes in the fireplace." CR>)
+                 (T
+                  <TELL "A small locked box sits among the cold ashes in the fireplace, its four-letter name dial ringed by fine engraving." CR>)>
+           <RTRUE>)>>
+
 <ROUTINE POISON-BOTTLE-F ()
     <COND (<VERB? EXAMINE READ>
            <TELL "The bottle is labeled: 'Aconitum - Wolfsbane. Highly poisonous.'" CR>

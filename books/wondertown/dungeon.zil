@@ -38,7 +38,7 @@
 <ROOM WORKSHOP-FLOOR
       (IN ROOMS)
       (DESC "Workshop Floor")
-      (LDESC "You are in Grandfather Tolliver's workshop. A brass key hook on the wall hangs empty — only a frayed string still dangles from it. Your tiny broom leans against the bench. Soft sawdust covers the floorboards like a golden blanket. A small pet door is cut into the workshop's main door to the north. An old cuckoo clock ticks softly on the wall. To the east, the tool bench — a staircase of giant wooden spools leads upward, though its mechanism looks worryingly rusted.")
+      (LDESC "You are in Grandfather Tolliver's workshop. A brass key hook on the wall hangs empty — only a frayed string still dangles from it. Soft sawdust covers the floorboards like a golden blanket. A small pet door is cut into the workshop's main door to the north, and an old cuckoo clock ticks softly on the wall. The tool bench lies to the east.")
       (EAST TO TOOL-BENCH)
       (NORTH TO SNOWY-ALLEY)
       (UP TO STORAGE-LOFT IF LADDER-OILED)
@@ -49,7 +49,8 @@
 <ROOM TOOL-BENCH
       (IN ROOMS)
       (DESC "Tool Bench")
-      (LDESC "The tool bench stretches away, a landscape of enormous chisels and planes. A pot of varnish sits open nearby, its contents gone tacky. The spool staircase leads up toward the countertop, but the nutcracker blocks the way.")
+      (ACTION TOOL-BENCH-FCN)
+      (LDESC "The tool bench stretches away, a landscape of enormous chisels and planes. A staircase made of giant wooden spools leads toward the countertop.")
       (WEST TO WORKSHOP-FLOOR)
       (UP TO COUNTERTOP IF BERTRAND-WOUND)
       (FLAGS RLANDBIT ONBIT)
@@ -85,7 +86,7 @@
 <ROOM CLOCK-SQUARE
       (IN ROOMS)
       (DESC "Clock Square")
-      (LDESC "The clock tower dominates the square. Abandoned shopfronts line the square — a bakery, a cobbler — each window displaying a toy frozen in its work. Tin toy lamps dot the cobblestones, their light weak and flickering. A brass winding mechanism sits at the clock tower's base, just out of reach for someone your size.")
+      (LDESC "Abandoned shopfronts line the square — a bakery, a cobbler — each window displaying a toy frozen in its work. Tin toy lamps dot the cobblestones, their light weak and flickering.")
       (WEST TO SNOWY-ALLEY)
       (EAST TO MAILBOX-CORNER)
       (SOUTH TO SCRAP-YARD)
@@ -95,10 +96,10 @@
 <ROOM MAILBOX-CORNER
       (IN ROOMS)
       (DESC "Mailbox Corner")
-      (LDESC "At the corner, scattered letters lie half-buried in the snow. A red wool scarf lies abandoned nearby. More fox footprints continue back west, toward the clock tower.")
+      (LDESC "Snow has drifted against the buildings at this quiet corner. More fox footprints continue back west, toward the clock tower.")
       (WEST TO CLOCK-SQUARE)
       (FLAGS RLANDBIT ONBIT)
-      (GLOBAL MOON TOPIC-FOX TOPIC-TOLLIVER)>
+      (GLOBAL MOON TOPIC-FOX TOPIC-TOLLIVER FOOTPRINTS CLOCK-TOWER)>
 
 <ROOM SCRAP-YARD
       (IN ROOMS)
@@ -122,7 +123,7 @@
 <ROOM TOLLIVER-STUDY
       (IN ROOMS)
       (DESC "Tolliver's Study")
-      (LDESC "Grandfather Tolliver's private study. A wooden desk is cluttered with papers, diagrams, and an open journal. His worn coat hangs on the back of the chair, as if he just stepped away. A cup of tea — stone cold — sits beside the inkwell. Stairs lead back down to the workshop. A narrow passage behind the desk descends deeper — toward a rhythmic, mechanical sound. The room smells of wood shavings, old paper, and a faint trace of magic.")
+      (LDESC "Grandfather Tolliver's private study smells of wood shavings, old paper, and a faint trace of magic. Stairs lead back down to the workshop, while a narrow passage descends deeper toward a rhythmic, mechanical sound.")
       (OUT TO WORKSHOP-FLOOR)
       (DOWN TO WORKSHOP-HEART)
       (FLAGS RLANDBIT ONBIT)
@@ -131,7 +132,7 @@
 <ROOM WORKSHOP-HEART
       (IN ROOMS)
       (DESC "Workshop Heart")
-      (LDESC "You are inside the workshop's heart — a vast chamber hidden behind the clock. Around the walls, dozens of toys stand frozen — silent witnesses. This is where the magic lives. This is what needs rewinding.")
+      (LDESC "You are in a vast chamber hidden behind the workshop clock. The air holds the expectant stillness of a machine waiting to wake.")
       (UP TO TOLLIVER-STUDY)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL TOPIC-HEART TOPIC-TOLLIVER)>
@@ -210,7 +211,7 @@
         (ADJECTIVE FRAYED DANGLING)
         (DESC "frayed string")
         (LDESC "A frayed string dangles from the empty key hook.")
-        (FLAGS TAKEBIT)
+        (FLAGS TAKEBIT NDESCBIT)
         (SIZE 1)
         (ACTION KEY-STRING-F)>
 
@@ -229,7 +230,7 @@
         (ADJECTIVE RUSTY IRON LIFTING)
         (DESC "rusty ladder mechanism")
         (LDESC "The rusty iron lifting mechanism that controls the spool staircase. It is frozen with rust.")
-        (FLAGS TURNBIT)
+        (FLAGS TURNBIT NDESCBIT)
         (ACTION LADDER-MECH-F)>
 
 ; === OBJECTS: TOOL-BENCH ===
@@ -239,8 +240,8 @@
         (SYNONYM NUTCRACKER BERTRAND SOLDIER CAPTAIN)
         (ADJECTIVE PAINTED POMPOUS WOODEN)
         (DESC "painted wooden nutcracker")
-        (FDESC "A painted wooden nutcracker stands at attention near the spool staircase, frozen mid-stride. His jaw is clamped tight in a permanent grimace — or is that a smile?")
         (LDESC "A painted wooden nutcracker stands at attention, frozen mid-stride.")
+        (DESCFCN BERTRAND-DESC-F)
         (FLAGS ACTORBIT)
         (ACTION BERTRAND-F)>
 
@@ -249,9 +250,8 @@
         (SYNONYM KEY)
         (ADJECTIVE WINDING TINY BRASS)
         (DESC "tiny brass winding key")
-        (FDESC "A tiny brass winding key protrudes from the nutcracker's back.")
         (LDESC "There is a tiny brass winding key on the nutcracker's back.")
-        (FLAGS TAKEBIT)
+        (FLAGS TAKEBIT NDESCBIT)
         (SIZE 2)
         (ACTION BERTRAND-KEY-F)>
 
@@ -280,8 +280,8 @@
         (SYNONYM DOLL RAGDOLL MARZIPAN)
         (ADJECTIVE RAG ONE-EYED PATCHED)
         (DESC "one-eyed rag doll")
-        (FDESC "A rag doll with one button eye sits against the window, her stitched mouth curved in a permanent smile. She hums a soft, meandering tune.")
         (LDESC "A rag doll with one button eye sits against the window, humming softly.")
+        (DESCFCN MARZIPAN-DESC-F)
         (FLAGS ACTORBIT)
         (ACTION MARZIPAN-F)>
 
@@ -342,8 +342,8 @@
         (SYNONYM CLOCK CUCKOO TICK)
         (ADJECTIVE OLD DUSTY)
         (DESC "old cuckoo clock")
-        (FDESC "An old cuckoo clock — the twin of the one downstairs — sits silent among the shadows, its hands frozen at five to midnight. It seems to be waiting for something.")
         (LDESC "An old cuckoo clock, dusty and still, its hands frozen at five to midnight.")
+        (DESCFCN OLD-TICK-DESC-F)
         (FLAGS ACTORBIT)
         (ACTION OLD-TICK-F)>
 
@@ -405,7 +405,7 @@
         (ADJECTIVE FLICKERING TOY)
         (DESC "toy streetlamp")
         (LDESC "A streetlamp — actually a repurposed toy lantern — flickers overhead on a pole.")
-        (FLAGS LIGHTBIT)
+        (FLAGS LIGHTBIT NDESCBIT)
         (ACTION STREETLAMP-F)>
 
 <OBJECT SNOW
@@ -424,9 +424,8 @@
         (SYNONYM TOWER CLOCK BUILDING)
         (ADJECTIVE GIANT STONE CLOCK)
         (DESC "giant clock tower")
-        (FDESC "The clock tower dominates the square. Its great face shows the hours until dawn, and a brass winding mechanism waits at its base — though it is too high for you to reach without help.")
+        (FDESC "The clock tower dominates the square, its great face showing the hours until dawn with unnerving clarity.")
         (LDESC "The clock tower dominates the square, its great face tracking the approach of dawn.")
-        (FLAGS NDESCBIT)
         (ACTION CLOCK-TOWER-F)>
 
 <OBJECT CLOCK-WINDING
@@ -453,7 +452,7 @@
         (ADJECTIVE TIN TOY DIM)
         (DESC "tin toy lamps")
         (LDESC "Tin toy lamps dot the cobblestones, their light weak and flickering.")
-        (FLAGS LIGHTBIT)
+        (FLAGS LIGHTBIT NDESCBIT)
         (ACTION TOY-LAMPS-F)>
 
 ; === OBJECTS: MAILBOX-CORNER ===
@@ -505,8 +504,8 @@
         (SYNONYM CART)
         (ADJECTIVE SCRAP METAL CREAKING)
         (DESC "scrap-metal cart")
-        (FDESC "A scrap-metal cart creaks slowly along a rusted track. Its bed is filled with broken toys — a headless doll, a three-legged horse. Someone has lovingly repaired the cart's wheels. It is not destroying these toys. It is rescuing them.")
         (LDESC "A scrap-metal cart creaks along a track, gathering broken toys into its bed.")
+        (DESCFCN SCRAP-CART-DESC-F)
         (FLAGS CONTBIT OPENBIT)
         (ACTION SCRAP-CART-F)>
 
@@ -556,8 +555,8 @@
         (SYNONYM FOX NUTMEG VIXEN)
         (ADJECTIVE PATCHY STUFFED ORANGE)
         (DESC "patchy fox toy")
-        (FDESC "A fox-shaped toy with patchy orange fur curls in a nest of rags. Two button eyes watch you warily. The workshop key hangs from a string around her neck — it ticks faintly, weaker than before.")
         (LDESC "A fox-shaped toy with patchy fur curls in the den, watching you with button eyes.")
+        (DESCFCN NUTMEG-DESC-F)
         (FLAGS ACTORBIT)
         (ACTION NUTMEG-F)>
 
@@ -566,9 +565,8 @@
         (SYNONYM KEY)
         (ADJECTIVE WORKSHOP BRASS TICKING)
         (DESC "workshop key")
-        (FDESC "The workshop key — the one from the empty hook — hangs on a string around the fox's neck. It ticks faintly, its magic growing weaker.")
         (LDESC "The workshop key hangs from a string around the fox's neck, ticking faintly.")
-        (FLAGS TAKEBIT)
+        (FLAGS TAKEBIT NDESCBIT)
         (SIZE 3)
         (ACTION WORKSHOP-KEY-F)>
 
@@ -587,7 +585,7 @@
         (ADJECTIVE TOY WAX TINY)
         (DESC "toy candle")
         (LDESC "A tiny toy candle burns with a warm, steady flame. It is the only light in the den.")
-        (FLAGS LIGHTBIT FLAMEBIT)
+        (FLAGS LIGHTBIT FLAMEBIT NDESCBIT)
         (ACTION TOY-CANDLE-F)>
 
 <OBJECT STRING-BALL
@@ -672,7 +670,6 @@
         (DESC "workshop heart")
         (FDESC "The workshop's heart — a vast brass mechanism of interlocking gears — stands silent at the centre of the chamber. At its core, a keyhole waits. Around the chamber walls, dozens of toys stand frozen, as if they came here hoping to be rewound.")
         (LDESC "The workshop's heart — a giant clockwork mechanism — stands silent and still.")
-        (FLAGS NDESCBIT)
         (ACTION HEART-MECH-F)>
 
 <OBJECT KEY-SLOT

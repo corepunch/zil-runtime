@@ -28,6 +28,14 @@
     <ASSERT-TEXT "damp stone" <CO-RESUME ,CO "smell">>
     <ASSERT-TEXT "no place to become comfortable" <CO-RESUME ,CO "sit">>
 
+    ;"The boiler's automatic description is the single owner of its current state."
+    <SETG HERE ,BOILER-ROOM>
+    <MOVE ,WINNER ,BOILER-ROOM>
+    <SETG BOILER-FUELED T>
+    <SETG BOILER-LIT T>
+    <ASSERT-TEXT "boiler is awake now" <CO-RESUME ,CO "look">>
+    <ASSERT-NOT-TEXT "cold and silent" <CO-RESUME ,CO "look">>
+
     ;"Scenery and the legacy HELLO command no longer fall into parser defaults."
     <SETG HERE ,SANITARIUM-GATE>
     <MOVE ,WINNER ,SANITARIUM-GATE>

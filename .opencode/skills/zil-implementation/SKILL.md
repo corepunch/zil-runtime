@@ -75,8 +75,15 @@ An authored handler is reachable only when vocabulary, syntax, scope, and flags 
 ### 0l. Keep prose, topology, and object placement mechanically consistent
 Every direction promised by room prose must exist as an exit in that room and lead where the prose claims. Every fixture named as present must be in scope from that room. Audit both sides of every intended two-way connection, and re-check objects mentioned by dynamic room descriptions after moving them.
 
-### 1. Don't embed item descriptions in room descriptions
-Room LDESC should describe the space. Objects describe themselves via FDESC/LDESC/DESCFCN.
+### 1. Assign one visible description owner
+Use a hybrid object model:
+- portable, surprising, and focal objects normally own their automatic `FDESC`/`LDESC`/`DESCFCN`;
+- permanent architectural scenery and spatial relationships may be described by room `LDESC`/`M-LOOK`, with real, GLOBAL, or PSEUDO objects using `NDESCBIT` for parser affordance;
+- stateful prose belongs to one dynamic room action or object `DESCFCN`.
+
+Do not repeat the same facts through room prose and an automatic object description. Do not put `NDESCBIT` on an object whose `FDESC` is expected to replace text removed from the room. A named noun must parse even when its description is room-owned.
+
+On this substrate, untouched objects with `FDESC` are printed directly by `PRINT-CONT` before `DESCFCN` is consulted. For a stateful object whose automatic listing is owned by `DESCFCN`, omit `FDESC`; otherwise the static discovery text shadows the dynamic routine until the object gains `TOUCHBIT`.
 
 ### 2. Every `<TELL>` must close with `>` before the next form
 Missing `>` is the most common and hardest-to-spot bug.
@@ -100,7 +107,7 @@ Give every object a unique DESC text and distinct ADJECTIVE.
 
 ### 11. Dynamic room descriptions must faithfully reflect object state
 
-This includes geography and scope: a described eastward route needs an east exit, and a described staircase, container, or other fixture must resolve in that room.
+This includes geography and scope: a described eastward route needs an east exit, and a described staircase, container, or other fixture must resolve in that room. After every state change, audit both the room-owned text and automatic object listing for stale or contradictory descriptions.
 
 ### 12. NPC-given items must not be freely TAKE-able before the NPC offers them
 
