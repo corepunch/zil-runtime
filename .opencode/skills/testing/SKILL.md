@@ -32,6 +32,7 @@ Prove completion path, catch regressions, and close parser/content gaps.
 19. Add a prose-to-world transcript pass: follow every direction named in room prose, examine every named fixture from the room where it is described, and type each player-facing head noun verbatim.
 20. Test every conversation topic via parser commands in every room where the NPC interaction can occur; direct routine calls do not prove topic scope.
 21. Test syntax variants separately when the parser has distinct grammar lines or flag gates, including bare versus prepositional forms such as `CLIMB BENCH` and `CLIMB UP BENCH`.
+22. **Check for duplicate item descriptions:** When entering a room, verify no item is described twice — once in the room's M-LOOK/LDESC text and again via the item's FDESC. Room prose should describe the space; items describe themselves. Flag any item whose name appears in both room text and FDESC as a duplicate.
 
 ## Play-As-You-Build Loop
 
@@ -68,6 +69,7 @@ For direct ZIL tests, keep each assertion atomic. A successful coroutine resume 
 - The exact documented compound nouns, conversation topics, and custom verbs parse successfully.
 - No test combines a coroutine resume and its postcondition as multiple arguments to `ASSERT`.
 - Every object action routine has at least one test proving an unhandled generic verb still reaches the substrate default.
+- No item is described twice on room entry (once in room prose, once via FDESC).
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: section 8

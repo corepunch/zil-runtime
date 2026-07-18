@@ -55,6 +55,9 @@ An ending must: (1) reference at least two specific discoveries, (2) give the pl
 ### Discovery Text: FDESC on Everything Worth Finding
 Every major room and every important object should have FDESC discovery text.
 
+### No Duplicate Descriptions
+An item must not be described twice on room entry. If room prose mentions an item (e.g. "a telegram lies on the desk"), do NOT also give that item an FDESC — the room text already covers it. Reserve FDESC for items the room text does not mention. The rule: room describes the space, items describe themselves.
+
 ### Parser Depth: Pronoun Resolution, GWIM, OOPS
 At minimum, implement pronoun resolution (`THIS-IS-IT`) and GWIM defaults for your game.
 
@@ -74,6 +77,7 @@ Divide your game into thirds. In the first third, the player should encounter at
 - Revisited text is concise and state-aware.
 - NPC interactions produce observable world or puzzle consequences.
 - Every emphasized clue noun and every noun used in a hint resolves through the parser exactly as written.
+- No item is described twice on room entry (once in room prose, once via FDESC).
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: sections 6, 7, 11, 14
