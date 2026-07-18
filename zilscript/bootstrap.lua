@@ -169,6 +169,10 @@ local function connected_exits(room)
     end
 end
 
+local function can_suggest_contents(obj)
+	return FSETQ(obj, SURFACEBIT) or FSETQ(obj, OPENBIT)
+end
+
 local function add_items(room)
 	local items = {}
 	for obj in objects_in_room(room) do
@@ -197,8 +201,8 @@ local function add_items(room)
 		for word in item:gmatch("%S+") do
 			table.insert(words, word:lower())
 		end
-		if words[1] then words[1] = words[1]:sub(1,1):upper() .. words[1]:sub(2) end
-		table.insert(items, {table.concat(words, " "), unique_verbs, add_items(obj)})
+		local children = can_suggest_contents(obj) and add_items(obj) or {}
+		table.insert(items, {table.concat(words, " "), unique_verbs, children})
 	end
 	return items
 end
