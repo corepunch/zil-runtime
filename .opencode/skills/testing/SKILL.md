@@ -36,6 +36,8 @@ Prove completion path, catch regressions, and close parser/content gaps.
 23. **Audit `FDESC`/`NDESCBIT` combinations:** Treat an object with both as suspicious. Prove its `FDESC` is printed deliberately by code; otherwise the prose is dead and must move to the room/room action or the suppression flag must be removed.
 24. **Test scenery affordances:** For every concrete noun in room or object prose, issue at least `EXAMINE <noun>` in the described scope. Use real, GLOBAL, grouped, or PSEUDO scenery rather than forcing every noun into an automatic `LOOK` line.
 25. **Test untouched dynamic objects:** On this substrate, an untouched object's `FDESC` bypasses `DESCFCN`. For every object with `DESCFCN`, test a changed state before any command touches that object and ensure no static `FDESC` shadows the dynamic text.
+26. **Audit golden-path directions after exit changes:** When any room's exit properties change (directions added, removed, or swapped), trace every test action that navigates through the affected rooms and verify the direction strings still match the room definitions. The failing action may be several steps away from the changed room.
+27. **Test bidirectional exits explicitly:** For every room pair connected by a conditional exit (e.g. `IF X IS OPEN`), test the exit in both directions: once with the condition unmet (expect a block message) and once with it met (expect arrival). Do not assume the reverse direction works just because the forward direction does.
 
 ## Play-As-You-Build Loop
 
@@ -74,6 +76,8 @@ For direct ZIL tests, keep each assertion atomic. A successful coroutine resume 
 - Every object action routine has at least one test proving an unhandled generic verb still reaches the substrate default.
 - Every room has rendered-output checks showing one coherent description owner per feature on first entry, repeat `LOOK`, and relevant post-state views.
 - No intended automatic `FDESC` is silently suppressed by `NDESCBIT`, and no room-owned scenery noun is parser-dead.
+- Every test action that navigates between rooms uses the correct direction for both the forward and return trip.
+- Every conditional exit is tested in both the blocked and unblocked states.
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: section 8

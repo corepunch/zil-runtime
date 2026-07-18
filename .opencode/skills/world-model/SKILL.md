@@ -34,8 +34,13 @@ Translate design docs into a coherent simulation plan before full implementation
    - intended return routes are present or explicitly documented as one-way;
    - every object described as present is in that room's parser scope;
    - every noun phrase used in prose, including collective nouns such as "bundle," appears in parser vocabulary.
-11. Build a parser-reachability row for each authored interaction: exact command, syntax form, required `FIND` flag, object/topic scope, and expected handler/default routine. Do not assume an object action can compensate for syntax or scope that prevents parser resolution.
-12. For every NPC conversation matrix, list the topic objects and every room where the exchange can occur; those rooms must expose the topics through `GLOBAL` or another proven scope mechanism.
+11. Verify bidirectional exit consistency before implementation:
+   - for every `<ROOM A ... (DIR TO B ...)>`, room B must have a matching `<ROOM B ... (OPPOSITE-DIR TO A ...)>` (or the asymmetry must be documented);
+   - no two rooms should form a unidirectional loop (e.g. A NORTH → B and B NORTH → A);
+   - conditional exits (`IF X IS OPEN`) must have the reverse exit in the destination room with the same or compatible condition;
+   - room descriptions that name a location ("looks out to the garden," "door to the kitchen") must have a matching exit property pointing there.
+12. Build a parser-reachability row for each authored interaction: exact command, syntax form, required `FIND` flag, object/topic scope, and expected handler/default routine. Do not assume an object action can compensate for syntax or scope that prevents parser resolution.
+13. For every NPC conversation matrix, list the topic objects and every room where the exchange can occur; those rooms must expose the topics through `GLOBAL` or another proven scope mechanism.
 
 ## Infocom-Quality Simulation Checks
 - Build a command matrix for each major puzzle with at least ten likely player attempts; implement useful responses for the top attempts.
@@ -85,6 +90,8 @@ Every clock daemon must do at least one of: (a) advance a numerical state that h
 - Repeating TAKE/READ/EXAMINE or opening an already-open object cannot duplicate progress or strand contents.
 - Every physical noun named in room prose or a blocked-exit message resolves to an object in scope and supports the obvious generic verbs.
 - Every direction stated in prose is traversable as stated, or the prose clearly identifies why it is blocked.
+- Every declared exit has a matching reverse exit in the destination room (or the asymmetry is documented as intentional).
+- No two rooms form a unidirectional compass-direction loop.
 - Bare and prepositional variants promised by the design (for example, `CLIMB BENCH` and `CLIMB UP BENCH`) both reach an intentional response.
 
 ## Reference Sources
