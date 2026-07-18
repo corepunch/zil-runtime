@@ -41,6 +41,8 @@ For every file game-tester created under `test/`:
 - Run `make test-pure-zil` to confirm the test runner picks them up
 - If a test is a standalone Lua walkthrough, run it directly
 - Confirm each regression test is RED against the current unfixed code (reproduces the bug)
+- Inspect the oracle, not just the color: issue `<CO-RESUME ...>` separately and assert a single observable postcondition. Reject tests that combine coroutine success and state checks as multiple `ASSERT` arguments.
+- For silent-command bugs, assert state/location/inventory or expected text; coroutine resume success alone is not evidence that the verb worked.
 
 ### 4. Prepare the bug ledger
 

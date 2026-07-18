@@ -30,6 +30,9 @@ Create the design artifacts that externalize world structure and puzzle logic.
     - a likely alternate wording and wrong-order attempt.
 15. Keep `OBJECTS.md` parser-facing: list the canonical head noun, exact compound spelling, adjectives, ambiguity risks, containment flags, and discovery command for every object.
 16. Populate `OBJECTS.md` from every concrete noun promised by room prose, blocked exits, and puzzle responses. Do not list a door, window, drawer, switch, rope, vehicle, gate, or container only in `STORY_STATE.md` as a Boolean; give the physical entity its own object row and reserve globals for supplementary or abstract state.
+17. Add a prose-to-mechanics audit column to `MAP.md`: for each directional phrase in a room description, record the matching exit and destination. Record intentional one-way routes explicitly.
+18. Add scope and parser-gating columns to `OBJECTS.md`: initial/possible locations, rooms where globally in scope, relevant topic/NPC scope, required parser flags (such as `TAKEBIT`, `CONTBIT`, `SEARCHBIT`, or `CLIMBBIT`), and the default verbs that must remain available.
+19. Extract every player-facing noun from `DESC`, `FDESC`, `LDESC`, room prose, and hints into the vocabulary plan; include singular, plural, and collective head nouns players are likely to repeat verbatim.
 
 ## Outputs
 - `MAP.md`
@@ -47,6 +50,7 @@ Create the design artifacts that externalize world structure and puzzle logic.
 - Object and puzzle docs support both mastery play and hint-assisted completion.
 - Every golden-path command is valid player input rather than an internal object ID or direct `PERFORM` shorthand.
 - Every noun in the opening slice has an explicit parser-vocabulary plan before ZIL implementation begins.
+- Every prose-promised route has a matching map edge, and every described fixture has a matching object location/scope entry.
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: section 1, sections 2.3-2.4, section 5.3

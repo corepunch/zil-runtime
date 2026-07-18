@@ -29,6 +29,13 @@ Translate design docs into a coherent simulation plan before full implementation
 7. Define container visibility transitions: where contents begin, which action sets `OPENBIT`, and which flags let the parser search inside.
 8. Define each one-time counter as `event flag -> guarded increment`, including which verbs can discover the same clue.
 9. Audit physical nouns against the object registry. Every described fixture or obstacle that affords player actions must be a real object with vocabulary, scope, flags, and behavior; do not substitute a global Boolean for a door, window, container, switch, vehicle, or similar world entity.
+10. Cross-audit prose against mechanics before implementation:
+   - every directional claim in room prose matches a declared exit and destination;
+   - intended return routes are present or explicitly documented as one-way;
+   - every object described as present is in that room's parser scope;
+   - every noun phrase used in prose, including collective nouns such as "bundle," appears in parser vocabulary.
+11. Build a parser-reachability row for each authored interaction: exact command, syntax form, required `FIND` flag, object/topic scope, and expected handler/default routine. Do not assume an object action can compensate for syntax or scope that prevents parser resolution.
+12. For every NPC conversation matrix, list the topic objects and every room where the exchange can occur; those rooms must expose the topics through `GLOBAL` or another proven scope mechanism.
 
 ## Infocom-Quality Simulation Checks
 - Build a command matrix for each major puzzle with at least ten likely player attempts; implement useful responses for the top attempts.
@@ -77,6 +84,8 @@ Every clock daemon must do at least one of: (a) advance a numerical state that h
 - The first vertical slice can be played with the exact planned commands before the next slice is implemented.
 - Repeating TAKE/READ/EXAMINE or opening an already-open object cannot duplicate progress or strand contents.
 - Every physical noun named in room prose or a blocked-exit message resolves to an object in scope and supports the obvious generic verbs.
+- Every direction stated in prose is traversable as stated, or the prose clearly identifies why it is blocked.
+- Bare and prepositional variants promised by the design (for example, `CLIMB BENCH` and `CLIMB UP BENCH`) both reach an intentional response.
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: sections 3, 4, 5

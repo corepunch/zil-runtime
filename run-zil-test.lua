@@ -34,17 +34,16 @@ local function fail_fast(message)
 	error(TEST_FAILURE_PREFIX .. (message or "Assertion failed"), 0)
 end
 
--- ASSERT that checks condition and prints [PASS] or [FAIL]
+-- ASSERT that checks ALL conditions and prints [PASS] only if ALL are truthy
 function ASSERT(msg, ...)
 	for _, condition in ipairs {...} do
-		if condition then
-			print(GREEN .. "[PASS] " .. format_assertion(msg or "Assertion passed") .. RESET)
-			return true
-		else
+		if not condition then
 			print(RED .. "[FAIL] " .. format_assertion(msg or "Assertion failed") .. RESET)
 			fail_fast(msg)
 		end
 	end
+	print(GREEN .. "[PASS] " .. format_assertion(msg or "Assertion passed") .. RESET)
+	return true
 end
 
 function ASSERT_TEXT(expected, ok, actual)

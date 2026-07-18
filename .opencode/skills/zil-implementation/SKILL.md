@@ -62,6 +62,19 @@ Put the head noun in SYNONYM and titles in ADJECTIVE.
 ### 0i. Represent physical world state with objects, not flag-only scenery
 Doors, windows, drawers, switches, ropes, vehicles, gates, and containers must be real objects.
 
+### 0j. Object ACTION routines must fall through for unhandled verbs
+An object `ACTION` routine is a selective override, not a blanket handler. Return true only inside a branch that actually handles the current verb. Never put an unconditional trailing `<RTRUE>` after the routine's `<COND>`: it swallows substrate defaults such as TAKE, DROP, OPEN, CLOSE, LOOK-IN, and SEARCH and can produce silent no-ops. Let unmatched verbs return false so the default verb routine runs. After adding or editing an object action, smoke-test at least EXAMINE plus every applicable generic operation (TAKE/DROP for portable objects; OPEN/CLOSE/LOOK-IN for containers).
+
+### 0k. Parser reachability is a four-part contract
+An authored handler is reachable only when vocabulary, syntax, scope, and flags all agree. Before relying on an object-specific branch, verify:
+- every concrete noun used in prose is in the object's `SYNONYM` list;
+- the standard syntax accepts the intended wording and its `FIND` flag constraint matches the object (for example, bare `CLIMB OBJECT` may require `CLIMBBIT` even if `CLIMB UP OBJECT` works);
+- the object is actually in the room, inventory, containment tree, or room `GLOBAL` list where the command is issued;
+- conversation topic objects used as `PRSI` are in scope in every room where the NPC can be asked or told about them.
+
+### 0l. Keep prose, topology, and object placement mechanically consistent
+Every direction promised by room prose must exist as an exit in that room and lead where the prose claims. Every fixture named as present must be in scope from that room. Audit both sides of every intended two-way connection, and re-check objects mentioned by dynamic room descriptions after moving them.
+
 ### 1. Don't embed item descriptions in room descriptions
 Room LDESC should describe the space. Objects describe themselves via FDESC/LDESC/DESCFCN.
 
@@ -86,6 +99,8 @@ Give every NPC role-based synonyms, title adjectives, and ARTICLEBIT.
 Give every object a unique DESC text and distinct ADJECTIVE.
 
 ### 11. Dynamic room descriptions must faithfully reflect object state
+
+This includes geography and scope: a described eastward route needs an east exit, and a described staircase, container, or other fixture must resolve in that room.
 
 ### 12. NPC-given items must not be freely TAKE-able before the NPC offers them
 

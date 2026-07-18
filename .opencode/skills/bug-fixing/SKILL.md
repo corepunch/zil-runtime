@@ -24,6 +24,8 @@ For each bug in priority order (Critical → High → Medium → Low):
 
 If a regression test is wrong (test authoring mistake, not a real bug), correct the test expectation rather than hacking the source.
 
+Before trusting a green ZIL regression, audit its oracle: run the player command separately, then assert one observable postcondition per `ASSERT`. Do not pass `<CO-RESUME ...>` and a state check as sibling conditions; the current runner returns after the first condition and can report success without evaluating later arguments.
+
 ## Bug Categories and Fix Patterns
 
 ### Parser / Vocabulary
@@ -57,6 +59,16 @@ If a regression test is wrong (test authoring mistake, not a real bug), correct 
 | Contents unreachable after open in next process | Verify open succeeded — test `TAKE ITEM` in a separate `llm.lua` call |
 | WRITE / manual EXAMINE override hides container contents | Remove custom EXAMINE handler — let `V-EXAMINE` → `PRINT-CONT` handle it |
 | Missing `SEARCHBIT` | Add if container should be searchable (LOOK IN / SEARCH) |
+| Object `ACTION` ends in unconditional `<RTRUE>` | Remove the catch-all true return; return true only in handled branches so OPEN/CLOSE/LOOK-IN and other defaults can run |
+
+### Action Dispatch / Silent Commands
+
+**Bug symptoms:** A valid command produces no text and no state change, while the same object has a custom EXAMINE or puzzle handler.
+
+1. Inspect the object's `ACTION` routine for an unconditional trailing `<RTRUE>`.
+2. Confirm the desired verb is either explicitly handled or allowed to fall through to the substrate default.
+3. Confirm parser syntax and `FIND` flags allow the command to reach the object; a handler cannot repair an object rejected during parsing.
+4. Regression-test both the custom branch and an unhandled generic verb on the same object.
 
 ### Door / Navigation / Exit
 
@@ -72,6 +84,7 @@ If a regression test is wrong (test authoring mistake, not a real bug), correct 
 | V-GO routine bypasses conditional exit | Every `(TO ROOM IF COND)` on a room must be replicated in the custom V-GO handler for that direction |
 | Door LDESC is static — stays "locked" after unlock | Move to ACTION routine with M-LOOK; compose from object state |
 | Missing DOORBIT | Add `DOORBIT` to the door object's flags |
+| Room prose promises a direction with no matching exit | Add/correct the exit or correct the prose; verify the stated destination and reverse route |
 
 ### State / Persistence
 
@@ -97,6 +110,7 @@ If a regression test is wrong (test authoring mistake, not a real bug), correct 
 |---------|-----|
 | NPC routine checks `<VERB? ASK>` instead of `<VERB? TELL>` | Fix — the zork1 substrate uses `TELL` for both ASK and TELL |
 | Topic object doesn't exist or not in scope | Create topic as GLOBAL-OBJECT or ensure it's accessible |
+| Topic exists in `LOCAL-GLOBALS` but room omits it from `GLOBAL` | Add it to every room where the conversation can occur, then test through `ASK/TELL ... ABOUT ...` |
 | Missing ACTORBIT | Add `ACTORBIT` to NPC flags |
 | NPC has only one response — no state awareness | Add at least 3 states: first encounter, after progress, after key event |
 | NPC-given item can be TAKEn before gift | Guard TAKE handler with a flag check |
@@ -131,6 +145,15 @@ lua5.4 tests/test_<adventure>_walkthrough.lua
 lua5.4 llm.lua --game <adventure> --new-game --save /tmp/fix-test.sav
 lua5.4 llm.lua --action "look" --save /tmp/fix-test.sav --game <adventure>
 ```
+
+For a clustered adventure bug report, also run these static audits before closing it:
+
+- object `ACTION` routines with trailing unconditional `<RTRUE>`;
+- directional words in room prose versus declared exits;
+- concrete prose nouns versus `SYNONYM` entries and object location/scope;
+- conversation topic objects versus room `GLOBAL` lists;
+- intended command forms versus syntax `FIND` flag requirements;
+- tests that pass multiple conditions to `ASSERT`, especially `<CO-RESUME>` followed by a postcondition.
 
 ## Outputs
 - Updated `dungeon.zil` / `actions.zil`

@@ -102,6 +102,9 @@ local GAMES = {
     },
     ["blackwood-horror"] = {
         modules = {"books.blackwood-horror.blackwood-horror"}
+    },
+    ["wondertown"] = {
+        modules = {"books.wondertown.wondertown"}
     }
 }
 

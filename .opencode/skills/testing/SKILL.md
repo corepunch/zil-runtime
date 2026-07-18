@@ -27,6 +27,11 @@ Prove completion path, catch regressions, and close parser/content gaps.
 14. Promote each passing slice into an automated parser-driven walkthrough.
 15. Test one-time events with TAKE/READ/EXAMINE repeated and reordered.
 16. Test every opened container by taking its contents in the next process invocation.
+17. Treat command transport and game-state verification as separate assertions. With the current ZIL runner, execute `<CO-RESUME ...>` as its own form, then use a single-condition `<ASSERT>` for the resulting location, inventory, flag, or output. Never write `<ASSERT "..." <CO-RESUME ...> <state-check>>`: `ASSERT` is not an all-conditions combinator, and an earlier truthy coroutine result can mask an unevaluated state check.
+18. Add a default-verb smoke matrix for every object with an `ACTION` routine. Verify that unhandled verbs fall through: TAKE/DROP for `TAKEBIT` objects; OPEN/CLOSE/LOOK-IN/SEARCH for containers; and other obvious substrate verbs implied by flags.
+19. Add a prose-to-world transcript pass: follow every direction named in room prose, examine every named fixture from the room where it is described, and type each player-facing head noun verbatim.
+20. Test every conversation topic via parser commands in every room where the NPC interaction can occur; direct routine calls do not prove topic scope.
+21. Test syntax variants separately when the parser has distinct grammar lines or flag gates, including bare versus prepositional forms such as `CLIMB BENCH` and `CLIMB UP BENCH`.
 
 ## Play-As-You-Build Loop
 
@@ -41,6 +46,8 @@ Testing has three complementary layers:
 1. Direct ZIL assertions prove routines and state transitions.
 2. Focused `llm.lua` sequences prove parser and cross-process persistence.
 3. A full automated golden path proves the shipped game from fresh start to win.
+
+For direct ZIL tests, keep each assertion atomic. A successful coroutine resume proves only that the command loop ran; it does not prove that the command parsed, printed useful output, moved the player, moved an object, or changed state.
 
 ## Executable Walkthrough Contract
 - A module run by `run-zil-test.lua` must load its prerequisites and expose `RUN_TEST`.
@@ -59,6 +66,8 @@ Testing has three complementary layers:
 - Reasonable commands no longer fail silently or generically.
 - Golden path passes from a fresh game with every action crossing a save/reload boundary.
 - The exact documented compound nouns, conversation topics, and custom verbs parse successfully.
+- No test combines a coroutine resume and its postcondition as multiple arguments to `ASSERT`.
+- Every object action routine has at least one test proving an unhandled generic verb still reaches the substrate default.
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: section 8
