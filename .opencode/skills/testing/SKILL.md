@@ -37,7 +37,8 @@ Prove completion path, catch regressions, and close parser/content gaps.
 24. **Test scenery affordances:** For every concrete noun in room or object prose, issue at least `EXAMINE <noun>` in the described scope. Use real, GLOBAL, grouped, or PSEUDO scenery rather than forcing every noun into an automatic `LOOK` line.
 25. **Test untouched dynamic objects:** On this substrate, an untouched object's `FDESC` bypasses `DESCFCN`. For every object with `DESCFCN`, test a changed state before any command touches that object and ensure no static `FDESC` shadows the dynamic text.
 26. **Audit golden-path directions after exit changes:** When any room's exit properties change (directions added, removed, or swapped), trace every test action that navigates through the affected rooms and verify the direction strings still match the room definitions. The failing action may be several steps away from the changed room.
-27. **Test bidirectional exits explicitly:** For every room pair connected by a conditional exit (e.g. `IF X IS OPEN`), test the exit in both directions: once with the condition unmet (expect a block message) and once with it met (expect arrival). Do not assume the reverse direction works just because the forward direction does.
+27. **Build and test the complete exit matrix:** Enumerate every declared room edge, not only golden-path or conditional exits. For `A --NORTH--> B`, require `B --SOUTH--> A`; likewise pair `NORTHEAST/SOUTHWEST`, `EAST/WEST`, `SOUTHEAST/NORTHWEST`, `UP/DOWN`, and `IN/OUT`. Treat `A --NORTH--> B` plus `B --NORTH--> A` as a failing same-direction loop. Permit a missing or non-opposite return only when the asymmetry is explicitly documented as intentional.
+28. **Exercise exits through the parser in both directions:** Static room properties are insufficient because custom `V-GO-*` handlers can diverge from them. Traverse every edge from A to B, then issue the expected opposite direction from B and assert return to A. Apply this to ordinary, conditional, door-backed, and custom movement. For conditional exits, test blocked and unblocked states in both directions and verify compatible conditions.
 
 ## Play-As-You-Build Loop
 
@@ -77,6 +78,8 @@ For direct ZIL tests, keep each assertion atomic. A successful coroutine resume 
 - Every room has rendered-output checks showing one coherent description owner per feature on first entry, repeat `LOOK`, and relevant post-state views.
 - No intended automatic `FDESC` is silently suppressed by `NDESCBIT`, and no room-owned scenery noun is parser-dead.
 - Every test action that navigates between rooms uses the correct direction for both the forward and return trip.
+- The technical report contains a complete exit matrix; every ordinary edge has its opposite return or an explicit intentional-asymmetry record.
+- No room pair returns via the same compass direction unless a non-Euclidean exception is explicitly designed, documented, and tested.
 - Every conditional exit is tested in both the blocked and unblocked states.
 
 ## Reference Sources

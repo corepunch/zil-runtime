@@ -31,7 +31,7 @@ To create a new ZIL adventure from premise through release, invoke the **@game-w
 ```
 @game-writer Design, implement, test, and release a ZIL adventure about <your-premise-here>.
 ```
-It orchestrates all eight stages (design docs → working materials → puzzle architecture → prose → ZIL implementation → testing → hint UX → packaging) into a single agent workflow. Each stage loads a corresponding skill (e.g. `skill foundation-and-premise`) for detailed guidance.
+It orchestrates construction through packaging, then staged quality assurance and remediation. The release gate keeps technical validation, blind functional play, artistic review, and audience/accessibility testing as independent perspectives. Each stage loads a corresponding skill (e.g. `skill foundation-and-premise`) for detailed guidance.
 
 ## Available Skills
 
@@ -48,6 +48,9 @@ The `.opencode/skills/` directory provides stage-specific skills loadable with t
 | `skill workflow-hints` | Review passes, hint UX, iteration planning |
 | `skill packaging` | Release artifacts, definition of done |
 | `skill playtesting` | Running game-tester play sessions and collecting bug reports |
+| `skill artistic-review` | Reviewing narrative arc, genre craft, pacing, contrast, and ending quality |
+| `skill accessibility-testing` | Testing target-audience usability and accessibility through explicit personas |
+| `skill quality-assurance` | Coordinating independent technical, functional, artistic, and accessibility release passes |
 | `skill bug-fixing` | Fixing ZIL bugs from game-tester reports (missing synonyms, broken containers, door/exit issues, etc.) |
 
 ## Current Repo Notes

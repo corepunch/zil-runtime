@@ -1,9 +1,9 @@
 ---
 name: playtesting
-description: Run organic play-throughs with @game-tester, collect bug reports, and prepare the bug ledger for the fixing stage
+description: Run blind functional play-throughs with @game-tester, collect player-visible evidence, and prepare functional regressions
 ---
 
-Run organic play-throughs with the game-tester agent, collect structured bug reports, and prepare the bug ledger for the next stage.
+Run blind functional play-throughs with the game-tester agent, collect structured bug reports, and prepare functional defects for remediation. Artistic judgment and audience/accessibility testing are separate passes coordinated by `skill quality-assurance`.
 
 ## Inputs
 - Complete adventure source (`dungeon.zil`, `actions.zil`)
@@ -59,14 +59,15 @@ Create or update `test/TESTING.md` with:
 
 ## Acceptance Checks
 - Game-tester completed a full organic play session
-- Every bug has a corresponding regression test that is RED
+- Every reproducible functional bug requiring a regression has a corresponding RED test
 - Bug ledger is prioritized and ready for the fixing stage
-- No bugs were silently skipped — even low-severity items are logged
+- No functional findings were silently skipped; subjective writing observations may remain report-only
 
 ## Relation to Other Pipeline Stages
 
-Playtesting comes after the packaging stage (Stage 8) as a final QA gate. Bugs found here are fed into the bug-fixing stage (Stage 10). After fixing, run playtesting again to confirm no regressions.
+Blind functional playtesting is one part of the post-packaging quality-assurance gate. Bugs found here are fed into the remediation stage. After fixing, rerun the affected focused scenarios and a fresh organic smoke pass.
 
 ## Reference Sources
 - `.opencode/agents/game-tester.md` — full game-tester agent definition and workflow
+- `.opencode/skills/quality-assurance/SKILL.md` — coordination with technical, artistic, and accessibility passes
 - `PLAYING.md` — how `llm.lua` works for automated game interaction

@@ -3,6 +3,6 @@
 <ROUTINE RUN-TEST ()
     <ASSERT "Start" <CO-RESUME ,CO "look" T> <==? ,HERE ,,WORKSHOP-FLOOR>>
     <ASSERT "Key-string exists" <==? <LOC ,KEY-STRING> ,WORKSHOP-FLOOR>>
-    <ASSERT "Oil-can exists" <==? <LOC ,OIL-CAN> ,WORKBENCH>>
-    <ASSERT "Can take oil can" <CO-RESUME ,CO "take oil can" T> <==? <LOC ,OIL-CAN> ,ADVENTURER>>
+    <ASSERT "Oil-can exists" <==? <LOC ,OIL-CAN> ,WORKSHOP-FLOOR>>
+    <ASSERT "Can take oil can" <CO-RESUME ,CO "take copper oil can" T> <==? <LOC ,OIL-CAN> ,ADVENTURER>>
 >

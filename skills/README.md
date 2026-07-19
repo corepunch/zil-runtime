@@ -30,8 +30,11 @@ Available skills:
 | `testing` | Transcript execution, bug categorization, walkthrough hardening |
 | `workflow-hints` | Review passes, hint UX, iteration planning |
 | `packaging` | Release artifacts, definition of done |
-| `playtesting` | Running game-tester play sessions and collecting bug reports |
-| `bug-fixing` | Fixing ZIL bugs (missing synonyms, broken containers, door/exit issues, parser gaps, state corruption) |
+| `playtesting` | Blind functional game-tester sessions and parser regressions |
+| `artistic-review` | Narrative architecture, genre craft, pacing, contrast, and ending quality |
+| `accessibility-testing` | Target-audience usability and accessibility persona sessions |
+| `quality-assurance` | Independent technical, functional, artistic, and accessibility release passes |
+| `bug-fixing` | Fixing technical and functional ZIL defects |
 
 ## Adventure Folder Structure
 
@@ -54,6 +57,7 @@ adventure-name/
 │   └── ITERATION.md       # Development roadmap
 ├── test/                  # Stage 6: Testing materials
 │   ├── TESTING.md         # Regression tests, bug ledger
+│   ├── QUALITY.md         # Stage 9: Consolidated specialist QA ledger
 │   └── walkthrough.zil    # Golden path test file
 └── package/               # Stage 8: Packaging & release
     ├── COVER.md           # Visual description

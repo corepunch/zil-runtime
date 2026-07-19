@@ -2,8 +2,8 @@
 
 <SYNTAX WIND OBJECT = V-WIND>
 <SYNTAX WIND OBJECT WITH OBJECT = V-WIND>
-<SYNTAX OIL OBJECT = V-OIL>
-<SYNTAX OIL OBJECT WITH OBJECT = V-OIL>
+<SYNTAX LUBRICATE OBJECT = V-OIL>
+<SYNTAX LUBRICATE OBJECT WITH OBJECT = V-OIL>
 <SYNTAX HINT = V-HINTS>
 <SYNONYM HINT HINTS>
 
@@ -805,6 +805,10 @@
                   <TELL "The winter moon is fading now, pale against the brightening sky. Dawn is near." CR>)
                   (T
                    <TELL "A bright winter moon hangs overhead, casting long blue shadows across the snow. It is a beautiful night -- but a cold one." CR>)>)>>
+
+<ROUTINE BAKERY-F ()
+    <COND (<VERB? EXAMINE>
+           <TELL "An abandoned bakery storefront. Through the dusty window, a wooden baker toy stands frozen mid-knead. The glass is frosted with age, and the door hangs slightly ajar." CR>)>>
 
 ; === GIVE HANDLER OVERRIDES ===
 

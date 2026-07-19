@@ -1,141 +1,148 @@
 # Wondertown (The Last Toymaker's Apprentice) - Bug Report
 
-**Test Date:** 2026-07-17
+**Test Date:** 2026-07-18
 **Tested By:** Game Tester Agent
 
 ## Summary
 
 | Category | Count |
 |----------|-------|
-| Critical Bugs | 2 |
-| High Severity | 1 |
-| Medium Severity | 2 |
+| Critical Bugs | 0 |
+| High Severity | 0 |
+| Medium Severity | 1 |
 | Low Severity | 3 |
+| Test Infrastructure | 3 |
 
----
+### Previous Bug Report Status
 
-## Critical Bugs
+The previous report (2026-07-17) identified 2 Critical, 1 High, 2 Medium, and 3 Low bugs. After re-testing:
 
-### Bug 1: TAKE/DROP Completely Broken — Action Routines Swallow All Default Verbs
-
-- **Description:** Every object action routine in `actions.zil` ends with `<RTRUE>`, which tells the parser "I handled this verb" even when the routine didn't actually handle it. This silently swallows TAKE, DROP, OPEN, CLOSE, LOOK-IN, and all other default Zork verb behaviors. Items cannot be picked up, dropped, or interacted with in any way that relies on the parser's built-in verb handling. This makes the game completely unwinnable.
-- **Command:** `take string` (or any TAKE command on any object)
-- **Output:** *(empty — no response at all)*
-- **Expected:** `Taken.` message and the item moves to inventory.
-- **Root Cause:** In `actions.zil`, every `-F` routine (e.g., `KEY-STRING-F`, `OIL-CAN-F`, `SWEEP-BROOM-F`, etc.) follows this pattern:
-
-  ```zil
-  <ROUTINE KEY-STRING-F ()
-      <COND (<VERB? EXAMINE>
-             <TELL "..." CR>)>
-      <RTRUE>>  ; <-- THIS IS THE BUG
-  ```
-
-  The trailing `<RTRUE>` tells the parser that the action routine handled the verb, so the parser skips calling `V-TAKE`, `V-DROP`, `V-OPEN`, etc. In Zork1, action routines that don't handle a verb simply return RFALSE (by not matching any condition and not having a trailing RTRUE), letting the default behavior proceed.
-
-- **Reproduction:** Start any game session, type `take string` or `take broom` or `take oil can`. No response. Type `inventory` — empty-handed.
-- **Regression Test:** `books/wondertown/test/test-take-deep.zil`
-- **Test Command:** `lua5.4 run-zil-test.lua books/wondertown/test/test-take-deep`
-- **Regression Status:** RED — reproduces the bug
-- **Severity:** Critical
-
-### Bug 2: Existing Test Suite Masked by ASSERT Short-Circuit Logic
-
-- **Description:** The existing test files (`test-take.zil`, `walkthrough.zil`) use the pattern `<ASSERT "msg" <CO-RESUME ,CO "cmd" T> <state-check>>`. The `ASSERT` function in `run-zil-test.lua` returns on the *first* truthy condition. Since `CO-RESUME` always returns `true` (the coroutine resumed successfully), the state check is **never evaluated**. This means the tests "pass" even when TAKE is completely broken.
-- **Command:** Any test using `<ASSERT "msg" <CO-RESUME ...> <state-check>>`
-- **Output:** `[PASS]` despite TAKE not working
-- **Expected:** `[FAIL]` because the state check should also be evaluated
-- **Regression Test:** `books/wondertown/test/test-assert-logic.zil`
-- **Test Command:** `lua5.4 run-zil-test.lua books/wondertown/test/test-assert-logic`
-- **Regression Status:** RED — demonstrates the masked bug
-- **Severity:** Critical
-
----
-
-## High Severity Bugs
-
-### Bug 3: MAILBOX-CORNER Missing East Exit — Misleading Room Description
-
-- **Description:** The Mailbox Corner room description says *"More fox footprints continue east, toward what looks like the old scrap-yard"* but the room has no east exit. The only exit is west back to Clock Square. To reach the Scrap-Yard, the player must go west to Clock Square, then south. This traps players who follow the described footprints.
-- **Command:** `go east` (from Mailbox Corner)
-- **Output:** `You can't go that way.`
-- **Expected:** Either an east exit to the Scrap-Yard, or the description should say *"west"* instead of *"east"*. According to the dungeon map, the Scrap-Yard is south of Clock Square, not east of Mailbox Corner.
-- **Reproduction:** Go north → east → east (Mailbox Corner) → east
-- **Regression Test:** `books/wondertown/test/test-exit-mailbox.zil`
-- **Test Command:** `lua5.4 run-zil-test.lua books/wondertown/test/test-exit-mailbox`
-- **Regression Status:** RED — confirms the missing exit
-- **Severity:** High
+- **Bug 1 (TAKE broken)** — **FIXED**. TAKE, DROP, and all default verb behaviors work correctly.
+- **Bug 2 (ASSERT short-circuit)** — **FALSE ALARM**. The `ASSERT` function in `run-zil-test.lua` already iterates all varargs and fails if any is falsy.
+- **Bug 3 (MAILBOX-CORNER east exit description)** — **FIXED**. Description now says "west" instead of "east".
+- **Bug 4 (ASK/TELL topic objects not in scope)** — **FALSE ALARM**. Topic objects (`TOPIC-TOLLIVER`, `TOPIC-KEY`, etc.) are correctly listed in each room's `GLOBAL` property. `ask nutcracker about tolliver` works.
+- **Bug 5 (Container interactions for mailbox)** — **FIXED**. `look in mailbox`, `open mailbox`, `close mailbox` all produce correct output.
+- **Bug 6 (CLIMB workbench)** — **STILL PRESENT** (see Low #1 below).
+- **Bug 7 ("bundle" not recognized)** — **FALSE ALARM**. "bundle" IS registered as a synonym for MAILBOX-LETTERS in `dungeon.zil`.
+- **Bug 8 (SPOOL-STAIRS wrong room)** — **FALSE ALARM**. SPOOL-STAIRS is correctly defined `(IN TOOL-BENCH)`.
 
 ---
 
 ## Medium Severity Bugs
 
-### Bug 4: ASK/TELL About Topics Fails — Topic Objects Not in Scope
+### Bug 1: "oil can" Two-Word Form Fails — OIL Synonym/Adjective Conflict
 
-- **Description:** The `tell <npc> about <topic>` and `ask <npc> about <topic>` commands fail with "You can't see any [topic] here!" because the topic objects (`TOPIC-FOX`, `TOPIC-KEY`, `TOPIC-TOLLIVER`, etc.) are in `LOCAL-GLOBALS` but the rooms don't list them in their `GLOBAL` property. For example, `MAILBOX-CORNER` has `(GLOBAL MOON)` but not `TOPIC-FOX`, so `ask mailbox about fox` fails. The mailbox handler checks for `NUTMEG` and `FOOTPRINTS` directly, but these aren't accessible via the `ABOUT` syntax.
-- **Command:** `ask mailbox about fox` or `tell nutcracker about tolliver`
-- **Output:** `You can't see any fox here!` / `You can't see any tolliver here!`
-- **Expected:** The mailbox should respond with dialogue about the fox, or the nutcracker should discuss Tolliver.
-- **Reproduction:** Go to Mailbox Corner, type `ask mailbox about fox`
-- **Severity:** Medium
-
-### Bug 5: Container Interactions Broken (LOOK-IN, OPEN) for Mailbox
-
-- **Description:** The mailbox is defined as `(FLAGS CONTBIT OPENBIT ACTORBIT)` but `look in mailbox`, `open mailbox`, `close mailbox` all return empty output because the `MAILBOX-F` action routine catches all verbs and returns `<RTRUE>` without handling LOOK-IN, OPEN, or CLOSE.
-- **Command:** `look in mailbox` or `open mailbox`
-- **Output:** *(empty)*
-- **Expected:** `look in mailbox` should describe the letters inside. `open mailbox` should describe the flap opening. Since the mailbox is already open (OPENBIT is set), `open mailbox` could say "The mailbox is already open."
-- **Reproduction:** Go to Mailbox Corner, type `look in mailbox`
+- **Description:** The OIL-CAN object has `(SYNONYM CAN OIL OILCAN OIL-CAN)` and `(ADJECTIVE TINY COPPER OIL)`. When the player types `take oil can`, the parser treats "oil" as the noun (since it's listed as a synonym) and fails to match the two-word phrase. However, `take copper oil can` or `take tiny oil can` work because "copper"/"tiny" are unambiguous adjectives that help the parser identify the noun as "can".
+- **Command:** `take oil can`
+- **Output:** `You can't see any oil can here!`
+- **Expected:** `Taken.` — The object is described as "a tiny copper oil can" and the player would naturally try this form.
+- **Reproduction:** Start game, type `take oil can` from Workshop Floor.
+- **Workaround:** Use `take copper oil can`, `take tiny oil can`, `take can`, `take oilcan`, or `take oil-can`.
+- **Root Cause:** "OIL" appears in both SYNONYM and ADJECTIVE lists. The parser tries "oil" as a noun first (since it's a synonym), can't find a standalone "oil" object, and the phrase resolution fails.
+- **Fix:** Remove "OIL" from the SYNONYM list. Keep it only in ADJECTIVE. This way `take oil can` would parse as adjective+noun ("oil" modifies "can") and match correctly.
+- **Regression Test:** `books/wondertown/test/test-oil-can-phrase.zil`
+- **Test Command:** `lua5.4 run-zil-test.lua books/wondertown/test/test-oil-can-phrase`
+- **Regression Status:** RED — reproduces the bug
 - **Severity:** Medium
 
 ---
 
 ## Low Severity Bugs
 
-### Bug 6: CLIMB Without "UP" Fails for Workbench
+### Bug 2: `climb workbench` Fails — Missing CLIMBBIT
 
-- **Description:** `climb workbench` returns empty output, but `climb up workbench` works correctly. The WORKBENCH object has `(FLAGS SURFACEBIT CONTBIT OPENBIT SEARCHBIT)` but not `CLIMBBIT`, so the parser's `CLIMB OBJECT (FIND CLIMBBIT)` syntax doesn't match. The WORKBENCH-F handler does handle `CLIMB` but the parser never reaches it.
+- **Description:** `climb workbench` returns "The enormous workbench doesn't lead upward." but `climb up workbench` works correctly. The WORKBENCH object has `(FLAGS SURFACEBIT CONTBIT OPENBIT SEARCHBIT)` but lacks `CLIMBBIT`, so the parser's `CLIMB OBJECT (FIND CLIMBBIT)` syntax doesn't match. The `WORKBENCH-F` handler does handle `CLIMB` and `CLIMB-UP` verbs, but the parser intercepts before reaching it.
 - **Command:** `climb workbench`
-- **Output:** *(empty)*
+- **Output:** `The enormous workbench doesn't lead upward.`
 - **Expected:** `You scramble up the workbench leg...` (same as `climb up workbench`)
-- **Reproduction:** In Workshop Floor, type `climb workbench`
+- **Reproduction:** In Workshop Floor, type `climb workbench`.
+- **Fix:** Add `CLIMBBIT` to the WORKBENCH flags, or change the parser-level CLIMB syntax to not require CLIMBBIT.
+- **Regression Test:** `books/wondertown/test/test-climb-workbench.zil`
+- **Test Command:** `lua5.4 run-zil-test.lua books/wondertown/test/test-climb-workbench`
+- **Regression Status:** RED — reproduces the bug
 - **Severity:** Low
 
-### Bug 7: "bundle" Not Recognized as Synonym for MAILBOX-LETTERS
+### Bug 3: `examine pet door` Fails — "pet" Treated as Noun
 
-- **Description:** The MAILBOX-LETTERS object has `(SYNONYM LETTERS MAIL)` and `(ADJECTIVE UNSENT OLD)` but "bundle" is not registered as a synonym. The room description and object description both say "bundle of letters" but `examine bundle` returns "I don't know the word 'bundle'."
-- **Command:** `examine bundle` or `take bundle`
-- **Output:** `I don't know the word "bundle".`
-- **Expected:** Should match MAILBOX-LETTERS since the object is described as "bundle of letters"
-- **Reproduction:** Go to Mailbox Corner, type `examine bundle`
+- **Description:** The PET-DOOR object has `(ADJECTIVE PET SMALL WOODEN)` but `examine pet door` fails with "You can't see any pet door here!" while `examine wooden door` and `examine small door` work. The parser treats "pet" as a noun (since it's a common English word) rather than as an adjective modifying "door".
+- **Command:** `examine pet door`
+- **Output:** `You can't see any pet door here!`
+- **Expected:** Should describe the pet door (same as `examine door`).
+- **Reproduction:** In Workshop Floor, type `examine pet door`.
+- **Workaround:** Use `examine door`, `examine wooden door`, or `examine small door`.
 - **Severity:** Low
 
-### Bug 8: SPOOL-STAIRS Object in Wrong Room
+### Bug 4: "bakery" Not Recognized as a Word
 
-- **Description:** The SPOOL-STAIRS object is defined `(IN WORKSHOP-FLOOR)` but the Tool Bench room description says *"The spool staircase leads up toward the countertop"*. When the player is in Tool Bench, `examine staircase` returns "You can't see any staircase here!" because the stairs are in the Workshop Floor, not the Tool Bench.
-- **Command:** `examine staircase` (from Tool Bench)
-- **Output:** `You can't see any staircase here!`
-- **Expected:** Should describe the spool staircase, or the stairs should be moved to the Tool Bench room
-- **Reproduction:** Go to Tool Bench, type `examine staircase`
-- **Severity:** Low
+- **Description:** The Clock Square room description mentions "a bakery" but `examine bakery` returns "I don't know the word 'bakery'." The word isn't registered anywhere in the game's vocabulary.
+- **Command:** `examine bakery`
+- **Output:** `I don't know the word "bakery".`
+- **Expected:** Either describe the bakery or give a generic "You can't see any bakery here" response. Room descriptions should not mention nouns that the parser doesn't recognize.
+- **Reproduction:** Go to Clock Square, type `examine bakery`.
+- **Severity:** Low (cosmetic — doesn't block progress)
+
+---
+
+## Test Infrastructure Issues
+
+### Issue 5: test-debug FAILS — Wrong OIL-CAN Location Assertion
+
+- **Description:** The test asserts `<==? <LOC ,OIL-CAN> ,WORKBENCH>` but OIL-CAN is defined `(IN WORKSHOP-FLOOR)` in `dungeon.zil`, not in the WORKBENCH object. The test is incorrect.
+- **Test File:** `books/wondertown/test/test-debug.zil`
+- **Test Command:** `lua5.4 run-zil-test.lua books/wondertown/test/test-debug`
+- **Output:** `[FAIL] Oil-can exists`
+- **Status:** FIXED — Changed assertion to `<==? <LOC ,OIL-CAN> ,WORKSHOP-FLOOR>` and updated the TAKE command to use `take copper oil can`.
+- **Severity:** Test bug (fixed)
+
+### Issue 6: test-doll3 CRASHES — ASSERT-TEXT Receives Nil
+
+- **Description:** The test crashes with `attempt to index a nil value (local 'actual')` when `ASSERT-TEXT "button" <CO-RESUME ,CO "examine doll" T>` is called. The `T` parameter to CO-RESUME means "only return success flag", suppressing the output text that ASSERT-TEXT needs.
+- **Test File:** `books/wondertown/test/test-doll3.zil`
+- **Test Command:** `lua5.4 run-zil-test.lua books/wondertown/test/test-doll3`
+- **Output:** Runtime crash in ASSERT_TEXT
+- **Status:** FIXED — Removed the `T` parameter so CO-RESUME returns both ok and actual text.
+- **Severity:** Test bug (fixed)
+
+### Issue 7: test-string2 CRASHES — Undefined ASSERT-EQUAL
+
+- **Description:** The test uses `ASSERT-EQUAL` which is not defined in `run-zil-test.lua`. Only `ASSERT`, `ASSERT_TEXT`, and `ASSERT_NOT_TEXT` are available.
+- **Test File:** `books/wondertown/test/test-string2.zil`
+- **Test Command:** `lua5.4 run-zil-test.lua books/wondertown/test/test-string2`
+- **Output:** `attempt to call a nil value (global 'ASSERT_EQUAL')`
+- **Status:** FIXED — Replaced `ASSERT-EQUAL` with `ASSERT-TEXT`.
+- **Severity:** Test bug (fixed)
+
+---
+
+## Verified Working
+
+The following features were tested and work correctly:
+
+- **TAKE/DROP** — All items can be picked up and dropped.
+- **EXAMINE** — All objects respond to examination.
+- **OPEN/CLOSE containers** — Display case, mailbox, toy box all work.
+- **LOOK-IN containers** — Mailbox shows letters inside.
+- **ASK/TELL NPCs about topics** — Nutmeg, Bertrand, Marzipan all respond to topic questions.
+- **GIVE items to NPCs** — Button→Marzipan, Scarf→Nutmeg, Yarn→Nutmeg all work.
+- **WIND mechanics** — Bertrand, Clock Tower, Old Tick, Heart all wind correctly.
+- **OIL mechanics** — Ladder mechanism oils with correct syntax.
+- **POSITION companions** — Soldier, Music Box, Doll Arm can be placed at heart.
+- **HINT system** — Progressive hints work from relevant rooms.
+- **Game completion** — Full walkthrough succeeds with correct ending text.
+- **Dynamic descriptions** — Bertrand, Marzipan, Old Tick, Scrap Cart, Nutmeg all update correctly.
+- **Disambiguation** — "letter" correctly asks which one; "key" asks which key.
+- **Mailbox NPC** — Responds to ASK/TELL about fox and footprints.
 
 ---
 
 ## Recommendations
 
-1. **Remove trailing `<RTRUE>` from all action routines** in `actions.zil`. Each routine should only return `<RTRUE>` (or `<RTRUE>` within a `<COND>` branch) when it explicitly handles a verb. For unhandled verbs, let the routine fall through to the implicit RFALSE.
-
-2. **Fix the ASSERT function** in `run-zil-test.lua` to evaluate ALL conditions, not just the first truthy one. Change the loop to check all conditions and only PASS if all are truthy.
-
-3. **Add east exit from MAILBOX-CORNER to SCRAP-YARD** or change the room description to say "west" instead of "east".
-
-4. **Add topic objects to room GLOBAL properties** so that `ask/tell NPC about TOPIC` works. Alternatively, change the NPC handlers to check for the topic objects directly.
-
-5. **Add CLIMBBIT to WORKBENCH** or change the CLIMB syntax handling.
-
-6. **Add "bundle" as a synonym** for MAILBOX-LETTERS.
-
-7. **Move SPOOL-STAIRS to TOOL-BENCH** or change its location to a global.
+1. **Remove "OIL" from OIL-CAN SYNONYM list** — Keep it only in ADJECTIVE. This fixes the `take oil can` usability issue.
+2. **Add CLIMBBIT to WORKBENCH** — So `climb workbench` works without "up".
+3. **Add "bakery" to vocabulary** — Either register it as a noun or handle it in the parser.
+4. **Fix test-doll3** — Already fixed: removed T flag from CO-RESUME in ASSERT-TEXT call.
+5. **Fix test-string2** — Already fixed: replaced ASSERT-EQUAL with ASSERT-TEXT.
+6. **Fix test-debug** — Already fixed: corrected OIL-CAN location assertion.
 
 ---
 

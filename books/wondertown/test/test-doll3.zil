@@ -8,5 +8,5 @@
     <CO-RESUME ,CO "walk up" T>
     <ASSERT "At countertop" <==? ,HERE ,COUNTERTOP>>
     <ASSERT "Marzipan here" <IN? ,MARZIPAN ,COUNTERTOP>>
-    <ASSERT-TEXT "button" <CO-RESUME ,CO "examine doll" T>>
+    <ASSERT-TEXT "button" <CO-RESUME ,CO "examine doll">>
 >

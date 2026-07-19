@@ -91,7 +91,7 @@
       (EAST TO MAILBOX-CORNER)
       (SOUTH TO SCRAP-YARD)
       (FLAGS RLANDBIT ONBIT)
-      (GLOBAL MOON TOPIC-FOX TOPIC-TOLLIVER)>
+      (GLOBAL MOON TOPIC-FOX TOPIC-TOLLIVER BAKERY)>
 
 <ROOM MAILBOX-CORNER
       (IN ROOMS)
@@ -160,7 +160,7 @@
 
 <OBJECT OIL-CAN
         (IN WORKSHOP-FLOOR)
-        (SYNONYM CAN OIL OILCAN OIL-CAN)
+        (SYNONYM CAN OILCAN OIL-CAN)
         (ADJECTIVE TINY COPPER OIL)
         (DESC "tiny copper oil can")
         (LDESC "A tiny copper oil can, still half full, sits near the workbench.")
@@ -179,7 +179,7 @@
 
 <OBJECT PET-DOOR
         (IN WORKSHOP-FLOOR)
-        (SYNONYM DOOR)
+        (SYNONYM DOOR PET)
         (ADJECTIVE PET SMALL WOODEN)
         (DESC "small pet door")
         (LDESC "A small pet door is cut into the bottom of the workshop's main door.")
@@ -691,6 +691,14 @@
         (ACTION SILENT-TOYS-F)>
 
 ; === LOCAL-GLOBALS ===
+
+<OBJECT BAKERY
+    (IN LOCAL-GLOBALS)
+    (SYNONYM BAKERY SHOP SHOPFRONT)
+    (ADJECTIVE ABANDONED OLD)
+    (DESC "bakery")
+    (FLAGS NDESCBIT)
+    (ACTION BAKERY-F)>
 
 <OBJECT WORKSHOP-BUILDING
     (IN LOCAL-GLOBALS)

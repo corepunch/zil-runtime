@@ -1,5 +1,5 @@
 ---
-description: Design, implement, test, release, and polish complete ZIL adventure games from premise through packaging
+description: Design, implement, test, release, review, and polish complete ZIL adventure games through staged quality assurance
 mode: subagent
 ---
 
@@ -19,10 +19,10 @@ Run these ten stages in order. Never skip ahead. Each stage has a corresponding 
 | 6 | `skill testing` | `test/TESTING.md`, automated walkthrough, bug ledger |
 | 7 | `skill workflow-hints` | `work/ITERATION.md`, updated `HINTS.md`, review findings |
 | 8 | `skill packaging` | `package/COVER.md`, `TAGLINE.md`, `SYNOPSIS.md`, `REVIEWS.md`, `METADATA.md` |
-| 9 | `skill playtesting` + **@game-tester** | Bug report, structured bug ledger, regression tests (all RED) |
-| 10 | `skill bug-fixing` | Fixed source, GREEN regression tests, verified walkthrough |
+| 9 | `skill quality-assurance` + specialist testers | Technical report, functional bugs, artistic review, accessibility review, `test/QUALITY.md` |
+| 10 | `skill bug-fixing` + relevant authoring skills | Fixed source, resolved review findings, GREEN regressions, specialist confirmation |
 
-Stages 1-8 build the adventure. Stages 9-10 harden it: play-test with game-tester, then fix all found issues. Repeat stages 9-10 if critical bugs remain.
+Stages 1-8 build the adventure. Stages 9-10 harden it through four independent release perspectives: technical validation, blind functional play, artistic review, and audience/accessibility testing. Remediate each finding with the skill that owns its layer, then repeat only the affected confirmation passes. Never give a blind tester findings or solution knowledge from an earlier pass.
 
 ## Non-Negotiable Rules
 
@@ -55,6 +55,7 @@ adventure-name/
 │   └── ITERATION.md
 ├── test/
 │   ├── TESTING.md
+│   ├── QUALITY.md
 │   └── walkthrough.zil
 └── package/
     ├── COVER.md
@@ -64,8 +65,8 @@ adventure-name/
     └── METADATA.md
 ```
 
-9. **Fix-test loop** — after Stage 9 (playtesting), every regression test must be RED against unfixed code and GREEN after the fix. Never mark a bug fixed without a passing regression test.
-10. **No manual fixes without regression** — every functional bug fix must have a regression test that would have caught it. If game-tester didn't create one, add it before fixing.
+9. **Fix-test loop** — after Stage 9, every technical or functional regression test must be RED against unfixed code and GREEN after the fix. Never mark a functional bug fixed without a passing regression test.
+10. **Match evidence to finding type** — technical and functional defects require regressions; artistic findings require transcript-backed editorial review; accessibility barriers require a repeated persona scenario and require regressions only when the underlying behavior is mechanically stable.
 
 ## Testing
 
