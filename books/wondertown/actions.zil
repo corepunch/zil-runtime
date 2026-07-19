@@ -321,7 +321,7 @@
                  (T
                   <TELL "There is nothing under the workbench now." CR>)>
            <RTRUE>)
-          (<VERB? CLIMB CLIMB-UP>
+          (<VERB? CLIMB CLIMB-FOO CLIMB-UP>
            <TELL "You scramble up the workbench leg. From up here, you can see the whole workshop -- the key hook on the wall, the pet door, the cuckoo clock. You climb back down, the view fresh in your mind." CR>
            <RTRUE>)>>
 

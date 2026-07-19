@@ -68,7 +68,7 @@ An object `ACTION` routine is a selective override, not a blanket handler. Retur
 ### 0k. Parser reachability is a four-part contract
 An authored handler is reachable only when vocabulary, syntax, scope, and flags all agree. Before relying on an object-specific branch, verify:
 - every concrete noun used in prose is in the object's `SYNONYM` list;
-- the standard syntax accepts the intended wording and its `FIND` flag constraint matches the object (for example, bare `CLIMB OBJECT` may require `CLIMBBIT` even if `CLIMB UP OBJECT` works);
+- the standard syntax accepts the intended wording and dispatches the action name tested by the object handler. Trace the exact mapping in `infocom/zork1/syntax.zil`: bare `CLIMB OBJECT` dispatches `V-CLIMB-FOO`, while `CLIMB UP OBJECT` dispatches `V-CLIMB-UP`, so a handler supporting both must test `CLIMB-FOO` and `CLIMB-UP`. Adding `CLIMBBIT` alone does not make `CLIMB-FOO` match a branch that only tests `CLIMB` or `CLIMB-UP`; `FIND` flags guide implicit-object resolution, not action matching for an explicit noun;
 - the object is actually in the room, inventory, containment tree, or room `GLOBAL` list where the command is issued;
 - conversation topic objects used as `PRSI` are in scope in every room where the NPC can be asked or told about them.
 
