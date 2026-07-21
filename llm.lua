@@ -272,7 +272,6 @@ local function get_room_name(env)
     return ok and result or nil
 end
 
--- Helper to get score info
 local function get_score_info(env)
     local ok, result = pcall(function()
         local score = rawget(_G, "SCORE") or rawget(env, "SCORE")

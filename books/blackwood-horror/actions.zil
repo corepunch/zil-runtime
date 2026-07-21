@@ -1346,12 +1346,19 @@
 
 ; === SCORING ===
 
-<ROUTINE V-SCORE ()
+<ROUTINE SCORE-OBJ (OBJ "AUX" TEMP)
+     <COND (<NOT <FSET? .OBJ ,TOUCHBIT>>
+           <COND (<G? <SET TEMP <GETP .OBJ ,P?VALUE>> 0>
+                 <SCORE-UPD .TEMP>
+                 <PUTP .OBJ ,P?VALUE 0>
+                 <FSET .OBJ ,TOUCHBIT>)>)>>
+
+<ROUTINE V-SCORE ("OPTIONAL" (ASK? T))
     <TELL "Score: " N ,SCORE " of " N ,SCORE-MAX " points, in " N ,MOVES>
     <COND (<1? ,MOVES> <TELL " move.">) (T <TELL " moves.">)>
     <CRLF>
     <TELL "Rank: " <GET ,RANKINGS </ ,SCORE 20>> "." CR>
-    <RTRUE>>
+    ,SCORE>
 
 ; === ENTRY POINT ===
 

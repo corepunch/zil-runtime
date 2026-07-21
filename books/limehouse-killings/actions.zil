@@ -11,10 +11,10 @@
     <COND (<VERB? EXAMINE READ>
            <TELL "The letter reads: 'My dear Dr. Moriarty, I know what you did. If you do not confess by Friday, I will expose you to Scotland Yard. - Lord Ashworth'" CR>
            <COND (<NOT ,DEAD-LETTER-FOUND>
-                   <SETG DEAD-LETTER-FOUND T>
-                   <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>
-                   <SCORE-UPD 10>
-                   <CHECK-CASE-PROGRESS>)>
+                  <SETG DEAD-LETTER-FOUND T>
+                  <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>
+                  <SCORE-UPD 10>
+                  <CHECK-CASE-PROGRESS>)>
            <RTRUE>)>>
 
 <ROUTINE BLOOD-STAINED-KNIFE-F ()
@@ -76,11 +76,11 @@
 <ROUTINE POISON-BOTTLE-F ()
     <COND (<VERB? EXAMINE READ>
            <TELL "The bottle is labeled: 'Aconitum - Wolfsbane. Highly poisonous.'" CR>
-           <COND (<NOT ,POISON-BOTTLE-FOUND>
-                  <SETG POISON-BOTTLE-FOUND T>
-                  <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>
-                  <SCORE-UPD 10>
-                  <CHECK-CASE-PROGRESS>)>
+            <COND (<NOT ,POISON-BOTTLE-FOUND>
+                   <SETG POISON-BOTTLE-FOUND T>
+                   <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>
+                   <SCORE-UPD 10>
+                   <CHECK-CASE-PROGRESS>)>
            <RTRUE>)
           (<VERB? TASTE>
            <TELL "You feel dizzy. Perhaps that wasn't wise." CR>
@@ -95,11 +95,11 @@
 <ROUTINE SECRET-LEDGER-F ()
     <COND (<VERB? EXAMINE READ>
            <TELL "The ledger shows Dr. Moriarty owed Lord Ashworth £500. The debt was due this week." CR>
-           <COND (<NOT ,SECRET-LEDGER-FOUND>
-                  <SETG SECRET-LEDGER-FOUND T>
-                  <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>
-                  <SCORE-UPD 10>
-                  <CHECK-CASE-PROGRESS>)>
+            <COND (<NOT ,SECRET-LEDGER-FOUND>
+                   <SETG SECRET-LEDGER-FOUND T>
+                   <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>
+                   <SCORE-UPD 10>
+                   <CHECK-CASE-PROGRESS>)>
            <RTRUE>)>>
 
 ; --- Tool Object Actions ---
@@ -225,11 +225,11 @@
 <ROUTINE BANK-STATEMENT-F ()
     <COND (<VERB? EXAMINE READ>
            <TELL "The statement shows Dr. Moriarty's account is overdrawn. He recently withdrew a large sum for 'experimental supplies.'" CR>
-           <COND (<NOT ,BANK-STATEMENT-FOUND>
-                  <SETG BANK-STATEMENT-FOUND T>
-                  <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>
-                  <SCORE-UPD 10>
-                  <CHECK-CASE-PROGRESS>)>
+            <COND (<NOT ,BANK-STATEMENT-FOUND>
+                   <SETG BANK-STATEMENT-FOUND T>
+                   <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>
+                   <SCORE-UPD 10>
+                   <CHECK-CASE-PROGRESS>)>
            <RTRUE>)
           (<VERB? TAKE>
            <TELL "You take the bank statement." CR>
@@ -1155,13 +1155,20 @@
            <TELL "  nothing." CR>
            <RTRUE>)>>
 
-<ROUTINE V-SCORE ()
+<ROUTINE V-SCORE ("OPTIONAL" (ASK? T))
     <TELL "Score: " N ,SCORE " of " N ,SCORE-MAX " points, in " N ,MOVES>
     <COND (<1? ,MOVES> <TELL " move.">) (T <TELL " moves.">)>
     <CRLF>
     <TELL "Rank: " <GET ,RANKINGS </ ,SCORE 15>> "." CR>
     <TELL "Evidence: " N ,EVIDENCE-FOUND " of 5. Suspects: " N ,SUSPECTS-INTERVIEWED " of 3." CR>
-    <RTRUE>>
+    ,SCORE>
+
+<ROUTINE SCORE-OBJ (OBJ "AUX" TEMP)
+     <COND (<NOT <FSET? .OBJ ,TOUCHBIT>>
+           <COND (<G? <SET TEMP <GETP .OBJ ,P?VALUE>> 0>
+                 <SCORE-UPD .TEMP>
+                 <PUTP .OBJ ,P?VALUE 0>
+                 <FSET .OBJ ,TOUCHBIT>)>)>>
 
 <ROUTINE V-HINTS ()
     <COND (<NOT ,STUDY-UNLOCKED>

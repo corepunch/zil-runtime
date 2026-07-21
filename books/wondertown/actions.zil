@@ -7,13 +7,20 @@
 <SYNTAX HINT = V-HINTS>
 <SYNONYM HINT HINTS>
 
-<ROUTINE V-SCORE ()
+<ROUTINE V-SCORE ("OPTIONAL" (ASK? T))
     <TELL "Score: " N ,SCORE " of " N ,SCORE-MAX " points, in " N ,MOVES>
     <COND (<1? ,MOVES> <TELL " move.">) (T <TELL " moves.">)>
     <CRLF>
     <TELL "Rank: " <GET ,RANKINGS </ ,SCORE 25>> "." CR>
     <TELL "Companions: " N ,COMPANION-COUNT " of 6." CR>
-    <RTRUE>>
+    ,SCORE>
+
+<ROUTINE SCORE-OBJ (OBJ "AUX" TEMP)
+     <COND (<NOT <FSET? .OBJ ,TOUCHBIT>>
+           <COND (<G? <SET TEMP <GETP .OBJ ,P?VALUE>> 0>
+                 <SCORE-UPD .TEMP>
+                 <PUTP .OBJ ,P?VALUE 0>
+                 <FSET .OBJ ,TOUCHBIT>)>)>>
 
 ; === ENTRY POINT ===
 
@@ -219,8 +226,8 @@
                   <TELL "You need to be holding the workshop key to wind the heart." CR>)
                  (,KEY-WOUND
                   <TELL "The heart is already turning. Its gears are moving -- but too slowly. It needs companions now, not more winding." CR>)
-                  (T
-                   <TELL "You insert the workshop key into the brass keyhole. It fits perfectly -- a click, then a deep shudder runs through the entire chamber. Gears begin to turn, slowly at first, then faster. The heart is beating." CR>
+                 (T
+                  <TELL "You insert the workshop key into the brass keyhole. It fits perfectly -- a click, then a deep shudder runs through the entire chamber. Gears begin to turn, slowly at first, then faster. The heart is beating." CR>
                    <TELL " But something is still missing. The heart is turning, but it needs more than mechanical power to truly beat. It needs the love the toys carry -- the companions you have made along your journey. Each friend you have helped can lend their strength." CR>
                    <SETG KEY-WOUND T>
                    <SCORE-UPD 5>
@@ -870,11 +877,11 @@
                   <TELL "The scrap cart is not here." CR>)
                  (,CART-MOVED
                   <TELL "The cart has already moved aside. Its work here is done." CR>)
-                  (T
-                   <TELL "You hold up the porcelain doll head. The cart pauses. A mechanical arm -- surprisingly gentle -- extends and takes the head from your hands. It places the head beside the headless doll in its bed. For a moment, the cart is perfectly still. Then it rumbles -- a low, soft sound, like a purr -- and rolls slowly aside, revealing the iron gate to the east." CR>
-                   <SETG CART-MOVED T>
-                   <SETG CART-HELPED T>
-                   <SCORE-UPD 5>)>
+                 (T
+                  <TELL "You hold up the porcelain doll head. The cart pauses. A mechanical arm -- surprisingly gentle -- extends and takes the head from your hands. It places the head beside the headless doll in its bed. For a moment, the cart is perfectly still. Then it rumbles -- a low, soft sound, like a purr -- and rolls slowly aside, revealing the iron gate to the east." CR>
+                  <SETG CART-MOVED T>
+                  <SETG CART-HELPED T>
+                  <SCORE-UPD 5>)>
            <RTRUE>)
           (<AND <EQUAL? ,PRSI ,NUTMEG>
                 <NOT <IN? ,NUTMEG ,HERE>>>
