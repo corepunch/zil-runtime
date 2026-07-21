@@ -575,7 +575,9 @@ function Forms.createHandlers(compiler, printNode)
     if node[1] and node[1].type == "number"
         and not (node[2] and node[2].type == "list") then
       buf.write("ITABLE_WORDS(%s, %d)", compiler.value(node[1]), math.max(1, #node - 1))
-    elseif utils.safeget(node[1], "value") == "NONE" and node[2] then
+    elseif (utils.safeget(node[1], "value") == "NONE"
+            or utils.safeget(node[1], "value") == "BYTE"
+            or utils.safeget(node[1], "value") == "WORD") and node[2] then
       buf.write("ITABLE_WORDS(")
       printNode(buf, node[2], 0)
       buf.write(", 1)")

@@ -105,7 +105,18 @@ local GAMES = {
     },
     ["wondertown"] = {
         modules = {"books.wondertown.wondertown"}
-    }
+    },
+    planetfall = {
+        modules = {
+            "infocom.planetfall.syntax",
+            "infocom.planetfall.misc",
+            "infocom.planetfall.globals",
+            "infocom.planetfall.parser",
+            "infocom.planetfall.verbs",
+            "infocom.planetfall.compone",
+            "infocom.planetfall.comptwo",
+        }
+    },
 }
 
 local game_name = args.game or "zork1"

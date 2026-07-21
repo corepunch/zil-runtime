@@ -136,7 +136,7 @@ local suggestions = {
 	DOORBIT = "OPEN",
 }
 
-local function objects_in_room(room)
+local function room_global_objects(room)
 	local room_globals = {}
 	local pqglobal = rawget(_G, "PQGLOBAL")
 	if pqglobal and GETPT(room, pqglobal) then
@@ -147,13 +147,29 @@ local function objects_in_room(room)
 		end
 	end
 
+	return room_globals
+end
+
+local function objects_in_room(room)
+	local room_globals = room_global_objects(room)
+	local yielded = {}
+	local child = FIRSTQ(room)
 	local i = 0
+
 	return function()
+		while child do
+			local obj = child
+			child = NEXTQ(child)
+			if obj ~= ADVENTURER then
+				yielded[obj] = true
+				return obj
+			end
+		end
+
 		while true do
 			i = i + 1
 			if i > _obj_count then return nil end
-			if i ~= ADVENTURER and GETP(i, PQLOC) == room then return i end
-			if i ~= ADVENTURER and room_globals[i] then return i end
+			if i ~= ADVENTURER and room_globals[i] and not yielded[i] then return i end
 		end
 	end
 end

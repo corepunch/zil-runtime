@@ -41,7 +41,8 @@ function Value.value(node, compiler)
   
   -- Property references (,P?...)
   if val:match("^,P%?") then
-    return string.format('PQ%s', val:sub(4))
+    local prop_name = val:sub(4):gsub("%-", "_"):gsub("%?", "Q")
+    return string.format('PQ%s', prop_name)
   end
 
   -- Check if this is a local variable reference (starts with .)
