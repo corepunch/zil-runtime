@@ -653,6 +653,7 @@
            <TELL "It crumbles to ash. The candles go out. The air suddenly smells like rain and grass—ordinary, living air. You're free." CR>
            <SETG GAME-WON T>
            <SETG PATIENT-STATE 3>
+           <SCORE-UPD 6>
            <REMOVE ,PATIENT-189>
            <RTRUE>)
           (<IN? ,ANCIENT-RELIC ,WINNER>
@@ -1341,6 +1342,15 @@
                  (<AND <IN? ,PATIENT-189 ,OVERGROWN-GARDEN>
                        <NOT <EQUAL? ,HERE ,OVERGROWN-GARDEN ,CHAPEL>>>
                   <MOVE ,PATIENT-189 ,CHAPEL>)>)>
+    <RTRUE>>
+
+; === SCORING ===
+
+<ROUTINE V-SCORE ()
+    <TELL "Score: " N ,SCORE " of " N ,SCORE-MAX " points, in " N ,MOVES>
+    <COND (<1? ,MOVES> <TELL " move.">) (T <TELL " moves.">)>
+    <CRLF>
+    <TELL "Rank: " <GET ,RANKINGS </ ,SCORE 20>> "." CR>
     <RTRUE>>
 
 ; === ENTRY POINT ===

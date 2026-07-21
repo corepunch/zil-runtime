@@ -55,6 +55,14 @@
 <GLOBAL SERVANTS-SEEN <>>
 <GLOBAL PASSAGE-SEEN <>>
 <GLOBAL PANTRY-SEEN <>>
+<GLOBAL SCORE-MAX 65>
+<GLOBAL RANKINGS
+    <LTABLE 0
+         "Bystander"
+         "Witness"
+         "Investigator"
+         "Detective"
+         "Master Detective">>
 
 ; === ROOMS ===
 

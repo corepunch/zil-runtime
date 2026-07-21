@@ -272,6 +272,20 @@ local function get_room_name(env)
     return ok and result or nil
 end
 
+-- Helper to get score info
+local function get_score_info(env)
+    local ok, result = pcall(function()
+        local score = rawget(_G, "SCORE") or rawget(env, "SCORE")
+        local moves = rawget(_G, "MOVES") or rawget(env, "MOVES")
+        local max = rawget(_G, "SCORE_MAX") or rawget(env, "SCORE_MAX")
+        if score and moves then
+            return { score = score, moves = moves, max = max }
+        end
+        return nil
+    end)
+    return ok and result or nil
+end
+
 -- Main logic
 restore = setup_capture(env)
 
@@ -454,10 +468,15 @@ if args.action then
         history_err = tostring(history_write_err)
     end
     
+    local score = get_score_info(env)
     restore()
     
     -- Output plain text (exit 0 = success)
     io.write(output)
+    if score then
+        io.write(string.format("\n%%SCORE%% { \"score\": %d, \"moves\": %d, \"max\": %d }\n",
+            score.score, score.moves, score.max or 0))
+    end
     os.exit(0)
     
 elseif args.new_game then
@@ -490,10 +509,15 @@ elseif args.new_game then
         save_err = tostring(err)
     end
     
+    local score = get_score_info(env)
     restore()
     
     -- Output plain text (exit 0 = success)
     io.write(output)
+    if score then
+        io.write(string.format("\n%%SCORE%% { \"score\": %d, \"moves\": %d, \"max\": %d }\n",
+            score.score, score.moves, score.max or 0))
+    end
     os.exit(0)
     
 else

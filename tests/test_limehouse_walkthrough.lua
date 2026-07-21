@@ -91,8 +91,8 @@ test.describe("Limehouse Killings walkthrough", function(t)
 
 		local score_code, score = run_command("lua5.4 llm.lua --action score" .. suffix)
 		assert.assert_equal(score_code, 0)
-		assert.assert_match(score, "Evidence found: 5 of 5")
-		assert.assert_match(score, "Suspects interviewed: 3 of 3")
+		assert.assert_match(score, "Evidence: 5 of 5")
+		assert.assert_match(score, "Suspects: 3 of 3")
 
 		local accuse_code, ending = run_command(
 			"lua5.4 llm.lua --action " .. shell_quote("accuse moriarty with letter") .. suffix)

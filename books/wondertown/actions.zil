@@ -8,7 +8,11 @@
 <SYNONYM HINT HINTS>
 
 <ROUTINE V-SCORE ()
-    <TELL "You have no score in this game. The magic is what matters." CR>
+    <TELL "Score: " N ,SCORE " of " N ,SCORE-MAX " points, in " N ,MOVES>
+    <COND (<1? ,MOVES> <TELL " move.">) (T <TELL " moves.">)>
+    <CRLF>
+    <TELL "Rank: " <GET ,RANKINGS </ ,SCORE 25>> "." CR>
+    <TELL "Companions: " N ,COMPANION-COUNT " of 6." CR>
     <RTRUE>>
 
 ; === ENTRY POINT ===
@@ -195,12 +199,14 @@
            <COND (<AND <G? ,NUTMEG-TRUST 0>
                        <NOT ,STUDY-ACCESS>>
                   <TELL " Suddenly, Nutmeg pads forward from the shadows. 'I can reach it,' she says quietly. 'I know the way. I followed him once -- the old man -- when he went upstairs.' She slips behind the clock. There is a soft click, and the clock swings outward, revealing a narrow staircase. 'The toymaker's study is up there. That is where he went.'" CR>
-                  <SETG STUDY-ACCESS T>)
+                  <SETG STUDY-ACCESS T>
+                  <SCORE-UPD 5>)
                  (<AND <EQUAL? ,NUTMEG-TRUST -1>
                        <IN? ,TIN-SOLDIER ,WINNER>
                        <NOT ,STUDY-ACCESS>>
                   <TELL " You hear a click behind the clock. Without Nutmeg's help, you have to improvise. Using the tin soldier's bayonet, you manage to hook the hidden latch. The clock swings open, revealing stairs." CR>
-                  <SETG STUDY-ACCESS T>)>
+                  <SETG STUDY-ACCESS T>
+                  <SCORE-UPD 5>)>
            <RTRUE>)
           (<EQUAL? ,PRSO ,MUSIC-BOX>
            <TELL "You turn the tiny crank on the music box. A soft melody fills the air -- a lullaby that Grandfather Tolliver used to hum while he worked. The sound is both sweet and sad. You feel, very briefly, as if he were standing right beside you." CR>
@@ -213,11 +219,12 @@
                   <TELL "You need to be holding the workshop key to wind the heart." CR>)
                  (,KEY-WOUND
                   <TELL "The heart is already turning. Its gears are moving -- but too slowly. It needs companions now, not more winding." CR>)
-                 (T
-                  <TELL "You insert the workshop key into the brass keyhole. It fits perfectly -- a click, then a deep shudder runs through the entire chamber. Gears begin to turn, slowly at first, then faster. The heart is beating." CR>
-                  <TELL " But something is still missing. The heart is turning, but it needs more than mechanical power to truly beat. It needs the love the toys carry -- the companions you have made along your journey. Each friend you have helped can lend their strength." CR>
-                  <SETG KEY-WOUND T>
-                  <THIS-IS-IT ,HEART-MECH>)>
+                  (T
+                   <TELL "You insert the workshop key into the brass keyhole. It fits perfectly -- a click, then a deep shudder runs through the entire chamber. Gears begin to turn, slowly at first, then faster. The heart is beating." CR>
+                   <TELL " But something is still missing. The heart is turning, but it needs more than mechanical power to truly beat. It needs the love the toys carry -- the companions you have made along your journey. Each friend you have helped can lend their strength." CR>
+                   <SETG KEY-WOUND T>
+                   <SCORE-UPD 5>
+                   <THIS-IS-IT ,HEART-MECH>)>
            <RTRUE>)
            (T
             <TELL "There is nothing to wind there." CR>)>>
@@ -230,7 +237,8 @@
                   <TELL "The mechanism is already well-oiled and working smoothly." CR>)
                  (<IN? ,OIL-CAN ,WINNER>
                   <TELL "You work oil from the tiny copper can into the rusty joints. With a satisfying creak, the mechanism loosens. The spool staircase is climbable now." CR>
-                  <SETG LADDER-OILED T>)
+                  <SETG LADDER-OILED T>
+                  <SCORE-UPD 5>)
                  (T
                   <TELL "You need oil to lubricate the mechanism. There might be an oil can somewhere in the workshop." CR>)>
            <RTRUE>)
@@ -239,7 +247,8 @@
                   <TELL "The spool staircase is already working smoothly." CR>)
                  (<IN? ,OIL-CAN ,WINNER>
                   <TELL "You oil the spool staircase's lifting mechanism. It loosens with a satisfying creak." CR>
-                  <SETG LADDER-OILED T>)
+                  <SETG LADDER-OILED T>
+                  <SCORE-UPD 5>)
                  (T
                   <TELL "You need oil. Try looking under the workbench." CR>)>
            <RTRUE>)
@@ -520,7 +529,8 @@
 <ROUTINE TOLLIVER-JOURNAL-F ()
     <COND (<VERB? READ EXAMINE>
            <COND (<NOT ,JOURNAL-READ>
-                  <SETG JOURNAL-READ T>)>
+                  <SETG JOURNAL-READ T>
+                  <SCORE-UPD 3>)>
            <TELL "You open the leather journal. Tolliver's handwriting is neat but growing shakier with each entry. October 14th -- 'The workshop key grows weaker. I must wind it more often now. The magic in this town depends on it.' October 20th -- 'Old Tick tells me the heart needs attention. I will see to it tonight.' October 21st -- 'I could not reach the heart alone. Something blocks the way. I must find another path. The toys need me. Pip needs me.' The rest of the pages are blank." CR>)>>
 
 <ROUTINE COBWEBS-F ()
@@ -593,7 +603,8 @@
 <ROUTINE LETTER-F ()
     <COND (<VERB? READ EXAMINE>
            <COND (<NOT ,LETTER-READ>
-                  <SETG LETTER-READ T>)>
+                  <SETG LETTER-READ T>
+                  <SCORE-UPD 3>)>
            <TELL "A crumpled envelope. Inside is a letter in Tolliver's handwriting: 'My dear Pip -- The heart is failing. I must go and mend it myself. Do not worry. Take care of the toys while I am gone. Wind the key at midnight if I do not return. I am proud of you, little apprentice. -- Grandfather Tolliver.' The letter is dated three days ago." CR>)>>
 
 <ROUTINE SCARF-F ()
@@ -743,13 +754,15 @@
 <ROUTINE DIAGRAM-F ()
     <COND (<VERB? READ EXAMINE>
            <COND (<NOT ,DIAGRAM-READ>
-                  <SETG DIAGRAM-READ T>)>
+                  <SETG DIAGRAM-READ T>
+                  <SCORE-UPD 3>)>
            <TELL "A hand-drawn diagram of the workshop's inner workings. Tolliver mapped the heart chamber carefully. The instructions read: 'Insert key. Turn clockwise. For full rewinding, surround the heart with companions -- the more love present, the stronger the magic. Each toy carries memories of the children who loved them. Those memories are power.'" CR>)>>
 
 <ROUTINE STUDY-JOURNAL-F ()
     <COND (<VERB? READ EXAMINE>
            <COND (<NOT ,STUDY-JOURNAL-READ>
-                  <SETG STUDY-JOURNAL-READ T>)>
+                  <SETG STUDY-JOURNAL-READ T>
+                  <SCORE-UPD 3>)>
            <TELL "Tolliver's journal, open to the final entry. The handwriting is shaky but determined: 'I cannot wind the heart alone. The magic has grown weak, and I am old. But Pip -- dear Pip -- is still small enough to reach the heart chamber. If the key is found, and if Pip has made friends along the way, then perhaps the heart can beat again. I have left the key in the workshop. I only hope it is enough. Pip, if you are reading this -- I am proud of you. You were always more than just an apprentice. -- G.T.'" CR>)>>
 
 <ROUTINE STUDY-CHR-F ()
@@ -857,10 +870,11 @@
                   <TELL "The scrap cart is not here." CR>)
                  (,CART-MOVED
                   <TELL "The cart has already moved aside. Its work here is done." CR>)
-                 (T
-                  <TELL "You hold up the porcelain doll head. The cart pauses. A mechanical arm -- surprisingly gentle -- extends and takes the head from your hands. It places the head beside the headless doll in its bed. For a moment, the cart is perfectly still. Then it rumbles -- a low, soft sound, like a purr -- and rolls slowly aside, revealing the iron gate to the east." CR>
-                  <SETG CART-MOVED T>
-                  <SETG CART-HELPED T>)>
+                  (T
+                   <TELL "You hold up the porcelain doll head. The cart pauses. A mechanical arm -- surprisingly gentle -- extends and takes the head from your hands. It places the head beside the headless doll in its bed. For a moment, the cart is perfectly still. Then it rumbles -- a low, soft sound, like a purr -- and rolls slowly aside, revealing the iron gate to the east." CR>
+                   <SETG CART-MOVED T>
+                   <SETG CART-HELPED T>
+                   <SCORE-UPD 5>)>
            <RTRUE>)
           (<AND <EQUAL? ,PRSI ,NUTMEG>
                 <NOT <IN? ,NUTMEG ,HERE>>>
@@ -880,21 +894,25 @@
           (<EQUAL? ,PRSO ,TIN-SOLDIER>
            <TELL "You place the tin soldier beside the heart mechanism. He snaps to attention -- and the heart ticks louder, stronger. His painted eyes seem to brighten. 'Standing guard,' he seems to say, though his tin mouth never moves." CR>
            <SETG COMPANION-COUNT <+ ,COMPANION-COUNT 1>>
+           <SCORE-UPD 10>
            <MOVE ,TIN-SOLDIER ,WORKSHOP-HEART>
            <CHECK-ENDING>)
           (<EQUAL? ,PRSO ,MUSIC-BOX>
            <TELL "You place the silver music box near the heart. Its crank turns by itself, and the lullaby fills the chamber. The gears respond -- their rhythm shifts to match the melody." CR>
            <SETG COMPANION-COUNT <+ ,COMPANION-COUNT 1>>
+           <SCORE-UPD 10>
            <MOVE ,MUSIC-BOX ,WORKSHOP-HEART>
            <CHECK-ENDING>)
           (<EQUAL? ,PRSO ,DOLL-ARM>
            <TELL "You place the doll arm gently beside the heart. It is a small gesture, but the heart knows -- every mended toy, every kind act, feeds the magic." CR>
            <SETG COMPANION-COUNT <+ ,COMPANION-COUNT 1>>
+           <SCORE-UPD 10>
            <MOVE ,DOLL-ARM ,WORKSHOP-HEART>
            <CHECK-ENDING>)
           (<EQUAL? ,PRSO ,BUTTON>
            <TELL "You place the spare button at the heart's base. A tiny offering -- but the heart remembers everything." CR>
            <SETG COMPANION-COUNT <+ ,COMPANION-COUNT 1>>
+           <SCORE-UPD 10>
            <MOVE ,BUTTON ,WORKSHOP-HEART>
            <CHECK-ENDING>)
           (,GAME-WON
@@ -908,12 +926,14 @@
                 <NOT <EQUAL? ,NUTMEG-TRUST -1>>>
            <TELL " Nutmeg pads forward from the shadows. 'Let me help,' she says quietly. 'I have been alone long enough. I would like to be part of something.' She curls up at the base of the heart mechanism, her patchy fur glowing faintly in its light." CR>
            <SETG NUTMEG-SAVED T>
-           <SETG COMPANION-COUNT <+ ,COMPANION-COUNT 1>>)>
+           <SETG COMPANION-COUNT <+ ,COMPANION-COUNT 1>>
+           <SCORE-UPD 10>)>
     <COND (<AND ,BERTRAND-WOUND
                 ,BERTRAND-POLITE
                 <NOT ,NUTMEG-TRUST -1>>
            <TELL " Captain Bertrand marches into the chamber. 'The Nutcracker Brigade never abandons its post,' he declares. He takes up position beside the heart, ramrod straight." CR>
-           <SETG COMPANION-COUNT <+ ,COMPANION-COUNT 1>>)>
+           <SETG COMPANION-COUNT <+ ,COMPANION-COUNT 1>>
+           <SCORE-UPD 10>)>
     <COND (<G? ,COMPANION-COUNT 2>
            <REWIND-ENDING>)>
     <RTRUE>>

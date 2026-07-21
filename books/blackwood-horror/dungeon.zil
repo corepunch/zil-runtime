@@ -22,6 +22,13 @@
 <GLOBAL COLD-EXPOSURE 0>
 <GLOBAL HINT-KEY 0>
 <GLOBAL HINT-LEVEL 0>
+<GLOBAL SCORE-MAX 68>
+<GLOBAL RANKINGS
+    <LTABLE 0
+         "Confused Patient"
+         "Curious Inmate"
+         "Asylum Explorer"
+         "Sanitarium Survivor">>
 <GLOBAL WHISPER-TABLE
     <LTABLE 0
         "A voice, barely audible, rasps: 'help... me...'"
@@ -276,6 +283,7 @@
         (LDESC "A file folder marked 'Patient 189 - CONFIDENTIAL'.")
         (FLAGS TAKEBIT READBIT)
         (SIZE 3)
+        (VALUE 2)
         (ACTION PATIENT-FILE-F)>
 
 <OBJECT BRASS-KEY
@@ -359,6 +367,7 @@
         (ADJECTIVE THICK)
         (DESC "chains")
         (LDESC "Thick chains secure the heavy door.")
+        (VALUE 4)
         (ACTION CHAINS-F)>
 
 <OBJECT REFRIGERATED-DRAWERS
@@ -603,6 +612,7 @@
         (LDESC "A glass syringe with a steel needle.")
         (FLAGS TAKEBIT)
         (SIZE 2)
+        (VALUE 3)
         (ACTION SYRINGE-F)>
 
 <OBJECT CELL-DOORS
@@ -619,6 +629,7 @@
         (ADJECTIVE WALL)
         (DESC "wall scratches")
         (LDESC "Thousands of scratch marks covering the cell walls.")
+        (VALUE 2)
         (ACTION WALL-SCRATCHES-F)>
 
 <OBJECT SHOCK-CHAIR
@@ -664,6 +675,7 @@
         (FLAGS TAKEBIT READBIT)
         (TEXT "The tag reads a name you know. Your name. Dated 1947. Five years before the sanitarium closed.")
         (SIZE 15)
+        (VALUE 1)
         (ACTION STRAITJACKET-F)>
 
 <OBJECT ESCAPE-DOOR
@@ -763,6 +775,7 @@
         (LDESC "A small key with a numbered tag: S-001.")
         (FLAGS TAKEBIT)
         (SIZE 1)
+        (VALUE 2)
         (ACTION SAFE-KEY-F)>
 
 <OBJECT MORDECAI-NOTES
@@ -786,6 +799,7 @@
         (LDESC "A large iron key with a cross engraved on the head.")
         (FLAGS TAKEBIT)
         (SIZE 6)
+        (VALUE 3)
         (ACTION CHAPEL-KEY-F)>
 
 <OBJECT LOCKERS
@@ -888,6 +902,7 @@
         (LDESC "An ancient silver cross with writhing symbols etched into its surface.")
         (FLAGS TAKEBIT)
         (SIZE 4)
+        (VALUE 3)
         (ACTION ANCIENT-RELIC-F)>
 
 <OBJECT PATIENT-189

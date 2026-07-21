@@ -11,9 +11,10 @@
     <COND (<VERB? EXAMINE READ>
            <TELL "The letter reads: 'My dear Dr. Moriarty, I know what you did. If you do not confess by Friday, I will expose you to Scotland Yard. - Lord Ashworth'" CR>
            <COND (<NOT ,DEAD-LETTER-FOUND>
-                  <SETG DEAD-LETTER-FOUND T>
-                  <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>
-                  <CHECK-CASE-PROGRESS>)>
+                   <SETG DEAD-LETTER-FOUND T>
+                   <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>
+                   <SCORE-UPD 10>
+                   <CHECK-CASE-PROGRESS>)>
            <RTRUE>)>>
 
 <ROUTINE BLOOD-STAINED-KNIFE-F ()
@@ -22,6 +23,7 @@
            <COND (<NOT ,KNIFE-FOUND>
                   <SETG KNIFE-FOUND T>
                   <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>
+                  <SCORE-UPD 10>
                   <CHECK-CASE-PROGRESS>)>
            <RTRUE>)
           (<VERB? TAKE>
@@ -30,6 +32,7 @@
            <COND (<NOT ,KNIFE-FOUND>
                   <SETG KNIFE-FOUND T>
                   <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>
+                  <SCORE-UPD 10>
                   <CHECK-CASE-PROGRESS>)>
            <RTRUE>)>>
 
@@ -76,6 +79,7 @@
            <COND (<NOT ,POISON-BOTTLE-FOUND>
                   <SETG POISON-BOTTLE-FOUND T>
                   <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>
+                  <SCORE-UPD 10>
                   <CHECK-CASE-PROGRESS>)>
            <RTRUE>)
           (<VERB? TASTE>
@@ -94,6 +98,7 @@
            <COND (<NOT ,SECRET-LEDGER-FOUND>
                   <SETG SECRET-LEDGER-FOUND T>
                   <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>
+                  <SCORE-UPD 10>
                   <CHECK-CASE-PROGRESS>)>
            <RTRUE>)>>
 
@@ -223,6 +228,7 @@
            <COND (<NOT ,BANK-STATEMENT-FOUND>
                   <SETG BANK-STATEMENT-FOUND T>
                   <SETG EVIDENCE-FOUND <+ ,EVIDENCE-FOUND 1>>
+                  <SCORE-UPD 10>
                   <CHECK-CASE-PROGRESS>)>
            <RTRUE>)
           (<VERB? TAKE>
@@ -687,12 +693,13 @@
                   <TELL "Lord Ashworth had enemies, sir. Dr. Moriarty visited often, and their arguments grew worse." CR>
                   <RTRUE>)
                  (<EQUAL? ,PRSI ,ALIBI-TOPIC>
-                  <TELL "I was in the servants' quarters all evening. The other staff can confirm it." CR>
-                  <COND (<NOT ,HUDSON-INTERVIEWED>
-                         <SETG HUDSON-INTERVIEWED T>
-                         <SETG SUSPECTS-INTERVIEWED <+ ,SUSPECTS-INTERVIEWED 1>>
-                         <CHECK-CASE-PROGRESS>)>
-                  <RTRUE>)
+                   <TELL "I was in the servants' quarters all evening. The other staff can confirm it." CR>
+                   <COND (<NOT ,HUDSON-INTERVIEWED>
+                          <SETG HUDSON-INTERVIEWED T>
+                          <SETG SUSPECTS-INTERVIEWED <+ ,SUSPECTS-INTERVIEWED 1>>
+                          <SCORE-UPD 5>
+                          <CHECK-CASE-PROGRESS>)>
+                   <RTRUE>)
                  (<EQUAL? ,PRSI ,KEY-TOPIC>
                   <TELL "You'll need the study key. He hands you the keyring." CR>
                  <COND (<NOT ,HUDSON-KEY-GIVEN>
@@ -778,13 +785,14 @@
                   <TELL "Our marriage was difficult, but I did not kill my husband." CR>
                   <RTRUE>)
                  (<EQUAL? ,PRSI ,ALIBI-TOPIC>
-                  <TELL "I was in the drawing room all evening. The servants saw me there." CR>
-                  <SETG LADY-ALIBI-CLAIMED T>
-                  <COND (<NOT ,LADY-INTERVIEWED>
-                         <SETG LADY-INTERVIEWED T>
-                         <SETG SUSPECTS-INTERVIEWED <+ ,SUSPECTS-INTERVIEWED 1>>
-                         <CHECK-CASE-PROGRESS>)>
-                  <RTRUE>)
+                   <TELL "I was in the drawing room all evening. The servants saw me there." CR>
+                   <SETG LADY-ALIBI-CLAIMED T>
+                   <COND (<NOT ,LADY-INTERVIEWED>
+                          <SETG LADY-INTERVIEWED T>
+                          <SETG SUSPECTS-INTERVIEWED <+ ,SUSPECTS-INTERVIEWED 1>>
+                          <SCORE-UPD 5>
+                          <CHECK-CASE-PROGRESS>)>
+                   <RTRUE>)
                  (<EQUAL? ,PRSI ,CASE-TOPIC>
                   <TELL "'Call it a case if that helps you keep your distance,' Lady Ashworth says. 'To me it is my husband's murder. Find who crossed that locked door.'" CR>
                   <RTRUE>)
@@ -857,13 +865,14 @@
                   <RTRUE>)
                  (<OR <EQUAL? ,PRSI ,POISON-TOPIC>
                       <EQUAL? ,PRSI ,POISON-BOTTLE>>
-                  <TELL "Wolfsbane? Aconitum? I keep some for research. That proves nothing." CR>
-                  <SETG MORIARTY-POISON-KNOWN T>
-                  <SETG MORIARTY-CONFRONTED T>
-                  <COND (<NOT ,MORIARTY-INTERVIEWED>
-                         <SETG MORIARTY-INTERVIEWED T>
-                         <SETG SUSPECTS-INTERVIEWED <+ ,SUSPECTS-INTERVIEWED 1>>
-                         <CHECK-CASE-PROGRESS>)>
+                   <TELL "Wolfsbane? Aconitum? I keep some for research. That proves nothing." CR>
+                   <SETG MORIARTY-POISON-KNOWN T>
+                   <SETG MORIARTY-CONFRONTED T>
+                   <COND (<NOT ,MORIARTY-INTERVIEWED>
+                          <SETG MORIARTY-INTERVIEWED T>
+                          <SETG SUSPECTS-INTERVIEWED <+ ,SUSPECTS-INTERVIEWED 1>>
+                          <SCORE-UPD 5>
+                          <CHECK-CASE-PROGRESS>)>
                   <MOVE ,DR-MORIARTY ,ASHWORTH-ENTRANCE-HALL>
                   <RTRUE>)
                  (<OR <IN? ,PRSI ,INTQUOTE> <IN? ,PRSI ,QUOTE>>
@@ -1147,8 +1156,11 @@
            <RTRUE>)>>
 
 <ROUTINE V-SCORE ()
-    <TELL "Evidence found: " N ,EVIDENCE-FOUND " of 5." CR>
-    <TELL "Suspects interviewed: " N ,SUSPECTS-INTERVIEWED " of 3." CR>
+    <TELL "Score: " N ,SCORE " of " N ,SCORE-MAX " points, in " N ,MOVES>
+    <COND (<1? ,MOVES> <TELL " move.">) (T <TELL " moves.">)>
+    <CRLF>
+    <TELL "Rank: " <GET ,RANKINGS </ ,SCORE 15>> "." CR>
+    <TELL "Evidence: " N ,EVIDENCE-FOUND " of 5. Suspects: " N ,SUSPECTS-INTERVIEWED " of 3." CR>
     <RTRUE>>
 
 <ROUTINE V-HINTS ()

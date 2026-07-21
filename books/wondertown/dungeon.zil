@@ -32,6 +32,16 @@
 <GLOBAL HINT-KEY 0>
 <GLOBAL HINT-LEVEL 0>
 <GLOBAL NUTMEG-KEY-METHOD 0>
+<GLOBAL PUZZLES-SOLVED 0>
+<GLOBAL LORE-DISCOVERED 0>
+<GLOBAL SCORE-MAX 97>
+<GLOBAL RANKINGS
+    <LTABLE 0
+         "Toymaker's Apprentice"
+         "Journeyman Toymaker"
+         "Master Toymaker"
+         "Grand Artificer"
+         "The Last Toymaker">>
 
 ; === ROOMS ===
 
