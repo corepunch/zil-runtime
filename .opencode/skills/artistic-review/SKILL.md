@@ -45,6 +45,7 @@ Evaluate with transcript evidence:
 8. **Characters:** Key NPCs have discoverable states, agency, reactions, and consequences beyond static topic dispensing.
 9. **Prose and description ownership:** Text is concrete, concise, state-aware, tonally coherent, and avoids contradictory or repetitive description paths.
 10. **Ending:** Resolution follows from play, recalls specific discoveries, preserves meaningful agency, and produces an earned emotional aftereffect.
+11. **Object uniqueness:** Each portable item type appears as exactly one interactive instance; duplicate items (e.g. a knife in one room and another knife elsewhere) are either consolidated or explicitly differentiated with distinct descriptions, states, and puzzle roles. Duplicate portable objects confuse players about which item is relevant and dilute the significance of discovery.
 
 ## Finding Types
 

@@ -41,6 +41,7 @@ Translate design docs into a coherent simulation plan before full implementation
    - room descriptions that name a location ("looks out to the garden," "door to the kitchen") must have a matching exit property pointing there.
 12. Build a parser-reachability row for each authored interaction: exact command, syntax form, required `FIND` flag, object/topic scope, and expected handler/default routine. Do not assume an object action can compensate for syntax or scope that prevents parser resolution.
 13. For every NPC conversation matrix, list the topic objects and every room where the exchange can occur; those rooms must expose the topics through `GLOBAL` or another proven scope mechanism.
+14. **Audit for duplicate objects across the world.** Scan `OBJECTS.md` for functionally identical items (e.g. two knives, two keys, two ropes) placed in different locations. Each portable item type must be unique; consolidate duplicates or explicitly differentiate them with distinct descriptions, states, and puzzle roles. Document any intentional duplicates (e.g. a knife in a museum display vs. a functional knife) and verify only one is interactive.
 
 ## Infocom-Quality Simulation Checks
 - Build a command matrix for each major puzzle with at least ten likely player attempts; implement useful responses for the top attempts.
@@ -89,6 +90,7 @@ Every clock daemon must do at least one of: (a) advance a numerical state that h
 - The first vertical slice can be played with the exact planned commands before the next slice is implemented.
 - Repeating TAKE/READ/EXAMINE or opening an already-open object cannot duplicate progress or strand contents.
 - Every physical noun named in room prose or a blocked-exit message resolves to an object in scope and supports the obvious generic verbs.
+- No two object instances serve the same functional purpose; duplicates are consolidated or explicitly differentiated with distinct descriptions and puzzle roles.
 - Every direction stated in prose is traversable as stated, or the prose clearly identifies why it is blocked.
 - Every declared exit has a matching reverse exit in the destination room (or the asymmetry is documented as intentional).
 - No two rooms form a unidirectional compass-direction loop.

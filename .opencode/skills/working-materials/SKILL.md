@@ -33,6 +33,7 @@ Create the design artifacts that externalize world structure and puzzle logic.
 17. Add a prose-to-mechanics audit column to `MAP.md`: for each directional phrase in a room description, record the matching exit and destination. Record intentional one-way routes explicitly.
 18. Add scope and parser-gating columns to `OBJECTS.md`: initial/possible locations, rooms where globally in scope, relevant topic/NPC scope, required parser flags (such as `TAKEBIT`, `CONTBIT`, `SEARCHBIT`, or `CLIMBBIT`), and the default verbs that must remain available.
 19. Extract every player-facing noun from `DESC`, `FDESC`, `LDESC`, room prose, and hints into the vocabulary plan; include singular, plural, and collective head nouns players are likely to repeat verbatim.
+20. **Prevent duplicate objects across the world.** Each distinct physical item (knife, key, rope, etc.) must exist as exactly one object instance. Do not place functionally identical items in multiple locations (e.g. a knife in the kitchen drawer AND a knife in the workshop). If a player needs a knife for a puzzle, place it in one location and ensure that location is reachable from the puzzle's solution path. If the same object type appears in multiple rooms for worldbuilding, either (a) make them distinct objects with different descriptions and properties, or (b) use scenery/NDESCBIT for non-interactive duplicates and clearly document why only one is interactive.
 
 ## Outputs
 - `MAP.md`
@@ -51,6 +52,7 @@ Create the design artifacts that externalize world structure and puzzle logic.
 - Every golden-path command is valid player input rather than an internal object ID or direct `PERFORM` shorthand.
 - Every noun in the opening slice has an explicit parser-vocabulary plan before ZIL implementation begins.
 - Every prose-promised route has a matching map edge, and every described fixture has a matching object location/scope entry.
+- No two distinct object instances share the same functional purpose or are both portable versions of the same item type; duplicate items are either consolidated into one object or explicitly differentiated with distinct descriptions, properties, and puzzle roles.
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: section 1, sections 2.3-2.4, section 5.3

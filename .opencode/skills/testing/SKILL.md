@@ -39,6 +39,7 @@ Prove completion path, catch regressions, and close parser/content gaps.
 26. **Audit golden-path directions after exit changes:** When any room's exit properties change (directions added, removed, or swapped), trace every test action that navigates through the affected rooms and verify the direction strings still match the room definitions. The failing action may be several steps away from the changed room.
 27. **Build and test the complete exit matrix:** Enumerate every declared room edge, not only golden-path or conditional exits. For `A --NORTH--> B`, require `B --SOUTH--> A`; likewise pair `NORTHEAST/SOUTHWEST`, `EAST/WEST`, `SOUTHEAST/NORTHWEST`, `UP/DOWN`, and `IN/OUT`. Treat `A --NORTH--> B` plus `B --NORTH--> A` as a failing same-direction loop. Permit a missing or non-opposite return only when the asymmetry is explicitly documented as intentional.
 28. **Exercise exits through the parser in both directions:** Static room properties are insufficient because custom `V-GO-*` handlers can diverge from them. Traverse every edge from A to B, then issue the expected opposite direction from B and assert return to A. Apply this to ordinary, conditional, door-backed, and custom movement. For conditional exits, test blocked and unblocked states in both directions and verify compatible conditions.
+29. **Audit for duplicate objects:** For each portable item type (knife, key, rope, etc.), verify that exactly one interactive instance exists in the world. If the same item type appears in multiple locations, test that only one is TAKE-able and the others are either non-interactive scenery or distinct objects with different descriptions and states.
 
 ## Play-As-You-Build Loop
 
@@ -81,6 +82,7 @@ For direct ZIL tests, keep each assertion atomic. A successful coroutine resume 
 - The technical report contains a complete exit matrix; every ordinary edge has its opposite return or an explicit intentional-asymmetry record.
 - No room pair returns via the same compass direction unless a non-Euclidean exception is explicitly designed, documented, and tested.
 - Every conditional exit is tested in both the blocked and unblocked states.
+- No portable item type has more than one interactive instance; duplicates are either consolidated or explicitly differentiated.
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: section 8
