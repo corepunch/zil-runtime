@@ -62,6 +62,9 @@ Put the head noun in SYNONYM and titles in ADJECTIVE.
 ### 0i. Represent physical world state with objects, not flag-only scenery
 Doors, windows, drawers, switches, ropes, vehicles, gates, and containers must be real objects.
 
+### 0m. Use PSEUDO for non-interactive scenery
+When a noun in room prose needs parser recognition but has no independent behavior (wallpaper, staircase, dust, instruments), declare it via `(PSEUDO "WORD" HANDLER ...)` on the room rather than a full `OBJECT`. This saves memory and keeps the object table clean. The handler routine should cover EXAMINE and any verbs the prose implies. Reserve real `OBJECT` declarations for things the player can interact with beyond examination.
+
 ### 0j. Object ACTION routines must fall through for unhandled verbs
 An object `ACTION` routine is a selective override, not a blanket handler. Return true only inside a branch that actually handles the current verb. Never put an unconditional trailing `<RTRUE>` after the routine's `<COND>`: it swallows substrate defaults such as TAKE, DROP, OPEN, CLOSE, LOOK-IN, and SEARCH and can produce silent no-ops. Let unmatched verbs return false so the default verb routine runs. After adding or editing an object action, smoke-test at least EXAMINE plus every applicable generic operation (TAKE/DROP for portable objects; OPEN/CLOSE/LOOK-IN for containers).
 
@@ -118,6 +121,9 @@ After any TELL that names an object, call THIS-IS-IT so the player can refer to 
 
 ### 15. Mechanical stateful clock daemons
 Every mechanical clock daemon must have visible feedback at each stage threshold and interact with EXAMINE on relevant objects.
+
+### 16. No duplicate portable objects across the world
+Each portable item type (knife, key, rope, etc.) must exist as exactly one object instance. Do not implement functionally identical items in multiple locations (e.g. a knife in the kitchen drawer AND a knife in the workshop). If a puzzle requires an item, place it in one reachable location. If the same item type appears in multiple rooms for worldbuilding, either (a) make them distinct objects with different `DESC`, states, and puzzle roles, or (b) use scenery with `NDESCBIT` for non-interactive duplicates and document why only one is interactive.
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: section 4

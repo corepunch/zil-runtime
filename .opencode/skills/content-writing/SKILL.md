@@ -10,7 +10,7 @@ Write player-facing text and interactions that teach play and maintain tone.
 
 ## Required Actions
 1. Write first-visit and revisit room text with actionable nouns.
-2. **Ensure every conspicuous noun is handled** — every object, person, or feature a player might reasonably type must resolve through the parser. Use objects for interactive items (doors, containers, NPCs), PSEUDO or grouped scenery for minor fixtures, and GLOBAL/LOCAL-GLOBALS for shared scenery. `NDESCBIT` only suppresses automatic listing; it does not make an unimplemented noun interactive.
+2. **Ensure every conspicuous noun is handled** — every object, person, or feature a player might reasonably type must resolve through the parser. Use objects for interactive items (doors, containers, NPCs), PSEUDO for non-interactive scenery (wallpaper, stairs, dust, fixtures), and GLOBAL/LOCAL-GLOBALS for shared scenery. `NDESCBIT` only suppresses automatic listing; it does not make an unimplemented noun interactive.
 3. Author object text to support puzzle affordances.
 4. Author NPC behavior scope and conversation patterns (ASK/TELL/GIVE/SHOW).
 5. Author layered hints (attention, direction, action, command).
@@ -23,6 +23,7 @@ Write player-facing text and interactions that teach play and maintain tone.
 12. **Player identity belongs in SYNOPSIS.md/DESIGN.md, not in PLAYER object LDESC** — Infocom never explicitly states who the player is in game text.
 13. For every actionable compound noun used in prose, choose and record a canonical command plus natural variants.
 14. Write NPC topic rows as executable commands (`ASK HUDSON ABOUT KEY`), with listener, topic noun, response, state change, repeat response, and where the listener is accessible.
+15. **Avoid introducing duplicate objects through prose.** Before describing a new item in room text, check whether an identical item already exists elsewhere in the world. If a player finds a knife in one room, do not describe another knife in a different drawer without explicitly differentiating it (e.g. "a rusty dagger" vs. "a chef's knife"). Each portable item should be unique; if the same object type appears in multiple rooms, only one should be interactive.
 
 ## Outputs
 - Draft room and object prose set
@@ -87,6 +88,7 @@ Divide your game into thirds. In the first third, the player should encounter at
 - Every emphasized clue noun and every noun used in a hint resolves through the parser exactly as written.
 - Every visible feature has exactly one coherent description owner on room entry; automatic object lines neither duplicate room prose nor contradict current state.
 - Every `FDESC` intended to appear automatically is on an object without `NDESCBIT`.
+- No room prose introduces a portable item that duplicates an identical item already placed elsewhere in the world; each portable object type is unique or explicitly differentiated.
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: sections 6, 7, 11, 14
