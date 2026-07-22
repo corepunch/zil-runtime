@@ -57,7 +57,7 @@
       (DOWN TO BASEMENT-STAIRS)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)
-      (PSEUDO "STAIRCASE" GRAND-STAIRCASE-F "STAIRS" GRAND-STAIRCASE-F)>
+      (PSEUDO "STAIRCASE" GRAND-STAIRCASE-F "STAIRS" GRAND-STAIRCASE-F "WALLPAPER" WALLPAPER-F "PAPER" WALLPAPER-F "PLASTER" WALLPAPER-F)>
 
 <ROOM RECEPTION-ROOM
       (IN ROOMS)
@@ -255,14 +255,6 @@
         (TEXT "The plaque reads: 'Blackwood Sanitarium - Est. 1898 - Closed by Order 1952'")
         (SIZE 5)
         (ACTION BRASS-PLAQUE-F)>
-
-<OBJECT WALLPAPER
-        (IN SANITARIUM-ENTRANCE)
-        (SYNONYM WALLPAPER PAPER PLASTER)
-        (ADJECTIVE PEELING)
-        (DESC "peeling wallpaper")
-        (LDESC "Peeling wallpaper reveals water-stained plaster beneath.")
-        (TEXT "Victorian-era wallpaper depicting pastoral scenes, now grotesquely warped by moisture and black mold.")>
 
 <OBJECT THEATER-DOOR
         (IN SANITARIUM-ENTRANCE)

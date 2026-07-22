@@ -1259,6 +1259,13 @@
            <TELL "The grand staircase climbs toward a collapsed landing. The safe routes through the sanitarium lie east, west, north, and down." CR>)>
     <RTRUE>>
 
+<ROUTINE WALLPAPER-F ()
+    <COND (<VERB? EXAMINE>
+           <TELL "Victorian-era wallpaper depicting pastoral scenes, now grotesquely warped by moisture and black mold." CR>)
+          (<VERB? READ>
+           <TELL "Victorian-era wallpaper depicting pastoral scenes, now grotesquely warped by moisture and black mold." CR>)>
+    <RTRUE>>
+
 <ROUTINE COAL-DUST-F ()
     <COND (<VERB? EXAMINE RUB>
            <TELL "Fine coal dust coats the brick and leaves a black crescent on your fingertip." CR>)

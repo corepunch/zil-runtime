@@ -1,5 +1,5 @@
 # Targets
-.PHONY: test test-all test-unit test-integration test-game-startup test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-read-mailbox test-walk-around-house test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-playtest-regressions test-horror-all test-limehouse-walkthrough test-wondertown-descriptions test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look test-zilch test-flow-control lint-zil
+.PHONY: test test-all test-unit test-integration test-game-startup test-zork1 test-zork2 test-parser test-containers test-directions test-light test-pronouns test-take test-turnbit test-clock test-clock-direct test-assertions test-check-commands test-read-mailbox test-walk-around-house test-horror-helpers test-horror-partial test-horror test-horror-failures test-horror-playtest-regressions test-horror-all test-limehouse-walkthrough test-wondertown-descriptions test-pure-zil test-simple-new test-insert-file test-let test-save test-llm help llm-new llm-look test-zilch test-flow-control lint-zil zip limehouse-killings blackwood-horror wondertown
 
 help:
 	@echo "Available targets:"
@@ -47,6 +47,9 @@ help:
 	@echo "  test-horror-failures - Run horror failing conditions tests"
 	@echo "  test-horror       - Run horror complete walkthrough"
 	@echo "  test-horror-all   - Run all horror tests"
+	@echo ""
+	@echo "Packaging targets:"
+	@echo "  zip <gamename>    - Create a zip of a book game's .zil files + zork1 runtime (e.g. make zip limehouse-killings)"
 
 run-text:
 	lua main.lua
@@ -226,3 +229,24 @@ test-pure-zil:
 lint-zil:
 	@echo "Checking vocabulary consistency in book adventures..."
 	@lua5.4 scripts/check-vocab.lua books/limehouse-killings/dungeon.zil books/blackwood-horror/dungeon.zil books/wondertown/dungeon.zil
+
+zip:
+	@if [ -z "$(filter-out zip,$(MAKECMDGOALS))" ]; then echo "Usage: make zip <gamename>"; echo "Example: make zip limehouse-killings"; exit 1; fi
+	@game=$(filter-out zip,$(MAKECMDGOALS)); \
+	if [ ! -d "books/$$game" ]; then echo "Error: books/$$game not found"; exit 1; fi; \
+	mkdir -p "$(CURDIR)/publish"; \
+	tmpdir=$$(mktemp -d); \
+	mkdir -p "$$tmpdir"; \
+	cp books/$$game/*.zil "$$tmpdir/" 2>/dev/null || true; \
+	for f in infocom/zork1/*.zil; do \
+		base=$$(basename "$$f"); \
+		if [ "$$base" != "dungeon.zil" ] && [ "$$base" != "actions.zil" ]; then \
+			cp "$$f" "$$tmpdir/"; \
+		fi; \
+	done; \
+	cd "$$tmpdir" && zip -j "$(CURDIR)/publish/$$game.zip" *.zil; \
+	rm -rf "$$tmpdir"; \
+	echo "Created publish/$$game.zip"
+
+limehouse-killings blackwood-horror wondertown:
+	@true
