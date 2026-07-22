@@ -460,9 +460,25 @@
 <ROUTINE DISPLAY-CASE-F ()
     <COND (<VERB? EXAMINE>
            <COND (<FSET? ,DISPLAY-CASE ,OPENBIT>
-                  <TELL "The glass display case is open. Inside, you can see a brave tin soldier and a silver music box." CR>)
+                  <TELL "The glass display case is open.">
+                  <COND (<OR <IN? ,TIN-SOLDIER ,DISPLAY-CASE> <IN? ,MUSIC-BOX ,DISPLAY-CASE>>
+                         <TELL " Inside, you can see">
+                         <COND (<IN? ,TIN-SOLDIER ,DISPLAY-CASE> <TELL " a brave tin soldier">)>
+                         <COND (<AND <IN? ,TIN-SOLDIER ,DISPLAY-CASE> <IN? ,MUSIC-BOX ,DISPLAY-CASE>> <TELL " and">)>
+                         <COND (<IN? ,MUSIC-BOX ,DISPLAY-CASE> <TELL " a silver music box">)>
+                         <TELL ".">)
+                        (T
+                         <TELL " It is empty.">)>
+                  <TELL CR>)
                  (T
-                  <TELL "A dusty glass display case. Through the glass, you can see a tin soldier and a silver music box. The case has a small brass latch." CR>)>)
+                  <TELL "A dusty glass display case.">
+                  <COND (<OR <IN? ,TIN-SOLDIER ,DISPLAY-CASE> <IN? ,MUSIC-BOX ,DISPLAY-CASE>>
+                         <TELL " Through the glass, you can see">
+                         <COND (<IN? ,TIN-SOLDIER ,DISPLAY-CASE> <TELL " a tin soldier">)>
+                         <COND (<AND <IN? ,TIN-SOLDIER ,DISPLAY-CASE> <IN? ,MUSIC-BOX ,DISPLAY-CASE>> <TELL " and">)>
+                         <COND (<IN? ,MUSIC-BOX ,DISPLAY-CASE> <TELL " a silver music box">)>
+                         <TELL ".">)>
+                  <TELL " The case has a small brass latch." CR>)>)
           (<AND <VERB? OPEN>
                 <NOT <FSET? ,DISPLAY-CASE ,OPENBIT>>>
            <TELL "You flip the brass latch and open the display case. The glass lid lifts smoothly, releasing the faint scent of old polish." CR>
@@ -629,7 +645,7 @@
            <COND (,CART-MOVED
                   <TELL "The scrap cart has rolled aside, its bed still full of rescued toys. It rests peacefully now, its work done for the night." CR>)
                  (T
-                  <TELL "A scrap-metal cart on rusted wheels. It creaks along a track, collecting broken toys into its bed -- a headless doll, a three-legged horse. But look closer: someone has carefully repaired the cart's wheels, oiled its axles. This cart is not destroying toys. It is rescuing them." CR>)>)
+                   <TELL "A scrap-metal cart on rusted wheels. It creaks along a track, collecting broken toys into its bed. But look closer: someone has carefully repaired the cart's wheels, oiled its axles. This cart is not destroying toys. It is rescuing them." CR>)>)
           (<VERB? PUSH>
            <COND (,CART-MOVED
                   <TELL "The cart is already out of the way." CR>)
@@ -756,7 +772,14 @@
 
 <ROUTINE STUDY-DESK-F ()
     <COND (<VERB? EXAMINE LOOK-INSIDE>
-           <TELL "A cluttered wooden desk. Papers are spread across its surface -- diagrams, notes, a half-finished sketch of the workshop heart. An open journal lies among them, alongside a hand-drawn winding diagram." CR>)>>
+           <TELL "A cluttered wooden desk. Papers are spread across its surface -- diagrams, notes, a half-finished sketch of the workshop heart.">
+           <COND (<IN? ,STUDY-JOURNAL ,STUDY-DESK>
+                  <TELL " An open journal lies among them">)
+                 (T
+                  <TELL " A journal was here but is gone now">)>
+           <COND (<IN? ,DIAGRAM ,STUDY-DESK>
+                  <TELL ", alongside a hand-drawn winding diagram">)>
+           <TELL "." CR>)>>
 
 <ROUTINE DIAGRAM-F ()
     <COND (<VERB? READ EXAMINE>

@@ -324,7 +324,10 @@
 
 <ROUTINE TABLE-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "The dining table is set for two, but only one place was used. A wax seal lies near the empty plate." CR>
+           <TELL "The dining table is set for two, but only one place was used.">
+           <COND (<IN? ,WAX-SEAL ,HERE>
+                  <TELL " A wax seal lies near the empty plate.">)>
+           <TELL CR>
            <RTRUE>)>>
 
 <ROUTINE WINE-CABINET-F ()
@@ -462,7 +465,12 @@
 
 <ROUTINE SHELVES-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "The shelves hold preserves, spices, dried foxglove with a poison warning, and powdered charcoal labeled for swallowed poisons." CR>
+           <TELL "The shelves hold preserves, spices">
+           <COND (<IN? ,FOXGLOVE ,PANTRY>
+                  <TELL ", dried foxglove with a poison warning">)>
+           <COND (<IN? ,CHARCOAL ,PANTRY>
+                  <TELL ", and powdered charcoal labeled for swallowed poisons">)>
+           <TELL "." CR>
            <RTRUE>)>>
 
 <ROUTINE FOXGLOVE-F ()
@@ -612,7 +620,12 @@
            <COND (<NOT ,PANTRY-SEEN>
                   <SETG PANTRY-SEEN T>
                   <TELL "Order survives here in rows of labels: nourishment, medicine, and poison separated by ink and dosage. ">)>
-           <TELL "Cool, dry air smells of apples and charcoal dust. The shelves hold preserves, a warning-labeled bottle of foxglove, and powdered charcoal for swallowed poisons. The dining room lies south." CR>)>>
+           <TELL "Cool, dry air smells of apples and charcoal dust. The shelves hold preserves">
+           <COND (<IN? ,FOXGLOVE ,PANTRY>
+                  <TELL ", a warning-labeled bottle of foxglove">)>
+           <COND (<IN? ,CHARCOAL ,PANTRY>
+                  <TELL ", and powdered charcoal for swallowed poisons">)>
+           <TELL ". The dining room lies south." CR>)>>
 
 <ROUTINE ENTRANCE-HALL-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
