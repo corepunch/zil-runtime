@@ -142,7 +142,13 @@
 
 <ROUTINE CABINET-F ()
          <COND (<VERB? EXAMINE LOOK-INSIDE>
-                <TELL "The cabinet's glass doors are cracked but still intact. Inside, you can see various medical instruments, including a scalpel and a bottle." CR>
+                <TELL "The cabinet's glass doors are cracked but still intact. Inside, you can see various medical instruments">
+                <COND (<OR <IN? ,SCALPEL ,METAL-CABINET> <IN? ,ETHER-BOTTLE ,METAL-CABINET>>
+                       <TELL ", including">
+                       <COND (<IN? ,SCALPEL ,METAL-CABINET> <TELL " a scalpel">)>
+                       <COND (<AND <IN? ,SCALPEL ,METAL-CABINET> <IN? ,ETHER-BOTTLE ,METAL-CABINET>> <TELL " and">)>
+                       <COND (<IN? ,ETHER-BOTTLE ,METAL-CABINET> <TELL " a bottle">)>)>
+                <TELL "." CR>
                 <RTRUE>)>>
 
 <ROUTINE HEAVYDOOR-F ()
@@ -185,7 +191,10 @@
 
 <ROUTINE DRAWERS-F ()
          <COND (<VERB? EXAMINE LOOK-INSIDE>
-                <TELL "The refrigeration units line both walls. Most drawers are empty or contain only bones. One drawer is slightly ajar, a faint luminescent glow emanating from within." CR>
+                <TELL "The refrigeration units line both walls. Most drawers are empty or contain only bones.">
+                <COND (<IN? ,STRANGE-SERUM ,REFRIGERATED-DRAWERS>
+                       <TELL " One drawer is slightly ajar, a faint luminescent glow emanating from within.">)>
+                <TELL CR>
                 <RTRUE>)>>
 
 <ROUTINE DISTABLE-F ()
@@ -287,12 +296,24 @@
 
 <ROUTINE WORKBENCH-F ()
          <COND (<VERB? EXAMINE LOOK-INSIDE>
-                <TELL "The workbench is covered with ancient tools: hammers, wrenches, screwdrivers. Most are rusted solid. A flashlight lies among them." CR>
+                <TELL "The workbench is covered with ancient tools: hammers, wrenches, screwdrivers. Most are rusted solid.">
+                <COND (<IN? ,FLASHLIGHT ,WORKBENCH>
+                       <TELL " A flashlight lies among them.">)>
+                <TELL CR>
                 <RTRUE>)>>
 
 <ROUTINE SHELVES-F ()
          <COND (<VERB? EXAMINE LOOK-INSIDE SEARCH>
-                <TELL "You search through the shelves. Most items are ruined by time and moisture. Among the debris, you find a lantern, a medical bag, and some old medical records." CR>
+                <TELL "You search through the shelves. Most items are ruined by time and moisture.">
+                <COND (<OR <IN? ,OIL-LANTERN ,SHELVES> <IN? ,MEDICAL-BAG ,SHELVES> <IN? ,MEDICAL-RECORDS ,SHELVES>>
+                       <TELL " Among the debris, you find">
+                       <COND (<IN? ,OIL-LANTERN ,SHELVES> <TELL " a lantern">)>
+                       <COND (<AND <IN? ,OIL-LANTERN ,SHELVES> <IN? ,MEDICAL-BAG ,SHELVES>> <TELL " and">)>
+                       <COND (<IN? ,MEDICAL-BAG ,SHELVES> <TELL " a medical bag">)>
+                       <COND (<AND <OR <IN? ,OIL-LANTERN ,SHELVES> <IN? ,MEDICAL-BAG ,SHELVES>> <IN? ,MEDICAL-RECORDS ,SHELVES>> <TELL " and">)>
+                       <COND (<IN? ,MEDICAL-RECORDS ,SHELVES> <TELL " some old medical records">)>
+                       <TELL ".">)>
+                <TELL CR>
                 <RTRUE>)>>
 
 <ROUTINE MEDICAL-BAG-F ()
@@ -1190,7 +1211,7 @@
 
 <ROUTINE INSTRUMENTS-PSEUDO ()
     <COND (<VERB? EXAMINE>
-           <TELL "Rusty forceps, scalpels, and clamps lie scattered across trays. Long abandoned, like everything else here." CR>)>
+           <TELL "Rusty forceps and clamps lie scattered across trays. Long abandoned, like everything else here." CR>)>
     <RTRUE>>
 
 <ROUTINE TRAYS-PSEUDO ()

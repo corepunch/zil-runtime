@@ -41,11 +41,10 @@
 <ROOM SANITARIUM-GATE
       (IN ROOMS)
       (DESC "Sanitarium Gate")
-      (LDESC "You stand before the rusted iron gates of an abandoned sanitarium. The structure looms against the darkening sky, its windows like hollow eye sockets. Weeds choke the gravel path leading north to the entrance.")
+      (LDESC "The rusted iron gates of the abandoned sanitarium stand open, their bars red with rust. The structure looms against the darkening sky, its windows like hollow eye sockets. A gravel path leads north to the entrance.")
       (NORTH TO SANITARIUM-ENTRANCE)
       (FLAGS RLANDBIT ONBIT)
-      (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)
-      (PSEUDO "GATE" IRON-GATES-F "GATES" IRON-GATES-F)>
+      (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)>
 
 <ROOM SANITARIUM-ENTRANCE
       (IN ROOMS)
@@ -76,7 +75,7 @@
       (LDESC "The circular theater rises in tiers where students once observed procedures. The air is motionless; even your sleeve brushing the door sounds indecently loud.")
       (SOUTH TO SANITARIUM-ENTRANCE)
       (FLAGS RLANDBIT ONBIT)
-      (PSEUDO "INSTRUMENTS" INSTRUMENTS-PSEUDO "SCALPELS" INSTRUMENTS-PSEUDO "TRAYS" TRAYS-PSEUDO "BENCHES" BENCHES-PSEUDO "BENCH" BENCHES-PSEUDO "TIERS" BENCHES-PSEUDO)>
+      (PSEUDO "INSTRUMENTS" INSTRUMENTS-PSEUDO "TRAYS" TRAYS-PSEUDO "BENCHES" BENCHES-PSEUDO "BENCH" BENCHES-PSEUDO "TIERS" BENCHES-PSEUDO)>
 
 <ROOM PATIENT-WARD
       (IN ROOMS)
@@ -236,6 +235,15 @@
       (GLOBAL TOPIC-MORDECAI TOPIC-TREATMENT TOPIC-IDENTITY TOPIC-SANITARIUM TOPIC-CHAPEL)>
 
 ; === OBJECTS ===
+
+<OBJECT IRON-GATES
+        (IN SANITARIUM-GATE)
+        (SYNONYM GATE GATES)
+        (ADJECTIVE IRON RUSTED)
+        (DESC "iron gate")
+        (LDESC "The rusted iron gates stand open. Flakes of old black paint cling to bars bent by years of weather.")
+        (FLAGS NDESCBIT OPENBIT)
+        (ACTION IRON-GATES-F)>
 
 <OBJECT BRASS-PLAQUE
         (IN SANITARIUM-GATE)
