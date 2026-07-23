@@ -62,8 +62,12 @@ Put the head noun in SYNONYM and titles in ADJECTIVE.
 ### 0i. Represent physical world state with objects, not flag-only scenery
 Doors, windows, drawers, switches, ropes, vehicles, gates, and containers must be real objects.
 
-### 0m. Use PSEUDO for non-interactive scenery
-When a noun in room prose needs parser recognition but has no independent behavior (wallpaper, staircase, dust, instruments), declare it via `(PSEUDO "WORD" HANDLER ...)` on the room rather than a full `OBJECT`. This saves memory and keeps the object table clean. The handler routine should cover EXAMINE and any verbs the prose implies. Reserve real `OBJECT` declarations for things the player can interact with beyond examination.
+### 0m. Prefer real OBJECTs over PSEUDO for scenery nouns
+Every concrete noun in prose must resolve through the parser. The most robust way is a real `OBJECT` with `(FLAGS NDESCBIT ...)` — this makes the noun parseable without adding clutter to the automatic room listing. Give scenery `OBJECT`s generous `SYNONYM` and `ADJECTIVE` coverage, and an `ACTION` routine covering `EXAMINE` plus any verbs the prose implies (e.g. `RUB`, `SIT`, `SMELL`, `LISTEN`, `READ`).
+
+Use `PSEUDO` only for trivial one-word scenery where the handler does nothing beyond `EXAMINE` and the word would never need synonyms, adjectives, or state (e.g. "ASHES" → "Cold grey ashes."). Reserve `PSEUDO` for words that would be confusing as standalone `OBJECT` names (atmospheric debris, abstract stains, minor surface details). For any scenery noun a player might ask about with a compound phrase ("rusty iron bars"), prefer a real `OBJECT` — PSEUDO handlers cannot match multi-word descriptions natively and require fragile `VOC-EXACT` wiring.
+
+`NDESCBIT` suppresses automatic LDESC listing without hiding the object from the parser. This is the correct pattern for scenery: a parseable noun that does not occupy a room-listing line.
 
 ### 0j. Object ACTION routines must fall through for unhandled verbs
 An object `ACTION` routine is a selective override, not a blanket handler. Return true only inside a branch that actually handles the current verb. Never put an unconditional trailing `<RTRUE>` after the routine's `<COND>`: it swallows substrate defaults such as TAKE, DROP, OPEN, CLOSE, LOOK-IN, and SEARCH and can produce silent no-ops. Let unmatched verbs return false so the default verb routine runs. After adding or editing an object action, smoke-test at least EXAMINE plus every applicable generic operation (TAKE/DROP for portable objects; OPEN/CLOSE/LOOK-IN for containers).

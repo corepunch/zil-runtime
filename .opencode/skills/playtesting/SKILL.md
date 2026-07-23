@@ -11,7 +11,11 @@ Run blind functional play-throughs with the game-tester agent, collect structure
 
 ## Required Actions
 
-### 1. Invoke game-tester
+### 1. Confirm technical-tester pre-flight
+
+The technical-tester must complete its structural audit (prose-to-noun, vocabulary, exit matrix) before the game-tester begins. Review its report for any High-severity findings. Do not pass technical findings to the game-tester — its session must remain blind. If the technical report has unresolved High-severity structural defects, consider remediating them first so the game-tester's time is spent on emergent bugs rather than re-discovering known issues.
+
+### 2. Invoke game-tester
 
 Use the `task` tool to invoke `@game-tester` with a prompt like:
 
@@ -27,7 +31,7 @@ The game-tester will:
 - Push toward the ending if reachable
 - Generate `adventure-name-bugs.md` with categorized findings and regression tests
 
-### 2. Review the bug report
+### 3. Review the bug report
 
 Inspect the generated bug report. Game-tester categorizes bugs as:
 - **Critical** — crashes, hangs, unreachable endings, broken core mechanics
@@ -35,7 +39,7 @@ Inspect the generated bug report. Game-tester categorizes bugs as:
 - **Medium** — missing synonyms, wrong descriptions, weak error messages
 - **Low** — cosmetic issues, missing scenery responses, minor verb gaps
 
-### 3. Verify regression tests
+### 4. Verify regression tests
 
 For every file game-tester created under `test/`:
 - Run `make test-pure-zil` to confirm the test runner picks them up
@@ -44,7 +48,7 @@ For every file game-tester created under `test/`:
 - Inspect the oracle, not just the color: issue `<CO-RESUME ...>` separately and assert a single observable postcondition. Reject tests that combine coroutine success and state checks as multiple `ASSERT` arguments.
 - For silent-command bugs, assert state/location/inventory or expected text; coroutine resume success alone is not evidence that the verb worked.
 
-### 4. Prepare the bug ledger
+### 5. Prepare the bug ledger
 
 Create or update `test/TESTING.md` with:
 - Link to the game-tester's full bug report

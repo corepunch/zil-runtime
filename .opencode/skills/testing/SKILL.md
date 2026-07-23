@@ -11,6 +11,8 @@ Prove completion path, catch regressions, and close parser/content gaps.
 
 ## Required Actions
 0. Begin this loop during Stage 5 after the first playable room; Stage 6 expands and hardens it rather than starting it.
+
+0a. **Pre-flight static audit:** Before any room-by-room testing, run the mandatory static gates from `@technical-tester`: prose-to-noun audit, vocabulary and parser audit (synonyms, disambiguation, special characters, NPC name variations, direction handler coverage), and exit matrix. These structural checks catch the most common defect categories without requiring a play session.
 1. Execute golden-path transcript.
 2. Execute wrong-attempt transcripts and confirm quality responses.
 3. Run room checklist commands and object checklist commands.
@@ -33,8 +35,14 @@ Prove completion path, catch regressions, and close parser/content gaps.
 20. Test every conversation topic via parser commands in every room where the NPC interaction can occur; direct routine calls do not prove topic scope.
 21. Test syntax variants separately when the parser has distinct grammar lines or flag gates, including bare versus prepositional forms such as `CLIMB BENCH` and `CLIMB UP BENCH`.
 22. **Test description ownership through rendered output:** Capture `LOOK` on first entry, immediate repeat, after examining/taking/opening focal objects, and after every relevant state transition. Verify each feature is introduced once, remains spatially understandable, and never contradicts current state. A noun may appear briefly in room prose and still own a separate object line, but the two paths must not repeat the same facts.
+
+22a. **Audit LDESC contradictions within each room:** For every pair of objects in the same room, check that their `LDESC` strings do not describe mutually exclusive states (e.g. one object claims "painting hangs on wall" while another claims "safe behind moved painting"). An unconditional `LDESC` without state-gated `NDESCBIT` or `DESCFCN` is a contradiction risk.
 23. **Audit `FDESC`/`NDESCBIT` combinations:** Treat an object with both as suspicious. Prove its `FDESC` is printed deliberately by code; otherwise the prose is dead and must move to the room/room action or the suppression flag must be removed.
 24. **Test scenery affordances:** For every concrete noun in room or object prose, issue at least `EXAMINE <noun>` in the described scope. Use real, GLOBAL, grouped, or PSEUDO scenery rather than forcing every noun into an automatic `LOOK` line.
+
+24a. **Perform a programmatic prose-to-noun audit:** Before room-by-room testing, extract every concrete noun from all `LDESC`, `FDESC`, `TEXT`, and room action `TELL` strings in the source. Cross-reference each against the full `SYNONYM`, `PSEUDO`, `LOCAL-GLOBALS`, and `VOC-EXACT` vocabulary. Report every unmatched noun as a High-severity phantom-object issue. This catch-all step prevents atmospheric prose from creating dead nouns.
+
+24b. **Check FDESC nouns for independent backing:** Every concrete noun in an `FDESC` string must have its own parser-accessible object or PSEUDO entry. An `FDESC` mentioning "lamp", "carts", and "benches" requires all three to resolve — not just the object whose `FDESC` it is.
 25. **Test untouched dynamic objects:** On this substrate, an untouched object's `FDESC` bypasses `DESCFCN`. For every object with `DESCFCN`, test a changed state before any command touches that object and ensure no static `FDESC` shadows the dynamic text.
 26. **Audit golden-path directions after exit changes:** When any room's exit properties change (directions added, removed, or swapped), trace every test action that navigates through the affected rooms and verify the direction strings still match the room definitions. The failing action may be several steps away from the changed room.
 27. **Build and test the complete exit matrix:** Enumerate every declared room edge, not only golden-path or conditional exits. For `A --NORTH--> B`, require `B --SOUTH--> A`; likewise pair `NORTHEAST/SOUTHWEST`, `EAST/WEST`, `SOUTHEAST/NORTHWEST`, `UP/DOWN`, and `IN/OUT`. Treat `A --NORTH--> B` plus `B --NORTH--> A` as a failing same-direction loop. Permit a missing or non-opposite return only when the asymmetry is explicitly documented as intentional.

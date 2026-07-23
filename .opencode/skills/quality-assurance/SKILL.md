@@ -23,6 +23,8 @@ Expected output: `<game-name>-technical-report.md` plus focused RED regressions.
 
 Use a new agent context. The tester must follow the blindness boundary in `.opencode/agents/game-tester.md`; do not pass it technical findings, design rationale, source discoveries, or walkthrough knowledge before its organic findings are frozen.
 
+**Information flow:** The technical-tester's report flows to the shared remediation ledger, not to the game-tester. The game-tester runs blind; it must discover issues through play rather than inherit known structural defects. After the game-tester's organic findings are frozen, its bug report is merged with the technical-tester's findings in `test/QUALITY.md`.
+
 Expected output: `<game-name>-bugs.md` plus focused RED regressions for reproducible functional bugs.
 
 ### 3. Artistic review — `@artistic-tester`

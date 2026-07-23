@@ -10,7 +10,7 @@ Write player-facing text and interactions that teach play and maintain tone.
 
 ## Required Actions
 1. Write first-visit and revisit room text with actionable nouns.
-2. **Ensure every conspicuous noun is handled** — every object, person, or feature a player might reasonably type must resolve through the parser. Use objects for interactive items (doors, containers, NPCs), PSEUDO for non-interactive scenery (wallpaper, stairs, dust, fixtures), and GLOBAL/LOCAL-GLOBALS for shared scenery. `NDESCBIT` only suppresses automatic listing; it does not make an unimplemented noun interactive.
+2. **Ensure every conspicuous noun is handled** — every object, person, or feature a player might reasonably type must resolve through the parser. Use real `OBJECT`s with `(FLAGS NDESCBIT ...)` for scenic nouns (wallpaper, stairs, dust, fixtures, bars, desks, bookshelves) so they parse natively without VOC-EXACT wiring. Give each scenery OBJECT generous `SYNONYM` and `ADJECTIVE` coverage and an `ACTION` routine for at least `EXAMINE`. Use `PSEUDO` only for trivial single-word scenery that needs no synonyms or compound-phrase matching. Use `GLOBAL`/`LOCAL-GLOBALS` for shared scenery visible from multiple rooms. `NDESCBIT` only suppresses automatic listing; it does not make an unimplemented noun interactive.
 3. Author object text to support puzzle affordances.
 4. Author NPC behavior scope and conversation patterns (ASK/TELL/GIVE/SHOW).
 5. Author layered hints (attention, direction, action, command).

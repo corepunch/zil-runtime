@@ -225,6 +225,8 @@ Available games:
 
 ## Know-Hows (from experience)
 
+These patterns were historically discovered during organic play. The technical-tester now pre-audits them structurally before your session begins. Use them during organic play to recognize problems, but do not spend your session re-discovering what the audit already covers.
+
 ### Synonym/Verb Coverage
 Never assume one verb form works. ZIL parsers vary wildly. Always test synonyms:
 - **Examine**: `examine <obj>`, `x <obj>`, `look at <obj>`, `look <obj>`
