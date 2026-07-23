@@ -34,10 +34,10 @@
 <GLOBAL NUTMEG-KEY-METHOD 0>
 <GLOBAL PUZZLES-SOLVED 0>
 <GLOBAL LORE-DISCOVERED 0>
-<GLOBAL SCORE-MAX 97>
+<GLOBAL SCORE-MAX 100>
+<GLOBAL TIMER-ACTIVE T>
 <GLOBAL RANKINGS
-    <LTABLE 0
-         "Toymaker's Apprentice"
+    <LTABLE "Toymaker's Apprentice"
          "Journeyman Toymaker"
          "Master Toymaker"
          "Grand Artificer"
@@ -106,7 +106,7 @@
 <ROOM MAILBOX-CORNER
       (IN ROOMS)
       (DESC "Mailbox Corner")
-      (LDESC "Snow has drifted against the buildings at this quiet corner. More fox footprints continue back west, toward the clock tower.")
+      (LDESC "Snow has drifted against the buildings at this quiet corner. Fox footprints lead back west toward the clock square; a fresher set seems to double back before veering south.")
       (WEST TO CLOCK-SQUARE)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL MOON TOPIC-FOX TOPIC-TOLLIVER FOOTPRINTS CLOCK-TOWER)>
@@ -268,7 +268,7 @@
 <OBJECT VARNISH-POT
         (IN TOOL-BENCH)
         (SYNONYM POT VARNISH)
-        (ADJECTIVE STICKY VARNISH OPEN)
+        (ADJECTIVE STICKY VARNISH UNSETTLED)
         (DESC "pot of varnish")
         (LDESC "A pot of varnish sits open, its contents gone tacky.")
         (FLAGS CONTBIT OPENBIT SURFACEBIT)
@@ -725,6 +725,14 @@
     (DESC "winter moon")
     (FLAGS NDESCBIT)
     (ACTION MOON-F)>
+
+<OBJECT COBBLER
+    (IN LOCAL-GLOBALS)
+    (SYNONYM COBBLER SHOP SHOPFRONT)
+    (ADJECTIVE OLD ABANDONED)
+    (DESC "cobbler's shop")
+    (FLAGS NDESCBIT)
+    (ACTION COBBLER-F)>
 
 ; === TOPIC OBJECTS (for ASK/TELL interaction) ===
 

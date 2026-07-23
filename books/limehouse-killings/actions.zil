@@ -82,8 +82,8 @@
                    <SCORE-UPD 10>
                    <CHECK-CASE-PROGRESS>)>
            <RTRUE>)
-          (<VERB? TASTE>
-           <TELL "You feel dizzy. Perhaps that wasn't wise." CR>
+           (<VERB? TASTE>
+            <TELL "A bitter trace touches your tongue. Your vision swims and your pulse stumbles; perhaps that wasn't wise." CR>
            <SETG PLAYER-HEALTH <- ,PLAYER-HEALTH 1>>
            <COND (<==? ,PLAYER-HEALTH 0>
                   <TELL "You collapse. Everything goes dark." CR>
@@ -1151,11 +1151,14 @@
            <TELL "Lady Ashworth has an alibi. The evidence doesn't match." CR>
            <SETG WRONG-ATTEMPTS <+ ,WRONG-ATTEMPTS 1>>
            <RTRUE>)
-          (<EQUAL? ,PRSO ,MR-HUDSON>
-           <TELL "Mr. Hudson was in servants' quarters. The knife isn't his." CR>
-           <SETG WRONG-ATTEMPTS <+ ,WRONG-ATTEMPTS 1>>
-           <RTRUE>)
-          (T
+           (<EQUAL? ,PRSO ,MR-HUDSON>
+            <TELL "Mr. Hudson was in servants' quarters. The knife isn't his." CR>
+            <SETG WRONG-ATTEMPTS <+ ,WRONG-ATTEMPTS 1>>
+            <RTRUE>)
+           (<EQUAL? ,PRSO ,MORIARTY-TOPIC>
+            <TELL "Dr. Moriarty is not here." CR>
+            <RTRUE>)
+           (T
            <TELL "You must name a specific suspect." CR>
            <RTRUE>)>>
 
@@ -1291,15 +1294,20 @@
 <SYNTAX SEARCH OBJECT (HELD CARRIED ON-GROUND IN-ROOM) = V-EXAMINE>
 <SYNTAX PULL OBJECT (ON-GROUND IN-ROOM) = V-MOVE PRE-LIMEHOUSE-MOVE>
 <SYNTAX LISTEN = V-LISTEN-AROUND>
+<SYNTAX HEAR = V-LISTEN-AROUND>
+<SYNONYM HEAR LISTEN>
 <SYNTAX SMELL = V-SMELL-AROUND>
 
 <ROUTINE PRE-LIMEHOUSE-MOVE ()
-    <COND (<EQUAL? ,PRSO ,BELL-WIRE>
+    <COND (<OR <EQUAL? ,PRSO ,BELL-WIRE>
+               <EQUAL? ,PRSO ,SERVANT-BELL>>
            <RFALSE>)
           (<HELD? ,PRSO>
            <TELL "You aren't an accomplished enough juggler." CR>
-           <RTRUE>)>
-    <RFALSE>>
+           <RTRUE>)
+          (T
+           <TELL "You can't see any wire here." CR>
+           <RTRUE>)>>
 
 <ROUTINE V-LISTEN-AROUND ()
     <COND (<EQUAL? ,HERE ,ASHWORTH-MANOR-GATE>
