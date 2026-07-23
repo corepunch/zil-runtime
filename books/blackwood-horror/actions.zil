@@ -1224,6 +1224,11 @@
            <TELL "Tiers of wooden benches circle the operating theater, where students once observed procedures. The wood is dark with age and moisture." CR>)>
     <RTRUE>>
 
+<ROUTINE GARDEN-BENCHES-F ()
+    <COND (<VERB? EXAMINE SIT>
+           <TELL "Broken stone benches, half-consumed by ivy and moss. Whatever respite this garden once offered ended decades ago." CR>)>
+    <RTRUE>>
+
 ; === LOCAL-GLOBALS ACTION HANDLERS ===
 
 <ROUTINE SANITARIUM-BUILDING-F ()
@@ -1335,11 +1340,11 @@
                 <OR <EQUAL? ,HERE ,MORGUE>
                     <NOT ,CABINET-THAWED>>>
            <SETG COLD-EXPOSURE <+ ,COLD-EXPOSURE 1>>
-           <COND (<EQUAL? ,COLD-EXPOSURE 6>
+           <COND (<EQUAL? ,COLD-EXPOSURE 8>
                   <TELL "The cold has worked through your clothes. Your fingers are beginning to stiffen." CR>)
-                 (<EQUAL? ,COLD-EXPOSURE 12>
+                 (<EQUAL? ,COLD-EXPOSURE 16>
                   <TELL "Your teeth chatter hard enough to hurt. Staying here much longer would be dangerous." CR>)
-                 (<G? ,COLD-EXPOSURE 17>
+                 (<G? ,COLD-EXPOSURE 24>
                   <JIGS-UP "The shivering stops. The tiles against your cheek feel almost warm; that is how you know the cold has won.">)>)
           (T
            <COND (<AND <G? ,COLD-EXPOSURE 0>

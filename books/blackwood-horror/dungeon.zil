@@ -56,8 +56,7 @@
       (EAST TO PATIENT-WARD)
       (DOWN TO BASEMENT-STAIRS)
       (FLAGS RLANDBIT ONBIT)
-      (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)
-      (PSEUDO "STAIRCASE" GRAND-STAIRCASE-F "STAIRS" GRAND-STAIRCASE-F "WALLPAPER" WALLPAPER-F "PAPER" WALLPAPER-F "PLASTER" WALLPAPER-F)>
+      (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)>
 
 <ROOM RECEPTION-ROOM
       (IN ROOMS)
@@ -66,16 +65,14 @@
       (LDESC "This cramped room once served as the sanitarium's reception. Filing cabinets line the opposite wall, their drawers hanging open like gaping mouths. A doorway to the east opens back to the entrance hall.")
       (EAST TO SANITARIUM-ENTRANCE)
       (FLAGS RLANDBIT ONBIT)
-      (GLOBAL FILING-CABINETS)
-      (PSEUDO "NEST" NEST-PSEUDO "ASHES" ASHES-PSEUDO "ASH" ASHES-PSEUDO)>
+      (GLOBAL FILING-CABINETS)>
 
 <ROOM OPERATING-THEATER
       (IN ROOMS)
       (DESC "Operating Theater")
       (LDESC "The circular theater rises in tiers where students once observed procedures. The air is motionless; even your sleeve brushing the door sounds indecently loud.")
       (SOUTH TO SANITARIUM-ENTRANCE)
-      (FLAGS RLANDBIT ONBIT)
-      (PSEUDO "INSTRUMENTS" INSTRUMENTS-PSEUDO "TRAYS" TRAYS-PSEUDO "BENCHES" BENCHES-PSEUDO "BENCH" BENCHES-PSEUDO "TIERS" BENCHES-PSEUDO)>
+      (FLAGS RLANDBIT ONBIT)>
 
 <ROOM PATIENT-WARD
       (IN ROOMS)
@@ -118,8 +115,7 @@
       (DESC "Boiler Room")
       (ACTION BOILER-ROOM-FCN)
       (WEST TO BASEMENT-CORRIDOR)
-      (FLAGS RLANDBIT ONBIT)
-      (PSEUDO "DUST" COAL-DUST-F "SOOT" COAL-DUST-F)>
+      (FLAGS RLANDBIT ONBIT)>
 
 <ROOM STORAGE-ROOM
       (IN ROOMS)
@@ -222,8 +218,7 @@
       (SOUTH TO CAFETERIA)
       (NORTH TO CHAPEL IF CHAPEL-UNLOCKED)
       (FLAGS RLANDBIT ONBIT)
-      (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)
-      (PSEUDO "BENCH" BENCHES-PSEUDO "BENCHES" BENCHES-PSEUDO)>
+      (GLOBAL SANITARIUM-BUILDING DEAD-OAK-TREE)>
 
 <ROOM CHAPEL
       (IN ROOMS)
@@ -860,10 +855,9 @@
         (IN OVERGROWN-GARDEN)
         (SYNONYM DOOR)
         (ADJECTIVE CHAPEL HEAVY LOCKED)
-        (DESC "chapel door")
-        (LDESC "The chapel door is secured with a heavy lock.")
-        (FLAGS NDESCBIT)
-        (ACTION CHAPEL-DOOR-F)>
+      (DESC "chapel door")
+      (FLAGS NDESCBIT)
+      (ACTION CHAPEL-DOOR-F)>
 
 <OBJECT PEWS
         (IN CHAPEL)
@@ -877,10 +871,9 @@
         (IN CHAPEL)
         (SYNONYM CANDLES FLAMES)
         (ADJECTIVE GREEN UNNATURAL)
-        (DESC "green candles")
-        (LDESC "Candles burn with an unnatural green flame.")
-        (FLAGS NDESCBIT)
-        (ACTION GREEN-CANDLES-F)>
+      (DESC "green candles")
+      (FLAGS NDESCBIT)
+      (ACTION GREEN-CANDLES-F)>
 
 <OBJECT WOODEN-BOX
         (IN CHAPEL)
@@ -914,6 +907,80 @@
         (LDESC "A figure stands motionless at the altar. It turns to face you—its eyes glow faintly in the darkness.")
         (FLAGS ACTORBIT)
         (ACTION PATIENT-189-F)>
+
+; === FORMER PSEUDO OBJECTS (replaced with real objects) ===
+
+<OBJECT NEST
+        (IN RECEPTION-ROOM)
+        (SYNONYM NEST)
+        (ADJECTIVE BIRD)
+        (DESC "bird's nest")
+        (FLAGS NDESCBIT)
+        (ACTION NEST-PSEUDO)>
+
+<OBJECT ASHES
+        (IN RECEPTION-ROOM)
+        (SYNONYM ASHES ASH)
+        (ADJECTIVE COLD GREY)
+        (DESC "ashes")
+        (FLAGS NDESCBIT)
+        (ACTION ASHES-PSEUDO)>
+
+<OBJECT INSTRUMENTS
+        (IN OPERATING-THEATER)
+        (SYNONYM INSTRUMENTS)
+        (ADJECTIVE MEDICAL SURGICAL)
+        (DESC "instruments")
+        (FLAGS NDESCBIT)
+        (ACTION INSTRUMENTS-PSEUDO)>
+
+<OBJECT TRAYS
+        (IN OPERATING-THEATER)
+        (SYNONYM TRAYS)
+        (ADJECTIVE METAL INSTRUMENT)
+        (DESC "trays")
+        (FLAGS NDESCBIT)
+        (ACTION TRAYS-PSEUDO)>
+
+<OBJECT THEATER-BENCHES
+        (IN OPERATING-THEATER)
+        (SYNONYM BENCHES BENCH TIERS)
+        (ADJECTIVE WOODEN THEATER OPERATING)
+        (DESC "wooden benches")
+        (FLAGS NDESCBIT)
+        (ACTION BENCHES-PSEUDO)>
+
+<OBJECT COAL-DUST
+        (IN BOILER-ROOM)
+        (SYNONYM DUST SOOT)
+        (ADJECTIVE COAL BLACK)
+        (DESC "coal dust")
+        (FLAGS NDESCBIT)
+        (ACTION COAL-DUST-F)>
+
+<OBJECT GARDEN-BENCHES
+        (IN OVERGROWN-GARDEN)
+        (SYNONYM BENCHES BENCH)
+        (ADJECTIVE BROKEN STONE)
+        (DESC "stone benches")
+        (FLAGS NDESCBIT)
+        (ACTION GARDEN-BENCHES-F)>
+
+<OBJECT GRAND-STAIRCASE
+        (IN SANITARIUM-ENTRANCE)
+        (SYNONYM STAIRCASE STAIRS)
+        (ADJECTIVE GRAND)
+        (DESC "grand staircase")
+        (FLAGS NDESCBIT)
+        (ACTION GRAND-STAIRCASE-F)>
+
+<OBJECT WALLPAPER
+        (IN SANITARIUM-ENTRANCE)
+        (SYNONYM WALLPAPER PAPER PLASTER)
+        (ADJECTIVE VICTORIAN PEELING)
+        (DESC "wallpaper")
+        (FLAGS NDESCBIT)
+        (ACTION WALLPAPER-F)>
 
 ; === LOCAL-GLOBALS (objects visible from multiple rooms) ===
 
