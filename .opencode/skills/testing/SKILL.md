@@ -12,7 +12,7 @@ Prove completion path, catch regressions, and close parser/content gaps.
 ## Required Actions
 0. Begin this loop during Stage 5 after the first playable room; Stage 6 expands and hardens it rather than starting it.
 
-0a. **Pre-flight static audit:** Before any room-by-room testing, run the mandatory static gates from `@technical-tester`: prose-to-noun audit, vocabulary and parser audit (synonyms, disambiguation, special characters, NPC name variations, direction handler coverage), and exit matrix. These structural checks catch the most common defect categories without requiring a play session.
+0a. **Pre-flight static audit:** Before any room-by-room testing, run the mandatory static gates from `@tester-technical`: prose-to-noun audit, vocabulary and parser audit (synonyms, disambiguation, special characters, NPC name variations, direction handler coverage), and exit matrix. These structural checks catch the most common defect categories without requiring a play session.
 1. Execute golden-path transcript.
 2. Execute wrong-attempt transcripts and confirm quality responses.
 3. Run room checklist commands and object checklist commands.

@@ -13,27 +13,27 @@ Run four independent release perspectives and synthesize them without collapsing
 
 ## Pass Order
 
-### 1. Technical release gate — `@technical-tester`
+### 1. Technical release gate — `@tester-technical`
 
-Invoke `@technical-tester` first. It may inspect source and design materials and must follow `skill testing`. Block later passes for crashes, startup failure, corrupted persistence, or an unreachable golden path. Lesser technical findings can proceed to the shared remediation ledger while review continues.
+Invoke `@tester-technical` first. It may inspect source and design materials and must follow `skill testing`. Block later passes for crashes, startup failure, corrupted persistence, or an unreachable golden path. Lesser technical findings can proceed to the shared remediation ledger while review continues.
 
 Expected output: `<game-name>-technical-report.md` plus focused RED regressions. The report must contain a complete room-exit matrix proving opposite-direction returns, including documented intentional one-way or non-Euclidean exceptions.
 
-### 2. Blind functional playtest — `@game-tester`
+### 2. Blind functional playtest — `@tester-game`
 
-Use a new agent context. The tester must follow the blindness boundary in `.opencode/agents/game-tester.md`; do not pass it technical findings, design rationale, source discoveries, or walkthrough knowledge before its organic findings are frozen.
+Use a new agent context. The tester must follow the blindness boundary in `.opencode/agents/tester-game.md`; do not pass it technical findings, design rationale, source discoveries, or walkthrough knowledge before its organic findings are frozen.
 
-**Information flow:** The technical-tester's report flows to the shared remediation ledger, not to the game-tester. The game-tester runs blind; it must discover issues through play rather than inherit known structural defects. After the game-tester's organic findings are frozen, its bug report is merged with the technical-tester's findings in `test/QUALITY.md`.
+**Information flow:** The tester-technical's report flows to the shared remediation ledger, not to the tester-game. The tester-game runs blind; it must discover issues through play rather than inherit known structural defects. After the tester-game's organic findings are frozen, its bug report is merged with the tester-technical's findings in `test/QUALITY.md`.
 
 Expected output: `<game-name>-bugs.md` plus focused RED regressions for reproducible functional bugs.
 
-### 3. Artistic review — `@artistic-tester`
+### 3. Artistic review — `@tester-artistic`
 
 Use another fresh context and follow `skill artistic-review`. Preserve its first-experience pass before it reads authored intent.
 
 Expected output: `<game-name>-artistic-review.md`.
 
-### 4. Audience-fit and accessibility — `@accessibility-tester`
+### 4. Audience-fit and accessibility — `@tester-accessibility`
 
 Use a fresh context and follow `skill accessibility-testing`. Supply the declared target audience, not technical or artistic verdicts. Require independent fresh saves for its personas.
 

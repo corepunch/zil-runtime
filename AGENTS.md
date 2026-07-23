@@ -47,11 +47,11 @@ The `.opencode/skills/` directory provides stage-specific skills loadable with t
 | `skill testing` | Running transcripts, persistence tests, walkthrough hardening |
 | `skill workflow-hints` | Review passes, hint UX, iteration planning |
 | `skill packaging` | Release artifacts, definition of done |
-| `skill playtesting` | Running game-tester play sessions and collecting bug reports |
+| `skill playtesting` | Running tester-game play sessions and collecting bug reports |
 | `skill artistic-review` | Reviewing narrative arc, genre craft, pacing, contrast, and ending quality |
 | `skill accessibility-testing` | Testing target-audience usability and accessibility through explicit personas |
 | `skill quality-assurance` | Coordinating independent technical, functional, artistic, and accessibility release passes |
-| `skill bug-fixing` | Fixing ZIL bugs from game-tester reports (missing synonyms, broken containers, door/exit issues, etc.) |
+| `skill bug-fixing` | Fixing ZIL bugs from tester-game reports (missing synonyms, broken containers, door/exit issues, etc.) |
 
 ## Current Repo Notes
 

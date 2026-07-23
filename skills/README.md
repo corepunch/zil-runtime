@@ -30,7 +30,7 @@ Available skills:
 | `testing` | Transcript execution, bug categorization, walkthrough hardening |
 | `workflow-hints` | Review passes, hint UX, iteration planning |
 | `packaging` | Release artifacts, definition of done |
-| `playtesting` | Blind functional game-tester sessions and parser regressions |
+| `playtesting` | Blind functional tester-game sessions and parser regressions |
 | `artistic-review` | Narrative architecture, genre craft, pacing, contrast, and ending quality |
 | `accessibility-testing` | Target-audience usability and accessibility persona sessions |
 | `quality-assurance` | Independent technical, functional, artistic, and accessibility release passes |

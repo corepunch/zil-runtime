@@ -6,8 +6,8 @@ description: Fix technical and functional ZIL defects found during staged QA, in
 Fix technical and functional defects found by the specialist testers. Load their reports and the consolidated quality ledger, then work through code defects in priority order. Artistic revisions belong to their relevant authoring skill; accessibility changes use this skill only when the underlying problem is mechanical.
 
 ## Inputs
-- Bug report from `@game-tester` (`<adventure-name>-bugs.md`)
-- Technical report from `@technical-tester` (`<adventure-name>-technical-report.md`), when present
+- Bug report from `@tester-game` (`<adventure-name>-bugs.md`)
+- Technical report from `@tester-technical` (`<adventure-name>-technical-report.md`), when present
 - Quality ledger (`test/QUALITY.md`; legacy adventures may use `test/TESTING.md`)
 - Regression tests (`test/` — each must be RED against unfixed code)
 - Adventure source (`dungeon.zil`, `actions.zil`)
@@ -169,8 +169,8 @@ For a clustered adventure bug report, also run these static audits before closin
 - The parser-driven walkthrough completes from a fresh game
 
 ## Reference Sources
-- `.opencode/agents/game-tester.md` — the agent that found these bugs
-- `.opencode/agents/technical-tester.md` — white-box technical release gate
+- `.opencode/agents/tester-game.md` — the agent that found these bugs
+- `.opencode/agents/tester-technical.md` — white-box technical release gate
 - `.opencode/skills/quality-assurance/SKILL.md` — finding classification and verification ownership
 - `.opencode/skills/zil-implementation/SKILL.md` — critical implementation rules for all the patterns above
 - `skills/source_writing_adventures.md` — full ZIL reference
