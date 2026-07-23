@@ -50,7 +50,7 @@ help:
 	@echo ""
 	@echo "Packaging targets:"
 	@echo "  zip <gamename>    - Create a zip of a book game's .zil files + zork1 runtime (e.g. make zip limehouse-killings)"
-
+	@echo ""
 run-text:
 	lua main.lua
 
@@ -250,3 +250,4 @@ zip:
 
 limehouse-killings blackwood-horror wondertown:
 	@true
+

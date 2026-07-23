@@ -1,9 +1,9 @@
 ---
 name: playtesting
-description: Run blind functional play-throughs with @tester-game, collect player-visible evidence, and prepare functional regressions
+description: Run blind functional play-throughs with @tester, collect player-visible evidence, and prepare functional regressions
 ---
 
-Run blind functional play-throughs with the tester-game agent, collect structured bug reports, and prepare functional defects for remediation. Artistic judgment and audience/accessibility testing are separate passes coordinated by `skill quality-assurance`.
+Run blind functional play-throughs with the unified tester agent, collect structured bug reports, and prepare functional defects for remediation. Artistic judgment and audience/accessibility testing are also covered by `@tester` as part of its full QA pass.
 
 ## Inputs
 - Complete adventure source (`dungeon.zil`, `actions.zil`)
@@ -11,58 +11,45 @@ Run blind functional play-throughs with the tester-game agent, collect structure
 
 ## Required Actions
 
-### 1. Confirm tester-technical pre-flight
+### 1. Invoke the unified tester
 
-The tester-technical must complete its structural audit (prose-to-noun, vocabulary, exit matrix) before the tester-game begins. Review its report for any High-severity findings. Do not pass technical findings to the tester-game — its session must remain blind. If the technical report has unresolved High-severity structural defects, consider remediating them first so the tester-game's time is spent on emergent bugs rather than re-discovering known issues.
-
-### 2. Invoke tester-game
-
-Use the `task` tool to invoke `@tester-game` with a prompt like:
+Use the `task` tool to invoke `@tester`:
 
 ```
-@tester-game Play-test the <adventure-name> adventure and generate a bug report.
+@tester Run full QA for <adventure-name>.
 ```
 
-The tester-game will:
-- Start a fresh game
-- Play organically (no source inspection during play)
-- Explore all rooms, examine all objects, try interactions
-- Test edge cases, wrong commands, state persistence
-- Push toward the ending if reachable
-- Generate `adventure-name-bugs.md` with categorized findings and regression tests
+The unified tester runs all passes in sequence:
+1. Technical release gate (white-box, source inspection)
+2. Blind functional playtest (organic play, no source knowledge)
+3. Artistic review (first-experience, then design comparison)
+4. Accessibility testing (persona sessions, fresh saves)
 
-### 3. Review the bug report
+The blindness boundary is maintained internally — the technical phase completes and its findings are set aside before the organic play phase begins.
 
-Inspect the generated bug report. tester-game categorizes bugs as:
+### 2. Review the QA report
+
+Inspect `<game-name>-qa-report.md`. The functional playtest section categorizes bugs as:
 - **Critical** — crashes, hangs, unreachable endings, broken core mechanics
 - **High** — missing objects, broken puzzles, blocked progression, state corruption
 - **Medium** — missing synonyms, wrong descriptions, weak error messages
 - **Low** — cosmetic issues, missing scenery responses, minor verb gaps
 
-### 4. Verify regression tests
+### 3. Verify regression tests
 
-For every file tester-game created under `test/`:
+For every file the tester created under `test/`:
 - Run `make test-pure-zil` to confirm the test runner picks them up
 - If a test is a standalone Lua walkthrough, run it directly
 - Confirm each regression test is RED against the current unfixed code (reproduces the bug)
 - Inspect the oracle, not just the color: issue `<CO-RESUME ...>` separately and assert a single observable postcondition. Reject tests that combine coroutine success and state checks as multiple `ASSERT` arguments.
 - For silent-command bugs, assert state/location/inventory or expected text; coroutine resume success alone is not evidence that the verb worked.
 
-### 5. Prepare the bug ledger
-
-Create or update `test/TESTING.md` with:
-- Link to the tester-game's full bug report
-- Summary table of bugs by category
-- Priority ordering for the fixing stage (fix critical/high first)
-- For each bug: description, exact command, expected behavior, regression test path, and test status
-
 ## Outputs
-- `adventure-name-bugs.md` (from tester-game)
-- Updated `test/TESTING.md` with structured bug ledger
-- Regression tests under `test/` (from tester-game)
+- `<game-name>-qa-report.md` — unified report with all pass findings
+- Regression tests under `test/`
 
 ## Acceptance Checks
-- Tester-game completed a full organic play session
+- Tester completed a full organic play session
 - Every reproducible functional bug requiring a regression has a corresponding RED test
 - Bug ledger is prioritized and ready for the fixing stage
 - No functional findings were silently skipped; subjective writing observations may remain report-only
@@ -72,6 +59,6 @@ Create or update `test/TESTING.md` with:
 Blind functional playtesting is one part of the post-packaging quality-assurance gate. Bugs found here are fed into the remediation stage. After fixing, rerun the affected focused scenarios and a fresh organic smoke pass.
 
 ## Reference Sources
-- `.opencode/agents/tester-game.md` — full tester-game agent definition and workflow
+- `.opencode/agents/tester.md` — unified tester agent definition and workflow
 - `.opencode/skills/quality-assurance/SKILL.md` — coordination with technical, artistic, and accessibility passes
 - `PLAYING.md` — how `llm.lua` works for automated game interaction

@@ -11,44 +11,26 @@ Run four independent release perspectives and synthesize them without collapsing
 - Packaged playable build and current tests
 - Declared genre, artistic intent, and target audience
 
-## Pass Order
+## Invoking the Unified Tester
 
-### 1. Technical release gate — `@tester-technical`
+Invoke `@tester` via the `task` tool:
 
-Invoke `@tester-technical` first. It may inspect source and design materials and must follow `skill testing`. Block later passes for crashes, startup failure, corrupted persistence, or an unreachable golden path. Lesser technical findings can proceed to the shared remediation ledger while review continues.
+```
+@tester Run full QA for <adventure-name>.
+```
 
-Expected output: `<game-name>-technical-report.md` plus focused RED regressions. The report must contain a complete room-exit matrix proving opposite-direction returns, including documented intentional one-way or non-Euclidean exceptions.
+The unified tester runs all four passes sequentially in a single session:
 
-### 2. Blind functional playtest — `@tester-game`
+1. **Technical release gate** — white-box source and design inspection, prose-to-noun audit, vocabulary audit, exit matrix, automated test suite
+2. **Blind functional playtest** — organic play without source or design knowledge, bug documentation, regression authoring
+3. **Artistic review** — first-experience pass frozen before design inspection, craft rubric with transcript evidence
+4. **Accessibility testing** — persona-based sessions from independent fresh saves
 
-Use a new agent context. The tester must follow the blindness boundary in `.opencode/agents/tester-game.md`; do not pass it technical findings, design rationale, source discoveries, or walkthrough knowledge before its organic findings are frozen.
-
-**Information flow:** The tester-technical's report flows to the shared remediation ledger, not to the tester-game. The tester-game runs blind; it must discover issues through play rather than inherit known structural defects. After the tester-game's organic findings are frozen, its bug report is merged with the tester-technical's findings in `test/QUALITY.md`.
-
-Expected output: `<game-name>-bugs.md` plus focused RED regressions for reproducible functional bugs.
-
-### 3. Artistic review — `@tester-artistic`
-
-Use another fresh context and follow `skill artistic-review`. Preserve its first-experience pass before it reads authored intent.
-
-Expected output: `<game-name>-artistic-review.md`.
-
-### 4. Audience-fit and accessibility — `@tester-accessibility`
-
-Use a fresh context and follow `skill accessibility-testing`. Supply the declared target audience, not technical or artistic verdicts. Require independent fresh saves for its personas.
-
-Expected output: `<game-name>-accessibility-review.md`.
+Expected output: `<game-name>-qa-report.md` with separate sections for technical, functional, artistic, accessibility, cross-cutting findings, and remediation plan.
 
 ## Synthesis
 
-Create or update `test/QUALITY.md` with separate sections for:
-
-- technical invariants and regressions;
-- functional bugs and regressions;
-- artistic findings and revision decisions;
-- audience/accessibility barriers and persona evidence;
-- cross-cutting findings observed independently by more than one pass;
-- prioritized remediation owners and verification method.
+The report already contains cross-cutting findings and remediation plan. No separate synthesis step is needed — the unified report serves as the consolidated quality ledger.
 
 Use these classes:
 
@@ -71,13 +53,13 @@ The QA gate is not complete until:
 - every material accessibility barrier has a mitigation, accepted limitation, or revised audience claim;
 - affected specialist scenarios have been rerun after remediation.
 
-After synthesis, invoke `skill bug-fixing` for code defects and the relevant authoring skill for artistic or accessibility revisions. Then run a short confirmation pass from every affected perspective.
+After review, invoke `skill bug-fixing` for code defects and the relevant authoring skill for artistic or accessibility revisions. Then run a short confirmation pass via `@tester`.
 
 ## Anti-Patterns
 
 - One context plays organically after already reading the walkthrough or design solution.
 - A single severity table mixes crashes, pacing opinions, and access barriers without type or evidence.
 - Trope counting substitutes for artistic judgment.
-- “The walkthrough passes” substitutes for novice usability.
+- "The walkthrough passes" substitutes for novice usability.
 - Subjective preferences become brittle text regressions.
 - Accessibility is reduced to easier puzzles or more hints.

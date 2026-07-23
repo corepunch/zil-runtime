@@ -65,7 +65,7 @@ For every material finding record persona, prerequisite state, exact command, ou
 - content suitability;
 - optional preference.
 
-Stable functional failures should be handed to `@tester-game` for independent reproduction and regression authoring. Do not encode subjective ease, prose taste, or persona preference as a regression.
+Stable functional failures should be documented for inclusion in the unified QA report's appropriate section (functional playtest or accessibility). Do not encode subjective ease, prose taste, or persona preference as a regression.
 
 ## Output
 

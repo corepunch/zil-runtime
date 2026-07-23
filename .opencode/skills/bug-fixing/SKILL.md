@@ -3,12 +3,10 @@ name: bug-fixing
 description: Fix technical and functional ZIL defects found during staged QA, including parser, object, exit, persistence, progression, and NPC failures
 ---
 
-Fix technical and functional defects found by the specialist testers. Load their reports and the consolidated quality ledger, then work through code defects in priority order. Artistic revisions belong to their relevant authoring skill; accessibility changes use this skill only when the underlying problem is mechanical.
+Fix technical and functional defects found by the tester. Load the unified QA report and work through code defects in priority order. Artistic revisions belong to their relevant authoring skill; accessibility changes use this skill only when the underlying problem is mechanical.
 
 ## Inputs
-- Bug report from `@tester-game` (`<adventure-name>-bugs.md`)
-- Technical report from `@tester-technical` (`<adventure-name>-technical-report.md`), when present
-- Quality ledger (`test/QUALITY.md`; legacy adventures may use `test/TESTING.md`)
+- QA report from `@tester` (`<adventure-name>-qa-report.md`)
 - Regression tests (`test/` — each must be RED against unfixed code)
 - Adventure source (`dungeon.zil`, `actions.zil`)
 
@@ -21,7 +19,7 @@ For each bug in priority order (Critical → High → Medium → Low):
 3. **Fix the source** in the narrowest layer
 4. **Run the regression test** — it must go GREEN
 5. **Run `make test-pure-zil`** — no regressions
-6. **Mark the bug as fixed** in the ledger
+6. **Mark the bug as fixed** in the report
 
 If a regression test is wrong (test authoring mistake, not a real bug), correct the test expectation rather than hacking the source.
 
@@ -160,7 +158,7 @@ For a clustered adventure bug report, also run these static audits before closin
 - Updated `dungeon.zil` / `actions.zil`
 - Updated regression tests (now GREEN)
 - Updated bug ledger with fix status
-- Optional: updated `test/TESTING.md` with fix notes
+- Optional: updated QA report with fix notes
 
 ## Acceptance Checks
 - Every regression test that was RED now passes GREEN
@@ -169,8 +167,7 @@ For a clustered adventure bug report, also run these static audits before closin
 - The parser-driven walkthrough completes from a fresh game
 
 ## Reference Sources
-- `.opencode/agents/tester-game.md` — the agent that found these bugs
-- `.opencode/agents/tester-technical.md` — white-box technical release gate
+- `.opencode/agents/tester.md` — the unified tester agent
 - `.opencode/skills/quality-assurance/SKILL.md` — finding classification and verification ownership
 - `.opencode/skills/zil-implementation/SKILL.md` — critical implementation rules for all the patterns above
 - `skills/source_writing_adventures.md` — full ZIL reference
