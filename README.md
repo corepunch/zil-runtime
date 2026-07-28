@@ -26,13 +26,28 @@ play, see [Companion ZIL Files](docs/COMPANION-ZIL.md).
 
 ## Running the Game
 
-To run the game in interactive mode:
+The default interface presents numbered, state-aware companion choices:
 
 ```bash
-lua main.lua
+lua5.4 main.lua
 ```
 
-This will compile the ZIL files specified in `main.lua` and start the interactive game.
+Use child or story mode for three choices:
+
+```bash
+lua5.4 main.lua --child
+lua5.4 main.lua --story
+```
+
+Use the original free-text parser interface with:
+
+```bash
+lua5.4 main.lua --text
+```
+
+Run `lua5.4 main.lua --help` for story-module and choice-count options. Games
+without an authored `companion.zil` use conservative visible-object and
+direct-exit suggestions.
 
 ## Testing
 

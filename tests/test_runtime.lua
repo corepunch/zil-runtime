@@ -213,6 +213,108 @@ test.describe("Runtime - Bootstrap Loading", function(t)
 		assert.assert_nil(env.TEST_STALE)
 		os.remove(filename)
 	end)
+
+	t.it("should collect and rank companion intent cards deterministically", function(assert)
+		local env = runtime.create_game_env()
+		runtime.init(env, true)
+
+		env.SUGGEST_ACTIONS = function()
+			if env.CHOICE_MODEQ(env.MODE_CHILD) then
+				env.CHOICE(
+					"test.progress",
+					"Continue the story",
+					"north",
+					env.CHOICE_PROGRESS,
+					50
+				)
+			end
+			env.CHOICE(
+				"test.investigate",
+				"Examine the door",
+				"examine door",
+				env.CHOICE_INVESTIGATE,
+				100
+			)
+			env.CHOICE(
+				"test.interact",
+				"Knock on the door",
+				"knock door",
+				env.CHOICE_INTERACT,
+				90
+			)
+			env.CHOICE(
+				"test.return",
+				"Return to the road",
+				"south",
+				env.CHOICE_RETURN,
+				80
+			)
+		end
+
+		local first = env.COMPANION_QUERY("child", 3)
+		local second = env.COMPANION_QUERY("child", 3)
+
+		assert.assert_true(first.ok)
+		assert.assert_equal(#first.choices, 3)
+		assert.assert_equal(first.choices[1].id, "test.progress")
+		assert.assert_equal(first.choices[2].id, "test.investigate")
+		assert.assert_equal(first.choices[3].id, "test.interact")
+		assert.assert_equal(second.choices[1].id, first.choices[1].id)
+		assert.assert_equal(second.choices[2].id, first.choices[2].id)
+		assert.assert_equal(second.choices[3].id, first.choices[3].id)
+	end)
+
+	t.it("should revalidate selections and record companion knowledge", function(assert)
+		local env = runtime.create_game_env()
+		runtime.init(env, true)
+
+		env.SUGGEST_ACTIONS = function()
+			env.CHOICE(
+				"test.try-door",
+				"Try the door",
+				"open door",
+				env.CHOICE_INVESTIGATE,
+				100
+			)
+			env.CHOICE_DETAILS(
+				"once", true,
+				"learns", "test.door-locked"
+			)
+		end
+
+		local selected = env.COMPANION_SELECT("test.try-door", "child", 3)
+		assert.assert_true(selected.ok)
+		assert.assert_equal(selected.command, "open door")
+		assert.assert_true(env.CHOICE_SEENQ("test.try-door"))
+		assert.assert_equal(env.CHOICE_COUNT("test.try-door"), 1)
+		assert.assert_true(env.KNOWSQ("test.door-locked"))
+
+		local after = env.COMPANION_QUERY("child", 3)
+		assert.assert_true(after.ok)
+		assert.assert_equal(#after.choices, 0)
+
+		local stale = env.COMPANION_SELECT("test.try-door", "child", 3)
+		assert.assert_false(stale.ok)
+		assert.assert_equal(stale.error, "choice_no_longer_eligible")
+	end)
+
+	t.it("should persist companion history across save and restore", function(assert)
+		local env = runtime.create_game_env()
+		runtime.init(env, true)
+
+		local filename = "test-runtime-companion-save.tmp"
+		env.COMPANION_CHOICE_COUNTS = "test.open=2"
+		env.KNOW("test.door-locked")
+		assert.assert_true(env.SAVE(filename))
+
+		env.COMPANION_CHOICE_COUNTS = ""
+		env.COMPANION_KNOWLEDGE_IDS = ""
+		assert.assert_true(env.RESTORE(filename))
+
+		assert.assert_equal(env.CHOICE_COUNT("test.open"), 2)
+		assert.assert_true(env.KNOWSQ("test.door-locked"))
+		os.remove(filename)
+	end)
 end)
 
 test.describe("Runtime - ZIL File Loading", function(t)

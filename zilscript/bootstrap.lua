@@ -136,6 +136,27 @@ local suggestions = {
 	DOORBIT = "OPEN",
 }
 
+-- Companion intent-card constants. ZIL companion modules use these while the
+-- Lua host receives stable lowercase kind names.
+CHOICE_PROGRESS = 1
+CHOICE_INVESTIGATE = 2
+CHOICE_INTERACT = 3
+CHOICE_EXPERIMENT = 4
+CHOICE_RETURN = 5
+CHOICE_SAFETY = 6
+
+MODE_CHILD = 1
+MODE_STORY = 2
+MODE_CASUAL = 3
+MODE_CLASSIC = 4
+
+-- These are strings so they participate in the existing scalar save, restore,
+-- and restart snapshots without adding a second persistence format.
+COMPANION_CHOICE_COUNTS = COMPANION_CHOICE_COUNTS or ""
+COMPANION_KNOWLEDGE_IDS = COMPANION_KNOWLEDGE_IDS or ""
+
+local companion_context
+
 local function room_global_objects(room)
 	local room_globals = {}
 	local pqglobal = rawget(_G, "PQGLOBAL")
@@ -198,7 +219,12 @@ local function add_items(room)
 		local item = GETP(obj, PQDESC) or ""
 		if action then
 			local func = FUNCTIONS[tonumber(action)]
-			for k, v in pairs(_G) do if v == func then verbs = _G['_'..k] break end end
+			for k, v in pairs(_G) do
+				if v == func then
+					verbs = _G['_'..k] or {}
+					break
+				end
+			end
 		end
 		if text then table.insert(verbs, "EXAMINE") end
 		local fnd = function(name, array) 
@@ -231,13 +257,13 @@ local function add_exits(room)
 			if not FSETQ(GETB(pp, 0), ONBIT) then
 				desc = desc .. " (pitch black)"
 			end
-			table.insert(exits, {d, desc})
+			table.insert(exits, {d, desc, true})
 		elseif PTSIZE(pp) == 2 then
-			table.insert(exits, {d, string.format("\"%s\"", mem:string(GET(pp, 0)))})
+			table.insert(exits, {d, string.format("\"%s\"", mem:string(GET(pp, 0))), false})
 		elseif PTSIZE(pp) == 4 then
-			table.insert(exits, {d, GETP(GETB(pp, REXIT), PQDESC)})
+			table.insert(exits, {d, GETP(GETB(pp, REXIT), PQDESC), false})
 		elseif PTSIZE(pp) == 5 then
-			table.insert(exits, {d, GETP(GETB(pp, REXIT), PQDESC)})
+			table.insert(exits, {d, GETP(GETB(pp, REXIT), PQDESC), false})
 		end
 	end
 	return exits
@@ -252,6 +278,365 @@ local function is_room_name(text)
 		end
 	end
 	return false
+end
+
+local companion_kind_names = {
+	[CHOICE_PROGRESS] = "progress",
+	[CHOICE_INVESTIGATE] = "investigate",
+	[CHOICE_INTERACT] = "interact",
+	[CHOICE_EXPERIMENT] = "experiment",
+	[CHOICE_RETURN] = "return",
+	[CHOICE_SAFETY] = "safety",
+}
+
+local companion_mode_values = {
+	child = MODE_CHILD,
+	story = MODE_STORY,
+	casual = MODE_CASUAL,
+	classic = MODE_CLASSIC,
+}
+
+local function valid_companion_id(id)
+	return type(id) == "string" and id:match("^[%w][%w._-]*$") ~= nil
+end
+
+local function decode_companion_counts(encoded)
+	local counts = {}
+	for id, count in tostring(encoded or ""):gmatch("([%w][%w._-]*)=(%d+)") do
+		counts[id] = tonumber(count)
+	end
+	return counts
+end
+
+local function encode_companion_counts(counts)
+	local ids = {}
+	for id, count in pairs(counts) do
+		if valid_companion_id(id) and tonumber(count) and tonumber(count) > 0 then
+			ids[#ids + 1] = id
+		end
+	end
+	table.sort(ids)
+	local parts = {}
+	for _, id in ipairs(ids) do
+		parts[#parts + 1] = id .. "=" .. tostring(math.floor(counts[id]))
+	end
+	return table.concat(parts, ";")
+end
+
+local function decode_companion_set(encoded)
+	local result = {}
+	for id in tostring(encoded or ""):gmatch("[%w][%w._-]*") do
+		result[id] = true
+	end
+	return result
+end
+
+local function encode_companion_set(values)
+	local ids = {}
+	for id, enabled in pairs(values) do
+		if enabled and valid_companion_id(id) then ids[#ids + 1] = id end
+	end
+	table.sort(ids)
+	return table.concat(ids, ";")
+end
+
+local function normalize_companion_mode(mode)
+	if type(mode) == "number" then
+		for name, value in pairs(companion_mode_values) do
+			if value == mode then return name, value end
+		end
+	end
+	local name = tostring(mode or "casual"):lower()
+	local value = companion_mode_values[name]
+	if not value then return "casual", MODE_CASUAL end
+	return name, value
+end
+
+function CHOICE_MODEQ(mode)
+	if not companion_context then return false end
+	local _, value = normalize_companion_mode(mode)
+	return companion_context.mode_value == value
+end
+
+function CHOICE_COUNT(id)
+	if not valid_companion_id(id) then return 0 end
+	return decode_companion_counts(COMPANION_CHOICE_COUNTS)[id] or 0
+end
+
+function CHOICE_SEENQ(id)
+	return CHOICE_COUNT(id) > 0
+end
+
+function KNOWSQ(id)
+	if not valid_companion_id(id) then return false end
+	return decode_companion_set(COMPANION_KNOWLEDGE_IDS)[id] == true
+end
+
+function KNOW(id)
+	if not valid_companion_id(id) then
+		error("Invalid companion knowledge ID: " .. tostring(id))
+	end
+	local knowledge = decode_companion_set(COMPANION_KNOWLEDGE_IDS)
+	knowledge[id] = true
+	COMPANION_KNOWLEDGE_IDS = encode_companion_set(knowledge)
+	return true
+end
+
+function CHOICE(id, label, command, kind, priority)
+	if not companion_context then
+		error("CHOICE may only be used while companion choices are being evaluated")
+	end
+	if not valid_companion_id(id) then
+		error("Invalid companion choice ID: " .. tostring(id))
+	end
+	if type(label) ~= "string" or label == "" then
+		error("Companion choice " .. id .. " has no label")
+	end
+	if type(command) ~= "string" or command == "" then
+		error("Companion choice " .. id .. " has no command")
+	end
+	kind = tonumber(kind) or CHOICE_INTERACT
+	priority = tonumber(priority) or 50
+	local candidate = {
+		id = id,
+		label = label,
+		command = command,
+		kind = kind,
+		kind_name = companion_kind_names[kind] or "interact",
+		priority = priority,
+	}
+	companion_context.candidates[#companion_context.candidates + 1] = candidate
+	companion_context.last_choice = candidate
+	return true
+end
+
+function CHOICE_DETAILS(...)
+	if not companion_context or not companion_context.last_choice then
+		error("CHOICE_DETAILS requires a preceding CHOICE")
+	end
+	local candidate = companion_context.last_choice
+	for i = 1, select("#", ...), 2 do
+		local key = select(i, ...)
+		local value = select(i + 1, ...)
+		if type(key) == "string" then
+			key = key:lower():gsub("-", "_")
+			candidate[key] = value
+		end
+	end
+	return true
+end
+
+function SCENE(key, alt_text)
+	if not companion_context then
+		error("SCENE may only be used while companion state is being evaluated")
+	end
+	if type(key) ~= "string" or key == "" then
+		error("Companion scene has no key")
+	end
+	companion_context.scene = {
+		key = key,
+		alt = type(alt_text) == "string" and alt_text or "",
+	}
+	return true
+end
+
+local function companion_slug(text)
+	local slug = tostring(text or ""):lower():gsub("[^%w]+", "-")
+	slug = slug:gsub("^%-+", ""):gsub("%-+$", "")
+	return slug ~= "" and slug or "unknown"
+end
+
+local function companion_fallback_choices()
+	if not HERE or not FIRSTQ or not GETP then return end
+	local verb_labels = {
+		EXAMINE = "Examine the %s",
+		READ = "Read the %s",
+		OPEN = "Open the %s",
+		TAKE = "Take the %s",
+	}
+	local verb_preference = {"OPEN", "READ", "TAKE", "EXAMINE"}
+	for _, item in ipairs(add_items(HERE)) do
+		local item_name, verbs = item[1], item[2]
+		local selected_verb
+		for _, wanted in ipairs(verb_preference) do
+			for _, verb in ipairs(verbs or {}) do
+				if verb == wanted then selected_verb = verb; break end
+			end
+			if selected_verb then break end
+		end
+		if selected_verb and verb_labels[selected_verb] then
+			local id = "fallback.item." .. companion_slug(item_name) .. "." .. selected_verb:lower()
+			CHOICE(
+				id,
+				string.format(verb_labels[selected_verb], item_name),
+				selected_verb:lower() .. " " .. item_name,
+				(selected_verb == "READ" or selected_verb == "EXAMINE")
+					and CHOICE_INVESTIGATE or CHOICE_INTERACT,
+				25
+			)
+		end
+	end
+	for _, exit in ipairs(add_exits(HERE)) do
+		local direction, destination, safe = exit[1], exit[2], exit[3]
+		if safe and type(destination) == "string" and destination ~= "" then
+			CHOICE(
+				"fallback.exit." .. companion_slug(direction),
+				"Go to " .. destination,
+				tostring(direction):lower(),
+				CHOICE_RETURN,
+				30
+			)
+		end
+	end
+end
+
+local function select_companion_candidates(candidates, limit)
+	local counts = decode_companion_counts(COMPANION_CHOICE_COUNTS)
+	local unique_ids, unique_commands, eligible = {}, {}, {}
+	for _, candidate in ipairs(candidates) do
+		local command_key = candidate.command:lower():gsub("%s+", " ")
+		if not unique_ids[candidate.id] and not unique_commands[command_key]
+				and not (candidate.once and (counts[candidate.id] or 0) > 0) then
+			unique_ids[candidate.id] = true
+			unique_commands[command_key] = true
+			candidate.adjusted_priority =
+				candidate.priority - ((counts[candidate.id] or 0) * 15)
+			eligible[#eligible + 1] = candidate
+		end
+	end
+	table.sort(eligible, function(a, b)
+		if a.adjusted_priority ~= b.adjusted_priority then
+			return a.adjusted_priority > b.adjusted_priority
+		end
+		return a.id < b.id
+	end)
+
+	local selected, selected_ids = {}, {}
+	local function take_best(kind)
+		for _, candidate in ipairs(eligible) do
+			if candidate.kind == kind and not selected_ids[candidate.id] then
+				selected[#selected + 1] = candidate
+				selected_ids[candidate.id] = true
+				return
+			end
+		end
+	end
+
+	if eligible[1] and eligible[1].kind == CHOICE_SAFETY
+			and eligible[1].adjusted_priority >= 110 then
+		for _, candidate in ipairs(eligible) do
+			if candidate.kind == CHOICE_SAFETY and #selected < limit then
+				selected[#selected + 1] = candidate
+				selected_ids[candidate.id] = true
+			end
+		end
+	else
+		take_best(CHOICE_PROGRESS)
+		if #selected < limit then take_best(CHOICE_INVESTIGATE) end
+		if #selected < limit then take_best(CHOICE_INTERACT) end
+	end
+
+	for _, candidate in ipairs(eligible) do
+		if #selected >= limit then break end
+		if not selected_ids[candidate.id] then
+			selected[#selected + 1] = candidate
+			selected_ids[candidate.id] = true
+		end
+	end
+	return selected
+end
+
+function COMPANION_QUERY(mode, limit)
+	local mode_name, mode_value = normalize_companion_mode(mode)
+	limit = math.max(1, math.min(5, tonumber(limit)
+		or ((mode_value == MODE_CHILD or mode_value == MODE_STORY) and 3 or 5)))
+	companion_context = {
+		mode = mode_name,
+		mode_value = mode_value,
+		limit = limit,
+		candidates = {},
+	}
+
+	local ok, err
+	if type(SUGGEST_ACTIONS) == "function" then
+		ok, err = pcall(SUGGEST_ACTIONS)
+		if not ok then
+			companion_context = nil
+			return {ok = false, error = tostring(err), choices = {}}
+		end
+	end
+
+	if #companion_context.candidates < limit then
+		ok, err = pcall(companion_fallback_choices)
+		if not ok then
+			companion_context = nil
+			return {ok = false, error = tostring(err), choices = {}}
+		end
+	end
+
+	if type(SUGGEST_SCENE) == "function" then
+		ok, err = pcall(SUGGEST_SCENE)
+		if not ok then
+			companion_context = nil
+			return {ok = false, error = tostring(err), choices = {}}
+		end
+	end
+
+	local context = companion_context
+	local choices = select_companion_candidates(context.candidates, limit)
+	companion_context = nil
+	return {
+		ok = true,
+		mode = mode_name,
+		limit = limit,
+		scene = context.scene,
+		choices = choices,
+	}
+end
+
+function COMPANION_SELECT(id, mode, limit)
+	local result = COMPANION_QUERY(mode, limit)
+	if not result.ok then return result end
+	for _, candidate in ipairs(result.choices) do
+		if candidate.id == id then
+			local counts = decode_companion_counts(COMPANION_CHOICE_COUNTS)
+			counts[id] = (counts[id] or 0) + 1
+			COMPANION_CHOICE_COUNTS = encode_companion_counts(counts)
+			if type(candidate.learns) == "string" and candidate.learns ~= "" then
+				KNOW(candidate.learns)
+			end
+			return {
+				ok = true,
+				id = id,
+				command = candidate.command,
+			}
+		end
+	end
+	return {
+		ok = false,
+		error = "choice_no_longer_eligible",
+		id = id,
+	}
+end
+
+local companion_route_mode = "casual"
+local companion_route_limit = 5
+
+local function companion_route_choices(arg)
+	if type(arg) ~= "string" then
+		companion_route_mode = "casual"
+		companion_route_limit = 5
+		return COMPANION_QUERY(companion_route_mode, companion_route_limit)
+	end
+	local mode, limit = arg:match("^([^:]+):?(%d*)$")
+	companion_route_mode = mode or "casual"
+	companion_route_limit = tonumber(limit)
+		or ((companion_route_mode == "child" or companion_route_mode == "story") and 3 or 5)
+	return COMPANION_QUERY(companion_route_mode, companion_route_limit)
+end
+
+local function companion_route_select(id)
+	return COMPANION_SELECT(id, companion_route_mode, companion_route_limit)
 end
 
 local function encode_fptr(n)
@@ -704,6 +1089,8 @@ local routes = {
 	['room-items'] = add_items,
 	['room-exits'] = add_exits,
 	['room-name?'] = is_room_name,
+	['choices'] = companion_route_choices,
+	['choice-select'] = companion_route_select,
 }
 
 local function route_response(input)

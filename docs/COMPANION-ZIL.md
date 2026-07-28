@@ -2,7 +2,7 @@
 
 ## Contextual Intent Cards for Illustrated and Parser-Free Play
 
-This document specifies a proposed companion-file system for ZIL adventures.
+This document specifies the companion-file system for ZIL adventures.
 A companion file adds a curated, state-aware layer of suggested actions without
 changing the adventure's underlying parser, world model, puzzles, or command
 handlers.
@@ -29,12 +29,15 @@ ZIL simulation.
 
 > **Implementation status**
 >
-> This is a design specification. The repository already has useful foundations:
-> the game runs as a coroutine, `READ` is the host/game boundary, and
-> `zilscript/bootstrap.lua` can answer the special `room-items`, `room-exits`,
-> and `room-name?` queries while the game is waiting for input. The `CHOICE`,
-> `CHOICE-SEEN?`, `SCENE`, and related forms described below are proposed APIs
-> and are not yet implemented.
+> The runtime API described in the core sections is implemented in
+> `zilscript/bootstrap.lua`. `main.lua` uses companion play by default and accepts
+> `--text` for the original parser loop. Zork I has an authored opening-area
+> companion in `infocom/zork1/companion.zil`; uncovered areas and games without a
+> companion use conservative automatic suggestions.
+>
+> State tokens, `CHOICE-SHOWN?`, `llm.lua --choices`, a graphical client, and full
+> Zork I coverage remain future work. Sections that describe these facilities
+> identify them as planned host contracts rather than current behavior.
 
 ## Contents
 
@@ -62,7 +65,7 @@ ZIL simulation.
 22. [Validation and testing](#validation-and-testing)
 23. [Retrofitting existing adventures](#retrofitting-existing-adventures)
 24. [Common mistakes](#common-mistakes)
-25. [Recommended implementation phases](#recommended-implementation-phases)
+25. [Implementation status and next phases](#implementation-status-and-next-phases)
 26. [Complete example](#complete-example)
 27. [Reference checklist](#reference-checklist)
 
@@ -376,8 +379,8 @@ and submit only the stable ID.
 
 ## Proposed ZIL API
 
-The following API is intentionally small. It is a proposal for implementation in
-the Lua bootstrap and host layer.
+The following API is implemented in the Lua bootstrap and available to companion
+ZIL modules.
 
 ### Choice kinds
 
@@ -493,7 +496,7 @@ Selection history is not the same as world state. A door can remain locked after
 the player tries it, but the companion should now know that the obstacle has been
 discovered.
 
-### `CHOICE-SHOWN?`
+### `CHOICE-SHOWN?` (planned)
 
 ```zil
 <CHOICE-SHOWN? ID>
@@ -503,7 +506,8 @@ Returns true if the host has displayed the card before. Use this sparingly.
 Merely showing a card should not normally teach the protagonist anything.
 
 `CHOICE-SHOWN?` is most useful for reducing repetitive flavor cards, not for
-unlocking puzzle information.
+unlocking puzzle information. This helper is not implemented in the current
+runtime because queries intentionally remain side-effect free.
 
 ### `CHOICE-COUNT`
 
@@ -526,7 +530,7 @@ interactions and escalation:
 
 ### `KNOW` and `KNOWS?`
 
-Some knowledge is broader than a single card. Proposed helpers:
+Some knowledge is broader than a single card. Implemented helpers:
 
 ```zil
 <KNOW "workshop-door.locked">
@@ -1356,10 +1360,12 @@ should describe visible information without leaking hidden puzzle facts.
 
 ## Host and UI contract
 
-The host API should expose structured choices while the game is waiting for
-input.
+The runtime exposes `COMPANION_QUERY(mode, limit)` and
+`COMPANION_SELECT(id, mode, limit)` while the game is waiting for input.
+`main.lua` calls these functions directly. The JSON messages below define the
+planned contract for graphical or remote hosts.
 
-### Query request
+### Query request (planned transport)
 
 Conceptual request:
 
@@ -1411,7 +1417,7 @@ The existing coroutine control route could encode this as a special input such a
 
 Production clients do not need the hidden command. Debug tools may request it.
 
-### Selection request
+### Selection request (planned transport)
 
 ```json
 {
@@ -1421,7 +1427,8 @@ Production clients do not need the hidden command. Debug tools may request it.
 }
 ```
 
-The runtime:
+The runtime currently performs the revalidation and selection steps in-process.
+An opaque state token is planned for remote clients. The complete target flow is:
 
 1. Confirms the token matches the waiting state.
 2. Re-evaluates the companion.
@@ -1849,11 +1856,21 @@ Progress depends on whether the UI happened to display a card.
 **Fix:** base progress on the adventure and use selection/knowledge history only
 for facts genuinely learned through the card path.
 
-## Recommended implementation phases
+## Implementation status and next phases
+
+| Phase | Status |
+|---|---|
+| Runtime primitives and deterministic query API | Implemented |
+| Selection revalidation, counts, knowledge, save/restore | Implemented |
+| Default terminal card interface and `--text` mode | Implemented |
+| Zork I opening vertical slice | Implemented |
+| Full Zork I companion coverage | Not started |
+| `llm.lua` companion authoring commands | Not started |
+| Illustrated graphical client | Not started |
 
 ### Phase 1: Runtime primitive and debug API
 
-Implement:
+Implemented:
 
 - temporary candidate collection;
 - `CHOICE`;
@@ -1867,7 +1884,7 @@ No graphical UI is required yet.
 
 ### Phase 2: Selection and persistence
 
-Implement:
+Implemented:
 
 - stable state tokens;
 - selection by ID;
@@ -1879,7 +1896,7 @@ Implement:
 
 ### Phase 3: Zork I vertical slice
 
-Cover the opening area through entry into the house:
+The current `infocom/zork1/companion.zil` covers:
 
 - West of House;
 - mailbox and leaflet;
@@ -1888,8 +1905,9 @@ Cover the opening area through entry into the house:
 - inventory-dependent cards;
 - child and casual modes.
 
-Use this slice to evaluate whether card play feels like an interactive book
-rather than a command menu.
+This slice is suitable for evaluating whether card play feels like an
+interactive book rather than a command menu. Extending coverage into the
+underground game remains separate work.
 
 ### Phase 4: CLI and agent tooling
 
@@ -1925,8 +1943,9 @@ II, Zork III, and newer books.
 
 ## Complete example
 
-The following is a cohesive example of a proposed `companion.zil`. It is not
-expected to compile until the companion primitives are implemented.
+The following is a cohesive example of a `companion.zil`. The companion
+primitives are implemented, but the fictional rooms, objects, and parser
+vocabulary in this example must be supplied by its adventure.
 
 ```zil
 ;"Companion intent cards for The Clockmaker's Garden."
