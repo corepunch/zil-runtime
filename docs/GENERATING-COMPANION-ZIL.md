@@ -14,7 +14,7 @@ particular adventure?
 For agent-assisted generation, invoke:
 
 ```text
-@companion-author Generate, validate, and document companion coverage for <game-name>.
+@companion-author Generate, validate, and document complete full-game companion coverage for <game-name>.
 ```
 
 The agent definition is in
@@ -27,17 +27,20 @@ playthrough. It is a coverage exercise:
 
 1. Locate the adventure's entry point, sources, tests, walkthroughs, and load
    path.
-2. Inventory rooms, exits, objects, puzzle state, NPC phases, hazards, and
-   endings.
+2. Inventory **every declared room**, exit, object, puzzle state, NPC phase,
+   hazard, and ending; classify every room as reachable, unreachable, or exempt.
 3. Play a clean golden path one parser command at a time.
 4. Divide the adventure into **state families**: situations in which the useful
    choices are materially different.
-5. Design candidate cards for each reachable state family.
+5. Design candidate cards for every reachable room and state family.
 6. Implement those cards in `companion.zil`, one vertical slice at a time.
-7. Execute every card's hidden command through the real parser.
-8. Replay meaningful routes using only numbered choices.
+7. Restore or construct each matching state and execute every card's hidden
+   command through the real parser.
+8. Replay the complete game using only numbered choices in child and story
+   modes, including backtracking and at least one non-golden branch.
 9. Test save/restore, restart, query purity, grouping, and fallback behavior.
-10. Publish a coverage matrix and transcript evidence with the companion.
+10. Publish a machine-readable state-family manifest, a human-readable coverage
+    report, and transcript evidence with the companion.
 
 The shipped `companion.zil` is deterministic ZIL. An agent can help author and
 test it, but no model, network call, or generated text is required at runtime.
@@ -50,6 +53,7 @@ The preferred output is:
 <adventure-directory>/
 ├── companion.zil
 ├── companion/
+│   ├── COVERAGE.json
 │   ├── COVERAGE.md
 │   └── TRANSCRIPTS.md
 └── test/
@@ -57,18 +61,49 @@ The preferred output is:
 ```
 
 Use the repository's established test location and naming convention if it
-differs. The four deliverables have distinct purposes:
+differs. The five deliverables have distinct purposes:
 
 | Deliverable | Purpose |
 |---|---|
 | `companion.zil` | The deterministic, state-aware candidate generator |
-| `COVERAGE.md` | The rooms and state families inspected, implemented, and validated |
+| `COVERAGE.json` | Machine-readable room/state-family setups, expectations, and status |
+| `COVERAGE.md` | Generated or synchronized human-readable coverage summary |
 | `TRANSCRIPTS.md` | Exact commands, observed output, and choice-driven routes |
 | Regression test | Automated checks for important visibility and transition rules |
 
 Do not treat the implementation alone as proof of coverage. A plausible command
 can still be unrecognized, ambiguous, blocked in the relevant state, or produce
 misleading results.
+
+A generated companion is complete only when every reachable room has authored
+support, every material state family is validated, and the game can be completed
+in both child and story modes without typed commands. Automatic fallback is a
+runtime safety net, not releasable authored coverage. `FALLBACK-REVIEWED` and
+`NOT-COVERED` are valid interim statuses but fail the completion gate for
+reachable gameplay.
+
+## Current Repository Baseline
+
+As audited on 2026-07-28:
+
+- `llm.lua` registers eight playable games, but only Zork I has a
+  `companion.zil`.
+- Zork I declares 110 rooms. Its current companion contains 110 authored cards
+  and explicit `SUGGEST-ACTIONS` routing for 32 rooms, leaving 78 declarations
+  without explicit room routing.
+- The Zork I companion regression exercises the opening card route only, ending
+  on arrival in the Cellar; it does not validate all newer underground cards.
+- Zork I has no committed `companion/COVERAGE.json`, `COVERAGE.md`, or
+  `TRANSCRIPTS.md`.
+- `llm.lua` does not yet implement `--choices` or `--choose`; exhaustive tests
+  must currently use an adventure-specific Lua runner around
+  `COMPANION_QUERY` and `COMPANION_SELECT`.
+- `zork1-companion-qa-report.md` describes an older seven-room version and is
+  not current full-game coverage evidence.
+
+This is a snapshot, not a substitute for regenerating the declared-room and
+coverage counts. The release tooling must calculate them from the current
+source and manifest.
 
 ## Core Concepts
 
@@ -136,6 +171,12 @@ Use these coverage statuses:
 “The UI displayed something” is not equivalent to authored or validated
 coverage.
 
+For final release, every reachable state family must be `VALIDATED`. `EXEMPT`
+may be used only for genuinely unreachable engine/debug rooms or terminal states
+where the game no longer accepts input. Optional rooms, mazes, recovery routes,
+death approaches, and alternate endings are not exemptions merely because they
+are absent from the golden path.
+
 ## Before Starting
 
 Read:
@@ -186,6 +227,9 @@ adventure before drafting cards.
 
 For each room, record:
 
+- Its exact source identifier and declaration location
+- Whether it is reachable in ordinary play, conditionally reachable,
+  unreachable, or terminal
 - Normal exits
 - Conditional exits
 - Door-backed exits
@@ -193,6 +237,10 @@ For each room, record:
 - Vehicle or transport transitions
 - Returns from special scenes
 - Endgame or death transitions
+
+Compare the inventory mechanically against all `<ROOM ...>` declarations. The
+number of classified rooms must equal the number of declared rooms. A missing
+room is a generation failure even when fallback would produce movement cards.
 
 ### Objects and parser vocabulary
 
@@ -231,6 +279,10 @@ Collect:
 This inventory is not yet the companion design. It defines the state space that
 the design must account for.
 
+Store the inventory in machine-readable form so later validation can distinguish
+“not visited” from “inspected and unreachable.” Markdown alone is not a reliable
+source of truth for automated completeness checks.
+
 ## Stage 3: Play and Checkpoint a Golden Path
 
 Use `llm.lua` as documented in [`../PLAYING.md`](../PLAYING.md). Send one
@@ -263,9 +315,22 @@ The goal is not merely to finish. The golden path identifies the normal order
 of discovery, the vocabulary that actually works, and useful places to branch
 state-family testing.
 
-## Stage 4: Create the State-Family Matrix
+## Stage 4: Create the State-Family Manifest and Matrix
 
-Turn the static inventory and play transcript into `companion/COVERAGE.md`.
+Turn the static inventory and play transcript into
+`companion/COVERAGE.json`, then generate or synchronize
+`companion/COVERAGE.md` from it. The machine-readable manifest is authoritative.
+
+Each state-family record should contain:
+
+- Stable state-family ID
+- Room identifier
+- Reachability classification
+- Reproducible setup checkpoint or exact parser command sequence
+- Relevant inventory, flags, globals, knowledge, NPC, and hazard state
+- Required and forbidden candidate IDs in child and story modes
+- Expected hidden command, output pattern, and postcondition for each card
+- Validation status and evidence reference
 
 A useful table is:
 
@@ -287,6 +352,14 @@ For each row, answer:
 
 Avoid a Cartesian explosion. Merge states whose candidate set and priority
 would be the same. Split states whenever the useful or honest choice changes.
+
+Before implementation begins, assert that:
+
+1. Every declared room has a manifest classification.
+2. Every reachable room has at least one state family.
+3. Every ordinary entry into and return from a room belongs to a state family.
+4. Every mandatory puzzle transition has before, blocked/failed where
+   meaningful, and after-success families.
 
 ## Stage 5: Design the Candidate Worksheet
 
@@ -414,14 +487,17 @@ the UI refreshed.
 
 Never approve a command by inspection alone.
 
-For every important candidate:
+For every candidate:
 
 1. Reach the exact state in which the card appears.
-2. Select the card through companion mode.
-3. Capture the parser output.
-4. Confirm the expected state transition or information.
-5. Run `look` or `inventory` when needed to observe the result.
-6. Verify the card disappears, changes, or remains appropriately afterward.
+2. Save or clone that state before executing any candidate.
+3. Restore an independent copy for each eligible card so one result cannot
+   contaminate another card's test.
+4. Select the card through companion mode.
+5. Capture the parser output and relevant before/after state.
+6. Confirm the expected state transition or information.
+7. Run `look` or `inventory` when needed to observe the result.
+8. Verify the card disappears, changes, or remains appropriately afterward.
 
 Record failures such as:
 
@@ -437,6 +513,12 @@ If the parser itself has a genuine defect, report and test it separately. Do
 not silently modify the original adventure merely to make a proposed card work
 when a valid existing command would suffice.
 
+The exhaustive executor should be deterministic code. It must enumerate all
+eligible cards from each manifest state, execute them from isolated restores,
+and emit structured failures. A language model may judge label honesty,
+spoilers, tone, and confusing outcomes, but should not be the mechanism that
+decides whether every enumerated card was run.
+
 ## Stage 8: Run Choice-Only Playthroughs
 
 The defining accessibility test is whether a player can make meaningful
@@ -450,7 +532,9 @@ Run at least:
 - `--child`
 - Numeric input only
 - Verify exactly the available numbered choices are accepted
-- Reach all required story milestones or explicitly record uncovered gaps
+- Visit every reachable room or prove it belongs only to a separately validated
+  alternate route
+- Reach a valid ending
 - Confirm no puzzle requires free text
 
 ### Story route
@@ -458,6 +542,7 @@ Run at least:
 - Fresh game
 - `--story`
 - Numeric input only
+- Reach a valid ending
 - Confirm richer choice sets do not hide essential progress
 - Inspect the balance between scene and movement groups
 
@@ -472,6 +557,23 @@ Run at least:
 Test at least one non-golden branch: wrong turn, optional object order,
 backtracking, or a failed puzzle attempt. Companion support that works only
 after the canonical walkthrough is too brittle.
+
+### Weak-model blind route
+
+A relatively weak model is useful as an independent player because it sees only
+three or five curated intentions. Give it labels and game output, not source,
+hidden commands, puzzle solutions, or the coverage manifest. Measure:
+
+- Completion or point of stall
+- Repeated-choice loops
+- Misleading or indistinguishable labels
+- Missing recovery or return choices
+- Unexpected spoilers
+- Rooms and state families actually visited
+
+This is an accessibility and editorial test, not a completeness proof. A weak
+model cannot report a card or state that was never presented; exhaustive
+manifest and parser validation remain mandatory.
 
 ## Stage 9: Persistence, Purity, and Edge Cases
 
@@ -564,6 +666,11 @@ manually.
 
 Recommended assertions:
 
+- Every declared room is classified exactly once.
+- Every reachable room has authored candidates and at least one validated state
+  family.
+- No reachable state family finishes with `FALLBACK-REVIEWED` or
+  `NOT-COVERED`.
 - A key card appears when its condition becomes true.
 - It does not appear before the player can know or perform it.
 - It disappears or changes after success.
@@ -574,10 +681,33 @@ Recommended assertions:
 - Save/restore preserves relevant visibility and history.
 - Restart resets companion history.
 - A choice executes the exact parser command expected.
+- Every eligible card is executed from an isolated restore of its matching
+  state.
+- Child and story numeric-only routes both reach an ending.
 
 Prefer parser-level transcript assertions plus separate state assertions. A
 successful coroutine or function call alone does not prove the intended world
 change occurred.
+
+### Required companion CLI
+
+Agent-driven and exhaustive testing require a persistent, structured host path.
+`llm.lua` should support:
+
+```bash
+lua5.4 llm.lua --choices --mode child --limit 3 --save game.sav
+lua5.4 llm.lua --choose <stable-choice-id> --save game.sav
+```
+
+The query result should include the room, scene, visible IDs, labels, kinds,
+groups, and priorities. Debug validation may include the hidden command and a
+state fingerprint. Selection should return parser output, the resulting room,
+and enough state evidence to check the declared postcondition.
+
+Until those operations exist, an adventure-specific Lua test may call
+`COMPANION_QUERY` and `COMPANION_SELECT` directly, but it must provide equivalent
+checkpoint isolation and structured evidence. Interactive `main.lua` transcripts
+alone are not sufficient for exhaustive validation.
 
 Use the smallest adventure-specific test target while iterating, then run the
 broader relevant gates:
@@ -593,6 +723,55 @@ Not every adventure requires every broad target for a documentation-only
 change, but a completed companion should exercise its own regressions and the
 ordinary adventure tests.
 
+## Machine-Readable Coverage Manifest Template
+
+Create `companion/COVERAGE.json` first. Keep it valid JSON so deterministic
+tools can calculate coverage without interpreting prose. A minimal shape is:
+
+```json
+{
+  "adventure": "<Adventure>",
+  "gameModule": "<module>",
+  "declaredRoomCount": 0,
+  "rooms": [
+    {
+      "id": "OPENING-ROOM",
+      "source": "dungeon.zil",
+      "reachability": "reachable",
+      "stateFamilies": [
+        {
+          "id": "opening.initial",
+          "setup": {
+            "newGame": true,
+            "commands": []
+          },
+          "requiredChoices": {
+            "child": ["opening.inspect", "opening.progress"],
+            "story": ["opening.inspect", "opening.progress"]
+          },
+          "forbiddenChoices": [],
+          "candidateExpectations": [
+            {
+              "id": "opening.inspect",
+              "command": "examine door",
+              "outputContains": "door",
+              "postcondition": "knowledge.door-observed"
+            }
+          ],
+          "status": "NOT-COVERED",
+          "evidence": null
+        }
+      ]
+    }
+  ]
+}
+```
+
+Projects may extend this structure, but must preserve stable room and
+state-family IDs, reproducible setup, required/forbidden choices, candidate
+postconditions, validation status, and evidence. Generated reports must fail
+when `declaredRoomCount` differs from the number of classified source rooms.
+
 ## Coverage Report Template
 
 Create `companion/COVERAGE.md` from this template:
@@ -604,6 +783,8 @@ Create `companion/COVERAGE.md` from this template:
 
 | Metric | Count |
 |---|---:|
+| Declared rooms | 0 |
+| Classified rooms | 0 |
 | Reachable rooms | 0 |
 | State families | 0 |
 | Authored | 0 |
@@ -614,9 +795,16 @@ Create `companion/COVERAGE.md` from this template:
 
 ## Matrix
 
-| Area | State family | Entry evidence | Desired support | Status | Evidence |
-|---|---|---|---|---|---|
-| Opening | Initial state | New game | investigate, progress, movement | NOT-COVERED | — |
+| Room | Reachability | State family | Entry evidence | Desired support | Status | Evidence |
+|---|---|---|---|---|---|---|
+| Opening | Reachable | Initial state | New game | investigate, progress, movement | NOT-COVERED | — |
+
+## Full-game route evidence
+
+- Child numeric-only ending:
+- Story numeric-only ending:
+- Mixed typed-and-choice ending:
+- Weak-model blind route:
 
 ## Known Gaps
 
@@ -628,7 +816,9 @@ Create `companion/COVERAGE.md` from this template:
 ```
 
 Counts make incomplete work visible. Descriptions make it resumable by another
-author or agent.
+author or agent. `Declared rooms` and `Classified rooms` must match. At release,
+every reachable state family must be validated and both fallback-reviewed and
+not-covered counts must be zero.
 
 ## Transcript Evidence Template
 
@@ -696,7 +886,9 @@ Recommended order:
 6. Rare hazards, deaths, and alternate endings
 
 Never report “complete” when only the walkthrough corridor is covered. Report
-the exact matrix status instead.
+the exact matrix status instead. Intermediate passes may be merged as partial
+work, but the resulting released companion must cover every reachable room,
+optional region, backtracking route, material hazard state, and ending path.
 
 ## What the Agent May Infer
 
@@ -720,6 +912,17 @@ It must validate, not merely infer:
 Source inspection and play complement one another. Source alone misses the
 experienced narrative order; play alone misses unvisited branches.
 
+Use models according to the evidence they can reliably produce:
+
+- A capable authoring model or human inventories state families and drafts
+  conditions and labels.
+- Deterministic tooling enumerates rooms, restores checkpoints, executes every
+  card, and calculates coverage.
+- A relatively weak model performs blind child/story play and reports
+  comprehensibility, loops, and misleading choices.
+
+No model's successful playthrough proves completeness.
+
 ## Change Boundaries
 
 The companion layer should preserve the original adventure:
@@ -739,13 +942,23 @@ report.
 A companion is ready when:
 
 - [ ] The adventure and companion load together.
-- [ ] Every reachable room is represented in the coverage matrix.
+- [ ] Every declared room is classified as reachable, unreachable, terminal, or
+      explicitly exempt, and the classified count equals the source count.
+- [ ] Every reachable room has authored companion support; fallback is not the
+      only support in any reachable room.
 - [ ] Materially distinct puzzle, inventory, knowledge, NPC, and hazard states
       are represented as state families.
-- [ ] Every important hidden command has matching-state parser evidence.
-- [ ] A fresh child-mode run can progress using numbered choices only.
-- [ ] A fresh story-mode run can progress using numbered choices only.
+- [ ] Every reachable state family is `VALIDATED`; `FALLBACK-REVIEWED` and
+      `NOT-COVERED` counts are zero.
+- [ ] Every emitted hidden command has matching-state parser evidence from an
+      isolated checkpoint.
+- [ ] A fresh child-mode run reaches an ending using numbered choices only.
+- [ ] A fresh story-mode run reaches an ending using numbered choices only.
 - [ ] A mixed typed-and-choice story run does not expose stale assumptions.
+- [ ] Optional rooms, alternate routes, recovery states, and alternate endings
+      have route or state-family evidence.
+- [ ] An independent weak-model blind route was run and its stalls or loops were
+      fixed or explicitly recorded as failures.
 - [ ] Scene and movement cards are grouped correctly.
 - [ ] Essential choices survive child mode's smaller visible set.
 - [ ] Save/restore and restart behavior is validated.
@@ -753,7 +966,8 @@ A companion is ready when:
 - [ ] Spoilers, labels, diversity, and audience clarity received editorial
       review.
 - [ ] Adventure-specific companion regressions pass.
-- [ ] Remaining fallback, exempt, and uncovered states are explicitly reported.
+- [ ] Exempt and unreachable states have evidence; no reachable uncovered state
+      remains.
 
 ## Completion Report
 
@@ -761,15 +975,17 @@ The author or agent should finish with:
 
 - Adventure and module
 - Files created or changed
+- Declared, classified, reachable, unreachable, terminal, and exempt room counts
 - Reachable rooms inventoried
 - State families identified
 - State families authored and validated
-- Candidate commands executed
-- Child, story, and mixed routes completed
+- Candidate commands emitted and executed
+- Child, story, mixed, and weak-model blind routes completed
 - Tests run and their results
 - Underlying adventure defects found
-- Fallback-reviewed, exempt, and uncovered states
-- Known limitations and recommended next slice
+- Exempt and unreachable states with evidence
+- Confirmation that reachable fallback-reviewed and uncovered counts are zero
+- Known limitations
 
 This makes companion generation repeatable, reviewable, and honest about its
 coverage.

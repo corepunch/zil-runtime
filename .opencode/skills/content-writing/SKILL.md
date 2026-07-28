@@ -24,6 +24,16 @@ Write player-facing text and interactions that teach play and maintain tone.
 13. For every actionable compound noun used in prose, choose and record a canonical command plus natural variants.
 14. Write NPC topic rows as executable commands (`ASK HUDSON ABOUT KEY`), with listener, topic noun, response, state change, repeat response, and where the listener is accessible.
 15. **Avoid introducing duplicate objects through prose.** Before describing a new item in room text, check whether an identical item already exists elsewhere in the world. If a player finds a knife in one room, do not describe another knife in a different drawer without explicitly differentiating it (e.g. "a rusty dagger" vs. "a chef's knife"). Each portable item should be unique; if the same object type appears in multiple rooms, only one should be interactive.
+16. **When writing companion cards, separate intention from parser syntax.**
+    Labels must be concise, natural, age-appropriate intentions; hidden commands
+    must use parser vocabulary proven in the matching state. Use tentative
+    wording such as “Try the door” until success or the obstacle is known.
+17. **Write companion labels for complete state coverage.** Review every
+    reachable room and material inventory, knowledge, puzzle, NPC, and hazard
+    family. Include progress, investigation, interaction/experiment, useful
+    movement, and urgent safety or recovery where the state supports them.
+    Optional areas and alternate endings receive the same editorial standard as
+    the golden path.
 
 ## Outputs
 - Draft room and object prose set
@@ -89,6 +99,9 @@ Divide your game into thirds. In the first third, the player should encounter at
 - Every visible feature has exactly one coherent description owner on room entry; automatic object lines neither duplicate room prose nor contradict current state.
 - Every `FDESC` intended to appear automatically is on an object without `NDESCBIT`.
 - No room prose introduces a portable item that duplicates an identical item already placed elsewhere in the world; each portable object type is unique or explicitly differentiated.
+- Companion labels never reveal source-only knowledge, never overpromise the
+  parser outcome, and provide understandable progress or recovery across every
+  reachable state family.
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: sections 6, 7, 11, 14

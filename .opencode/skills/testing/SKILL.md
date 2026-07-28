@@ -8,6 +8,8 @@ Prove completion path, catch regressions, and close parser/content gaps.
 ## Inputs
 - Implemented ZIL files
 - `TRANSCRIPT_TESTS.md`
+- `companion.zil` and `companion/COVERAGE.json` when companion choices are in
+  scope
 
 ## Required Actions
 0. Begin this loop during Stage 5 after the first playable room; Stage 6 expands and hardens it rather than starting it.
@@ -48,6 +50,28 @@ Prove completion path, catch regressions, and close parser/content gaps.
 27. **Build and test the complete exit matrix:** Enumerate every declared room edge, not only golden-path or conditional exits. For `A --NORTH--> B`, require `B --SOUTH--> A`; likewise pair `NORTHEAST/SOUTHWEST`, `EAST/WEST`, `SOUTHEAST/NORTHWEST`, `UP/DOWN`, and `IN/OUT`. Treat `A --NORTH--> B` plus `B --NORTH--> A` as a failing same-direction loop. Permit a missing or non-opposite return only when the asymmetry is explicitly documented as intentional.
 28. **Exercise exits through the parser in both directions:** Static room properties are insufficient because custom `V-GO-*` handlers can diverge from them. Traverse every edge from A to B, then issue the expected opposite direction from B and assert return to A. Apply this to ordinary, conditional, door-backed, and custom movement. For conditional exits, test blocked and unblocked states in both directions and verify compatible conditions.
 29. **Audit for duplicate objects:** For each portable item type (knife, key, rope, etc.), verify that exactly one interactive instance exists in the world. If the same item type appears in multiple locations, test that only one is TAKE-able and the others are either non-interactive scenery or distinct objects with different descriptions and states.
+30. **Run the complete companion coverage gate when a companion is in scope:**
+    - compare all source room declarations with the manifest classifications;
+    - fail if the counts differ or a reachable room lacks authored candidates;
+    - restore every reachable state-family setup;
+    - query required and forbidden IDs in child and story modes;
+    - execute every eligible card from an independent restore;
+    - assert parser output and the declared postcondition separately;
+    - fail if any reachable family remains `FALLBACK-REVIEWED` or
+      `NOT-COVERED`.
+31. **Run full choice-only routes:** From a fresh game, reach an ending in child
+    mode and story mode using numbered choices only. Add route or checkpoint
+    evidence for optional rooms, backtracking, alternate solutions, hazard
+    recovery, deaths, and alternate endings.
+32. **Use models only for the evidence they can supply:** run a relatively weak
+    model as a blind player with visible labels and game output to detect loops,
+    unclear wording, spoilers, and missing recovery. Use deterministic tooling
+    for room enumeration and exhaustive card execution; a successful model
+    route is not a completeness proof.
+33. **Prefer the persistent companion host path:** use
+    `llm.lua --choices/--choose` when implemented. Until then, a focused Lua
+    runner may call `COMPANION_QUERY` and `COMPANION_SELECT` directly, but it
+    must isolate checkpoints and emit equivalent structured evidence.
 
 ## Play-As-You-Build Loop
 
@@ -63,6 +87,12 @@ Testing has three complementary layers:
 2. Focused `llm.lua` sequences prove parser and cross-process persistence.
 3. A full automated golden path proves the shipped game from fresh start to win.
 
+Companion work adds two more layers:
+4. A deterministic state-family runner proves every emitted card from an
+   isolated matching state.
+5. A blind weak-model route tests whether the curated choices are understandable
+   without source knowledge.
+
 For direct ZIL tests, keep each assertion atomic. A successful coroutine resume proves only that the command loop ran; it does not prove that the command parsed, printed useful output, moved the player, moved an object, or changed state.
 
 ## Executable Walkthrough Contract
@@ -75,6 +105,8 @@ For direct ZIL tests, keep each assertion atomic. A successful coroutine resume 
 - Parser-driven automated walkthrough and Make target
 - Bug ledger by category
 - Fix changelog
+- Companion room/state-family coverage report and per-card execution evidence
+  when applicable
 
 ## Acceptance Checks
 - Golden path is completable end-to-end.
@@ -91,6 +123,9 @@ For direct ZIL tests, keep each assertion atomic. A successful coroutine resume 
 - No room pair returns via the same compass direction unless a non-Euclidean exception is explicitly designed, documented, and tested.
 - Every conditional exit is tested in both the blocked and unblocked states.
 - No portable item type has more than one interactive instance; duplicates are either consolidated or explicitly differentiated.
+- For companion work, declared and classified room counts match, every reachable
+  room and state family is validated, every emitted card has isolated
+  matching-state evidence, and child/story numeric-only routes reach an ending.
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: section 8

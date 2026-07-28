@@ -10,6 +10,8 @@ Translate design docs into a coherent simulation plan before full implementation
 - `OBJECTS.md`
 - `PUZZLES.md`
 - `STORY_STATE.md`
+- Existing `companion.zil` and `companion/COVERAGE.json` when generating or
+  reviewing companion choices
 
 ## Required Actions
 1. Define parser-facing action model (verb, direct object, indirect object).
@@ -42,6 +44,18 @@ Translate design docs into a coherent simulation plan before full implementation
 12. Build a parser-reachability row for each authored interaction: exact command, syntax form, required `FIND` flag, object/topic scope, and expected handler/default routine. Do not assume an object action can compensate for syntax or scope that prevents parser resolution.
 13. For every NPC conversation matrix, list the topic objects and every room where the exchange can occur; those rooms must expose the topics through `GLOBAL` or another proven scope mechanism.
 14. **Audit for duplicate objects across the world.** Scan `OBJECTS.md` for functionally identical items (e.g. two knives, two keys, two ropes) placed in different locations. Each portable item type must be unique; consolidate duplicates or explicitly differentiate them with distinct descriptions, states, and puzzle roles. Document any intentional duplicates (e.g. a knife in a museum display vs. a functional knife) and verify only one is interactive.
+15. **Build complete companion state coverage when a companion is in scope.**
+    - Enumerate every source `<ROOM ...>` declaration and classify it as
+      reachable, conditionally reachable, unreachable, terminal, or exempt.
+    - Require the classified-room count to equal the declared-room count.
+    - Give every reachable room at least one state family.
+    - Split families when inventory, player knowledge, puzzle milestone, NPC
+      phase, clock/hazard state, or entry route materially changes useful or
+      honest choices.
+    - Include optional rooms, mazes, return and recovery routes, deaths, and
+      alternate endings; absence from the golden path is not an exemption.
+    - Record a reproducible checkpoint or exact parser command setup for every
+      reachable family in `companion/COVERAGE.json`.
 
 ## Infocom-Quality Simulation Checks
 - Build a command matrix for each major puzzle with at least ten likely player attempts; implement useful responses for the top attempts.
@@ -57,6 +71,8 @@ Translate design docs into a coherent simulation plan before full implementation
 - Updated puzzle dependency graph
 - Object/verb response matrix
 - Softlock mitigation list
+- Complete room classification and state-family manifest when companion work is
+  in scope
 
 ## Puzzle Artistry: Good vs. Bad Patterns
 
@@ -95,6 +111,9 @@ Every clock daemon must do at least one of: (a) advance a numerical state that h
 - Every declared exit has a matching reverse exit in the destination room (or the asymmetry is documented as intentional).
 - No two rooms form a unidirectional compass-direction loop.
 - Bare and prepositional variants promised by the design (for example, `CLIMB BENCH` and `CLIMB UP BENCH`) both reach an intentional response.
+- For companion work, every declared room is classified exactly once, every
+  reachable room has authored state families, and no reachable room is declared
+  complete with fallback-only support.
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: sections 3, 4, 5

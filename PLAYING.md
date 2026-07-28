@@ -120,6 +120,35 @@ Output: plain text to stdout
 Exit codes: 0 = success, 1 = error
 ```
 
+## Companion Authoring Status
+
+`llm.lua` currently accepts parser actions only. It does not yet load an
+adventure's companion module or implement `--choices` and `--choose`.
+
+For manual card play, use:
+
+```bash
+lua5.4 main.lua --child <game-module>
+lua5.4 main.lua --story <game-module>
+```
+
+For automated companion validation, a focused Lua test must currently load the
+game and companion, call `COMPANION_QUERY` and `COMPANION_SELECT`, and resume the
+game with the selected hidden command. The test must restore an independent
+matching-state checkpoint for every candidate.
+
+The required persistent authoring interface is:
+
+```bash
+lua5.4 llm.lua --choices --mode child --limit 3 --save game.sav
+lua5.4 llm.lua --choose <stable-choice-id> --save game.sav
+```
+
+Until that interface exists, do not document those operations as working CLI
+commands. See
+[`docs/GENERATING-COMPANION-ZIL.md`](docs/GENERATING-COMPANION-ZIL.md) for the
+complete room/state-family coverage and validation requirements.
+
 ## Evaluating Playability
 
 To assess whether an LLM can play and beat a game:

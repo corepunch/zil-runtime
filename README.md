@@ -14,6 +14,11 @@ play, see [Companion ZIL Files](docs/COMPANION-ZIL.md). To add that layer to an
 adventure, follow [Generating `companion.zil`](docs/GENERATING-COMPANION-ZIL.md)
 or invoke the repository's `@companion-author` agent.
 
+A released companion must author and validate every reachable room and material
+state family, and must complete the game in child and story modes using numbered
+choices only. Automatic suggestions keep unfinished areas operable but do not
+count as complete authored coverage.
+
 ## Features
 
 - **ZIL to Lua Compilation**: Compiles ZIL source code to Lua for execution

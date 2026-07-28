@@ -39,12 +39,16 @@ To generate and validate a state-aware `companion.zil` for an existing
 adventure, invoke the **@companion-author** subagent:
 
 ```text
-@companion-author Generate, validate, and document companion coverage for <game-name>.
+@companion-author Generate, validate, and document complete full-game companion coverage for <game-name>.
 ```
 
 The agent inventories the world and its state families, plays the adventure,
-implements choices, executes every important hidden command through the parser,
-and produces coverage and transcript evidence. The authoritative workflow is
+implements authored choices for every reachable room, executes every emitted
+hidden command through the parser from an isolated matching-state restore, and
+produces a machine-readable coverage manifest plus coverage and transcript
+evidence. Child and story numeric-only routes must both reach an ending;
+fallback-only support in a reachable room is not complete coverage. The
+authoritative workflow is
 [Generating `companion.zil`](docs/GENERATING-COMPANION-ZIL.md); the runtime API
 and authoring format are specified in
 [Companion ZIL Files](docs/COMPANION-ZIL.md).

@@ -31,9 +31,11 @@ ZIL simulation.
 >
 > The runtime API described in the core sections is implemented in
 > `zilscript/bootstrap.lua`. `main.lua` uses companion play by default and accepts
-> `--text` for the original parser loop. Zork I has an authored opening-area
-> companion in `infocom/zork1/companion.zil`; uncovered areas and games without a
-> companion use conservative automatic suggestions.
+> `--text` for the original parser loop. Zork I currently has 110 authored cards
+> and explicit `SUGGEST-ACTIONS` routing for 32 of its 110 declared rooms.
+> Uncovered rooms and games without a companion use conservative automatic
+> suggestions, which are a runtime safety net rather than complete authored
+> coverage.
 >
 > State tokens, `CHOICE-SHOWN?`, `llm.lua --choices`, a graphical client, and full
 > Zork I coverage remain future work. Sections that describe these facilities
@@ -1584,6 +1586,9 @@ Inspect:
 - walkthroughs and regression tests.
 
 This reveals possible states and commands that a single playthrough may miss.
+The inspection must enumerate every declared room and classify it as reachable,
+conditionally reachable, unreachable, terminal, or exempt. The classified count
+must equal the source room count before generation can claim full coverage.
 
 #### 2. Golden-path play
 
@@ -1627,9 +1632,17 @@ Generate:
 
 #### 5. Validation and editorial review
 
-Every emitted command must be executed from a matching saved state. A human or
-independent review pass checks tone, spoilers, variety, age level, and whether
-the options preserve meaningful agency.
+Every emitted command must be executed from an isolated restore of a matching
+saved state. A deterministic runner, rather than a model choosing opportunistically,
+should enumerate all eligible cards and record their parser output and
+postconditions. A human or independent review pass checks tone, spoilers,
+variety, age level, and whether the options preserve meaningful agency.
+
+Run a relatively weak model as a blind child/story player after mechanical
+validation. The small card set makes it useful for detecting confusing labels,
+loops, missing recovery actions, and accidental spoilers. Its successful route
+is accessibility evidence, not completeness evidence: it cannot detect a state
+or missing card that was never presented.
 
 ### State-coverage matrix
 
@@ -1645,17 +1658,26 @@ The authoring agent should maintain a matrix:
 
 “Played the game once” is not a sufficient coverage claim.
 
+The authoritative coverage artifact should be machine-readable and store a
+reproducible setup, required and forbidden IDs, expected parser result, and
+status for every state family. `COVERAGE.md` is the human-readable report; it
+must not be the only source used to calculate completeness.
+
 ### Agent output rules
 
 An authoring agent should:
 
+- cover every reachable room, including optional areas, mazes, return routes,
+  hazards, and alternate endings;
 - mark uncertain conditions with comments;
 - never silently edit original puzzle logic to make a card work;
 - use parser vocabulary confirmed by execution;
 - record the state used to validate each command;
 - avoid deriving hidden facts from source knowledge in player-facing wording;
 - keep generated IDs stable across later prose polishing;
-- submit companion source and coverage tests together.
+- submit companion source, the machine-readable coverage manifest, transcript
+  evidence, and coverage tests together;
+- never call fallback-only support complete for a reachable room.
 
 ## Validation and testing
 
@@ -1680,7 +1702,7 @@ Snapshot relevant state, query choices repeatedly, and assert:
 
 ### Eligibility tests
 
-For each important state:
+For each reachable state family:
 
 1. Construct or restore the state.
 2. Query candidates.
@@ -1704,11 +1726,24 @@ The exact test helpers are part of the proposed implementation.
 For every candidate:
 
 1. Restore the state in which it is eligible.
-2. Select the card through the public host path.
-3. Assert the parser recognizes the command.
-4. Assert it does not ask an unexpected disambiguation question.
-5. Assert output is nonempty and appropriate.
-6. Assert the resulting turn is identical to typing the hidden command.
+2. Clone or restore an independent copy for that candidate.
+3. Select the card through the public host path.
+4. Assert the parser recognizes the command.
+5. Assert it does not ask an unexpected disambiguation question.
+6. Assert output is nonempty and appropriate.
+7. Assert the declared postcondition.
+8. Assert the resulting turn is identical to typing the hidden command.
+
+### Full-room coverage tests
+
+- Enumerate all source `<ROOM ...>` declarations.
+- Require exactly one reachability classification for each declaration.
+- Require one or more authored state families for every reachable room.
+- Require every reachable state family to be `VALIDATED`.
+- Fail release when a reachable room depends only on automatic fallback.
+- Require child and story numeric-only routes to reach an ending.
+- Require route or checkpoint evidence for optional rooms, backtracking,
+  alternate solutions, hazard recovery, deaths, and alternate endings.
 
 ### Diversity tests
 
@@ -1911,9 +1946,10 @@ for facts genuinely learned through the card path.
 | Runtime primitives and deterministic query API | Implemented |
 | Selection revalidation, counts, knowledge, save/restore | Implemented |
 | Default terminal card interface and `--text` mode | Implemented |
-| Zork I opening vertical slice | Implemented |
-| Full Zork I companion coverage | Not started |
+| Zork I partial authored coverage (32/110 declared rooms) | Implemented |
+| Full Zork I companion coverage | In progress |
 | `llm.lua` companion authoring commands | Not started |
+| Machine-readable coverage manifest and exhaustive card runner | Not started |
 | Illustrated graphical client | Not started |
 
 ### Phase 1: Runtime primitive and debug API
@@ -1925,7 +1961,6 @@ Implemented:
 - `SUGGEST-ACTIONS` lookup;
 - deterministic ranking;
 - a `choices` control query at `READ`;
-- debug JSON including hidden commands;
 - unit tests for purity and stable ordering.
 
 No graphical UI is required yet.
@@ -1934,28 +1969,31 @@ No graphical UI is required yet.
 
 Implemented:
 
-- stable state tokens;
 - selection by ID;
 - revalidation;
 - selection counts;
 - companion knowledge;
 - save/restore support;
-- stale-choice errors.
+- `choice_no_longer_eligible` errors.
 
-### Phase 3: Zork I vertical slice
+Stable remote state tokens and `stale_choice` transport errors remain planned.
+
+### Phase 3: Zork I partial coverage
 
 The current `infocom/zork1/companion.zil` covers:
 
-- West of House;
-- mailbox and leaflet;
-- route labels around the house;
-- window discovery and entry;
-- inventory-dependent cards;
-- child and casual modes.
+- 110 authored cards;
+- explicit routing for 32 of 110 declared rooms;
+- the opening house sequence and selected underground puzzle regions;
+- state-aware inventory and object conditions in those regions;
+- child, story, and casual presentation through the shared candidate profile.
 
-This slice is suitable for evaluating whether card play feels like an
-interactive book rather than a command menu. Extending coverage into the
-underground game remains separate work.
+This is partial coverage. Seventy-eight declared rooms still lack explicit
+`SUGGEST-ACTIONS` routing, no complete state-family manifest or transcript
+evidence ships with the adventure, and the integration regression currently
+proves only the opening route to the Cellar. Full-game completion must not be
+claimed until every reachable room and material state family passes the release
+gate.
 
 ### Phase 4: CLI and agent tooling
 
@@ -1970,10 +2008,13 @@ lua5.4 llm.lua --choose west-house.open-mailbox --save zork1.sav
 Add:
 
 - candidate dumps;
+- machine-readable state-family setups and expectations;
 - state-coverage reports;
-- automatic hidden-command execution;
+- isolated-checkpoint execution of every hidden command;
 - companion purity checks;
-- missing-room coverage reports.
+- declared-versus-classified and missing-room reports;
+- child/story numeric-only completion runners;
+- structured failure records for fixing agents.
 
 ### Phase 5: Illustrated client
 
@@ -1986,8 +2027,8 @@ Build the page layout:
 
 ### Phase 6: Broader migration
 
-Expand Zork I, then use the stabilized authoring and validation process for Zork
-II, Zork III, and newer books.
+Complete and validate every reachable Zork I room, then use the stabilized
+authoring and validation process for Zork II, Zork III, and newer books.
 
 ## Complete example
 
@@ -2289,7 +2330,7 @@ vocabulary in this example must be supplied by its adventure.
 
 ## Reference checklist
 
-Before declaring a companion area complete, verify:
+Before declaring a companion adventure complete, verify:
 
 ### Architecture
 
@@ -2331,12 +2372,21 @@ Before declaring a companion area complete, verify:
 
 ### Agent-generated coverage
 
+- [ ] Every declared room is classified exactly once.
+- [ ] Every reachable room has authored cards and validated state families.
+- [ ] No reachable room depends only on fallback suggestions.
 - [ ] Golden path was played.
 - [ ] Inventory branches were restored and tested.
 - [ ] Discovery-before/after states were tested.
 - [ ] Timed and NPC states were tested.
-- [ ] Every hidden command was executed.
-- [ ] Coverage matrix is stored with the adventure.
+- [ ] Optional rooms, mazes, return routes, hazards, deaths, and alternate
+      endings were tested.
+- [ ] Every hidden command was executed from an isolated matching-state restore.
+- [ ] Child and story numeric-only routes both reached an ending.
+- [ ] A weak-model blind route checked clarity, loops, and recovery without
+      receiving source or hidden commands.
+- [ ] Machine-readable coverage data and synchronized `COVERAGE.md` are stored
+      with the adventure.
 - [ ] Human editorial review checked spoilers, tone, and reading level.
 
 ### Illustration layer
