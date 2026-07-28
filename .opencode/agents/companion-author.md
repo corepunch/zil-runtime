@@ -90,6 +90,37 @@ Do not mark a state `VALIDATED` without matching parser or regression evidence.
 Do not finish while any reachable room lacks authored support or any reachable
 state family is `FALLBACK-REVIEWED` or `NOT-COVERED`.
 
+## Efficiency Protocol
+
+Preserve tokens and wall-clock time without weakening evidence:
+
+1. Start with narrow mechanical inventories (`rg`, existing maps, walkthroughs,
+   and focused source ranges). Do not repeatedly load or quote whole adventure
+   files when a room/puzzle extract is sufficient.
+2. Use `COVERAGE.json` as the single work queue and source for all counts.
+   Generate or synchronize `COVERAGE.md`; never maintain totals independently
+   in prose.
+3. Turn the existing walkthrough into a checkpoint tree. Reach each common
+   prefix once and clone or restore it for sibling state families and candidate
+   executions.
+4. Draft the smallest useful pool first: essential progress or safety, one
+   investigation, and one movement choice. Prove numeric-only progress under the
+   three-card child limit before adding optional cards.
+5. Run a static preflight before play. Fail on count mismatches, malformed
+   forms, missing movement groups, unsupported host options, and IDs whose
+   command or meaning drifts.
+6. Prefer one in-process deterministic runner over repeated shell launches. It
+   should load once, restore isolated checkpoints, query both modes, execute
+   every eligible ID, and emit JSONL evidence.
+7. Generate factual transcript sections from runner output. Spend model effort
+   on state-family boundaries, honest wording, spoilers, accessibility, and
+   blind play—not counting, copying parser output, or reformatting tables.
+8. Treat source-presence assertions as lint only. They do not validate
+   eligibility, ranking, parser acceptance, output, or postconditions.
+
+Candidate count is not a success metric. Every additional card must have a
+distinct player purpose and a named state/mode where it can be selected.
+
 ## Non-Negotiable Rules
 
 ### Preserve the adventure

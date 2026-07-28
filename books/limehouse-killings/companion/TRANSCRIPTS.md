@@ -1,8 +1,26 @@
 # The Limehouse Killings — Companion Transcripts
 
-## Golden Path Transcript
+## Evidence Status
 
-This transcript demonstrates the companion guiding through the complete game using `--choices 6` mode.
+This is a manually assembled golden-path draft, not executor-generated
+validation evidence. The referenced `--choices 6` mode is not supported:
+`main.lua` accepts limits from 1 through 5, and `llm.lua` does not yet implement
+`--choices` or `--choose`. Individual excerpts remain useful as a route and
+wording reference, but they do not prove that every card was visible and
+executed from the matching state.
+
+Future validation should be captured as structured JSONL by a persistent runner,
+then rendered into this document. Each record should name the state family,
+setup checkpoint, mode, complete visible ID set, selected stable ID, hidden
+command, exact output assertion, postcondition, and pass/fail result. This avoids
+hand transcription, repeated route replay, unsupported option drift, and token
+cost spent reformatting deterministic evidence.
+
+## Draft Golden Path Transcript
+
+This draft preserves the original six-card mockups as route-planning material.
+Regenerate it under the supported limit of five before treating it as execution
+evidence.
 
 ### Act I: Exploration
 
@@ -185,13 +203,15 @@ Accuse moriarty with letter → Dr. Moriarty is arrested.
 | Mode | Limit | Scene Slots | Move Slots | Hub Navigation |
 |------|-------|-------------|------------|----------------|
 | `--child` (default) | 3 | 2 | 1 | Limited |
-| `--child --choices 6` | 6 | 3 | 3 | Full |
+| `--child --choices 5` | 5 | 3 | 2 | Good |
 | `--story` | 5 | 3 | 2 | Good |
 | `--casual` | 5 | 3 | 2 | Good |
 
 ## Recommendations
 
-1. Use `--choices 6` for child mode to ensure full hub navigation
-2. The cipher puzzle requires multiple turns due to sequential book pushes
-3. The study companion guides players through prerequisites before box opening
-4. Act III companion prioritizes evidence presentation to Lestrade
+1. Design the default three-card child set so essential progress and recovery
+   remain selectable; do not depend on displaying every hub exit at once.
+2. Use the supported limit of five for broader manual inspection.
+3. The cipher puzzle requires multiple turns due to sequential book pushes.
+4. The study companion guides players through prerequisites before box opening.
+5. Act III companion prioritizes evidence presentation to Lestrade.

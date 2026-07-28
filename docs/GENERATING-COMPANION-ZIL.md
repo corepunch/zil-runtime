@@ -86,8 +86,9 @@ reachable gameplay.
 
 As audited on 2026-07-28:
 
-- `llm.lua` registers eight playable games, but only Zork I has a
-  `companion.zil`.
+- `llm.lua` registers multiple playable games. Zork I and The Limehouse
+  Killings have a `companion.zil`; the remaining registered games rely on
+  fallback behavior.
 - Zork I declares 110 rooms. Its current companion contains 110 authored cards
   and explicit `SUGGEST-ACTIONS` routing for 32 rooms, leaving 78 declarations
   without explicit room routing.
@@ -95,6 +96,16 @@ As audited on 2026-07-28:
   on arrival in the Cellar; it does not validate all newer underground cards.
 - Zork I has no committed `companion/COVERAGE.json`, `COVERAGE.md`, or
   `TRANSCRIPTS.md`.
+- The Limehouse Killings declares 11 rooms and its companion contains 122
+  `CHOICE` call sites representing 100 distinct IDs. Its focused regression
+  passes 12 assertions, but five assertions inspect source text and none
+  exhaustively executes every emitted command from a matching state.
+- The Limehouse manifest reports zero validated state families. The original
+  commit summary said 11 state families while its per-room entries summed to 19;
+  this audit corrected the count to 19. The transcript described `--choices 6`,
+  although `main.lua` accepts only 1 through 5 and `llm.lua` has no
+  companion-choice interface. Treat these artifacts as authored coverage and a
+  useful retrospective, not release-grade validation evidence.
 - `llm.lua` does not yet implement `--choices` or `--choose`; exhaustive tests
   must currently use an adventure-specific Lua runner around
   `COMPANION_QUERY` and `COMPANION_SELECT`.
@@ -104,6 +115,85 @@ As audited on 2026-07-28:
 This is a snapshot, not a substitute for regenerating the declared-room and
 coverage counts. The release tooling must calculate them from the current
 source and manifest.
+
+## Fast, Token-Efficient Authoring Path
+
+The full workflow is intentionally thorough, but it should not require an agent
+to repeatedly reread the adventure, replay common route prefixes, or hand-copy
+the same facts into three reports. Use this order:
+
+1. **Extract before interpreting.** Use narrow searches or a small deterministic
+   inventory script to list rooms, exits, objects, globals, routines, syntax,
+   walkthrough commands, and existing tests. Give the authoring model compact
+   extracts grouped by puzzle or room instead of whole source files.
+2. **Make `COVERAGE.json` the work queue.** Add room classifications, state
+   families, setup commands, candidate drafts, and expected results once.
+   Generate counts and human-readable tables from that file.
+3. **Reuse route prefixes.** Build a checkpoint tree from the walkthrough:
+   opening, pre-puzzle, post-puzzle, hazard, and endgame. Reach each prefix once,
+   then clone or restore it for sibling states and candidate executions.
+4. **Ship a minimum viable vertical slice first.** For each state, begin with
+   the essential progress or safety action, one useful investigation action, and
+   one movement action. Confirm they survive the child limit of three. Add
+   optional texture only after the numeric-only route works.
+5. **Lint before playing.** Reject duplicate or drifting IDs, malformed forms,
+   missing movement groups, unsupported CLI options, manifest count mismatches,
+   unclassified rooms, and commands absent from the worksheet before spending
+   turns on parser validation.
+6. **Validate in one persistent runner.** Load the game once, restore isolated
+   checkpoints in process, query both modes, select by stable ID, and write
+   structured JSONL evidence. Avoid starting a new shell process and replaying
+   the opening for every assertion.
+7. **Generate prose evidence last.** Derive `COVERAGE.md` and the factual parts
+   of `TRANSCRIPTS.md` from the manifest and JSONL results. Use model tokens only
+   for state-family judgment, label quality, spoiler review, and blind play.
+
+The practical allocation is:
+
+| Work | Best owner | Durable output |
+|---|---|---|
+| Room, exit, ID, and count inventory | Deterministic script | Manifest skeleton |
+| Walkthrough prefix reuse | Checkpoint runner | Named saves or state fixtures |
+| State-family boundaries | Authoring model or human | Manifest rows |
+| Labels and priorities | Authoring model or human | Candidate worksheet |
+| Parser acceptance and postconditions | Deterministic runner | JSONL evidence |
+| Coverage tables and test totals | Report generator | Markdown |
+| Clarity, tone, spoilers, and loops | Human or blind model | Short review notes |
+
+Candidate count is not a coverage metric. Every extra candidate creates another
+condition to review and another matching-state parser execution. Prefer a
+smaller distinct pool that remains useful under the real three- and five-card
+limits over a large pool whose lower-ranked entries are never visible.
+
+### Limehouse retrospective
+
+The Limehouse commit demonstrates both the value and cost of broad first-pass
+authoring:
+
+- 11 rooms produced 1,133 lines of companion source, 100 distinct IDs, 122
+  `CHOICE` call sites, and two separately maintained Markdown reports.
+- Common hall and return choices were repeated across act routines. Shared
+  emitters or common unconditional tails would make the source shorter and
+  reduce ID/command drift.
+- The regression launches fresh child-mode processes and replays common prefixes
+  several times. An in-process checkpoint runner would be faster and would make
+  isolated per-card execution practical.
+- Five of 12 tests prove that strings or routine names exist in the source, not
+  that choices are eligible, visible, selectable, parseable, or truthful.
+- Repeated/orphaned metadata and a duplicated `sp.examine-walls` form survived
+  the load-focused regression. The Act III “Go to the study” card also sends
+  `south`, while the room definition places the study to the north. These are
+  concrete examples of why structural lint and per-card execution should happen
+  before prose reporting.
+- Counts diverged between summary and room entries, and an unsupported
+  `--choices 6` setting reached the transcript. This audit corrected both; a
+  cheap preflight linter should catch them automatically next time.
+- The manifest correctly leaves validation at zero. Future work should retain
+  that honesty and generate any stronger claim only from executor results.
+
+The lesson is not to reduce the quality bar. It is to move repetition, counting,
+checkpoint restoration, command execution, and report synchronization out of
+the model-driven portion of the task.
 
 ## Core Concepts
 
@@ -440,6 +530,12 @@ has:
 Child mode selects three from this same pool. Therefore its essential progress
 or recovery action must rank highly enough to survive the smaller capacity.
 
+Treat “more” as a small editorial margin, not a volume target. Start with three
+high-value candidates and grow toward five only when the additional cards are
+meaningfully distinct. A card that never survives selection in any covered mode
+still costs authoring, validation, and maintenance effort; remove it or record
+the specific state and mode in which it is expected to appear.
+
 ### Spoiler control
 
 A card must not use knowledge the player has not acquired. Prefer:
@@ -663,6 +759,21 @@ After functional correctness, review the visible experience.
 
 Automated tests should target logic that is costly or fragile to recheck
 manually.
+
+Run a static preflight before parser execution. It should calculate rather than
+trust:
+
+- Declared and classified room counts
+- State-family totals from the actual room records
+- `CHOICE` call-site and distinct-ID counts
+- Duplicate IDs whose commands or meanings drift between branches
+- Movement choices missing `group = move`
+- Manifest choices with no source definition and source choices with no
+  manifest expectation
+- Commands, modes, and choice limits unsupported by the documented host
+
+Static source-presence assertions are useful only as lint. They must not be
+reported as runtime coverage.
 
 Recommended assertions:
 

@@ -7,10 +7,16 @@
 | Declared rooms | 11 |
 | Reachable rooms | 11 |
 | Unreachable rooms | 0 |
-| State families identified | 11 |
-| State families authored | 11 |
+| State families identified | 19 |
+| State families authored | 19 |
+| State families validated | 0 |
 | Unique choice IDs | 100 |
 | Total CHOICE calls | 122 |
+
+The companion has authored routing for every declared room. This report does
+not establish complete validated coverage: the manifest records zero validated
+state families, and the focused regression does not execute every emitted card
+from an isolated matching state.
 
 ## Room Coverage
 
@@ -61,9 +67,43 @@
 
 ## Known Limitations
 
-1. **Child mode choice limit**: Default `--child` shows 3 choices. Use `--choices 6` to see all options at hub locations.
+1. **Child mode choice limit**: Default `--child` shows 3 choices. `main.lua`
+   allows an override only from 1 through 5; the previously documented
+   `--choices 6` setting is invalid.
 2. **Hub navigation**: Entrance hall has 5 possible moves (study, library, dining, kitchen, gate) but only 3 can display with default limit.
 3. **Cipher puzzle**: Requires 4 sequential book pushes (red→yellow→green→blue) which may require multiple turns with limited display.
+4. **Evidence depth**: Five of the 12 focused tests inspect source strings.
+   There is no exhaustive matching-state command executor yet.
+
+## Authoring Optimization Retrospective
+
+This companion is a useful stress test for the authoring workflow:
+
+- The 1,133-line source repeats common hall navigation and return cards across
+  act routines. Emit invariant choices once outside state branches or use a
+  small movement helper to centralize `group = move`.
+- Begin each state with the three cards needed by child mode, then add only
+  distinct cards that can actually surface in story mode. One hundred IDs for
+  11 rooms increased validation work without proving coverage.
+- Build state-family counts from the room records. The original commit summary
+  said 11 while the room entries totaled 19; this audit corrected the summary
+  to 19.
+- Replace repeated fresh-process child runs with one in-process runner and
+  named checkpoints at the gate, hall, cipher, study, evidence, and accusation
+  milestones.
+- Have that runner execute every visible ID from an isolated checkpoint and
+  emit JSONL containing the state-family ID, mode, visible set, selected ID,
+  command, output assertion, and postcondition.
+- Generate this report and factual transcript excerpts from the manifest and
+  JSONL. Hand-maintained counts and copied transcripts should not be release
+  evidence.
+- Add a preflight linter for malformed forms, duplicated adjacent calls,
+  ID/command drift, missing move groups, manifest/source mismatches, and
+  unsupported CLI limits before any playthrough begins.
+- The current source gives that linter real cases: repeated/orphaned
+  `CHOICE-DETAILS`, a duplicated `sp.examine-walls` form, and an Act III
+  “Go to the study” card whose hidden `south` command conflicts with the
+  entrance hall's northward study exit.
 
 ## Architecture Notes
 

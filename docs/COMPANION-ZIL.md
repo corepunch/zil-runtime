@@ -994,6 +994,36 @@ If “player can reach the workshop” has a complicated definition, use a routi
 
 Then both adventure and companion tests can reason about the same fact.
 
+### Use compact emitters for repeated metadata
+
+Movement cards otherwise repeat a full `CHOICE` plus
+`<CHOICE-DETAILS "group" "move">` at every call site. A helper keeps labels and
+commands visible while centralizing invariant metadata:
+
+```zil
+<ROUTINE MOVE-CHOICE (ID LABEL COMMAND KIND PRIORITY)
+  <CHOICE .ID .LABEL .COMMAND .KIND .PRIORITY>
+  <CHOICE-DETAILS "group" "move">>
+
+<ROUTINE SUGGEST-WORKSHOP-YARD ()
+  <MOVE-CHOICE "yard.go-garden"
+               "Follow the path into the garden"
+               "north"
+               ,CHOICE-RETURN
+               40>>
+```
+
+Define helpers before routines that call them because the current compiler
+cannot forward-reference generated local functions. Use a small number of
+obvious helpers for truly invariant details; do not hide state conditions,
+labels, commands, or priorities inside a data abstraction that reviewers cannot
+read.
+
+When the same choice appears across several mutually exclusive state branches,
+prefer emitting it once outside the branch. If its priority or wording really
+changes, reuse an ID only when it still represents the same player intention and
+hidden command. A static audit should reject an ID whose meaning drifts.
+
 ### Avoid duplicating action semantics
 
 Incorrect companion logic:
