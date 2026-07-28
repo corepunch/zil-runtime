@@ -32,7 +32,9 @@ The default interface presents numbered, state-aware companion choices:
 lua5.4 main.lua
 ```
 
-Use child or story mode for three choices:
+Child mode shows three grouped choices and accepts only a number from the list.
+Story mode uses the same candidate profile but shows up to five grouped choices
+and also accepts typed parser commands:
 
 ```bash
 lua5.4 main.lua --child

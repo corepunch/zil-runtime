@@ -292,8 +292,9 @@ Recommended optional metadata includes:
 
 | Field | Meaning |
 |---|---|
-| `mode` | Child, story, casual, or classic eligibility |
+| `mode` | Guided (child/story), casual, or classic eligibility |
 | `tone` | Brave, kind, curious, cautious, funny, mischievous |
+| `group` | `scene` for local actions or `move` for navigation |
 | `destination` | Named destination for navigation cards |
 | `subject` | Primary room object or NPC |
 | `once` | Whether to suppress after selection |
@@ -457,7 +458,7 @@ Example:
 
 ```zil
 <COND
-  (<CHOICE-MODE? ,MODE-CHILD>
+  (<CHOICE-MODE? ,MODE-STORY>
    <CHOICE "blue-door.use-key"
            "Use the little brass key on the blue door"
            "unlock blue door with brass key"
@@ -472,7 +473,13 @@ Example:
 ```
 
 Mode checks are ordinary conditions. The runtime supplies the selected mode as
-read-only companion context.
+read-only companion context. `MODE-CHILD` and `MODE-STORY` intentionally have
+the same value, so they draw from the same authored candidate profile.
+
+Child mode selects the strongest three candidates and accepts only numeric
+input. Story mode surfaces up to five candidates and also accepts typed input.
+Companion authors must not create child-only or story-only candidates; the
+difference comes from selection capacity and host input policy.
 
 ### `CHOICE-SEEN?`
 
@@ -792,6 +799,32 @@ A recommended deterministic pipeline is:
 
 Stable-ID tie-breaking prevents ordering from changing with Lua table iteration.
 
+### Scene and movement groups
+
+Every candidate belongs to one of two presentation groups:
+
+- `scene`: inspect, take, use, solve, converse, wait, or experiment locally.
+- `move`: an intention expected to change the current location.
+
+The terminal UI labels these groups “In this scene” and “Go somewhere.” Story
+mode targets three scene cards and two movement cards. Child mode targets two
+scene cards and one movement card. These are soft reservations: if a group has
+too few eligible candidates, the other group fills the unused capacity.
+
+Authored movement cards declare:
+
+```zil
+<CHOICE "garden.enter-workshop"
+        "Step inside the workshop"
+        "north"
+        ,CHOICE-PROGRESS
+        90>
+<CHOICE-DETAILS "group" "move">
+```
+
+Automatic direct-exit fallbacks are assigned to `move`; all other candidates
+default to `scene`.
+
 ### Category mix
 
 For three cards, prefer:
@@ -838,14 +871,23 @@ Recommended modes:
 
 | Mode | Cards | Guidance |
 |---|---:|---|
-| Child | 3 | Concrete wording; usually includes a productive action |
-| Story | 3 | Strong pacing; progress available within one or two choices |
+| Child | 3 | Two scene actions plus one movement target; numeric selection only |
+| Story | Up to 5 | Three scene actions plus two movement targets; typing allowed |
 | Casual | Up to 5 | Useful intentions without always exposing exact solutions |
 | Classic | 0–5 optional | Typed input remains primary; cards can be hidden |
 
-### Child mode
+### Child and story modes
 
-Child-mode cards should:
+Child and story modes use the same authored candidate profile, labels, hidden
+commands, and category ranking. Their presentation differs:
+
+- Child mode selects three cards, targets two scene actions and one movement
+  action, and accepts only a displayed number.
+- Story mode selects up to five cards, targets three scene actions and two
+  movement actions, and accepts a displayed number or a typed parser command.
+- When one group lacks enough candidates, unused slots flow to the other group.
+
+Their shared guided cards should:
 
 - Use short, concrete verbs.
 - Name relevant items explicitly once discovered.
@@ -862,6 +904,10 @@ Ask the fox what is behind the door
 Peek through the star-shaped keyhole
 ```
 
+Story mode generally contains the child set plus additional lower-ranked
+intentions. It also leaves typing available for a player who wants to attempt
+something outside the list.
+
 ### Casual mode
 
 Casual mode can preserve more inference:
@@ -873,10 +919,8 @@ Search the nursery again
 Follow the cold draft downstairs
 ```
 
-### Story mode
-
-Story mode is not necessarily “show the solution immediately.” It promises
-controlled pacing:
+The shared child/story profile is not necessarily “show the solution
+immediately.” It promises controlled pacing:
 
 - The current useful observation is offered.
 - After the observation, a stronger lead becomes eligible.
@@ -1165,7 +1209,7 @@ adventure's own reachability conventions or conservative conditions.
 
 ### Tool specificity by mode
 
-Child:
+Guided child/story:
 
 ```text
 Cut the ribbon with the little scissors
@@ -1394,6 +1438,7 @@ The existing coroutine control route could encode this as a special input such a
       "id": "workshop.pick-lock",
       "label": "Unlock the workshop with the lockpick",
       "kind": "progress",
+      "group": "scene",
       "priority": 100,
       "tone": "clever"
     },
@@ -1669,7 +1714,7 @@ For each critical state and mode:
 - Card count is within the limit.
 - IDs and commands are unique.
 - A progress or discovery path exists where promised.
-- Child mode is not filled with dead-end flavor.
+- The shared child/story profile is not filled with dead-end flavor.
 - Casual mode does not expose every exact solution.
 - Urgent states favor safety.
 
@@ -1958,9 +2003,9 @@ vocabulary in this example must be supplied by its adventure.
 <CONSTANT CHOICE-SAFETY 6>
 
 <CONSTANT MODE-CHILD 1>
-<CONSTANT MODE-STORY 2>
-<CONSTANT MODE-CASUAL 3>
-<CONSTANT MODE-CLASSIC 4>
+<CONSTANT MODE-STORY 1>
+<CONSTANT MODE-CASUAL 2>
+<CONSTANT MODE-CLASSIC 3>
 
 <ROUTINE SUGGEST-ACTIONS ()
   <COND
@@ -1979,6 +2024,7 @@ vocabulary in this example must be supplied by its adventure.
           "north"
           ,CHOICE-PROGRESS
           80>
+  <CHOICE-DETAILS "group" "move">
 
   <COND
     (<NOT <CHOICE-SEEN? "garden.examine-clockbird">>
@@ -1993,7 +2039,8 @@ vocabulary in this example must be supplied by its adventure.
           "Return to the warm kitchen"
           "south"
           ,CHOICE-RETURN
-          40>>
+          40>
+  <CHOICE-DETAILS "group" "move">>
 
 <ROUTINE SUGGEST-WORKSHOP-YARD ()
   <COND
@@ -2058,8 +2105,8 @@ vocabulary in this example must be supplied by its adventure.
              75>)>
 
   <COND
-    (<CHOICE-MODE? ,MODE-CHILD>
-     <CHOICE "workshop.search-key-child"
+    (<CHOICE-MODE? ,MODE-STORY>
+     <CHOICE "workshop.search-key-guided"
              "Look in the flowerpots for a spare key"
              "search flowerpots"
              ,CHOICE-INVESTIGATE
@@ -2075,7 +2122,8 @@ vocabulary in this example must be supplied by its adventure.
           "Return to the garden path"
           "south"
           ,CHOICE-RETURN
-          35>>
+          35>
+  <CHOICE-DETAILS "group" "move">>
 
 <ROUTINE SUGGEST-WORKSHOP-OPEN ()
   <CHOICE "workshop.enter"
@@ -2083,6 +2131,7 @@ vocabulary in this example must be supplied by its adventure.
           "north"
           ,CHOICE-PROGRESS
           110>
+  <CHOICE-DETAILS "group" "move">
 
   <COND
     (<NOT <CHOICE-SEEN? "workshop.listen-before-entering">>
@@ -2096,7 +2145,8 @@ vocabulary in this example must be supplied by its adventure.
           "Return to the garden path"
           "south"
           ,CHOICE-RETURN
-          35>>
+          35>
+  <CHOICE-DETAILS "group" "move">>
 
 <ROUTINE SUGGEST-WORKSHOP-INTERIOR ()
   <COND
@@ -2154,7 +2204,8 @@ vocabulary in this example must be supplied by its adventure.
           "Step back into the yard"
           "south"
           ,CHOICE-RETURN
-          45>>
+          45>
+  <CHOICE-DETAILS "group" "move">>
 
 <ROUTINE SUGGEST-WORKSHOP-FIRE ()
   <COND
@@ -2175,7 +2226,8 @@ vocabulary in this example must be supplied by its adventure.
           "Run back into the yard"
           "south"
           ,CHOICE-SAFETY
-          110>>
+          110>
+  <CHOICE-DETAILS "group" "move">>
 
 <ROUTINE SUGGEST-GENERIC ()
   <CHOICE "generic.look"
@@ -2226,7 +2278,7 @@ vocabulary in this example must be supplied by its adventure.
 - Navigation labels name destinations.
 - The locked door is not named as locked until discovered.
 - Inventory changes the available solution.
-- Child mode can provide a more concrete search target.
+- The shared child/story profile can provide a more concrete search target.
 - Selection history suppresses one-time flavor.
 - A dangerous state replaces the normal diverse set with urgent choices.
 - Scene keys change only for visually important state.
@@ -2252,6 +2304,7 @@ Before declaring a companion area complete, verify:
 - [ ] Hidden command is accepted by the parser.
 - [ ] Command works in every eligible state.
 - [ ] Kind reflects editorial purpose.
+- [ ] Group is `scene`, or `move` when the intention changes location.
 - [ ] Priority is reasonable relative to nearby cards.
 - [ ] Label does not reveal unknown information.
 - [ ] Navigation names a destination when possible.
@@ -2259,7 +2312,11 @@ Before declaring a companion area complete, verify:
 
 ### Every important state
 
-- [ ] Child mode has no more than three cards.
+- [ ] Child cards are drawn from the same candidate profile as story cards.
+- [ ] Child mode has no more than three cards and rejects typed input.
+- [ ] Story mode has no more than five cards and accepts typed input.
+- [ ] Scene and movement cards appear under separate headings.
+- [ ] Group reservations reallocate cleanly when one group is sparse.
 - [ ] Casual mode has no more than five cards.
 - [ ] Promised modes provide a path to progress.
 - [ ] Investigation and character are not crowded out by walkthrough actions.

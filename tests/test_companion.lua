@@ -23,6 +23,23 @@ test.describe("Companion ZIL integration", function(t)
 		local game = runtime.create_game(env, true)
 		game:start()
 
+		local child_choices = env.COMPANION_QUERY("child", 3).choices
+		local story_choices = env.COMPANION_QUERY("story", 5).choices
+		local function count_group(choices, group)
+			local count = 0
+			for _, choice in ipairs(choices) do
+				if choice.group == group then count = count + 1 end
+			end
+			return count
+		end
+
+		assert.assert_equal(#child_choices, 3)
+		assert.assert_equal(count_group(child_choices, "scene"), 2)
+		assert.assert_equal(count_group(child_choices, "move"), 1)
+		assert.assert_equal(#story_choices, 5)
+		assert.assert_equal(count_group(story_choices, "scene"), 2)
+		assert.assert_equal(count_group(story_choices, "move"), 3)
+
 		local function choose(id)
 			local selected = env.COMPANION_SELECT(id, "casual", 5)
 			assert.assert_true(selected.ok, id .. ": " .. tostring(selected.error))

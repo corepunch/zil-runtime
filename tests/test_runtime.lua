@@ -214,7 +214,7 @@ test.describe("Runtime - Bootstrap Loading", function(t)
 		os.remove(filename)
 	end)
 
-	t.it("should collect and rank companion intent cards deterministically", function(assert)
+	t.it("should group and rank companion intent cards deterministically", function(assert)
 		local env = runtime.create_game_env()
 		runtime.init(env, true)
 
@@ -249,19 +249,24 @@ test.describe("Runtime - Bootstrap Loading", function(t)
 				env.CHOICE_RETURN,
 				80
 			)
+			env.CHOICE_DETAILS("group", "move")
 		end
 
 		local first = env.COMPANION_QUERY("child", 3)
-		local second = env.COMPANION_QUERY("child", 3)
+		local second = env.COMPANION_QUERY("story", 5)
 
 		assert.assert_true(first.ok)
 		assert.assert_equal(#first.choices, 3)
 		assert.assert_equal(first.choices[1].id, "test.progress")
 		assert.assert_equal(first.choices[2].id, "test.investigate")
-		assert.assert_equal(first.choices[3].id, "test.interact")
+		assert.assert_equal(first.choices[3].id, "test.return")
+		assert.assert_equal(first.choices[3].group, "move")
+		assert.assert_equal(#second.choices, 4)
 		assert.assert_equal(second.choices[1].id, first.choices[1].id)
 		assert.assert_equal(second.choices[2].id, first.choices[2].id)
-		assert.assert_equal(second.choices[3].id, first.choices[3].id)
+		assert.assert_equal(second.choices[3].id, "test.interact")
+		assert.assert_equal(second.choices[4].id, "test.return")
+		assert.assert_equal(env.MODE_CHILD, env.MODE_STORY)
 	end)
 
 	t.it("should revalidate selections and record companion knowledge", function(assert)

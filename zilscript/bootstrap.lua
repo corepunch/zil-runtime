@@ -145,10 +145,12 @@ CHOICE_EXPERIMENT = 4
 CHOICE_RETURN = 5
 CHOICE_SAFETY = 6
 
+-- Child and story deliberately share one guided choice profile. Their only UI
+-- difference is whether the host accepts free-text commands.
 MODE_CHILD = 1
-MODE_STORY = 2
-MODE_CASUAL = 3
-MODE_CLASSIC = 4
+MODE_STORY = 1
+MODE_CASUAL = 2
+MODE_CLASSIC = 3
 
 -- These are strings so they participate in the existing scalar save, restore,
 -- and restart snapshots without adding a second persistence format.
@@ -404,6 +406,7 @@ function CHOICE(id, label, command, kind, priority)
 		kind = kind,
 		kind_name = companion_kind_names[kind] or "interact",
 		priority = priority,
+		group = "scene",
 	}
 	companion_context.candidates[#companion_context.candidates + 1] = candidate
 	companion_context.last_choice = candidate
@@ -448,6 +451,14 @@ end
 
 local function companion_fallback_choices()
 	if not HERE or not FIRSTQ or not GETP then return end
+
+	local direct = {}
+	local c = FIRSTQ(HERE)
+	while c do
+		if c ~= ADVENTURER then direct[c] = true end
+		c = NEXTQ(c)
+	end
+
 	local verb_labels = {
 		EXAMINE = "Examine the %s",
 		READ = "Read the %s",
@@ -455,11 +466,52 @@ local function companion_fallback_choices()
 		TAKE = "Take the %s",
 	}
 	local verb_preference = {"OPEN", "READ", "TAKE", "EXAMINE"}
-	for _, item in ipairs(add_items(HERE)) do
-		local item_name, verbs = item[1], item[2]
+	local fnd = function(name, array)
+		for _, n in ipairs(array) do if n == name then return true end end
+	end
+
+	for obj in objects_in_room(HERE) do
+		if FSETQ(obj, INVISIBLE) then goto fallback_next end
+		if not direct[obj] then goto fallback_next end
+
+		local verbs = {}
+		local action = GETP(obj, PQACTION)
+		local text = GETP(obj, PQTEXT) and not FSETQ(obj, READBIT)
+		local item = GETP(obj, PQDESC) or ""
+
+		if action then
+			local func = FUNCTIONS[tonumber(action)]
+			if func then
+				for k, v in pairs(_G) do
+					if v == func then
+						verbs = _G['_'..k] or {}
+						break
+					end
+				end
+			end
+		end
+		if text then table.insert(verbs, "EXAMINE") end
+		for k, v in pairs(suggestions) do
+			if FSETQ(obj, _G[k]) and not fnd(v, verbs) then
+				table.insert(verbs, v)
+			end
+		end
+
+		local marks, unique_verbs = {}, {}
+		for _, verb in ipairs(verbs) do
+			if not marks[verb] then table.insert(unique_verbs, verb) marks[verb] = true end
+		end
+
+		local words = {}
+		for word in item:gmatch("%S+") do
+			table.insert(words, word:lower())
+		end
+		local item_name = table.concat(words, " ")
+		if item_name == "" then goto fallback_next end
+
 		local selected_verb
 		for _, wanted in ipairs(verb_preference) do
-			for _, verb in ipairs(verbs or {}) do
+			for _, verb in ipairs(unique_verbs) do
 				if verb == wanted then selected_verb = verb; break end
 			end
 			if selected_verb then break end
@@ -475,7 +527,10 @@ local function companion_fallback_choices()
 				25
 			)
 		end
+
+		::fallback_next::
 	end
+
 	for _, exit in ipairs(add_exits(HERE)) do
 		local direction, destination, safe = exit[1], exit[2], exit[3]
 		if safe and type(destination) == "string" and destination ~= "" then
@@ -486,6 +541,7 @@ local function companion_fallback_choices()
 				CHOICE_RETURN,
 				30
 			)
+			CHOICE_DETAILS("group", "move")
 		end
 	end
 end
@@ -497,6 +553,7 @@ local function select_companion_candidates(candidates, limit)
 		local command_key = candidate.command:lower():gsub("%s+", " ")
 		if not unique_ids[candidate.id] and not unique_commands[command_key]
 				and not (candidate.once and (counts[candidate.id] or 0) > 0) then
+			candidate.group = candidate.group == "move" and "move" or "scene"
 			unique_ids[candidate.id] = true
 			unique_commands[command_key] = true
 			candidate.adjusted_priority =
@@ -512,12 +569,23 @@ local function select_companion_candidates(candidates, limit)
 	end)
 
 	local selected, selected_ids = {}, {}
-	local function take_best(kind)
+	local function take_best(kind, group)
 		for _, candidate in ipairs(eligible) do
-			if candidate.kind == kind and not selected_ids[candidate.id] then
+			if candidate.kind == kind
+					and (not group or candidate.group == group)
+					and not selected_ids[candidate.id] then
 				selected[#selected + 1] = candidate
 				selected_ids[candidate.id] = true
 				return
+			end
+		end
+	end
+	local function fill_group(group, target)
+		for _, candidate in ipairs(eligible) do
+			if #selected >= target then break end
+			if candidate.group == group and not selected_ids[candidate.id] then
+				selected[#selected + 1] = candidate
+				selected_ids[candidate.id] = true
 			end
 		end
 	end
@@ -531,9 +599,18 @@ local function select_companion_candidates(candidates, limit)
 			end
 		end
 	else
-		take_best(CHOICE_PROGRESS)
-		if #selected < limit then take_best(CHOICE_INVESTIGATE) end
-		if #selected < limit then take_best(CHOICE_INTERACT) end
+		local scene_target = limit >= 5 and 3 or math.max(1, limit - 1)
+		local move_target = limit - scene_target
+
+		take_best(CHOICE_PROGRESS, "scene")
+		if #selected < scene_target then
+			take_best(CHOICE_INVESTIGATE, "scene")
+		end
+		if #selected < scene_target then
+			take_best(CHOICE_INTERACT, "scene")
+		end
+		fill_group("scene", scene_target)
+		fill_group("move", scene_target + move_target)
 	end
 
 	for _, candidate in ipairs(eligible) do
