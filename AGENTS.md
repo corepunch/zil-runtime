@@ -33,6 +33,22 @@ To create a new ZIL adventure from premise through release, invoke the **@game-w
 ```
 It orchestrates construction through packaging, then staged quality assurance and remediation. The release gate keeps technical validation, blind functional play, artistic review, and audience/accessibility testing as independent perspectives. Each stage loads a corresponding skill (e.g. `skill foundation-and-premise`) for detailed guidance.
 
+## Generating Companion Choices
+
+To generate and validate a state-aware `companion.zil` for an existing
+adventure, invoke the **@companion-author** subagent:
+
+```text
+@companion-author Generate, validate, and document companion coverage for <game-name>.
+```
+
+The agent inventories the world and its state families, plays the adventure,
+implements choices, executes every important hidden command through the parser,
+and produces coverage and transcript evidence. The authoritative workflow is
+[Generating `companion.zil`](docs/GENERATING-COMPANION-ZIL.md); the runtime API
+and authoring format are specified in
+[Companion ZIL Files](docs/COMPANION-ZIL.md).
+
 ## Available Skills
 
 The `.opencode/skills/` directory provides stage-specific skills loadable with the `skill` tool:

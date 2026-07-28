@@ -39,6 +39,9 @@ ZIL simulation.
 > Zork I coverage remain future work. Sections that describe these facilities
 > identify them as planned host contracts rather than current behavior.
 
+For the end-to-end discovery, state-coverage, implementation, and validation
+workflow, see [Generating `companion.zil`](GENERATING-COMPANION-ZIL.md).
+
 ## Contents
 
 1. [Goals](#goals)

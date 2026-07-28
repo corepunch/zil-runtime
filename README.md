@@ -10,7 +10,9 @@ This project provides a runtime environment for executing ZIL programs, includin
 For a repo-level system summary, see [ARCHITECTURE.md](ARCHITECTURE.md). Agent-specific guidance lives in [AGENTS.md](AGENTS.md).
 
 For the proposed state-aware action-card layer used by parser-free and illustrated
-play, see [Companion ZIL Files](docs/COMPANION-ZIL.md).
+play, see [Companion ZIL Files](docs/COMPANION-ZIL.md). To add that layer to an
+adventure, follow [Generating `companion.zil`](docs/GENERATING-COMPANION-ZIL.md)
+or invoke the repository's `@companion-author` agent.
 
 ## Features
 
