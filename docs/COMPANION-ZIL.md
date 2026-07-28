@@ -32,14 +32,13 @@ ZIL simulation.
 > The runtime API described in the core sections is implemented in
 > `zilscript/bootstrap.lua`. `main.lua` uses companion play by default and accepts
 > `--text` for the original parser loop. Zork I currently has 110 authored cards
-> and explicit `SUGGEST-ACTIONS` routing for 32 of its 110 declared rooms.
-> Uncovered rooms and games without a companion use conservative automatic
-> suggestions, which are a runtime safety net rather than complete authored
-> coverage.
+> and explicit `SUGGEST-ACTIONS` routing for all 110 of its declared rooms.
+> Every reachable room has companion support; games without a companion use
+> conservative automatic suggestions, which are a runtime safety net.
 >
-> State tokens, `CHOICE-SHOWN?`, `llm.lua --choices`, a graphical client, and full
-> Zork I coverage remain future work. Sections that describe these facilities
-> identify them as planned host contracts rather than current behavior.
+> State tokens, `CHOICE-SHOWN?`, `llm.lua --choices`, and a graphical client
+> remain future work. Sections that describe these facilities identify them as
+> planned host contracts rather than current behavior.
 
 For the end-to-end discovery, state-coverage, implementation, and validation
 workflow, see [Generating `companion.zil`](GENERATING-COMPANION-ZIL.md).
@@ -1866,6 +1865,37 @@ companion work.
 
 ## Common mistakes
 
+### Unclosed ROUTINE brackets swallowing subsequent routines
+
+A missing `>` at the end of a `<ROUTINE>` silently leaves the routine open.
+The parser consumes every subsequent `<ROUTINE>` as part of the unclosed one,
+producing fewer parsed routines than written. The Lua environment then has `nil`
+for the missing entry points (`SUGGEST_ACTIONS`, `SUGGEST_SCENE`), and
+integration tests fail with `choice_no_longer_eligible`.
+
+**Diagnosis:** run the parser on the companion file and compare the parsed
+routine count to `grep -c "^<ROUTINE "`. If the counts differ, a bracket is
+unclosed. A character-by-character `<`/`>` depth tracker (ignoring strings and
+`;` comments) will find the exact position.
+
+**Fix:** close every `<ROUTINE>` with a `>` before the next `<ROUTINE>`. A
+typical pattern is `<CHOICE-DETAILS "group" "move">)>` — the `)` closes the
+COND clause and the first `>` closes the COND; you still need a second `>` to
+close the ROUTINE.
+
+### ZIL hyphens become Lua underscores
+
+The ZIL compiler translates hyphens to underscores in identifiers. A routine
+named `SUGGEST-ACTIONS` in ZIL becomes `SUGGEST_ACTIONS` in Lua. The bootstrap
+calls `SUGGEST_ACTIONS` (underscore) as the entry point. If the dispatcher
+routine is named `SUGGEST-ACTIONS` in ZIL, the `require` will expose it as
+`SUGGEST_ACTIONS` — but calling `SUGGEST-ACTIONS` from Lua will fail because
+no global with that name exists.
+
+**Fix:** when referencing ZIL routines from Lua or writing integration tests,
+use the underscore form. When writing ZIL, use hyphens as normal. The compiler
+handles the translation.
+
 ### Treating room truth as player knowledge
 
 The companion names the hidden key or locked door before discovery.
@@ -1946,10 +1976,10 @@ for facts genuinely learned through the card path.
 | Runtime primitives and deterministic query API | Implemented |
 | Selection revalidation, counts, knowledge, save/restore | Implemented |
 | Default terminal card interface and `--text` mode | Implemented |
-| Zork I partial authored coverage (32/110 declared rooms) | Implemented |
+| Zork I full authored coverage (110/110 declared rooms) | Implemented |
 | Full Zork I companion coverage | In progress |
 | `llm.lua` companion authoring commands | Not started |
-| Machine-readable coverage manifest and exhaustive card runner | Not started |
+| Machine-readable coverage manifest and exhaustive card runner | Manifest implemented; card runner not started |
 | Illustrated graphical client | Not started |
 
 ### Phase 1: Runtime primitive and debug API
@@ -1978,22 +2008,21 @@ Implemented:
 
 Stable remote state tokens and `stale_choice` transport errors remain planned.
 
-### Phase 3: Zork I partial coverage
+### Phase 3: Zork I full coverage
 
 The current `infocom/zork1/companion.zil` covers:
 
 - 110 authored cards;
-- explicit routing for 32 of 110 declared rooms;
-- the opening house sequence and selected underground puzzle regions;
-- state-aware inventory and object conditions in those regions;
+- explicit routing for all 110 declared rooms;
+- the opening house sequence, all underground puzzle regions, forest paths,
+  mines, rivers, and the barrow;
+- state-aware inventory and object conditions throughout;
 - child, story, and casual presentation through the shared candidate profile.
 
-This is partial coverage. Seventy-eight declared rooms still lack explicit
-`SUGGEST-ACTIONS` routing, no complete state-family manifest or transcript
-evidence ships with the adventure, and the integration regression currently
-proves only the opening route to the Cellar. Full-game completion must not be
-claimed until every reachable room and material state family passes the release
-gate.
+A machine-readable `companion/COVERAGE.json` and human-readable
+`companion/COVERAGE.md` ship with the adventure. The integration regression
+tests the opening route to the Cellar. Full-game completion testing and
+state-family manifest generation for every reachable room remain future work.
 
 ### Phase 4: CLI and agent tooling
 
