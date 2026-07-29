@@ -22,3 +22,4 @@
 
 <INSERT-FILE "actions">
 <INSERT-FILE "dungeon">
+<INSERT-FILE "companion">
