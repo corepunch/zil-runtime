@@ -88,6 +88,7 @@ test.describe("Wondertown companion integration", function(t)
 
 		-- Act 1: Workshop
 		choose("workshop-floor.examine-workbench")
+		choose("workshop-floor.take-oil-can")
 		choose("workshop-floor.go-toolbench")
 
 		-- Tool bench: take key, wind Bertrand

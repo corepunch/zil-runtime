@@ -59,6 +59,12 @@
              "in"
              ,CHOICE-PROGRESS
              100>
+     <CHOICE-DETAILS "group" "move">
+     <CHOICE "workshop-floor.go-outside"
+             "Slip through the pet door into the snowy alley"
+             "north"
+             ,CHOICE-PROGRESS
+             60>
      <CHOICE-DETAILS "group" "move">)
 
     ;"State: Key found, study not accessed"
@@ -67,7 +73,19 @@
              "Wind the cuckoo clock on the wall"
              "wind clock"
              ,CHOICE-PROGRESS
-             100>)
+             100>
+     <CHOICE "workshop-floor.climb-loft"
+             "Climb the spool stairs to the storage loft"
+             "up"
+             ,CHOICE-PROGRESS
+             85>
+     <CHOICE-DETAILS "group" "move">
+     <CHOICE "workshop-floor.go-outside"
+             "Slip through the pet door into the snowy alley"
+             "north"
+             ,CHOICE-PROGRESS
+             60>
+     <CHOICE-DETAILS "group" "move">)
 
     ;"State: Ladder oiled, can reach loft"
     (<AND ,LADDER-OILED <NOT ,KEY-FOUND>>
@@ -76,15 +94,32 @@
              "up"
              ,CHOICE-PROGRESS
              90>
+     <CHOICE-DETAILS "group" "move">
+     <CHOICE "workshop-floor.go-outside"
+             "Slip through the pet door into the snowy alley"
+             "north"
+             ,CHOICE-PROGRESS
+             70>
      <CHOICE-DETAILS "group" "move">)
 
     ;"State: Have oil can, ladder not oiled"
     (<AND <IN? ,OIL-CAN ,WINNER> <NOT ,LADDER-OILED> <NOT ,KEY-FOUND>>
      <CHOICE "workshop-floor.oil-ladder"
              "Oil the rusty lifting mechanism"
-             "oil mechanism with oil can"
+             "lubricate mechanism with oil can"
              ,CHOICE-PROGRESS
-             100>)
+             100>
+     <CHOICE "workshop-floor.examine-workbench"
+             "Examine the enormous workbench"
+             "examine workbench"
+             ,CHOICE-INVESTIGATE
+             80>
+     <CHOICE "workshop-floor.go-toolbench"
+             "Walk to the tool bench"
+             "east"
+             ,CHOICE-PROGRESS
+             75>
+     <CHOICE-DETAILS "group" "move">)
 
     ;"State: Initial"
     (<NOT ,KEY-FOUND>
@@ -98,6 +133,11 @@
              "examine hook"
              ,CHOICE-INVESTIGATE
              80>
+     <CHOICE "workshop-floor.take-oil-can"
+             "Pick up the tiny copper oil can near the workbench"
+             "take oil can"
+             ,CHOICE-PROGRESS
+             85>
      <CHOICE "workshop-floor.go-toolbench"
              "Walk to the tool bench"
              "east"
@@ -221,6 +261,32 @@
              55>
      <CHOICE-DETAILS "group" "move">)
 
+    ;"State: Case open, empty — button still on surface"
+    (<AND <FSET? ,DISPLAY-CASE ,OPENBIT>
+          <NOT <IN? ,TIN-SOLDIER ,DISPLAY-CASE>>
+          <NOT <IN? ,MUSIC-BOX ,DISPLAY-CASE>>>
+     <CHOICE "countertop.take-button"
+             "Take the spare button near the doll"
+             "take button"
+             ,CHOICE-PROGRESS
+             90>
+     <CHOICE "countertop.give-button"
+             "Give the button to the rag doll"
+             "give button to doll"
+             ,CHOICE-INTERACT
+             85>
+     <CHOICE "countertop.ask-fox"
+             "Ask Marzipan about the fox"
+             "ask doll about fox"
+             ,CHOICE-INVESTIGATE
+             75>
+     <CHOICE "countertop.go-down"
+             "Climb back down to the tool bench"
+             "down"
+             ,CHOICE-RETURN
+             60>
+     <CHOICE-DETAILS "group" "move">)
+
     ;"State: Case closed"
     (<NOT <FSET? ,DISPLAY-CASE ,OPENBIT>>
      <CHOICE "countertop.open-case"
@@ -296,7 +362,7 @@
     (<NOT <FSET? ,TOY-BOX ,OPENBIT>>
      <CHOICE "loft.open-box"
              "Open the dusty cardboard box"
-             "open box"
+             "open cardboard box"
              ,CHOICE-INVESTIGATE
              90>
      <CHOICE "loft.wind-old-tick"
@@ -354,7 +420,7 @@
              80>
      <CHOICE "loft.open-box"
              "Open the dusty cardboard box"
-             "open box"
+             "open cardboard box"
              ,CHOICE-INVESTIGATE
              70>
      <CHOICE "loft.go-down"
@@ -629,8 +695,13 @@
                   ,CHOICE-RETURN
                   55>)
 
-    ;"State: Trust 2 (softening)"
+    ;"State: Trust 2 (softening) — key available"
     (<EQUAL? ,NUTMEG-TRUST 2>
+     <CHOICE "den.take-key"
+             "Take the workshop key from Nutmeg"
+             "take key"
+             ,CHOICE-PROGRESS
+             95>
      <CHOICE "den.tell-tolliver"
              "Tell Nutmeg about Grandfather Tolliver"
              "tell fox about tolliver"
@@ -652,18 +723,23 @@
                   ,CHOICE-RETURN
                   55>)
 
-    ;"State: Trust 1 (wary)"
+    ;"State: Trust 1 (wary) — key available"
     (<EQUAL? ,NUTMEG-TRUST 1>
+     <CHOICE "den.take-key"
+             "Take the workshop key from Nutmeg"
+             "take key"
+             ,CHOICE-PROGRESS
+             90>
      <CHOICE "den.give-string"
              "Offer Nutmeg the ball of yarn"
              "give ball to fox"
              ,CHOICE-PROGRESS
-             90>
+             85>
      <CHOICE "den.tell-tolliver"
              "Tell Nutmeg about Grandfather Tolliver"
              "tell fox about tolliver"
              ,CHOICE-PROGRESS
-             85>
+             80>
      <CHOICE "den.ask-key"
              "Ask Nutmeg about the workshop key"
              "ask fox about key"
