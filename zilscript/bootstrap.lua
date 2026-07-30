@@ -501,7 +501,7 @@ local function companion_fallback_choices()
 	end
 
 	for _, exit in ipairs(add_exits(HERE)) do
-		local direction, destination, safe, dest_room = exit[1], exit[2], exit[3], exit[4]
+		local direction, destination, safe, dest_room = table.unpack(exit)
 		if safe and type(destination) == "string" and destination ~= "" then
 			local dir_lower = tostring(direction):lower()
 			local visited = dest_room and FSETQ(dest_room, TOUCHBIT)
