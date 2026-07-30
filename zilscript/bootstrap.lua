@@ -244,15 +244,16 @@ local function add_items(room)
 	return items
 end
 
-local function add_exits(room)
+	local function add_exits(room)
 	local exits = {}
 	for d, pp in connected_exits(room) do
 		if PTSIZE(pp) == 1 then
-			local desc = GETP(GETB(pp, 0), PQDESC)
-			if not FSETQ(GETB(pp, 0), ONBIT) then
+			local dest_room = GETB(pp, 0)
+			local desc = GETP(dest_room, PQDESC)
+			if not FSETQ(dest_room, ONBIT) then
 				desc = desc .. " (pitch black)"
 			end
-			table.insert(exits, {d, desc, true})
+			table.insert(exits, {d, desc, true, dest_room})
 		elseif PTSIZE(pp) == 2 then
 			table.insert(exits, {d, string.format("\"%s\"", mem:string(GET(pp, 0))), false})
 		elseif PTSIZE(pp) == 4 then
@@ -500,12 +501,24 @@ local function companion_fallback_choices()
 	end
 
 	for _, exit in ipairs(add_exits(HERE)) do
-		local direction, destination, safe = exit[1], exit[2], exit[3]
+		local direction, destination, safe, dest_room = exit[1], exit[2], exit[3], exit[4]
 		if safe and type(destination) == "string" and destination ~= "" then
+			local dir_lower = tostring(direction):lower()
+			local visited = dest_room and FSETQ(dest_room, TOUCHBIT)
+			local label
+			if dir_lower == "up" then
+				label = (visited and "Climb back to " or "Climb to ") .. destination
+			elseif dir_lower == "down" then
+				label = (visited and "Climb back down to " or "Down to ") .. destination
+			elseif visited then
+				label = "Walk back to " .. destination
+			else
+				label = "Walk to " .. destination
+			end
 			CHOICE(
-				"fallback.exit." .. companion_slug(direction),
-				"Go to " .. destination,
-				tostring(direction):lower(),
+				"fallback.exit." .. companion_slug(dir_lower),
+				label,
+				dir_lower,
 				CHOICE_RETURN,
 				30
 			)

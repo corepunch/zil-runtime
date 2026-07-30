@@ -122,33 +122,12 @@ end
 
 local function print_choices(query)
   local displayed = {}
-  local function print_group(title, group)
-    local group_choices = {}
-    for _, choice in ipairs(query.choices) do
-      if (choice.group or "scene") == group then
-        group_choices[#group_choices + 1] = choice
-      end
-    end
-    if #group_choices == 0 then return end
-    io.write("\n" .. title .. "\n")
-    for _, choice in ipairs(group_choices) do
-      displayed[#displayed + 1] = choice
-      io.write(string.format("  %d. %s\n", #displayed, choice.label))
-    end
+  for _, choice in ipairs(query.choices) do
+    displayed[#displayed + 1] = choice
+    io.write(string.format("  %d. %s (%s)\n", #displayed, choice.label, choice.command))
   end
-
-  if query.scene and query.scene.alt then
-    io.write("\n" .. query.scene.alt .. "\n")
-  end
-  io.write("\nWhat will you do?\n")
-  print_group("In this scene", "scene")
-  print_group("Go somewhere", "move")
-  io.write("\nChoose a number, or type any command: ")
+  io.write("> ")
   return displayed
-end
-
-if options.interface == "companion" and not companion_loaded then
-  io.write("\n(No authored companion file was found; using safe automatic suggestions.)\n")
 end
 
 while game:is_running() do

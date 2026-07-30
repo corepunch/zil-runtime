@@ -113,13 +113,7 @@
              "Examine the enormous workbench"
              "examine workbench"
              ,CHOICE-INVESTIGATE
-             80>
-     <CHOICE "workshop-floor.go-toolbench"
-             "Walk to the tool bench"
-             "east"
-             ,CHOICE-PROGRESS
-             75>
-     <CHOICE-DETAILS "group" "move">)
+             80>)
 
     ;"State: Initial"
     (<NOT ,KEY-FOUND>
@@ -137,13 +131,22 @@
              "Pick up the tiny copper oil can near the workbench"
              "take oil can"
              ,CHOICE-PROGRESS
-             85>
-     <CHOICE "workshop-floor.go-toolbench"
-             "Walk to the tool bench"
-             "east"
-             ,CHOICE-PROGRESS
-             75>
-     <CHOICE-DETAILS "group" "move">)>>
+             85>)>
+   <COND
+     (<FSET? ,TOOL-BENCH ,TOUCHBIT>
+      <CHOICE "workshop-floor.go-toolbench"
+              "Walk back to the tool bench"
+              "east"
+              ,CHOICE-RETURN
+              75>
+      <CHOICE-DETAILS "group" "move">)
+     (T
+      <CHOICE "workshop-floor.go-toolbench"
+              "Walk to the tool bench"
+              "east"
+              ,CHOICE-PROGRESS
+              75>
+      <CHOICE-DETAILS "group" "move">)>>
 
 ;"=== TOOL-BENCH ==="
 
