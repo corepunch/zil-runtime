@@ -14,7 +14,7 @@
 
 New game. No commands executed.
 
-### Visible cards (child mode, 3 cards)
+### Legacy capped visible-card snapshot
 
 1. Examine the enormous workbench — `examine workbench` — scene
 2. Look at the empty key hook — `examine hook` — scene
@@ -36,7 +36,7 @@ Result: PASS (command accepted, non-empty output)
 
 Workshop floor → east to tool bench.
 
-### Visible cards (child mode, 3 cards)
+### Legacy capped visible-card snapshot
 
 1. Take the winding key from Bertrand's back — `take key` — scene
 2. Examine Bertrand closely — `examine nutcracker` — scene
@@ -58,7 +58,7 @@ Result: PASS (command accepted, key acquired)
 
 Tool bench with key taken from Bertrand.
 
-### Visible cards (child mode, 3 cards)
+### Legacy capped visible-card snapshot
 
 1. Wind the nutcracker with his key — `wind nutcracker` — scene
 2. Examine Bertrand closely — `examine nutcracker` — scene
@@ -80,7 +80,7 @@ Result: PASS (command accepted, puzzle state advanced)
 
 Tool bench → wound Bertrand → up to countertop.
 
-### Visible cards (child mode, 3 cards)
+### Legacy capped visible-card snapshot
 
 1. Open the dusty glass display case — `open case` — scene
 2. Ask Marzipan about Grandfather Tolliver — `ask doll about tolliver` — scene
@@ -102,7 +102,7 @@ Result: PASS (command accepted)
 
 Full golden path to fox den with scarf in inventory.
 
-### Visible cards (child mode, 3 cards)
+### Legacy capped visible-card snapshot
 
 1. Look at the fox toy in the corner — `examine fox` — scene
 2. Give Nutmeg the red wool scarf — `give scarf to fox` — scene
@@ -124,7 +124,7 @@ Result: PASS (command accepted, trust increased)
 
 Key found, study accessed, diagram read, heart reached with soldier and music box.
 
-### Visible cards (child mode, 3 cards)
+### Legacy capped visible-card snapshot
 
 1. Place the tin soldier beside the heart — `position soldier` — scene
 2. Place the music box near the heart — `position music box` — scene

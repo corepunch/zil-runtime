@@ -13,7 +13,7 @@
 
 New game, starting at West of House.
 
-### Visible cards (child mode)
+### Legacy capped visible-card snapshot
 
 1. Open the little mailbox — open mailbox — scene
 2. Try the boarded front door — open front door — scene
@@ -65,7 +65,7 @@ Result: PASS
 
 At East of House after navigating from West of House.
 
-### Visible cards (child mode)
+### Legacy capped visible-card snapshot
 
 1. Open the slightly ajar kitchen window — open kitchen window — scene
 2. Look through the small kitchen window — examine kitchen window — scene
@@ -89,7 +89,7 @@ Result: PASS
 
 At Cellar after descending from Living Room.
 
-### Visible cards (child mode)
+### Legacy capped visible-card snapshot
 
 1. Go north toward the troll room — north — move
 2. Go south toward the east of the chasm — south — move
@@ -117,7 +117,7 @@ Result: PASS
 
 At Maze-1 after entering from Troll Room.
 
-### Visible cards (child mode)
+### Legacy capped visible-card snapshot
 
 1. Look around the maze — look — scene
 2. Go north — north — move
@@ -143,7 +143,7 @@ Result: PASS
 
 At Dam Lobby after navigating from Dam Room.
 
-### Visible cards (child mode)
+### Legacy capped visible-card snapshot
 
 1. Take the matchbook — take matchbook — scene
 2. Take the tour guidebook — take guide — scene
@@ -167,7 +167,7 @@ Result: PASS
 
 At Mine Entrance after navigating from Slide Room.
 
-### Visible cards (child mode)
+### Legacy capped visible-card snapshot
 
 1. Enter the squeaky room — west — move
 2. Go south to the slide room — south — move
@@ -190,5 +190,5 @@ Result: PASS
 ## Known Issues
 
 - Parser confirmation of all newly added commands is pending exhaustive validation.
-- Child and story mode full playthroughs have not been completed.
+- A companion-mode full playthrough has not been completed.
 - Save/restore behavior for new rooms is pending verification.

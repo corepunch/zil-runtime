@@ -112,9 +112,7 @@
     "note": "Generic fallback for unrecognized rooms"
   },
   "known_limitations": [
-    "Child mode (--child) defaults to 3 choices, which limits hub navigation",
-    "Entrance hall hub shows only 3 of 5 possible moves in default child mode",
-    "Cipher puzzle requires 4 book pushes but only 2 move slots available with limit=3",
-    "main.lua supports at most 5 choices; child-mode coverage must not depend on showing every hub option at once"
+    "Cipher puzzle requires 4 sequential book pushes",
+    "Exhaustive matching-state command execution is still pending"
   ]
 }

@@ -26,39 +26,33 @@ test.describe("Wondertown companion integration", function(t)
 		-- Verify starting room
 		assert.assert_equal(env.HERE, env.WORKSHOP_FLOOR)
 
-		-- Query child choices
-		local child_result = env.COMPANION_QUERY("child", 3)
-		assert.assert_true(child_result.ok, tostring(child_result.error))
-		local child_choices = child_result.choices
-		assert.assert_equal(#child_choices, 3)
+		-- Query every eligible companion choice.
+		local result = env.COMPANION_QUERY()
+		assert.assert_true(result.ok, tostring(result.error))
+		local choices = result.choices
+		assert.assert_true(#choices >= 3)
 
 		-- Count scene vs move groups
 		local scene_count = 0
 		local move_count = 0
-		for _, choice in ipairs(child_choices) do
+		for _, choice in ipairs(choices) do
 			if choice.group == "scene" then scene_count = scene_count + 1 end
 			if choice.group == "move" then move_count = move_count + 1 end
 		end
-		assert.assert_equal(scene_count, 2)
-		assert.assert_equal(move_count, 1)
+		assert.assert_true(scene_count >= 2)
+		assert.assert_true(move_count >= 1)
 
-		-- Query story choices
-		local story_result = env.COMPANION_QUERY("story", 5)
-		assert.assert_true(story_result.ok, tostring(story_result.error))
-		local story_choices = story_result.choices
-		assert.assert_true(#story_choices >= 3 and #story_choices <= 5)
-
-		-- Verify required IDs are present in child choices
-		local child_ids = {}
-		for _, choice in ipairs(child_choices) do
-			child_ids[choice.id] = true
+		-- Verify required IDs are present in the choices.
+		local choice_ids = {}
+		for _, choice in ipairs(choices) do
+			choice_ids[choice.id] = true
 		end
 		-- Should have at least one workshop-floor.* choice
 		local has_workshop = false
-		for id, _ in pairs(child_ids) do
+		for id, _ in pairs(choice_ids) do
 			if id:match("^workshop%-floor%.") then has_workshop = true end
 		end
-		assert.assert_true(has_workshop, "Expected workshop-floor.* choice in child set")
+		assert.assert_true(has_workshop, "Expected workshop-floor.* companion choice")
 	end)
 
 	t.it("should play through Act 1 golden path via companion choices", function(assert)
@@ -81,7 +75,7 @@ test.describe("Wondertown companion integration", function(t)
 		game:start()
 
 		local function choose(id)
-			local selected = env.COMPANION_SELECT(id, "casual", 5)
+			local selected = env.COMPANION_SELECT(id)
 			assert.assert_true(selected.ok, id .. ": " .. tostring(selected.error))
 			if selected.ok then game:resume(selected.command) end
 		end
@@ -174,7 +168,7 @@ test.describe("Wondertown companion integration", function(t)
 		assert.assert_true(env.GAME_WON)
 	end)
 
-	t.it("should have consistent IDs across child and story modes", function(assert)
+	t.it("should return stable IDs across companion queries", function(assert)
 		local env = runtime.create_game_env()
 		assert.assert_true(runtime.init(env, true))
 		env.require("zilscript")
@@ -193,17 +187,16 @@ test.describe("Wondertown companion integration", function(t)
 		local game = runtime.create_game(env, true)
 		game:start()
 
-		local child_result = env.COMPANION_QUERY("child", 3)
-		local story_result = env.COMPANION_QUERY("story", 5)
+		local first_result = env.COMPANION_QUERY()
+		local second_result = env.COMPANION_QUERY()
 
-		-- Every child choice should also appear in story
-		local story_ids = {}
-		for _, choice in ipairs(story_result.choices) do
-			story_ids[choice.id] = true
+		local second_ids = {}
+		for _, choice in ipairs(second_result.choices) do
+			second_ids[choice.id] = true
 		end
-		for _, choice in ipairs(child_result.choices) do
-			assert.assert_true(story_ids[choice.id],
-				"Child choice " .. choice.id .. " not in story set")
+		for _, choice in ipairs(first_result.choices) do
+			assert.assert_true(second_ids[choice.id],
+				"Companion choice " .. choice.id .. " was not stable")
 		end
 	end)
 end)

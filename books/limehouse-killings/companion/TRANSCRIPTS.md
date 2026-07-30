@@ -198,20 +198,14 @@ Accuse moriarty with letter → Dr. Moriarty is arrested.
 
 **Result: THE LIMEHOUSE KILLINGS — SOLVED**
 
-## Mode Comparison
+## Interface
 
-| Mode | Limit | Scene Slots | Move Slots | Hub Navigation |
-|------|-------|-------------|------------|----------------|
-| `--child` (default) | 3 | 2 | 1 | Limited |
-| `--child --choices 5` | 5 | 3 | 2 | Good |
-| `--story` | 5 | 3 | 2 | Good |
-| `--casual` | 5 | 3 | 2 | Good |
+`--companion` displays every eligible scene and movement choice and also
+accepts typed parser commands.
 
 ## Recommendations
 
-1. Design the default three-card child set so essential progress and recovery
-   remain selectable; do not depend on displaying every hub exit at once.
-2. Use the supported limit of five for broader manual inspection.
-3. The cipher puzzle requires multiple turns due to sequential book pushes.
-4. The study companion guides players through prerequisites before box opening.
-5. Act III companion prioritizes evidence presentation to Lestrade.
+1. Keep every displayed choice distinct and useful.
+2. The cipher puzzle requires multiple turns due to sequential book pushes.
+3. The study companion guides players through prerequisites before box opening.
+4. Act III companion prioritizes evidence presentation to Lestrade.

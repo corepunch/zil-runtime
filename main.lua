@@ -3,9 +3,6 @@ local test_format = require 'zilscript.test_format'
 
 local options = {
   interface = "companion",
-  companion_mode = "casual",
-  choice_limit = 5,
-  allow_typed_commands = true,
   story_module = nil,
 }
 
@@ -14,21 +11,15 @@ local function usage()
 Usage: lua5.4 main.lua [options] [story-module]
 
 Interfaces:
-  --companion       Show numbered, state-aware action cards (default)
+  --companion       Show all state-aware choices (default)
   --text            Use the classic free-text parser interface
-
-Companion modes:
-  --child           Show 3 choices and accept numeric selections only
-  --story           Show up to 5 grouped choices and allow typed commands
-  --casual          Show up to 5 choices (default)
-  --choices N       Override the number of choices, from 1 to 5
 
 Other:
   --help, -h        Show this help
 
 Examples:
   lua5.4 main.lua
-  lua5.4 main.lua --child
+  lua5.4 main.lua --companion
   lua5.4 main.lua --text
   lua5.4 main.lua --companion infocom.zork1.zork1
 ]])
@@ -37,30 +28,10 @@ end
 local i = 1
 while i <= #arg do
   local value = arg[i]
-  if value == "--companion" then
-    options.interface = "companion"
-  elseif value == "--text" then
+  if value == "--text" then
     options.interface = "text"
-  elseif value == "--child" then
-    options.companion_mode = "child"
-    options.choice_limit = 3
-    options.allow_typed_commands = false
-  elseif value == "--story" then
-    options.companion_mode = "story"
-    options.choice_limit = 5
-    options.allow_typed_commands = true
-  elseif value == "--casual" then
-    options.companion_mode = "casual"
-    options.choice_limit = 5
-    options.allow_typed_commands = true
-  elseif value == "--choices" then
-    i = i + 1
-    local limit = tonumber(arg[i])
-    if not limit or limit < 1 or limit > 5 then
-      io.stderr:write("--choices must be a number from 1 to 5\n")
-      os.exit(2)
-    end
-    options.choice_limit = math.floor(limit)
+  elseif value == "--companion" then
+    options.interface = "companion"
   elseif value == "--help" or value == "-h" then
     usage()
     os.exit(0)
@@ -149,7 +120,7 @@ local function write_response(response)
   end
 end
 
-local function print_choices(query, allow_typed_commands)
+local function print_choices(query)
   local displayed = {}
   local function print_group(title, group)
     local group_choices = {}
@@ -172,11 +143,7 @@ local function print_choices(query, allow_typed_commands)
   io.write("\nWhat will you do?\n")
   print_group("In this scene", "scene")
   print_group("Go somewhere", "move")
-  if allow_typed_commands then
-    io.write("\nChoose a number, or type any command: ")
-  else
-    io.write("\nChoose a number: ")
-  end
+  io.write("\nChoose a number, or type any command: ")
   return displayed
 end
 
@@ -189,26 +156,20 @@ while game:is_running() do
   local command
 
   if options.interface == "companion" then
-    local query = env.COMPANION_QUERY(options.companion_mode, options.choice_limit)
+    local query = env.COMPANION_QUERY()
     if query.ok and #query.choices > 0 then
-      local displayed_choices =
-        print_choices(query, options.allow_typed_commands)
+      local displayed_choices = print_choices(query)
       input = io.read()
       if not input then break end
       local trimmed = input:match("^%s*(.-)%s*$")
       if trimmed == "" then
-        io.write("\nPlease enter a number")
-        if options.allow_typed_commands then io.write(" or a command") end
-        io.write(".\n")
+        io.write("\nPlease enter a number or a command.\n")
       else
         local selected_index = tonumber(trimmed)
         if selected_index and selected_index == math.floor(selected_index)
             and displayed_choices[selected_index] then
-          local selected = env.COMPANION_SELECT(
-            displayed_choices[selected_index].id,
-            options.companion_mode,
-            options.choice_limit
-          )
+          local selected =
+            env.COMPANION_SELECT(displayed_choices[selected_index].id)
           if selected.ok then
             command = selected.command
             io.write("\n> " .. command .. "\n\n")
@@ -217,8 +178,6 @@ while game:is_running() do
           end
         elseif selected_index then
           io.write("\nPlease choose one of the displayed numbers.\n")
-        elseif not options.allow_typed_commands then
-          io.write("\nChild mode accepts only one of the displayed numbers.\n")
         else
           command = trimmed
           io.write("\n")
@@ -228,16 +187,11 @@ while game:is_running() do
       if query.error then
         io.stderr:write("\nCompanion error: " .. tostring(query.error) .. "\n")
       end
-      if not options.allow_typed_commands then
-        io.stderr:write("\nNo selectable child-mode actions are available.\n")
-        break
-      else
-        io.write("\n> ")
-        input = io.read()
-        if not input then break end
-        command = input
-        io.write("\n")
-      end
+      io.write("\n> ")
+      input = io.read()
+      if not input then break end
+      command = input
+      io.write("\n")
     end
   else
     input = io.read()

@@ -91,7 +91,7 @@ scene descriptions via `SUGGEST-SCENE`.
 ## Known Gaps
 
 - Validated command execution evidence (parser confirmation) is pending for newly added rooms.
-- Child and story mode numeric-only playthroughs have not been run.
+- A companion-mode numeric-only playthrough has not been run.
 - Save/restore persistence testing for new rooms is pending.
 
 ## Exemptions

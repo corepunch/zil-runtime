@@ -31,10 +31,10 @@ local function assert_contains(s, pattern, msg)
     end
 end
 
-local function run_child(choices)
+local function run_companion(choices)
     local input = table.concat(choices, "\n") .. "\n"
     local cmd = "echo " .. ("'" .. input:gsub("'", "'\\''") .. "'"):gsub("\n", "\\n") ..
-        " | lua5.4 main.lua --child books.limehouse-killings.limehouse-killings 2>&1"
+        " | lua5.4 main.lua --companion books.limehouse-killings.limehouse-killings 2>&1"
     local handle = io.popen(cmd, "r")
     local output = handle:read("*a")
     handle:close()
@@ -43,46 +43,52 @@ end
 
 -- Test 1: Companion loads without errors
 test("companion loads", function()
-    local output = run_child({})
+    local output = run_companion({})
     assert_contains(output, "Ashworth Manor Gate")
     assert_contains(output, "Choose a number")
 end)
 
 -- Test 2: Gate shows telegram choice
 test("gate shows telegram", function()
-    local output = run_child({})
+    local output = run_companion({})
     assert_contains(output, "Read the creased telegram")
 end)
 
 -- Test 3: Reading telegram advances state
 test("reading telegram works", function()
-    local output = run_child({"1"})
+    local output = run_companion({"1"})
     assert_contains(output, "Lady Ashworth")
 end)
 
--- Test 4: Entering manor from gate
+-- Test 4: Typed parser commands remain available
+test("typed commands work", function()
+    local output = run_companion({"inventory"})
+    assert_contains(output, "You are carrying:")
+end)
+
+-- Test 5: Entering manor from gate
 test("enter manor works", function()
-    local output = run_child({"1", "3"})
+    local output = run_companion({"1", "3"})
     assert_contains(output, "Entrance Hall")
 end)
 
--- Test 5: Library accessible from hall
+-- Test 6: Library accessible from hall
 test("library accessible", function()
-    -- Gate: read telegram(1), enter(3), Hall: try study(1), go library(3)
-    local output = run_child({"1", "3", "1", "3"})
+    -- Gate: read telegram(1), enter(3), Hall: try study(1), go library(4)
+    local output = run_companion({"1", "3", "1", "4"})
     assert_contains(output, "Library")
 end)
 
--- Test 6: Library shows torn page choice
+-- Test 7: Library shows torn page choice
 test("library shows torn page", function()
-    local output = run_child({"1", "3", "1", "3"})
+    local output = run_companion({"1", "3", "1", "4"})
     assert_contains(output, "Take the torn page")
 end)
 
--- Test 7: Kitchen accessible from hall (via library route)
+-- Test 8: Kitchen accessible from hall (via library route)
 test("kitchen accessible", function()
     -- Kitchen is accessible through garden, which is accessible through kitchen
-    -- In default child mode, kitchen isn't directly shown from hall
+    -- The kitchen route is represented in the companion content.
     -- Test via companion content instead
     local f = io.open("books/limehouse-killings/companion.zil", "r")
     local content = f:read("*a")
@@ -90,7 +96,7 @@ test("kitchen accessible", function()
     assert_contains(content, "kitchen.go-hall")
 end)
 
--- Test 8: Dining room accessible from hall
+-- Test 9: Dining room accessible from hall
 test("dining room accessible", function()
     -- Dining room is accessible from hall in Act 1
     local f = io.open("books/limehouse-killings/companion.zil", "r")
@@ -99,13 +105,13 @@ test("dining room accessible", function()
     assert_contains(content, "dining.go-hall")
 end)
 
--- Test 9: Scene descriptions appear
+-- Test 10: Scene descriptions appear
 test("scene descriptions appear", function()
-    local output = run_child({})
+    local output = run_companion({})
     assert_contains(output, "What will you do")
 end)
 
--- Test 10: All 11 rooms have companion routines
+-- Test 11: All 11 rooms have companion routines
 test("all rooms covered", function()
     local f = io.open("books/limehouse-killings/companion.zil", "r")
     local content = f:read("*a")
@@ -123,7 +129,7 @@ test("all rooms covered", function()
     assert_contains(content, "SUGGEST-PANTRY")
 end)
 
--- Test 11: SUGGEST-ACTIONS and SUGGEST-SCENE exist at end of file
+-- Test 12: SUGGEST-ACTIONS and SUGGEST-SCENE exist at end of file
 test("entry routines at end of file", function()
     local f = io.open("books/limehouse-killings/companion.zil", "r")
     local content = f:read("*a")
@@ -139,7 +145,7 @@ test("entry routines at end of file", function()
     assert(actions_pos > suggest_gate_pos, "SUGGEST-ACTIONS should come after room helpers")
 end)
 
--- Test 12: Choice IDs exist
+-- Test 13: Choice IDs exist
 test("choice IDs exist", function()
     local f = io.open("books/limehouse-killings/companion.zil", "r")
     local content = f:read("*a")

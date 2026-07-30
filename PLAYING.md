@@ -128,8 +128,7 @@ adventure's companion module or implement `--choices` and `--choose`.
 For manual card play, use:
 
 ```bash
-lua5.4 main.lua --child <game-module>
-lua5.4 main.lua --story <game-module>
+lua5.4 main.lua --companion <game-module>
 ```
 
 For automated companion validation, a focused Lua test must currently load the
@@ -137,12 +136,7 @@ game and companion, call `COMPANION_QUERY` and `COMPANION_SELECT`, and resume th
 game with the selected hidden command. The test must restore an independent
 matching-state checkpoint for every candidate.
 
-The required persistent authoring interface is:
-
-```bash
-lua5.4 llm.lua --choices --mode child --limit 3 --save game.sav
-lua5.4 llm.lua --choose <stable-choice-id> --save game.sav
-```
+The proposed persistent authoring interface is not implemented yet.
 
 Until that interface exists, do not document those operations as working CLI
 commands. See

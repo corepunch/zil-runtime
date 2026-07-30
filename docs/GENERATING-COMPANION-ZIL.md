@@ -36,8 +36,8 @@ playthrough. It is a coverage exercise:
 6. Implement those cards in `companion.zil`, one vertical slice at a time.
 7. Restore or construct each matching state and execute every card's hidden
    command through the real parser.
-8. Replay the complete game using only numbered choices in child and story
-   modes, including backtracking and at least one non-golden branch.
+8. Replay the complete game using only numbered choices in companion mode,
+   including backtracking and at least one non-golden branch.
 9. Test save/restore, restart, query purity, grouping, and fallback behavior.
 10. Publish a machine-readable state-family manifest, a human-readable coverage
     report, and transcript evidence with the companion.
@@ -77,7 +77,7 @@ misleading results.
 
 A generated companion is complete only when every reachable room has authored
 support, every material state family is validated, and the game can be completed
-in both child and story modes without typed commands. Automatic fallback is a
+in companion mode without typed commands. Automatic fallback is a
 runtime safety net, not releasable authored coverage. `FALLBACK-REVIEWED` and
 `NOT-COVERED` are valid interim statuses but fail the completion gate for
 reachable gameplay.
@@ -133,15 +133,14 @@ the same facts into three reports. Use this order:
    opening, pre-puzzle, post-puzzle, hazard, and endgame. Reach each prefix once,
    then clone or restore it for sibling states and candidate executions.
 4. **Ship a minimum viable vertical slice first.** For each state, begin with
-   the essential progress or safety action, one useful investigation action, and
-   one movement action. Confirm they survive the child limit of three. Add
-   optional texture only after the numeric-only route works.
+   the essential progress or safety action, useful investigation, and movement
+   actions. Add optional texture only when it remains meaningfully distinct.
 5. **Lint before playing.** Reject duplicate or drifting IDs, malformed forms,
    missing movement groups, unsupported CLI options, manifest count mismatches,
    unclassified rooms, and commands absent from the worksheet before spending
    turns on parser validation.
 6. **Validate in one persistent runner.** Load the game once, restore isolated
-   checkpoints in process, query both modes, select by stable ID, and write
+   checkpoints in process, query companion mode, select by stable ID, and write
    structured JSONL evidence. Avoid starting a new shell process and replaying
    the opening for every assertion.
 7. **Generate prose evidence last.** Derive `COVERAGE.md` and the factual parts
@@ -162,8 +161,8 @@ The practical allocation is:
 
 Candidate count is not a coverage metric. Every extra candidate creates another
 condition to review and another matching-state parser execution. Prefer a
-smaller distinct pool that remains useful under the real three- and five-card
-limits over a large pool whose lower-ranked entries are never visible.
+a smaller distinct pool of useful choices over a large pool of repetitive or
+low-value choices.
 
 ### Limehouse retrospective
 
@@ -175,7 +174,7 @@ authoring:
 - Common hall and return choices were repeated across act routines. Shared
   emitters or common unconditional tails would make the source shorter and
   reduce ID/command drift.
-- The regression launches fresh child-mode processes and replays common prefixes
+- The regression launches fresh companion-mode processes and replays common prefixes
   several times. An in-process checkpoint runner would be faster and would make
   isolated per-card execution practical.
 - Five of 12 tests prove that strings or routine names exist in the source, not
@@ -199,15 +198,9 @@ the model-driven portion of the task.
 
 ### Candidate, selected card, and parser action
 
-`companion.zil` emits a pool of **candidates**. The host ranks and selects a
-small visible set:
-
-- `--child` shows three cards and accepts only a numbered selection.
-- `--story` shows up to five of the same candidates and also permits typing.
-
-Child and story modes do not require separate authored trees. They use the same
-candidate profile. The difference is presentation capacity and whether free
-text input is allowed.
+`companion.zil` emits a pool of **candidates**. The `--companion` interface
+shows every eligible candidate and accepts either a numbered selection or a
+typed parser command.
 
 When a player selects a card, its hidden `COMMAND` is sent through the original
 game parser. The parser and world model remain authoritative.
@@ -418,7 +411,7 @@ Each state-family record should contain:
 - Reachability classification
 - Reproducible setup checkpoint or exact parser command sequence
 - Relevant inventory, flags, globals, knowledge, NPC, and hazard state
-- Required and forbidden candidate IDs in child and story modes
+- Required and forbidden candidate IDs in companion mode
 - Expected hidden command, output pattern, and postcondition for each card
 - Validation status and evidence reference
 
@@ -518,8 +511,8 @@ The actual traversal card belongs in `move`.
 
 ### Candidate richness
 
-Author more candidates than the UI displays. A healthy story-mode state often
-has:
+Author every distinct candidate that is useful in the current state. A healthy
+companion state often has:
 
 - One likely progress action
 - One investigation or information action
@@ -527,14 +520,9 @@ has:
 - One or two useful movements
 - A safety action when danger is immediate
 
-Child mode selects three from this same pool. Therefore its essential progress
-or recovery action must rank highly enough to survive the smaller capacity.
-
-Treat “more” as a small editorial margin, not a volume target. Start with three
-high-value candidates and grow toward five only when the additional cards are
-meaningfully distinct. A card that never survives selection in any covered mode
-still costs authoring, validation, and maintenance effort; remove it or record
-the specific state and mode in which it is expected to appear.
+Every eligible card is visible, so keep the set useful rather than padding it.
+Each card still costs authoring, validation, and maintenance effort; remove
+cards that do not represent a meaningfully distinct intention.
 
 ### Spoiler control
 
@@ -564,7 +552,7 @@ Start with the opening room and the first small puzzle. For each slice:
 2. Emit scene candidates.
 3. Emit movement candidates.
 4. Start the game in that state.
-5. Inspect the visible child and story sets.
+5. Inspect the complete visible companion set.
 6. Select every card.
 7. Add or update tests.
 8. Mark the coverage row only after validation.
@@ -615,17 +603,17 @@ and emit structured failures. A language model may judge label honesty,
 spoilers, tone, and confusing outcomes, but should not be the mechanism that
 decides whether every enumerated card was run.
 
-## Stage 8: Run Choice-Only Playthroughs
+## Stage 8: Run a Choice-Only Playthrough
 
 The defining accessibility test is whether a player can make meaningful
 progress without typing.
 
 Run at least:
 
-### Child route
+### Companion route
 
 - Fresh game
-- `--child`
+- `--companion`
 - Numeric input only
 - Verify exactly the available numbered choices are accepted
 - Visit every reachable room or prove it belongs only to a separately validated
@@ -633,19 +621,10 @@ Run at least:
 - Reach a valid ending
 - Confirm no puzzle requires free text
 
-### Story route
+### Mixed companion route
 
 - Fresh game
-- `--story`
-- Numeric input only
-- Reach a valid ending
-- Confirm richer choice sets do not hide essential progress
-- Inspect the balance between scene and movement groups
-
-### Mixed story route
-
-- Fresh game
-- `--story`
+- `--companion`
 - Alternate typed commands with selected cards
 - Confirm typed exploration does not put companion logic into an unhandled
   state
@@ -745,14 +724,14 @@ After functional correctness, review the visible experience.
 - Scene and movement headings match the action type.
 - A room with interesting content is not reduced to a list of exits.
 - A room with exhausted content still offers useful movement.
-- Story mode uses its extra capacity for meaningful richness, not duplicates.
+- Every visible companion choice adds meaningful richness rather than duplication.
 
 ### Spoilers and knowledge
 
 - Labels use only established facts.
 - A solution appears only after the intended clue or experimentation.
 - Repeated failed actions evolve into a better hint where appropriate.
-- A child-mode player receives enough support without the card narrating the
+- A companion player receives enough support without the card narrating the
   entire solution in advance.
 
 ## Automated Testing Strategy
@@ -770,7 +749,7 @@ trust:
 - Movement choices missing `group = move`
 - Manifest choices with no source definition and source choices with no
   manifest expectation
-- Commands, modes, and choice limits unsupported by the documented host
+- Commands and options unsupported by the documented host
 
 Static source-presence assertions are useful only as lint. They must not be
 reported as runtime coverage.
@@ -786,15 +765,14 @@ Recommended assertions:
 - It does not appear before the player can know or perform it.
 - It disappears or changes after success.
 - Movement cards carry the `move` group.
-- Essential child-mode actions survive the three-card selection.
-- Story mode can expose additional candidates from the same pool.
+- Every eligible action appears in the companion set.
 - Repeated choice queries do not mutate adventure state.
 - Save/restore preserves relevant visibility and history.
 - Restart resets companion history.
 - A choice executes the exact parser command expected.
 - Every eligible card is executed from an isolated restore of its matching
   state.
-- Child and story numeric-only routes both reach an ending.
+- A companion numeric-only route reaches an ending.
 
 Prefer parser-level transcript assertions plus separate state assertions. A
 successful coroutine or function call alone does not prove the intended world
@@ -806,7 +784,7 @@ Agent-driven and exhaustive testing require a persistent, structured host path.
 `llm.lua` should support:
 
 ```bash
-lua5.4 llm.lua --choices --mode child --limit 3 --save game.sav
+lua5.4 llm.lua --choices --save game.sav
 lua5.4 llm.lua --choose <stable-choice-id> --save game.sav
 ```
 
@@ -856,10 +834,10 @@ tools can calculate coverage without interpreting prose. A minimal shape is:
             "newGame": true,
             "commands": []
           },
-          "requiredChoices": {
-            "child": ["opening.inspect", "opening.progress"],
-            "story": ["opening.inspect", "opening.progress"]
-          },
+          "requiredChoices": [
+            "opening.inspect",
+            "opening.progress"
+          ],
           "forbiddenChoices": [],
           "candidateExpectations": [
             {
@@ -1029,7 +1007,7 @@ Use models according to the evidence they can reliably produce:
   conditions and labels.
 - Deterministic tooling enumerates rooms, restores checkpoints, executes every
   card, and calculates coverage.
-- A relatively weak model performs blind child/story play and reports
+- A relatively weak model performs blind companion play and reports
   comprehensibility, loops, and misleading choices.
 
 No model's successful playthrough proves completeness.
@@ -1063,15 +1041,14 @@ A companion is ready when:
       `NOT-COVERED` counts are zero.
 - [ ] Every emitted hidden command has matching-state parser evidence from an
       isolated checkpoint.
-- [ ] A fresh child-mode run reaches an ending using numbered choices only.
-- [ ] A fresh story-mode run reaches an ending using numbered choices only.
-- [ ] A mixed typed-and-choice story run does not expose stale assumptions.
+- [ ] A fresh companion run reaches an ending using numbered choices only.
+- [ ] A mixed typed-and-choice companion run does not expose stale assumptions.
 - [ ] Optional rooms, alternate routes, recovery states, and alternate endings
       have route or state-family evidence.
 - [ ] An independent weak-model blind route was run and its stalls or loops were
       fixed or explicitly recorded as failures.
 - [ ] Scene and movement cards are grouped correctly.
-- [ ] Essential choices survive child mode's smaller visible set.
+- [ ] Every eligible essential choice appears in companion mode.
 - [ ] Save/restore and restart behavior is validated.
 - [ ] Repeated choice queries are observational.
 - [ ] Spoilers, labels, diversity, and audience clarity received editorial

@@ -80,8 +80,8 @@ In summary:
 6. Implement one room or puzzle slice at a time.
 7. Execute every candidate from an isolated restore of the exact state where it
    is offered.
-8. Run child choice-only and story choice-only routes to an ending, plus a mixed
-   story route and a weak-model blind route.
+8. Run a companion choice-only route to an ending, plus a mixed companion route
+   and a weak-model blind route.
 9. Test persistence, restart, query purity, hazards, and fallback boundaries.
 10. Run editorial and accessibility review, automated tests, and the release
     checklist.
@@ -103,14 +103,13 @@ Preserve tokens and wall-clock time without weakening evidence:
 3. Turn the existing walkthrough into a checkpoint tree. Reach each common
    prefix once and clone or restore it for sibling state families and candidate
    executions.
-4. Draft the smallest useful pool first: essential progress or safety, one
-   investigation, and one movement choice. Prove numeric-only progress under the
-   three-card child limit before adding optional cards.
+4. Draft a useful pool: essential progress or safety, investigation, and
+   movement choices. Prove numeric-only progress and remove redundant cards.
 5. Run a static preflight before play. Fail on count mismatches, malformed
    forms, missing movement groups, unsupported host options, and IDs whose
    command or meaning drifts.
 6. Prefer one in-process deterministic runner over repeated shell launches. It
-   should load once, restore isolated checkpoints, query both modes, execute
+   should load once, restore isolated checkpoints, query companion mode, execute
    every eligible ID, and emit JSONL evidence.
 7. Generate factual transcript sections from runner output. Spend model effort
    on state-family boundaries, honest wording, spoilers, accessibility, and
@@ -119,7 +118,7 @@ Preserve tokens and wall-clock time without weakening evidence:
    eligibility, ranking, parser acceptance, output, or postconditions.
 
 Candidate count is not a success metric. Every additional card must have a
-distinct player purpose and a named state/mode where it can be selected.
+distinct player purpose and a named state where it can be selected.
 
 ## Non-Negotiable Rules
 
@@ -134,10 +133,10 @@ distinct player purpose and a named state/mode where it can be selected.
 
 ### Use one candidate profile
 
-- Child and story modes consume the same authored candidates.
-- Child mode must remain operable using only its numbered choices.
-- Story mode may display additional choices and permits typed input.
-- Do not create child-only puzzle logic or a separate child walkthrough.
+- Companion mode exposes every eligible authored candidate.
+- Companion mode must remain operable using only its numbered choices.
+- Companion mode also permits typed input.
+- Do not create a separate companion-only story graph.
 
 ### Group choices correctly
 
@@ -217,7 +216,7 @@ is not complete coverage.
   where input is no longer accepted.
 - Automatic fallback may preserve operability during development, but
   fallback-only support in a reachable room fails the release gate.
-- Never use “complete” until child and story numeric-only routes reach an ending
+- Never use “complete” until a companion numeric-only route reaches an ending
   and the manifest reports zero reachable fallback-reviewed or uncovered states.
 
 ## Candidate Quality Bar
@@ -272,7 +271,7 @@ Report:
 - Declared, classified, reachable, unreachable, terminal, and exempt rooms
 - State families identified, authored, and validated
 - Candidate commands emitted and executed
-- Child, story, mixed, and weak-model blind routes completed
+- Companion-only, mixed, and weak-model blind routes completed
 - Tests and results
 - Underlying adventure defects found
 - Exempt and unreachable states with evidence

@@ -46,7 +46,7 @@ The agent inventories the world and its state families, plays the adventure,
 implements authored choices for every reachable room, executes every emitted
 hidden command through the parser from an isolated matching-state restore, and
 produces a machine-readable coverage manifest plus coverage and transcript
-evidence. Child and story numeric-only routes must both reach an ending;
+evidence. A companion numeric-only route must reach an ending;
 fallback-only support in a reachable room is not complete coverage. The
 authoritative workflow is
 [Generating `companion.zil`](docs/GENERATING-COMPANION-ZIL.md); the runtime API

@@ -55,7 +55,7 @@ Operationalize iterative development with specialized passes and parent-child hi
 - Hint UI avoids replacing parser agency with exhaustive action lists.
 - Co-play flow supports parent guidance without immediate spoilers.
 - No iteration batch contains multiple unplayed puzzles; each completed slice has parser-driven coverage before the next begins.
-- Companion work is not released until child and story numeric-only routes reach
+- Companion work is not released until a companion numeric-only route reaches
   an ending and all reachable state families are validated.
 
 ## Reference Sources

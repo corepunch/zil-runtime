@@ -54,13 +54,13 @@ Prove completion path, catch regressions, and close parser/content gaps.
     - compare all source room declarations with the manifest classifications;
     - fail if the counts differ or a reachable room lacks authored candidates;
     - restore every reachable state-family setup;
-    - query required and forbidden IDs in child and story modes;
+    - query required and forbidden IDs in companion mode;
     - execute every eligible card from an independent restore;
     - assert parser output and the declared postcondition separately;
     - fail if any reachable family remains `FALLBACK-REVIEWED` or
       `NOT-COVERED`.
-31. **Run full choice-only routes:** From a fresh game, reach an ending in child
-    mode and story mode using numbered choices only. Add route or checkpoint
+31. **Run a full choice-only route:** From a fresh game, reach an ending in
+    companion mode using numbered choices only. Add route or checkpoint
     evidence for optional rooms, backtracking, alternate solutions, hazard
     recovery, deaths, and alternate endings.
 32. **Use models only for the evidence they can supply:** run a relatively weak
@@ -125,7 +125,7 @@ For direct ZIL tests, keep each assertion atomic. A successful coroutine resume 
 - No portable item type has more than one interactive instance; duplicates are either consolidated or explicitly differentiated.
 - For companion work, declared and classified room counts match, every reachable
   room and state family is validated, every emitted card has isolated
-  matching-state evidence, and child/story numeric-only routes reach an ending.
+  matching-state evidence, and a companion numeric-only route reaches an ending.
 
 ## Reference Sources
 - `skills/source_zil_text_adventure_agents.md`: section 8

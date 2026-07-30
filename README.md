@@ -15,7 +15,7 @@ adventure, follow [Generating `companion.zil`](docs/GENERATING-COMPANION-ZIL.md)
 or invoke the repository's `@companion-author` agent.
 
 A released companion must author and validate every reachable room and material
-state family, and must complete the game in child and story modes using numbered
+state family, and must complete the game in companion mode using numbered
 choices only. Automatic suggestions keep unfinished areas operable but do not
 count as complete authored coverage.
 
@@ -39,13 +39,11 @@ The default interface presents numbered, state-aware companion choices:
 lua5.4 main.lua
 ```
 
-Child mode shows three grouped choices and accepts only a number from the list.
-Story mode uses the same candidate profile but shows up to five grouped choices
-and also accepts typed parser commands:
+Companion mode shows every eligible grouped choice. Select one by number or type
+any parser command:
 
 ```bash
-lua5.4 main.lua --child
-lua5.4 main.lua --story
+lua5.4 main.lua --companion
 ```
 
 Use the original free-text parser interface with:

@@ -219,15 +219,13 @@ test.describe("Runtime - Bootstrap Loading", function(t)
 		runtime.init(env, true)
 
 		env.SUGGEST_ACTIONS = function()
-			if env.CHOICE_MODEQ(env.MODE_CHILD) then
-				env.CHOICE(
-					"test.progress",
-					"Continue the story",
-					"north",
-					env.CHOICE_PROGRESS,
-					50
-				)
-			end
+			env.CHOICE(
+				"test.progress",
+				"Continue the story",
+				"north",
+				env.CHOICE_PROGRESS,
+				50
+			)
 			env.CHOICE(
 				"test.investigate",
 				"Examine the door",
@@ -250,23 +248,38 @@ test.describe("Runtime - Bootstrap Loading", function(t)
 				80
 			)
 			env.CHOICE_DETAILS("group", "move")
+			env.CHOICE(
+				"test.experiment",
+				"Try the loose brick",
+				"push brick",
+				env.CHOICE_EXPERIMENT,
+				70
+			)
+			env.CHOICE(
+				"test.wait",
+				"Wait and listen",
+				"wait",
+				env.CHOICE_INTERACT,
+				60
+			)
 		end
 
-		local first = env.COMPANION_QUERY("child", 3)
-		local second = env.COMPANION_QUERY("story", 5)
+		local first = env.COMPANION_QUERY()
+		local second = env.COMPANION_QUERY()
 
 		assert.assert_true(first.ok)
-		assert.assert_equal(#first.choices, 3)
-		assert.assert_equal(first.choices[1].id, "test.progress")
-		assert.assert_equal(first.choices[2].id, "test.investigate")
+		assert.assert_equal(#first.choices, 6)
+		assert.assert_equal(first.choices[1].id, "test.investigate")
+		assert.assert_equal(first.choices[2].id, "test.interact")
 		assert.assert_equal(first.choices[3].id, "test.return")
+		assert.assert_equal(first.choices[4].id, "test.experiment")
+		assert.assert_equal(first.choices[5].id, "test.wait")
+		assert.assert_equal(first.choices[6].id, "test.progress")
 		assert.assert_equal(first.choices[3].group, "move")
-		assert.assert_equal(#second.choices, 4)
-		assert.assert_equal(second.choices[1].id, first.choices[1].id)
-		assert.assert_equal(second.choices[2].id, first.choices[2].id)
-		assert.assert_equal(second.choices[3].id, "test.interact")
-		assert.assert_equal(second.choices[4].id, "test.return")
-		assert.assert_equal(env.MODE_CHILD, env.MODE_STORY)
+		assert.assert_equal(#second.choices, #first.choices)
+		for index, choice in ipairs(first.choices) do
+			assert.assert_equal(second.choices[index].id, choice.id)
+		end
 	end)
 
 	t.it("should revalidate selections and record companion knowledge", function(assert)
@@ -287,18 +300,18 @@ test.describe("Runtime - Bootstrap Loading", function(t)
 			)
 		end
 
-		local selected = env.COMPANION_SELECT("test.try-door", "child", 3)
+		local selected = env.COMPANION_SELECT("test.try-door")
 		assert.assert_true(selected.ok)
 		assert.assert_equal(selected.command, "open door")
 		assert.assert_true(env.CHOICE_SEENQ("test.try-door"))
 		assert.assert_equal(env.CHOICE_COUNT("test.try-door"), 1)
 		assert.assert_true(env.KNOWSQ("test.door-locked"))
 
-		local after = env.COMPANION_QUERY("child", 3)
+		local after = env.COMPANION_QUERY()
 		assert.assert_true(after.ok)
 		assert.assert_equal(#after.choices, 0)
 
-		local stale = env.COMPANION_SELECT("test.try-door", "child", 3)
+		local stale = env.COMPANION_SELECT("test.try-door")
 		assert.assert_false(stale.ok)
 		assert.assert_equal(stale.error, "choice_no_longer_eligible")
 	end)

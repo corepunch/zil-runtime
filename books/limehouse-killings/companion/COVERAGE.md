@@ -67,12 +67,9 @@ from an isolated matching state.
 
 ## Known Limitations
 
-1. **Child mode choice limit**: Default `--child` shows 3 choices. `main.lua`
-   allows an override only from 1 through 5; the previously documented
-   `--choices 6` setting is invalid.
-2. **Hub navigation**: Entrance hall has 5 possible moves (study, library, dining, kitchen, gate) but only 3 can display with default limit.
-3. **Cipher puzzle**: Requires 4 sequential book pushes (red→yellow→green→blue) which may require multiple turns with limited display.
-4. **Evidence depth**: Five of the 12 focused tests inspect source strings.
+1. **Cipher puzzle**: Requires 4 sequential book pushes
+   (red→yellow→green→blue).
+2. **Evidence depth**: Five of the 12 focused tests inspect source strings.
    There is no exhaustive matching-state command executor yet.
 
 ## Authoring Optimization Retrospective
@@ -82,13 +79,12 @@ This companion is a useful stress test for the authoring workflow:
 - The 1,133-line source repeats common hall navigation and return cards across
   act routines. Emit invariant choices once outside state branches or use a
   small movement helper to centralize `group = move`.
-- Begin each state with the three cards needed by child mode, then add only
-  distinct cards that can actually surface in story mode. One hundred IDs for
-  11 rooms increased validation work without proving coverage.
+- Keep only meaningfully distinct choices. One hundred IDs for 11 rooms
+  increased validation work without proving coverage.
 - Build state-family counts from the room records. The original commit summary
   said 11 while the room entries totaled 19; this audit corrected the summary
   to 19.
-- Replace repeated fresh-process child runs with one in-process runner and
+- Replace repeated fresh-process companion runs with one in-process runner and
   named checkpoints at the gate, hall, cipher, study, evidence, and accusation
   milestones.
 - Have that runner execute every visible ID from an isolated checkpoint and

@@ -55,7 +55,7 @@ workflow, see [Generating `companion.zil`](GENERATING-COMPANION-ZIL.md).
 8. [Evaluation and selection lifecycle](#evaluation-and-selection-lifecycle)
 9. [State, knowledge, and history](#state-knowledge-and-history)
 10. [Ranking and diversity](#ranking-and-diversity)
-11. [Audience and assistance modes](#audience-and-assistance-modes)
+11. [Companion interface](#companion-interface)
 12. [Authoring patterns](#authoring-patterns)
 13. [Navigation as narrative intention](#navigation-as-narrative-intention)
 14. [Information and discovery actions](#information-and-discovery-actions)
@@ -81,8 +81,7 @@ The companion system should:
 2. Derive available choices from the adventure's actual current state.
 3. Preserve the original ZIL game as the authority for what happens.
 4. Present meaningful intentions rather than implementation-oriented commands.
-5. Support three large choices for children and up to five for adult or casual
-   play.
+5. Show every currently eligible, meaningfully distinct choice.
 6. Mix progress, investigation, character, atmosphere, and experimentation.
 7. Reduce parser friction without automatically revealing every puzzle answer.
 8. Make temporary failure useful by offering discovery actions.
@@ -296,7 +295,6 @@ Recommended optional metadata includes:
 
 | Field | Meaning |
 |---|---|
-| `mode` | Guided (child/story), casual, or classic eligibility |
 | `tone` | Brave, kind, curious, cautious, funny, mischievous |
 | `group` | `scene` for local actions or `move` for navigation |
 | `destination` | Named destination for navigation cards |
@@ -452,39 +450,6 @@ making the game unloadable.
 used only when executing the card's command necessarily communicates that fact.
 Displaying the card does not apply it.
 
-### `CHOICE-MODE?`
-
-```zil
-<CHOICE-MODE? MODE>
-```
-
-Example:
-
-```zil
-<COND
-  (<CHOICE-MODE? ,MODE-STORY>
-   <CHOICE "blue-door.use-key"
-           "Use the little brass key on the blue door"
-           "unlock blue door with brass key"
-           ,CHOICE-PROGRESS
-           100>)
-  (T
-   <CHOICE "blue-door.consider"
-           "Examine the blue door"
-           "examine blue door"
-           ,CHOICE-INVESTIGATE
-           70>)>
-```
-
-Mode checks are ordinary conditions. The runtime supplies the selected mode as
-read-only companion context. `MODE-CHILD` and `MODE-STORY` intentionally have
-the same value, so they draw from the same authored candidate profile.
-
-Child mode selects the strongest three candidates and accepts only numeric
-input. Story mode surfaces up to five candidates and also accepts typed input.
-Companion authors must not create child-only or story-only candidates; the
-difference comes from selection capacity and host input policy.
-
 ### `CHOICE-SEEN?`
 
 ```zil
@@ -612,15 +577,15 @@ point its coroutine is suspended.
 
 ### 2. The host queries choices
 
-The host requests three or five cards for the selected mode. The runtime:
+The host requests the current companion choices. The runtime:
 
 1. Clears the temporary candidate collection.
-2. Establishes read-only context such as mode and requested limit.
+2. Establishes read-only companion context.
 3. Calls `SUGGEST-ACTIONS`.
 4. Collects every emitted `CHOICE`.
 5. Filters invalid and duplicate candidates.
-6. Applies history penalties and diversity rules.
-7. Returns the selected cards.
+6. Applies history penalties and deterministic ordering.
+7. Returns every eligible card.
 8. Leaves the game waiting at the same `READ`.
 
 This operation must not count as a turn.
@@ -720,8 +685,8 @@ hidden second puzzle engine.
 
 ### Persistence
 
-World state, companion knowledge, selection counts, and any mode-dependent
-progress must survive save and restore.
+World state, companion knowledge, and selection counts must survive save and
+restore.
 
 The preferred implementation stores companion history in memory that participates
 in the normal save snapshot or explicitly extends the save format. It must not
@@ -778,7 +743,7 @@ Recommended ranges:
 
 | Priority | Intended use |
 |---:|---|
-| 100–120 | Immediate safety or strongly productive child-mode action |
+| 100–120 | Immediate safety or strongly productive action |
 | 80–99 | Current puzzle progress or important discovery |
 | 60–79 | Useful investigation or navigation |
 | 40–59 | Character, atmosphere, optional object interaction |
@@ -795,11 +760,9 @@ A recommended deterministic pipeline is:
 2. Reject malformed candidates.
 3. Deduplicate by ID.
 4. Deduplicate identical commands unless explicitly allowed.
-5. Apply mode eligibility.
-6. Apply repeat penalties.
-7. Reserve required category slots.
-8. Sort remaining candidates by adjusted priority and stable ID.
-9. Fill to the mode limit.
+5. Apply repeat penalties.
+6. Sort remaining candidates by adjusted priority and stable ID.
+7. Return every eligible candidate.
 
 Stable-ID tie-breaking prevents ordering from changing with Lua table iteration.
 
@@ -810,10 +773,8 @@ Every candidate belongs to one of two presentation groups:
 - `scene`: inspect, take, use, solve, converse, wait, or experiment locally.
 - `move`: an intention expected to change the current location.
 
-The terminal UI labels these groups “In this scene” and “Go somewhere.” Story
-mode targets three scene cards and two movement cards. Child mode targets two
-scene cards and one movement card. These are soft reservations: if a group has
-too few eligible candidates, the other group fills the unused capacity.
+The terminal UI labels these groups “In this scene” and “Go somewhere,” and
+shows every eligible card in both groups.
 
 Authored movement cards declare:
 
@@ -831,18 +792,12 @@ default to `scene`.
 
 ### Category mix
 
-For three cards, prefer:
-
-1. One likely progress or important discovery card.
-2. One investigative card.
-3. One character, expressive, playful, return, or alternate approach card.
-
-For five cards, prefer:
+Prefer a useful mix:
 
 1. One or two progress cards.
 2. One or two investigative cards.
-3. One character or expressive card.
-4. One optional, experimental, or return card.
+3. Character, expressive, or playful cards where meaningful.
+4. Useful movement and return cards.
 
 These are defaults, not absolute laws. An urgent fire scene can legitimately
 offer three safety responses. A quiet conversation scene can offer three
@@ -869,36 +824,19 @@ Look through the low window
 All three express plausible intentions. Only one may produce immediate mechanical
 progress, but the others provide knowledge, character, or an alternate lead.
 
-## Audience and assistance modes
+## Companion interface
 
-Recommended modes:
+Companion mode displays every eligible authored card, grouped into scene and
+movement actions. It accepts a displayed number or a typed parser command.
 
-| Mode | Cards | Guidance |
-|---|---:|---|
-| Child | 3 | Two scene actions plus one movement target; numeric selection only |
-| Story | Up to 5 | Three scene actions plus two movement targets; typing allowed |
-| Casual | Up to 5 | Useful intentions without always exposing exact solutions |
-| Classic | 0–5 optional | Typed input remains primary; cards can be hidden |
-
-### Child and story modes
-
-Child and story modes use the same authored candidate profile, labels, hidden
-commands, and category ranking. Their presentation differs:
-
-- Child mode selects three cards, targets two scene actions and one movement
-  action, and accepts only a displayed number.
-- Story mode selects up to five cards, targets three scene actions and two
-  movement actions, and accepts a displayed number or a typed parser command.
-- When one group lacks enough candidates, unused slots flow to the other group.
-
-Their shared guided cards should:
+Companion cards should:
 
 - Use short, concrete verbs.
 - Name relevant items explicitly once discovered.
 - Avoid abstract compass navigation.
 - Avoid irreversible failure without clear warning.
 - Prefer kind, curious, brave, and playful alternatives.
-- Ensure a child can make meaningful progress without constructing commands.
+- Ensure a player can make meaningful progress without constructing commands.
 
 Example:
 
@@ -908,13 +846,10 @@ Ask the fox what is behind the door
 Peek through the star-shaped keyhole
 ```
 
-Story mode generally contains the child set plus additional lower-ranked
-intentions. It also leaves typing available for a player who wants to attempt
+Companion mode also leaves typing available for a player who wants to attempt
 something outside the list.
 
-### Casual mode
-
-Casual mode can preserve more inference:
+Cards can preserve inference:
 
 ```text
 Examine the blue door
@@ -923,8 +858,8 @@ Search the nursery again
 Follow the cold draft downstairs
 ```
 
-The shared child/story profile is not necessarily “show the solution
-immediately.” It promises controlled pacing:
+The companion profile does not necessarily “show the solution immediately.”
+It promises controlled pacing:
 
 - The current useful observation is offered.
 - After the observation, a stronger lead becomes eligible.
@@ -932,19 +867,6 @@ immediately.” It promises controlled pacing:
   appear.
 
 This produces a hint ladder through play rather than a separate hint screen.
-
-### Classic mode
-
-Classic mode preserves the parser experience. Possible presentations:
-
-- No cards.
-- A collapsed “What could I do?” tray.
-- Three broad verbs without objects.
-- Cards only after repeated failed input.
-- Cards for navigation but typed input for puzzles.
-
-The companion file can support all of these because presentation policy belongs
-to the host, while eligibility and wording belong to the game.
 
 ## Authoring patterns
 
@@ -1241,21 +1163,15 @@ Check whether the parser command can actually reach the object. An item may be:
 Do not offer “Use the lockpick” because `LOC(LOCKPICK)` is nonzero. Use the
 adventure's own reachability conventions or conservative conditions.
 
-### Tool specificity by mode
+### Tool specificity
 
-Guided child/story:
+Prefer concrete companion labels:
 
 ```text
 Cut the ribbon with the little scissors
 ```
 
-Casual:
-
-```text
-Find something sharp enough to cut the ribbon
-```
-
-Classic:
+Typed parser input remains available for players who want to infer the tool:
 
 ```text
 Examine the ribbon
@@ -1438,8 +1354,8 @@ should describe visible information without leaking hidden puzzle facts.
 
 ## Host and UI contract
 
-The runtime exposes `COMPANION_QUERY(mode, limit)` and
-`COMPANION_SELECT(id, mode, limit)` while the game is waiting for input.
+The runtime exposes `COMPANION_QUERY()` and `COMPANION_SELECT(id)` while the
+game is waiting for input.
 `main.lua` calls these functions directly. The JSON messages below define the
 planned contract for graphical or remote hosts.
 
@@ -1449,14 +1365,12 @@ Conceptual request:
 
 ```json
 {
-  "operation": "choices",
-  "limit": 3,
-  "mode": "child"
+  "operation": "choices"
 }
 ```
 
 The existing coroutine control route could encode this as a special input such as
-`choices:child:3`, but a typed host method is preferable once more clients exist.
+`choices`, but a typed host method is preferable once more clients exist.
 
 ### Query response
 
@@ -1656,7 +1570,7 @@ Generate:
 - eligibility conditions;
 - kinds and priorities;
 - knowledge gates;
-- mode variants;
+- state-aware variants;
 - scene keys where useful.
 
 #### 5. Validation and editorial review
@@ -1667,8 +1581,8 @@ should enumerate all eligible cards and record their parser output and
 postconditions. A human or independent review pass checks tone, spoilers,
 variety, age level, and whether the options preserve meaningful agency.
 
-Run a relatively weak model as a blind child/story player after mechanical
-validation. The small card set makes it useful for detecting confusing labels,
+Run a relatively weak model as a blind companion player after mechanical
+validation. The visible card set makes it useful for detecting confusing labels,
 loops, missing recovery actions, and accidental spoilers. Its successful route
 is accessibility evidence, not completeness evidence: it cannot detect a state
 or missing card that was never presented.
@@ -1770,19 +1684,17 @@ For every candidate:
 - Require one or more authored state families for every reachable room.
 - Require every reachable state family to be `VALIDATED`.
 - Fail release when a reachable room depends only on automatic fallback.
-- Require child and story numeric-only routes to reach an ending.
+- Require a companion numeric-only route to reach an ending.
 - Require route or checkpoint evidence for optional rooms, backtracking,
   alternate solutions, hazard recovery, deaths, and alternate endings.
 
 ### Diversity tests
 
-For each critical state and mode:
+For each critical state:
 
-- Card count is within the limit.
 - IDs and commands are unique.
 - A progress or discovery path exists where promised.
-- The shared child/story profile is not filled with dead-end flavor.
-- Casual mode does not expose every exact solution.
+- The visible set is not filled with dead-end flavor.
 - Urgent states favor safety.
 
 ### Knowledge tests
@@ -2005,7 +1917,7 @@ for facts genuinely learned through the card path.
 |---|---|
 | Runtime primitives and deterministic query API | Implemented |
 | Selection revalidation, counts, knowledge, save/restore | Implemented |
-| Default terminal card interface and `--text` mode | Implemented |
+| Default `--companion` interface and `--text` mode | Implemented |
 | Zork I full authored coverage (110/110 declared rooms) | Implemented |
 | Full Zork I companion coverage | In progress |
 | `llm.lua` companion authoring commands | Not started |
@@ -2060,7 +1972,7 @@ Extend `llm.lua` with conceptual operations:
 
 ```bash
 lua5.4 llm.lua --new-game --save zork1.sav
-lua5.4 llm.lua --choices --mode child --limit 3 --save zork1.sav
+lua5.4 llm.lua --choices --save zork1.sav
 lua5.4 llm.lua --choose west-house.open-mailbox --save zork1.sav
 ```
 
@@ -2072,7 +1984,7 @@ Add:
 - isolated-checkpoint execution of every hidden command;
 - companion purity checks;
 - declared-versus-classified and missing-room reports;
-- child/story numeric-only completion runners;
+- companion numeric-only completion runners;
 - structured failure records for fixing agents.
 
 ### Phase 5: Illustrated client
@@ -2104,11 +2016,6 @@ vocabulary in this example must be supplied by its adventure.
 <CONSTANT CHOICE-EXPERIMENT 4>
 <CONSTANT CHOICE-RETURN 5>
 <CONSTANT CHOICE-SAFETY 6>
-
-<CONSTANT MODE-CHILD 1>
-<CONSTANT MODE-STORY 1>
-<CONSTANT MODE-CASUAL 2>
-<CONSTANT MODE-CLASSIC 3>
 
 <ROUTINE SUGGEST-ACTIONS ()
   <COND
@@ -2207,19 +2114,11 @@ vocabulary in this example must be supplied by its adventure.
              ,CHOICE-INVESTIGATE
              75>)>
 
-  <COND
-    (<CHOICE-MODE? ,MODE-STORY>
-     <CHOICE "workshop.search-key-guided"
-             "Look in the flowerpots for a spare key"
-             "search flowerpots"
-             ,CHOICE-INVESTIGATE
-             80>)
-    (T
-     <CHOICE "workshop.search-entry"
-             "Search the yard for another way inside"
-             "search yard"
-             ,CHOICE-INVESTIGATE
-             60>)>
+  <CHOICE "workshop.search-entry"
+          "Search the yard for another way inside"
+          "search yard"
+          ,CHOICE-INVESTIGATE
+          60>
 
   <CHOICE "workshop.return-garden"
           "Return to the garden path"
@@ -2381,7 +2280,7 @@ vocabulary in this example must be supplied by its adventure.
 - Navigation labels name destinations.
 - The locked door is not named as locked until discovered.
 - Inventory changes the available solution.
-- The shared child/story profile can provide a more concrete search target.
+- Companion choices can provide a more concrete search target.
 - Selection history suppresses one-time flavor.
 - A dangerous state replaces the normal diverse set with urgent choices.
 - Scene keys change only for visually important state.
@@ -2415,13 +2314,9 @@ Before declaring a companion adventure complete, verify:
 
 ### Every important state
 
-- [ ] Child cards are drawn from the same candidate profile as story cards.
-- [ ] Child mode has no more than three cards and rejects typed input.
-- [ ] Story mode has no more than five cards and accepts typed input.
+- [ ] Companion mode exposes every eligible card and accepts typed input.
 - [ ] Scene and movement cards appear under separate headings.
-- [ ] Group reservations reallocate cleanly when one group is sparse.
-- [ ] Casual mode has no more than five cards.
-- [ ] Promised modes provide a path to progress.
+- [ ] Companion choices provide a path to progress.
 - [ ] Investigation and character are not crowded out by walkthrough actions.
 - [ ] Immediate hazards receive appropriate priority.
 - [ ] Alternate solutions remain visible when desirable.
@@ -2441,7 +2336,7 @@ Before declaring a companion adventure complete, verify:
 - [ ] Optional rooms, mazes, return routes, hazards, deaths, and alternate
       endings were tested.
 - [ ] Every hidden command was executed from an isolated matching-state restore.
-- [ ] Child and story numeric-only routes both reached an ending.
+- [ ] A companion numeric-only route reached an ending.
 - [ ] A weak-model blind route checked clarity, loops, and recovery without
       receiving source or hidden commands.
 - [ ] Machine-readable coverage data and synchronized `COVERAGE.md` are stored

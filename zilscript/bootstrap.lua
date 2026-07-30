@@ -145,13 +145,6 @@ CHOICE_EXPERIMENT = 4
 CHOICE_RETURN = 5
 CHOICE_SAFETY = 6
 
--- Child and story deliberately share one guided choice profile. Their only UI
--- difference is whether the host accepts free-text commands.
-MODE_CHILD = 1
-MODE_STORY = 1
-MODE_CASUAL = 2
-MODE_CLASSIC = 3
-
 -- These are strings so they participate in the existing scalar save, restore,
 -- and restart snapshots without adding a second persistence format.
 COMPANION_CHOICE_COUNTS = COMPANION_CHOICE_COUNTS or ""
@@ -291,13 +284,6 @@ local companion_kind_names = {
 	[CHOICE_SAFETY] = "safety",
 }
 
-local companion_mode_values = {
-	child = MODE_CHILD,
-	story = MODE_STORY,
-	casual = MODE_CASUAL,
-	classic = MODE_CLASSIC,
-}
-
 local function valid_companion_id(id)
 	return type(id) == "string" and id:match("^[%w][%w._-]*$") ~= nil
 end
@@ -340,24 +326,6 @@ local function encode_companion_set(values)
 	end
 	table.sort(ids)
 	return table.concat(ids, ";")
-end
-
-local function normalize_companion_mode(mode)
-	if type(mode) == "number" then
-		for name, value in pairs(companion_mode_values) do
-			if value == mode then return name, value end
-		end
-	end
-	local name = tostring(mode or "casual"):lower()
-	local value = companion_mode_values[name]
-	if not value then return "casual", MODE_CASUAL end
-	return name, value
-end
-
-function CHOICE_MODEQ(mode)
-	if not companion_context then return false end
-	local _, value = normalize_companion_mode(mode)
-	return companion_context.mode_value == value
 end
 
 function CHOICE_COUNT(id)
@@ -546,7 +514,7 @@ local function companion_fallback_choices()
 	end
 end
 
-local function select_companion_candidates(candidates, limit)
+local function select_companion_candidates(candidates)
 	local counts = decode_companion_counts(COMPANION_CHOICE_COUNTS)
 	local unique_ids, unique_commands, eligible = {}, {}, {}
 	for _, candidate in ipairs(candidates) do
@@ -568,69 +536,11 @@ local function select_companion_candidates(candidates, limit)
 		return a.id < b.id
 	end)
 
-	local selected, selected_ids = {}, {}
-	local function take_best(kind, group)
-		for _, candidate in ipairs(eligible) do
-			if candidate.kind == kind
-					and (not group or candidate.group == group)
-					and not selected_ids[candidate.id] then
-				selected[#selected + 1] = candidate
-				selected_ids[candidate.id] = true
-				return
-			end
-		end
-	end
-	local function fill_group(group, target)
-		for _, candidate in ipairs(eligible) do
-			if #selected >= target then break end
-			if candidate.group == group and not selected_ids[candidate.id] then
-				selected[#selected + 1] = candidate
-				selected_ids[candidate.id] = true
-			end
-		end
-	end
-
-	if eligible[1] and eligible[1].kind == CHOICE_SAFETY
-			and eligible[1].adjusted_priority >= 110 then
-		for _, candidate in ipairs(eligible) do
-			if candidate.kind == CHOICE_SAFETY and #selected < limit then
-				selected[#selected + 1] = candidate
-				selected_ids[candidate.id] = true
-			end
-		end
-	else
-		local scene_target = limit >= 5 and 3 or math.max(1, limit - 1)
-		local move_target = limit - scene_target
-
-		take_best(CHOICE_PROGRESS, "scene")
-		if #selected < scene_target then
-			take_best(CHOICE_INVESTIGATE, "scene")
-		end
-		if #selected < scene_target then
-			take_best(CHOICE_INTERACT, "scene")
-		end
-		fill_group("scene", scene_target)
-		fill_group("move", scene_target + move_target)
-	end
-
-	for _, candidate in ipairs(eligible) do
-		if #selected >= limit then break end
-		if not selected_ids[candidate.id] then
-			selected[#selected + 1] = candidate
-			selected_ids[candidate.id] = true
-		end
-	end
-	return selected
+	return eligible
 end
 
-function COMPANION_QUERY(mode, limit)
-	local mode_name, mode_value = normalize_companion_mode(mode)
-	limit = math.max(1, math.min(5, tonumber(limit)
-		or ((mode_value == MODE_CHILD or mode_value == MODE_STORY) and 3 or 5)))
+function COMPANION_QUERY()
 	companion_context = {
-		mode = mode_name,
-		mode_value = mode_value,
-		limit = limit,
 		candidates = {},
 	}
 
@@ -643,7 +553,7 @@ function COMPANION_QUERY(mode, limit)
 		end
 	end
 
-	if #companion_context.candidates < limit then
+	if #companion_context.candidates == 0 then
 		ok, err = pcall(companion_fallback_choices)
 		if not ok then
 			companion_context = nil
@@ -660,19 +570,17 @@ function COMPANION_QUERY(mode, limit)
 	end
 
 	local context = companion_context
-	local choices = select_companion_candidates(context.candidates, limit)
+	local choices = select_companion_candidates(context.candidates)
 	companion_context = nil
 	return {
 		ok = true,
-		mode = mode_name,
-		limit = limit,
 		scene = context.scene,
 		choices = choices,
 	}
 end
 
-function COMPANION_SELECT(id, mode, limit)
-	local result = COMPANION_QUERY(mode, limit)
+function COMPANION_SELECT(id)
+	local result = COMPANION_QUERY()
 	if not result.ok then return result end
 	for _, candidate in ipairs(result.choices) do
 		if candidate.id == id then
@@ -696,24 +604,12 @@ function COMPANION_SELECT(id, mode, limit)
 	}
 end
 
-local companion_route_mode = "casual"
-local companion_route_limit = 5
-
-local function companion_route_choices(arg)
-	if type(arg) ~= "string" then
-		companion_route_mode = "casual"
-		companion_route_limit = 5
-		return COMPANION_QUERY(companion_route_mode, companion_route_limit)
-	end
-	local mode, limit = arg:match("^([^:]+):?(%d*)$")
-	companion_route_mode = mode or "casual"
-	companion_route_limit = tonumber(limit)
-		or ((companion_route_mode == "child" or companion_route_mode == "story") and 3 or 5)
-	return COMPANION_QUERY(companion_route_mode, companion_route_limit)
+local function companion_route_choices()
+	return COMPANION_QUERY()
 end
 
 local function companion_route_select(id)
-	return COMPANION_SELECT(id, companion_route_mode, companion_route_limit)
+	return COMPANION_SELECT(id)
 end
 
 local function encode_fptr(n)
