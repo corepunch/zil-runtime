@@ -1656,11 +1656,16 @@ detect a dim light from the east." CR>)>)
 		(T
 		 '<NULL-F>)>
 	 <COND (<IN? ,HERE ,ROOMS>
-		;"Was <TELL D ,HERE CR>"
-		<TELL D ,HERE>
-		<COND (<FSET? <SET AV <LOC ,WINNER>> ,VEHBIT>
-		       <TELL ", in the " D .AV>)>
-		<CRLF>)>
+		<COND (%<COND (<==? ,ZORK-NUMBER 2>
+			       '<OR <AND <NOT .LOOK?> ,SUPER-BRIEF <NOT <EQUAL? ,HERE ,ZORK3>>>
+				    <NOT .V?>>)
+			      (ELSE
+			       '<OR <AND <NOT .LOOK?> ,SUPER-BRIEF>
+				    <NOT .V?>>)>
+		       <TELL D ,HERE>
+		       <COND (<FSET? <SET AV <LOC ,WINNER>> ,VEHBIT>
+			      <TELL ", in the " D .AV>)>
+		       <CRLF>)>)>
 	 <COND (%<COND (<==? ,ZORK-NUMBER 2>
 			'<OR .LOOK? <NOT ,SUPER-BRIEF> <EQUAL? ,HERE ,ZORK3>>)
 		       (ELSE
