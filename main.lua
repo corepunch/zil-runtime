@@ -1,5 +1,7 @@
 local runtime = require 'zilscript.runtime'
 local test_format = require 'zilscript.test_format'
+local terminal = require 'zilscript.terminal'
+local choice_widget = require 'zilscript.choice_widget'
 
 local options = {
   interface = "companion",
@@ -84,25 +86,9 @@ if options.interface == "companion" then
   end
 end
 
-local esc = "\27["
-
 local function highlight(text)
-  if type(env.DESCS) == "table" then
-    for _, dir in ipairs(env.DESCS) do
-      local fmt = esc .. "1m%s" .. esc .. "0m"
-      local cap = dir:sub(1,1):upper() .. dir:sub(2)
-      text = text:gsub("(%f[%a]" .. dir .. "%f[%A])", function(m) return fmt:format(m) end)
-      text = text:gsub("(%f[%a]" .. cap .. "%f[%A])", function(m) return fmt:format(m) end)
-    end
-  end
-  if type(env.DIRS) == "table" then
-    for _, dir in ipairs(env.DIRS) do
-      local fmt = esc .. "1m%s" .. esc .. "0m"
-      local cap = dir:sub(1,1):upper() .. dir:sub(2)
-      text = text:gsub("(%f[%a]" .. dir .. "%f[%A])", function(m) return fmt:format(m) end)
-      text = text:gsub("(%f[%a]" .. cap .. "%f[%A])", function(m) return fmt:format(m) end)
-    end
-  end
+  text = terminal.bold_words(text, env.DESCS)
+  text = terminal.bold_words(text, env.DIRS)
   return text
 end
 
@@ -120,100 +106,28 @@ local function write_response(response)
   end
 end
 
-local function raw_terminal()
-  os.execute("stty -icanon -echo min 0 time 1 2>/dev/null")
-end
-
-local function cooked_terminal()
-  os.execute("stty icanon echo 2>/dev/null")
-end
-
-local function term_width()
-  local f = io.popen("tput cols 2>/dev/null || echo 80")
-  local w = f and f:read("*n") or 80
-  if f then f:close() end
-  return w or 80
-end
-
 local function companion_selector(query)
-  local choices = query.choices
-  local selected = 0
-  local typed = ""
-  local dirty = true
-  local width = term_width()
-  local saved_lines = 0
+  local result = choice_widget.run({
+    items = query.choices,
+    render_item = function(choice)
+      return choice.label .. " (" .. choice.command .. ")"
+    end,
+    item_value = function(choice)
+      return choice.command
+    end,
+    allow_text = true,
+  })
 
-  local function draw()
-    if not dirty then return end
-    dirty = false
-    if saved_lines > 0 then
-      -- Cursor-up preserves the column, so return to column zero before
-      -- clearing each rendered row. The prompt is the current row and must
-      -- not be included in the number of rows to move up.
-      io.write(string.rep("\27[A\r\27[2K", saved_lines))
-    end
-    local lines = 0
-    for i, choice in ipairs(choices) do
-      local line = (i == selected and "> " or "  ") .. choice.label .. " (" .. choice.command .. ")"
-      io.write(line .. "\n")
-      lines = lines + math.ceil(#line / width)
-    end
-    io.write("\n")
-    io.write("\27[2K> ")
-    io.write(selected > 0 and choices[selected].command or typed)
-    saved_lines = lines + 1
-    io.flush()
-  end
-
-  raw_terminal()
-  draw()
-
-  while true do
-    local ch = io.stdin:read(1)
-    if ch then
-      if ch == "\27" then
-        local a = io.stdin:read(1)
-        if a == "[" then
-          local b = io.stdin:read(1)
-          if b == "A" then
-            selected = selected > 1 and selected - 1 or #choices
-            typed = ""
-            dirty = true
-          elseif b == "B" then
-            selected = selected < #choices and selected + 1 or 1
-            typed = ""
-            dirty = true
-          end
-        else
-          selected = 0
-          typed = ""
-          dirty = true
-        end
-      elseif ch == "\r" or ch == "\n" then
-        cooked_terminal()
-        io.write("\n\n")
-        if selected > 0 then
-          return {kind = "choice", id = choices[selected].id, command = choices[selected].command}
-        elseif #typed > 0 then
-          return {kind = "typed", command = typed}
-        end
-      elseif ch == "\127" or ch == "\8" then
-        if #typed > 0 then
-          typed = typed:sub(1, -2)
-          selected = 0
-          dirty = true
-        end
-      elseif ch == "\3" then
-        cooked_terminal()
-        io.write("\n")
-        os.exit(0)
-      elseif ch:match("^[%w%p%s]$") then
-        typed = typed .. ch
-        selected = 0
-        dirty = true
-      end
-      draw()
-    end
+  if result.kind == "item" then
+    return {
+      kind = "choice",
+      id = result.item.id,
+      command = result.item.command,
+    }
+  elseif result.kind == "text" then
+    return {kind = "typed", command = result.text}
+  elseif result.kind == "interrupt" then
+    os.exit(0)
   end
 end
 
