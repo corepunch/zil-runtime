@@ -9,16 +9,16 @@ Use `llm.lua` to interact with games one command at a time. Each invocation load
 ## Quick Start
 
 ```bash
-# Start a new game (creates savefile.sav and savefile.sav.actions)
-lua5.4 llm.lua --new-game --save zork1.sav
+# Start a new game (creates zork1.sav and zork1.sav.actions in /tmp)
+lua5.4 llm.lua --new-game --save /tmp/zork1.sav
 
 # Send a command
-lua5.4 llm.lua --action "look" --save zork1.sav
+lua5.4 llm.lua --action "look" --save /tmp/zork1.sav
 
 # Play through a sequence
-lua5.4 llm.lua --action "open mailbox" --save zork1.sav
-lua5.4 llm.lua --action "take leaflet" --save zork1.sav
-lua5.4 llm.lua --action "read leaflet" --save zork1.sav
+lua5.4 llm.lua --action "open mailbox" --save /tmp/zork1.sav
+lua5.4 llm.lua --action "take leaflet" --save /tmp/zork1.sav
+lua5.4 llm.lua --action "read leaflet" --save /tmp/zork1.sav
 ```
 
 ## Output
@@ -37,7 +37,7 @@ The iron gates of Ashworth Manor loom before you...
 
 1. `--new-game` starts fresh, saves initial state, and resets the action history.
 2. Each `--action` call restores state from the save file, replays the command, then saves the new state.
-3. A JSONL action history (`savefile.sav.actions`) is maintained as a fallback if the binary save is unavailable.
+3. A JSONL action history (`<savefile>.sav.actions`) is maintained as a fallback if the binary save is unavailable.
 4. Each invocation is a separate OS process — no Lua state persists between calls.
 
 ## Agent Play Loop
@@ -45,7 +45,7 @@ The iron gates of Ashworth Manor loom before you...
 To play N turns of a game:
 
 ```bash
-SAVE="zork1.sav"
+SAVE="/tmp/zork1.sav"
 
 # Initialize
 lua5.4 llm.lua --new-game --save "$SAVE"
@@ -61,10 +61,10 @@ done
 
 An agent can play the game in a loop:
 
-1. **Start**: `lua5.4 llm.lua --new-game --save game.sav`
+1. **Start**: `lua5.4 llm.lua --new-game --save /tmp/game.sav`
 2. **Observe**: Read the plain text output
 3. **Decide**: Choose the next command based on game state
-4. **Act**: `lua5.4 llm.lua --action "<command>" --save game.sav`
+4. **Act**: `lua5.4 llm.lua --action "<command>" --save /tmp/game.sav`
 5. **Repeat** from step 2
 
 The agent should:
@@ -156,7 +156,7 @@ To assess whether an LLM can play and beat a game:
 Example evaluation script:
 
 ```bash
-SAVE="eval.sav"
+SAVE="/tmp/eval.sav"
 lua5.4 llm.lua --new-game --save "$SAVE" > eval.log
 
 for turn in $(seq 1 50); do

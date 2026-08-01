@@ -38,7 +38,7 @@ Accuse Dr. Moriarty with either the letter or the poison as the leading proof, a
 
 ### Turn 1: Initialize new game
 
-**Command:** `lua5.4 llm.lua --game limehouse-killings --new-game --save limehouse.sav`
+**Command:** `lua5.4 llm.lua --game limehouse-killings --new-game --save /tmp/limehouse.sav`
 
 **Output:**
 ```

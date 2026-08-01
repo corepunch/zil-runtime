@@ -23,7 +23,7 @@ count as complete authored coverage.
 
 - **ZIL to Lua Compilation**: Compiles ZIL source code to Lua for execution
 - **Require System**: Load .zil files using Lua's `require()` function, just like moonscript
-- **Source Mapping**: Error messages automatically reference ZIL source files instead of generated Lua files (see [SOURCE_MAPPING.md](SOURCE_MAPPING.md))
+- **Source Mapping**: Error messages automatically reference ZIL source files instead of generated Lua files (see [SOURCE_MAPPING.md](docs/SOURCE_MAPPING.md))
 - **Interactive Gameplay**: Full support for classic text adventure games
 - **Comprehensive Testing**: Unit and integration tests for all components
 
@@ -248,7 +248,7 @@ See [zilscript/compiler/README.md](zilscript/compiler/README.md) for detailed co
 
 ### Key Features
 
-- **Source Mapping**: Error messages reference ZIL source files, not generated Lua files (see [SOURCE_MAPPING.md](SOURCE_MAPPING.md))
+- **Source Mapping**: Error messages reference ZIL source files, not generated Lua files (see [SOURCE_MAPPING.md](docs/SOURCE_MAPPING.md))
 - **Modular Compiler**: Clean separation of concerns across 12 focused modules
 - **TypeScript-Inspired Architecture**: Visitor pattern, diagnostic collection, semantic checking, and structured emission
 - **Test Infrastructure**: 149+ unit test assertions plus comprehensive integration tests
