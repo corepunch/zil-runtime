@@ -98,8 +98,8 @@ For each portable item type, verify exactly one interactive instance exists. Fla
 **CRITICAL: This pass must be BLIND.** Do not carry over any findings, source discoveries, design rationale, or walkthrough knowledge from Pass 1. Play the game organically like a real player.
 
 ### Play Phase
-1. Start a fresh game with `lua5.4 llm.lua --game <game> --new-game --save <savefile.sav>`
-2. Send commands one at a time with `lua5.4 llm.lua --action "<command>" --save <savefile.sav> --game <game>`
+1. Start a fresh game with `lua5.4 llm.lua --game <game> --new-game --save /tmp/<game>.sav`
+2. Send commands one at a time with `lua5.4 llm.lua --action "<command>" --save /tmp/<game>.sav --game <game>`
 3. Explore all rooms, examine all objects, try all interactions
 4. Test edge cases: wrong commands, invalid actions, disambiguation stress, save/load
 5. Push toward the ending if reachable

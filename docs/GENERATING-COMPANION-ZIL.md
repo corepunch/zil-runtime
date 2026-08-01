@@ -784,8 +784,8 @@ Agent-driven and exhaustive testing require a persistent, structured host path.
 `llm.lua` should support:
 
 ```bash
-lua5.4 llm.lua --choices --save game.sav
-lua5.4 llm.lua --choose <stable-choice-id> --save game.sav
+lua5.4 llm.lua --choices --save /tmp/game.sav
+lua5.4 llm.lua --choose <stable-choice-id> --save /tmp/game.sav
 ```
 
 The query result should include the room, scene, visible IDs, labels, kinds,
