@@ -48,7 +48,7 @@
 <ROOM WORKSHOP-FLOOR
       (IN ROOMS)
       (DESC "Workshop Floor")
-      (LDESC "The key hook above Grandfather Tolliver's workbench hangs empty. Only a frayed string dangles from it, while soft sawdust glows across the floorboards. A small pet door waits to the north, and the old cuckoo clock ticks on the wall. The tool bench stretches east.")
+      (LDESC "Grandfather Tolliver's workshop. Sawdust covers the floor like a golden blanket. The brass key hook on the wall is empty — only a frayed string hangs from it. A pet door glows with moonlight to the north.")
       (EAST TO TOOL-BENCH)
       (NORTH TO SNOWY-ALLEY)
       (UP TO STORAGE-LOFT IF LADDER-OILED)
@@ -60,7 +60,7 @@
       (IN ROOMS)
       (DESC "Tool Bench")
       (ACTION TOOL-BENCH-FCN)
-      (LDESC "Enormous chisels and planes turn the tool bench into a landscape of wooden cliffs and metal valleys. A staircase made from giant thread spools rises toward the countertop, though something in its ironwork has gone stiff.")
+      (LDESC "The tool bench stretches away, a landscape of enormous chisels and planes. A staircase made of giant wooden spools leads toward the countertop.")
       (WEST TO WORKSHOP-FLOOR)
       (UP TO COUNTERTOP IF BERTRAND-WOUND)
       (FLAGS RLANDBIT ONBIT)
@@ -70,7 +70,7 @@
       (IN ROOMS)
       (DESC "Countertop")
       (ACTION COUNTERTOP-FCN)
-      (LDESC "The toy display spreads across the countertop. Inside a dusty glass case, forgotten treasures wait beneath the frost of the shop window. Beyond it, the clock tower watches over the snowy street.")
+      (LDESC "You are on the countertop — the toy display. A dusty glass case holds forgotten treasures, and through the frosted shop window you can see the snowy street outside, the clock tower visible in the distance.")
       (DOWN TO TOOL-BENCH)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL WORKSHOP-BUILDING TOPIC-TOLLIVER TOPIC-KEY TOPIC-FOX)>
@@ -79,7 +79,7 @@
       (IN ROOMS)
       (DESC "Storage Loft")
       (ACTION STORAGE-LOFT-FCN)
-      (LDESC "Dust softens the storage loft, and cobwebs drape the rafters like grey curtains. A cardboard box marked 'Broken - For Repair' waits in the corner beside an old cuckoo clock. Tolliver kept the toys he meant to mend up here.")
+      (LDESC "The storage loft is dusty and dim, cobwebs draping the rafters like grey curtains. A cardboard box labelled 'Broken - For Repair' sits in the corner. This was where Tolliver kept toys he meant to fix.")
       (DOWN TO WORKSHOP-FLOOR)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL TOPIC-TOLLIVER)>
@@ -87,7 +87,7 @@
 <ROOM SNOWY-ALLEY
       (IN ROOMS)
       (DESC "Snowy Alley")
-      (LDESC "Tiny fox footprints cross the fresh snow and hurry east toward the clock square. The winter moon lays blue shadows over the cobblestones, while a repurposed toy lantern flickers above the alley. Behind Pip, the workshop's pet door swings softly in the cold.")
+      (LDESC "You emerge into the snowy alley behind the workshop. Fresh snow blankets the cobblestones, and the winter moon casts long blue shadows. Tiny fox footprints — unmistakably toy-sized — lead east through the snow. A streetlamp flickers overhead. It is not a real streetlamp — it is a toy lantern, repurposed and mounted on a pole. The workshop door looms behind you, the pet door at its base.")
       (SOUTH TO WORKSHOP-FLOOR)
       (EAST TO CLOCK-SQUARE)
       (FLAGS RLANDBIT ONBIT)
@@ -96,7 +96,7 @@
 <ROOM CLOCK-SQUARE
       (IN ROOMS)
       (DESC "Clock Square")
-      (LDESC "Abandoned shopfronts circle the square. In one window, a baker toy is frozen with dough beneath its wooden hands; in another, tiny shoes gather dust. Tin lamps flicker across the cobblestones, as if the whole town is trying to stay awake.")
+      (LDESC "Abandoned shopfronts line the square — a bakery, a cobbler — each window displaying a toy frozen in its work. Tin toy lamps dot the cobblestones, their light weak and flickering.")
       (WEST TO SNOWY-ALLEY)
       (EAST TO MAILBOX-CORNER)
       (SOUTH TO SCRAP-YARD)
@@ -106,7 +106,7 @@
 <ROOM MAILBOX-CORNER
       (IN ROOMS)
       (DESC "Mailbox Corner")
-      (LDESC "Snow has gathered against the buildings at this quiet corner. One trail of fox prints leads west toward the clock square. A fresher trail doubles back, then veers south toward the scrap-yard.")
+      (LDESC "Snow has drifted against the buildings at this quiet corner. Fox footprints lead back west toward the clock square; a fresher set seems to double back before veering south.")
       (WEST TO CLOCK-SQUARE)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL MOON TOPIC-FOX TOPIC-TOLLIVER FOOTPRINTS CLOCK-TOWER)>
@@ -115,7 +115,7 @@
       (IN ROOMS)
       (DESC "Scrap-Yard")
       (ACTION SCRAP-YARD-FCN)
-      (LDESC "Broken toys lie beneath the snow: a headless porcelain doll, a three-legged horse, and a hundred small stories someone once loved. A creaking cart rests beside the piles. Behind it, an iron gate waits to the east.")
+      (LDESC "The scrap-yard is a sad place. Broken toys are piled everywhere — a headless porcelain doll, a three-legged horse, toys that someone loved once and then discarded. Behind the cart, an iron gate leads east.")
       (NORTH TO CLOCK-SQUARE)
       (EAST TO FOX-DEN IF CART-MOVED)
       (FLAGS RLANDBIT ONBIT)
@@ -125,7 +125,7 @@
       (IN ROOMS)
       (DESC "Fox Den")
       (ACTION FOX-DEN-FCN)
-      (LDESC "Rags and twigs form a cosy den between the old crates. A tiny toy candle warms the shadows, and every carefully placed scrap says the same thing: someone has made a home here.")
+      (LDESC "A cosy den made of rags and twigs, tucked between old crates. A tiny toy candle burns inside, casting warm shadows. This is a place someone made into a home.")
       (WEST TO SCRAP-YARD)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL TOPIC-TOLLIVER TOPIC-KEY TOPIC-FOX TOPIC-HEART)>
@@ -133,7 +133,7 @@
 <ROOM TOLLIVER-STUDY
       (IN ROOMS)
       (DESC "Tolliver's Study")
-      (LDESC "Wood shavings, old paper, and a faint trace of magic linger in Tolliver's private study. His desk waits beneath the dust. A narrow passage descends toward a slow mechanical rhythm, deep below the workshop.")
+      (LDESC "Grandfather Tolliver's private study smells of wood shavings, old paper, and a faint trace of magic. Stairs lead back down to the workshop, while a narrow passage descends deeper toward a rhythmic, mechanical sound.")
       (OUT TO WORKSHOP-FLOOR)
       (DOWN TO WORKSHOP-HEART)
       (FLAGS RLANDBIT ONBIT)
@@ -142,7 +142,7 @@
 <ROOM WORKSHOP-HEART
       (IN ROOMS)
       (DESC "Workshop Heart")
-      (LDESC "Behind the workshop clock, a vast chamber waits in the dark. The silence has the expectant hush of a machine holding its breath.")
+      (LDESC "You are in a vast chamber hidden behind the workshop clock. The air holds the expectant stillness of a machine waiting to wake.")
       (UP TO TOLLIVER-STUDY)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL TOPIC-HEART TOPIC-TOLLIVER)>
@@ -163,8 +163,8 @@
         (SYNONYM BENCH WORKBENCH TABLE)
         (ADJECTIVE ENORMOUS WOODEN WORK GIANT CLUTTERED)
         (DESC "enormous workbench")
-        (FDESC "The enormous workbench towers over Pip's tiny frame. Its surface is cluttered with tools and half-finished toys.")
-        (LDESC "The enormous workbench rises like a wall, its surface cluttered with tools.")
+        (FDESC "The enormous workbench towers above your tiny frame. Its surface is cluttered with tools and half-finished toys.")
+        (LDESC "The enormous workbench towers above you, its surface cluttered with tools.")
         (FLAGS SURFACEBIT CONTBIT OPENBIT SEARCHBIT CLIMBBIT)
         (ACTION WORKBENCH-F)>
 
@@ -201,7 +201,7 @@
         (SYNONYM BROOM BRUSH)
         (ADJECTIVE TINY SWEEP)
         (DESC "tiny broom")
-        (LDESC "Pip's tiny broom leans against the workbench.")
+        (LDESC "Your tiny broom leans against the workbench.")
         (FLAGS TAKEBIT)
         (SIZE 4)
         (ACTION SWEEP-BROOM-F)>
@@ -331,7 +331,7 @@
         (SYNONYM WINDOW)
         (ADJECTIVE FROSTED GLASS SHOP)
         (DESC "frosted shop window")
-        (LDESC "The frosted window gives a pale view of the snowy street outside.")
+        (LDESC "Through the frosted window, you can see the snowy street outside.")
         (FLAGS NDESCBIT)
         (ACTION SHOP-WINDOW-F)>
 
@@ -565,7 +565,7 @@
         (SYNONYM FOX NUTMEG VIXEN)
         (ADJECTIVE PATCHY STUFFED ORANGE)
         (DESC "patchy fox toy")
-        (LDESC "A fox-shaped toy with patchy fur curls in the den, watching Pip with button eyes.")
+        (LDESC "A fox-shaped toy with patchy fur curls in the den, watching you with button eyes.")
         (DESCFCN NUTMEG-DESC-F)
         (FLAGS ACTORBIT)
         (ACTION NUTMEG-F)>
@@ -575,7 +575,7 @@
         (SYNONYM KEY)
         (ADJECTIVE WORKSHOP BRASS TICKING)
         (DESC "workshop key")
-        (LDESC "The workshop key hangs from a string around the fox's neck. Its faint ticking is the only sound in the den.")
+        (LDESC "The workshop key hangs from a string around the fox's neck, ticking faintly.")
         (FLAGS TAKEBIT NDESCBIT)
         (SIZE 3)
         (ACTION WORKSHOP-KEY-F)>
