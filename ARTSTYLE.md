@@ -18,6 +18,12 @@ defocused shelves—with low contrast and no faces, clues, or strong edges. It
 must occupy **25–30% of the image**, feel like part of the scene, and never
 look like a panel, box, parchment, or blank hole.
 
+Keep the entire text footprint on one broadly consistent color and value field,
+such as open sky, grass, a softly lit wall, or an out-of-focus area. Gentle
+gradients are welcome, but avoid mixing bright windows or highlights with dark
+corners, silhouettes, or other abrupt value changes behind the text. White text
+must remain clearly readable at every point in the region.
+
 Keep the region large and calm enough for several lines of text. Let nearby
 foreground objects overlap or frame its edge naturally. Do not fill it with
 texture, props, high-frequency detail, or bright highlights.
@@ -108,9 +114,11 @@ character lineup for atmosphere.
 > High-end illustrated children’s storybook, cinematic and tactile but not
 > photorealistic. Preserve the exact scene, gameplay clues, object states, and
 > character relationships. Compose one large integrated out-of-focus text
-> region in the real environment before adding detail; keep it low-contrast,
-> quiet, and free of faces or important objects, with foreground forms gently
-> framing its edge. Use strong foreground/middle/background depth, motivated
+> region in the real environment before adding detail; keep its full footprint
+> on one broadly consistent color and value field, low-contrast, quiet, and free
+> of faces or important objects. Avoid bright-to-dark transitions behind white
+> text, and let foreground forms gently frame the region's edge. Use strong
+> foreground/middle/background depth, motivated
 > warm key light, cool fill, visible falloff, colored shadows, rim light,
 > restrained bloom, dust or sawdust motes, atmospheric perspective, rich wood,
 > brass, copper, glass, cloth, leather, and ground-debris materials. Use crisp
