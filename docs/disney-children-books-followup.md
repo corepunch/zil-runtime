@@ -148,6 +148,62 @@ Practical writing rule:
 - If there is no image, every important scene detail must be translated into text.
 - The text has to replace the picture's job, not just narrate around it.
 
+### Narrative voice: third person by default
+
+For the Disney-style children's-book mode, use a named protagonist and third-person narration by default:
+
+> Milo freezes. Something moves behind the cabinet.
+
+This lets the child control a character without having to pretend that they literally are the character. It also gives illustrations a stable subject: the protagonist can have a recognizable face, clothing, expressions, relationships, and physical actions. The result feels closer to an interactive picture book than to an illustrated terminal transcript.
+
+Do not make grammatical person a universal engine rule. Choose it as part of the book's narrative mode:
+
+| Mode | Feeling | Best fit |
+| --- | --- | --- |
+| Third person — “Maya opened the door” | Watching and guiding a character | Young children, fairy tales, Disney-like storybooks |
+| Second person — “You opened the door” | Being inside the adventure | Self-insertion, superheroes, mysteries, older readers |
+| First person — “I opened the door” | A character telling their own story | Diary, confessional, or strongly voiced narrators |
+
+The default for this project should therefore be **third-person named characters**, while the underlying ZIL engine remains capable of supporting other narrative modes.
+
+### Room titles should do the location work
+
+When the interface already displays a room name as a prominent title, do not spend the first sentence repeating that the protagonist is in the same place. Prefer:
+
+```text
+ABANDONED WORKSHOP
+
+Alex wipes a finger across the workbench. Under twelve years of dust,
+someone has scratched a tiny arrow into the wood.
+```
+
+Avoid:
+
+```text
+ABANDONED WORKSHOP
+
+Alex is in an abandoned workshop. Dust covers the workbench...
+```
+
+The title establishes **where**. The illustration establishes **what it looks like**. The prose should add action, sensory detail, character reaction, change, or a meaningful clue. Repeating the location is acceptable only when it contributes something new, such as: “For once, the Forbidden Forest doesn't look particularly forbidden.”
+
+This is a presentation rule for the storybook surface, not a ban on spatial language. A character may still be described as entering, crossing, hiding in, or returning to a place when that movement matters to the scene.
+
+### What Infocom did — and did not — avoid
+
+The historical comparison is useful, but the answer is not that Infocom solved this completely. Classic Infocom is overwhelmingly second person, not first person, and its room descriptions often use “You are...” or “You stand...” even when the room title has just appeared.
+
+The local source makes the split clear:
+
+- `infocom/zork1/actions.zil`, `WEST-HOUSE`, prints the heading `West of House` through the room description system and then begins the prose, “You are standing in an open field west of a white house...”.
+- `infocom/zork2/gverbs.zil`, `DESCRIBE-ROOM`, prints the room's `DESC` first and then emits its `LDESC`. Zork II's room sources contain many corresponding “You are inside...” and “You are standing...” openings.
+- Infocom did deliberately separate terse room/object identity from contextual prose. `DESC` is the label used for a room or object; `LDESC`/`FDESC` are authored descriptions. `NDESCBIT` suppresses objects that are already naturally described in room prose, avoiding a second automatic object listing.
+- The Zork II routine even contains a commented-out automatic vehicle clarification, `(You are in the <vehicle>.)`, suggesting that the authors were conscious of unnecessary explanatory repetition in at least some cases.
+
+So: yes, the writers cared about repetition and built mechanisms to control it, especially for objects and dynamic descriptions. But the classic room format still optimized for a text-only simulation: the heading identified the location, while the following paragraph re-established the player's physical position and visible geometry. That was functional orientation in a screen with no illustration, not a strict literary rule against duplication.
+
+For our Disney-like surface, the medium is different. A title plus illustration already supplies the orientation that Infocom had to encode in prose. We should keep Infocom's useful separation between labels and descriptions, then go one step further: **never begin a room passage with “You are in [room]” or “Alex is in [room]” unless the sentence changes the meaning.**
+
 ### For a Zork-style children's adaptation
 
 This is the most interesting hybrid.
@@ -171,6 +227,32 @@ Use the activity-sheet pattern as a rule for early puzzles:
 - Use one obvious verb family per goal, such as `find`, `follow`, `match`, `help`, or `steer`.
 - Give immediate, concrete feedback for a correct action.
 - Do not require the child to know a hidden verb or infer an unseen object.
+
+### Wondertown pattern to preserve: a breadcrumb mystery
+
+The second Wondertown scene, `SNOWY-ALLEY`, works because the fox footprints are a **breadcrumb mystery** (also called a curiosity hook or trail clue): they create an unanswered question, point to a visible next action, and then pay it off with a more meaningful encounter.
+
+The exact sequence is worth reusing:
+
+1. **A trace:** unusual toy-sized fox footprints appear in fresh snow.
+2. **A question:** who made them, and why are they leaving the workshop?
+3. **A direction:** the trail explicitly leads east, so the player can act without guessing.
+4. **A reward:** following it eventually reveals Nutmeg, the patchy fox toy, and turns the missing-key problem into an emotional story.
+
+That is why the scene feels rewarding rather than merely descriptive: the detail is both a story promise and a playable instruction.
+
+Apply this to every early child-facing mystery:
+
+- Show one strange, concrete trace rather than explaining the whole problem.
+- Make the first follow-up action obvious.
+- Put a small discovery soon after it.
+- Let the discovery deepen the question instead of merely confirming it.
+
+### Wondertown opening revision: mystery first, detail on demand
+
+The first room previously introduced several atmospheric details at once: sawdust, the pet door, the clock, the workbench, the empty hook, and the tool bench. The key hook is the strongest opening hook, so the room description now leads with it and names only the two immediate routes. The other details remain examinable through their existing object responses.
+
+Rule for future opening rooms: put only the **mystery, usable landmark, and immediate choice** in `LOOK`; reserve optional texture, history, and secondary objects for `EXAMINE`. This follows the adventure-writing skill's opening-scene rule: one landmark, one visible object, one blocker, and one quick reward.
 
 That means we can write one underlying story bible, then express it in two surfaces:
 

@@ -1,10 +1,11 @@
-## Classic hand-painted animated-feature background
+## Digital animated-feature background
 
-It resembles the painted background art used in late-20th-century theatrical animation and illustrated storybooks:
+It resembles polished modern digital illustration for a premium children’s storybook:
 
-* **Traditional gouache/watercolor appearance**, even when produced digitally
-* **Painterly shapes rather than visible line art**
-* Soft, blended gradients and slightly airbrushed lighting
+* **Fully digital art with no visible paint medium**
+* No canvas weave, paper grain, brush strokes, or pigment texture
+* Clean painterly shapes rather than visible line art
+* Soft, blended gradients and controlled lighting
 * Simplified architecture with exaggerated, theatrical proportions
 * Strong perspective: the viewer looks dramatically upward into the scene
 * Large foreground forms framing the composition
@@ -12,8 +13,13 @@ It resembles the painted background art used in late-20th-century theatrical ani
 * Controlled palette built around a few harmonious colours
 * Warm golden light against cool blue-green shadows
 * Atmospheric depth: distant elements are softer, lighter, and less detailed
-* Surfaces are painted in broad tonal masses, with only selected edge details
-* A polished children’s animation look—not sketchy, photorealistic, 3D-rendered, or heavily textured
+* Surfaces are rendered in broad tonal masses with crisp edges where needed
+* A polished children’s animation look, not sketchy, photorealistic, 3D-rendered, or heavily textured
+
+Characters should use crisp 2D linework, flat local colour, and graphic
+restrained cel shading so they stand out clearly from the environment while
+still matching the illustration. Use hard-edged shadow planes rather than
+softly blended painterly gradients.
 
 The organ image is especially effective because it treats the location almost like a character. The pipes are enlarged, curved and arranged rhythmically, producing a grand, magical, slightly mysterious feeling.
 
@@ -21,17 +27,17 @@ The organ image is especially effective because it treats the location almost li
 
 Use this as the general art direction for the entire book:
 
-> A lavishly illustrated children’s storybook in the style of a traditional hand-painted animated feature. Painterly gouache backgrounds, graceful simplified shapes, soft atmospheric perspective, carefully staged theatrical compositions, expressive lighting, warm highlights against cool coloured shadows, subtle brush texture, and elegant fantasy architecture. Environments should feel grand and magical but remain readable and inviting for children. Avoid photorealism and modern 3D-rendered surfaces. The illustrations should look like production background paintings from a classic animated film, adapted for a premium picture book.
+> A lavishly illustrated children’s storybook in the style of a polished digital animated feature. Clean digital backgrounds, graceful simplified shapes, soft atmospheric perspective, carefully staged theatrical compositions, expressive lighting, warm highlights against cool coloured shadows, and elegant fantasy architecture. Environments should feel grand and magical but remain readable and inviting for children. Avoid photorealism, visible brush texture, canvas grain, paper texture, and modern 3D-rendered surfaces. The illustrations should look like premium storybook art from a classic animated film, rendered as fully digital art.
 
 ## Prompt specifically matching the middle image
 
-> A monumental fantasy pipe-organ chamber illustrated as a classic hand-painted animated-feature background. The viewpoint is very low, looking dramatically upward through enormous curving organ pipes. Tall cylindrical pipes overlap in layers and frame both sides of the image. At the top stands an ornate decorative organ façade with flowing golden scrollwork and stylized theatrical masks. A small illuminated console sits far below, emphasizing the immense scale of the room. Deep turquoise and blue-green shadows, warm ivory and golden light, soft atmospheric haze, broad gouache-painted forms, subtle airbrushed gradients, rounded stylized architecture, elegant visual rhythm, cinematic composition, magical and slightly mysterious mood. Traditional children’s storybook illustration, polished 2D animation background painting, no visible outlines, no photorealism, no 3D-rendered look.
+> A monumental fantasy pipe-organ chamber illustrated as a polished digital animated-feature background. The viewpoint is very low, looking dramatically upward through enormous curving organ pipes. Tall cylindrical pipes overlap in layers and frame both sides of the image. At the top stands an ornate decorative organ façade with flowing golden scrollwork and stylized theatrical masks. A small illuminated console sits far below, emphasizing the immense scale of the room. Deep turquoise and blue-green shadows, warm ivory and golden light, soft atmospheric haze, smooth digital shading, rounded stylized architecture, elegant visual rhythm, cinematic composition, magical and slightly mysterious mood. Premium children’s storybook illustration, polished 2D digital background art, no visible brush texture, no photorealism, no 3D-rendered look.
 
 ## For pages containing characters
 
-The first and third examples combine a simpler **cel-animated character style** with softly painted backgrounds. Use:
+The first and third examples combine a simpler **flat-shaded animated character style** with softly rendered digital backgrounds. Use:
 
-> Expressive, cleanly drawn animated characters with simple readable silhouettes, restrained facial detail, smooth controlled outlines, and flat local colours with gentle cel shading. Characters should sit naturally inside softly painted gouache environments. Poses should be theatrical and immediately understandable, suitable for a children’s picture book.
+> Expressive, cleanly drawn 2D animated characters with simple readable silhouettes, restrained facial detail, crisp controlled outlines, flat local colours, and graphic cel shading with one or two hard-edged shadow planes. Characters should sit naturally inside polished digital environments. Poses should be theatrical and immediately understandable, suitable for a children’s picture book. Avoid painterly gradients, visible brush texture, glossy CGI, and photorealistic material rendering.
 
 For visual consistency, keep character proportions, outline thickness, eye design, colour palette, and shading method fixed across every page.
 

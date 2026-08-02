@@ -48,7 +48,7 @@
     <QUEUE I-TICK 1>
     <COND (,GAME-WON <RTRUE>)>
     <COND (<L? ,TICK-COUNT 1>
-           <TELL "The sun rises over Wrenfold. The last tick fades into silence. The magic is gone. The workshop is still. You are alone -- but you tried, Pip. You tried." CR>
+           <TELL "The sun rises over Wrenfold. The last tick fades into silence. The magic is gone. The workshop is still. Pip stands alone -- but Pip tried. Pip tried." CR>
            <SETG TICK-COUNT 0>
            <JIGS-UP "The dawn has come, and the toys have fallen silent forever.">)
           (T
@@ -59,7 +59,7 @@
     <QUEUE I-DAWN-WARNING 25>
     <COND (,GAME-WON <RTRUE>)>
     <COND (<L? ,TICK-COUNT 6>
-           <TELL "Sunlight touches the rooftops through the window. You have minutes, not hours. Hurry!" CR>)
+           <TELL "Sunlight touches the rooftops through the window. Pip has minutes, not hours. Hurry!" CR>)
           (<L? ,TICK-COUNT 11>
            <TELL "The toys around the workshop are growing still -- their magic waning. Hurry!" CR>)
           (<L? ,TICK-COUNT 21>
@@ -78,7 +78,7 @@
           (<AND <IN? ,NUTMEG ,FOX-DEN>
                 <EQUAL? ,NUTMEG-TRUST 0>>
            <COND (<EQUAL? ,HERE ,FOX-DEN>
-                  <TELL "The fox toy shifts in her nest, watching you warily." CR>)>)
+                  <TELL "The fox toy shifts in her nest, watching Pip warily." CR>)>)
           (<AND <IN? ,NUTMEG ,FOX-DEN>
                 <EQUAL? ,NUTMEG-TRUST 1>>
            <COND (<EQUAL? ,HERE ,FOX-DEN>
@@ -86,7 +86,7 @@
           (<AND <IN? ,NUTMEG ,FOX-DEN>
                 <EQUAL? ,NUTMEG-TRUST 2>>
            <COND (<EQUAL? ,HERE ,FOX-DEN>
-                  <TELL "Nutmeg looks at you with something almost like hope in her button eyes." CR>)>)
+                  <TELL "Nutmeg looks at Pip with something almost like hope in her button eyes." CR>)>)
           (<AND <EQUAL? ,NUTMEG-TRUST -1>
                 <L? ,NUTMEG-KEY-METHOD 2>>
            <COND (<EQUAL? ,HERE ,FOX-DEN>
@@ -108,17 +108,17 @@
 
 <ROUTINE COUNTERTOP-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
-           <TELL "You are on the countertop -- the toy display. Through the frosted shop window you can see the snowy street outside, the clock tower visible in the distance.">
+           <TELL "The toy display spreads across the countertop. Through the frosted shop window, the snowy street and distant clock tower glow in the moonlight.">
            <TELL " Stairs lead back down to the tool bench." CR>)>>
 
 <ROUTINE STORAGE-LOFT-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
-           <TELL "The storage loft is dusty and dim, cobwebs draping the rafters like grey curtains.">
+           <TELL "Dust softens the storage loft, and cobwebs drape the rafters like grey curtains.">
            <TELL " Stairs lead back down." CR>)>>
 
 <ROUTINE SCRAP-YARD-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
-           <TELL "The scrap-yard is a sad place. Broken toys are piled everywhere.">
+           <TELL "Broken toys lie beneath the snow: dolls, horses, and little painted things someone once loved.">
            <COND (,CART-MOVED
                   <TELL " The iron gate to the east stands open now.">)
                  (T
@@ -127,7 +127,7 @@
 
 <ROUTINE FOX-DEN-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
-           <TELL "A cosy den made of rags and twigs, tucked between old crates. A tiny toy candle burns inside, casting warm shadows.">
+           <TELL "Rags and twigs form a cosy den between the old crates. A tiny toy candle warms the shadows.">
            <TELL " The exit leads west to the scrap-yard." CR>)>>
 
 ; === DYNAMIC OBJECT DESCRIPTIONS ===
@@ -169,11 +169,11 @@
 <ROUTINE NUTMEG-DESC-F (RARG)
     <COND (<EQUAL? .RARG ,M-OBJDESC>
            <COND (<G? ,NUTMEG-TRUST 2>
-                  <TELL "Nutmeg watches you with soft button eyes, the place around her neck where the workshop key hung now empty." CR>)
+                  <TELL "Nutmeg watches Pip with soft button eyes. The place around her neck where the workshop key hung is empty now." CR>)
                  (<EQUAL? ,NUTMEG-TRUST -1>
-                  <TELL "Nutmeg curls in the farthest corner with her back to you, clutching the workshop key close." CR>)
+                  <TELL "Nutmeg curls in the farthest corner with her back to Pip, clutching the workshop key close." CR>)
                  (T
-                  <TELL "A patchy fox toy curls in a nest of rags, watching you warily. The workshop key ticks faintly around her neck." CR>)>
+                  <TELL "A patchy fox toy curls in a nest of rags, watching Pip warily. The workshop key ticks faintly around her neck." CR>)>
            <RTRUE>)>>
 
 ; === V-WIND HANDLER ===
@@ -183,7 +183,7 @@
            <COND (,BERTRAND-WOUND
                   <TELL "Bertrand is already wound -- and rather full of himself because of it." CR>)
                  (<IN? ,BERTRAND-KEY ,WINNER>
-                  <TELL "You insert the tiny brass key into the nutcracker's back and wind. His jaw snaps shut with a sharp CLACK, then opens wide. 'At last! A proper winding! I have been stuck in this ridiculous pose for hours. Captain Bertrand of the Nutcracker Brigade, at your service!' He clicks his heels and steps aside with a smart salute. The way upstairs is clear." CR>
+                  <TELL "Pip inserts the tiny brass key into the nutcracker's back and winds. Bertrand's jaw snaps shut with a sharp CLACK, then opens wide. 'At last! A proper winding! I have been stuck in this ridiculous pose for hours. Captain Bertrand of the Nutcracker Brigade, at your service!' He clicks his heels and steps aside with a smart salute. The way upstairs is clear." CR>
                   <SETG BERTRAND-WOUND T>
                   <MOVE ,BERTRAND-KEY ,WINNER>)
                  (T
@@ -193,19 +193,19 @@
            <COND (,TOWER-WOUND
                   <TELL "The clock tower is already wound. Time is flowing as slowly as it can." CR>)
                  (<IN? ,TIN-SOLDIER ,WINNER>
-                  <TELL "You stand on the tin soldier's shoulders and reach the winding mechanism. With all your strength, you turn the brass wheel. The clock tower's ticking slows to a deep, ponderous beat. Time itself stretches, buying you precious extra hours." CR>
+                  <TELL "Pip climbs onto the tin soldier's shoulders and reaches the winding mechanism. With all Pip's strength, the brass wheel turns. The clock tower's ticking slows to a deep, ponderous beat. Time itself stretches, buying precious extra hours." CR>
                   <SETG CLOCK-SLOWED T>
                   <SETG TOWER-WOUND T>)
                  (T
-                  <TELL "The winding mechanism is just out of reach. You need something to stand on -- something tall and sturdy. Perhaps one of the larger toys could help." CR>)>
+                  <TELL "The winding mechanism is just out of reach. Pip needs something tall and sturdy to stand on. Perhaps one of the larger toys could help." CR>)>
            <RTRUE>)
           (<EQUAL? ,PRSO ,OLD-TICK>
            <COND (<NOT ,OLD-TICK-HEARD>
-                  <TELL "You reach up and wind the old cuckoo clock. Its hands shudder and begin to move. A tiny wooden bird emerges from its door and chimes: 'The hour of reckoning comes. Behind me lies the way, but only the fox knows how to open it.'" CR>
+                  <TELL "Pip reaches up and winds the old cuckoo clock. Its hands shudder and begin to move. A tiny wooden bird emerges from its door and chimes: 'The hour of reckoning comes. Behind me lies the way, but only the fox knows how to open it.'" CR>
                   <SETG OLD-TICK-HEARD T>
                   <SETG OLD-TICK-RIDDLES <+ ,OLD-TICK-RIDDLES 1>>)
                  (T
-                  <TELL "Old Tick chimes again, its wooden bird peering at you. 'You have wound me twice, small one. Few show such patience. The latch behind me -- it needs a small paw to reach it. Have you made a fox-friend?'" CR>
+                  <TELL "Old Tick chimes again, its wooden bird peering at Pip. 'You have wound me twice, small one. Few show such patience. The latch behind me -- it needs a small paw to reach it. Have you made a fox-friend?'" CR>
                   <SETG OLD-TICK-RIDDLES <+ ,OLD-TICK-RIDDLES 1>>)>
            <COND (<AND <G? ,NUTMEG-TRUST 0>
                        <NOT ,STUDY-ACCESS>>
@@ -215,23 +215,23 @@
                  (<AND <EQUAL? ,NUTMEG-TRUST -1>
                        <IN? ,TIN-SOLDIER ,WINNER>
                        <NOT ,STUDY-ACCESS>>
-                  <TELL " You hear a click behind the clock. Without Nutmeg's help, you have to improvise. Using the tin soldier's bayonet, you manage to hook the hidden latch. The clock swings open, revealing stairs." CR>
+                  <TELL " A click sounds behind the clock. Without Nutmeg's help, Pip improvises. The tin soldier's bayonet hooks the hidden latch, and the clock swings open to reveal the stairs." CR>
                   <SETG STUDY-ACCESS T>
                   <SCORE-UPD 5>)>
            <RTRUE>)
           (<EQUAL? ,PRSO ,MUSIC-BOX>
-           <TELL "You turn the tiny crank on the music box. A soft melody fills the air -- a lullaby that Grandfather Tolliver used to hum while he worked. The sound is both sweet and sad. You feel, very briefly, as if he were standing right beside you." CR>
+           <TELL "Pip turns the tiny crank on the music box. A soft melody fills the air -- a lullaby Grandfather Tolliver used to hum while he worked. The sound is sweet and sad. For one brief moment, it feels as if he is standing beside Pip." CR>
            <FSET ,MUSIC-BOX ,TOUCHBIT>
            <RTRUE>)
           (<EQUAL? ,PRSO ,HEART-MECH>
            <COND (<NOT ,KEY-FOUND>
-                  <TELL "The heart mechanism is silent. Its keyhole is dark and empty. You need the workshop key to bring it back to life." CR>)
+                  <TELL "The heart mechanism is silent. Its keyhole is dark and empty. The workshop key is needed to bring it back to life." CR>)
                  (<NOT <IN? ,WORKSHOP-KEY ,WINNER>>
-                  <TELL "You need to be holding the workshop key to wind the heart." CR>)
+                  <TELL "Pip must be holding the workshop key to wind the heart." CR>)
                  (,KEY-WOUND
                   <TELL "The heart is already turning. Its gears are moving -- but too slowly. It needs companions now, not more winding." CR>)
                  (T
-                  <TELL "You insert the workshop key into the brass keyhole. It fits perfectly -- a click, then a deep shudder runs through the entire chamber. Gears begin to turn, slowly at first, then faster. The heart is beating." CR>
+                  <TELL "Pip inserts the workshop key into the brass keyhole. It fits perfectly -- a click, then a deep shudder runs through the chamber. Gears begin to turn, slowly at first, then faster. The heart is beating." CR>
                    <TELL " But something is still missing. The heart is turning, but it needs more than mechanical power to truly beat. It needs the love the toys carry -- the companions you have made along your journey. Each friend you have helped can lend their strength." CR>
                    <SETG KEY-WOUND T>
                    <SCORE-UPD 5>
@@ -247,21 +247,21 @@
            <COND (,LADDER-OILED
                   <TELL "The mechanism is already well-oiled and working smoothly." CR>)
                  (<IN? ,OIL-CAN ,WINNER>
-                  <TELL "You work oil from the tiny copper can into the rusty joints. With a satisfying creak, the mechanism loosens. The spool staircase is climbable now." CR>
+                  <TELL "Pip works oil from the tiny copper can into the rusty joints. With a satisfying creak, the mechanism loosens. The spool staircase is climbable now." CR>
                   <SETG LADDER-OILED T>
                   <SCORE-UPD 5>)
                  (T
-                  <TELL "You need oil to lubricate the mechanism. There might be an oil can somewhere in the workshop." CR>)>
+                  <TELL "The mechanism needs oil. An oil can may be waiting somewhere in the workshop." CR>)>
            <RTRUE>)
           (<EQUAL? ,PRSO ,SPOOL-STAIRS>
            <COND (,LADDER-OILED
                   <TELL "The spool staircase is already working smoothly." CR>)
                  (<IN? ,OIL-CAN ,WINNER>
-                  <TELL "You oil the spool staircase's lifting mechanism. It loosens with a satisfying creak." CR>
+                  <TELL "Pip oils the spool staircase's lifting mechanism. It loosens with a satisfying creak." CR>
                   <SETG LADDER-OILED T>
                   <SCORE-UPD 5>)
                  (T
-                  <TELL "You need oil. Try looking under the workbench." CR>)>
+                  <TELL "The iron needs oil. The workbench may be hiding a can." CR>)>
            <RTRUE>)
            (T
             <TELL "That does not need oiling." CR>)>>
@@ -342,38 +342,38 @@
 
 <ROUTINE WORKBENCH-F ()
     <COND (<VERB? EXAMINE LOOK-INSIDE>
-           <TELL "The enormous workbench towers above you. Its surface is cluttered with tools and half-finished toys. Underneath, something small and copper catches the light." CR>)
+           <TELL "The enormous workbench towers over Pip. Its surface is cluttered with tools and half-finished toys. Underneath, something small and copper catches the light." CR>)
           (<VERB? LOOK-UNDER>
            <COND (<IN? ,OIL-CAN ,WORKBENCH>
-                  <TELL "You peer under the workbench. A tiny copper oil can sits in the shadows." CR>)
+                  <TELL "Pip peers under the workbench. A tiny copper oil can sits in the shadows." CR>)
                  (T
                   <TELL "There is nothing under the workbench now." CR>)>
            <RTRUE>)
           (<VERB? CLIMB CLIMB-FOO CLIMB-UP>
-           <TELL "You scramble up the workbench leg. From up here, you can see the whole workshop -- the key hook on the wall, the pet door, the cuckoo clock. You climb back down, the view fresh in your mind." CR>
+           <TELL "Pip scrambles up the workbench leg. From that height, the whole workshop comes into view: the empty key hook, the pet door, and the cuckoo clock. Pip climbs down with the picture fixed in mind." CR>
            <RTRUE>)>>
 
 <ROUTINE OIL-CAN-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "A tiny copper oil can, no bigger than your thumb. It is about half full. The label reads: 'Tolliver's Finest -- For Squeaks and Stiff Joints.'" CR>)
+           <TELL "A tiny copper oil can, no bigger than Pip's thumb. It is about half full. The label reads: 'Tolliver's Finest -- For Squeaks and Stiff Joints.'" CR>)
           (<VERB? SHAKE>
-           <TELL "You shake the can gently. Oil sloshes inside -- enough for a few uses." CR>)>>
+           <TELL "Pip shakes the can gently. Oil sloshes inside -- enough for a few uses." CR>)>>
 
 <ROUTINE SAWDUST-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "Soft golden sawdust covers the floorboards. It smells of cedar and old wood. If you had time, you might sweep it up. But tonight, there are more important things." CR>)
+           <TELL "Soft golden sawdust covers the floorboards. It smells of cedar and old wood. Pip would sweep it on any other night, but tonight there are more important things." CR>)
           (<VERB? TAKE>
-           <TELL "The sawdust slips through your fingers. You cannot carry enough to be useful." CR>)>>
+           <TELL "The sawdust slips through Pip's fingers. There is not enough to carry." CR>)>>
 
 <ROUTINE PET-DOOR-F ()
     <COND (<VERB? EXAMINE>
            <TELL "A small pet door is cut into the bottom of the workshop's main door. It is just the right size for a wind-up apprentice -- or a fox toy. Moonlight and cold air seep through the flap." CR>)
           (<VERB? OPEN>
-           <TELL "The pet door flap swings freely. You can go through it to the north, into the snowy night." CR>)>>
+           <TELL "The pet door flap swings freely. It is just wide enough for Pip to slip into the snowy night." CR>)>>
 
 <ROUTINE SWEEP-BROOM-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "Your tiny broom. The bristles are worn from many nights of sweeping, and the handle is smooth from use. It was one of the first things Tolliver ever made for you." CR>)>>
+           <TELL "Pip's tiny broom has worn bristles and a handle smooth from use. It was one of the first things Tolliver ever made for his apprentice." CR>)>>
 
 <ROUTINE CLOCK-FACE-F ()
     <COND (<VERB? EXAMINE>
@@ -384,7 +384,7 @@
                   <TELL " The clock has swung open, revealing a narrow staircase leading upward.">)>
            <TELL CR>)
           (<VERB? LISTEN>
-           <TELL "You press your ear to the clock. Tick, tick, tick -- steady as a heartbeat. Behind the ticking, you almost hear something else: a deeper rhythm, like another heart beating somewhere far below." CR>)>>
+           <TELL "Pip presses an ear to the clock. Tick, tick, tick -- steady as a heartbeat. Beneath it comes another rhythm, deeper and farther away, like a second heart below the workshop." CR>)>>
 
 <ROUTINE KEY-STRING-F ()
     <COND (<VERB? EXAMINE>
@@ -393,7 +393,7 @@
 <ROUTINE SPOOL-STAIRS-F ()
     <COND (<VERB? EXAMINE>
            <COND (,LADDER-OILED
-                  <TELL "A staircase made of giant wooden thread spools. With the lifting mechanism oiled, the stairs move smoothly. You can climb up to the storage loft." CR>)
+                  <TELL "A staircase made of giant wooden thread spools. With the lifting mechanism oiled, the stairs move smoothly toward the storage loft." CR>)
                   (T
                    <TELL "A staircase made of giant wooden thread spools leads upward. The lifting mechanism is rusted solid -- it will not budge without oil." CR>)>)>>
 
@@ -406,9 +406,9 @@
            <RTRUE>)
           (<VERB? TURN>
            <COND (,LADDER-OILED
-                  <TELL "The mechanism turns smoothly under your hands. The spool stairs shift upward." CR>)
+                  <TELL "The mechanism turns smoothly under Pip's hands. The spool stairs shift upward." CR>)
                  (T
-                  <TELL "You strain against the mechanism, but it is rusted solid. You need to oil it first." CR>)>
+                  <TELL "Pip strains against the mechanism, but it is rusted solid. The iron needs oil first." CR>)>
            <RTRUE>)>>
 
 ; === TOOL-BENCH OBJECT HANDLERS ===
@@ -421,9 +421,9 @@
                   <TELL "A painted wooden nutcracker stands frozen mid-stride, one foot raised. His jaw is clamped tight -- whether in a grimace or a smile, it is hard to say. There is a tiny brass winding key in his back." CR>)>)
           (<VERB? PUSH>
            <COND (,BERTRAND-WOUND
-                  <TELL "Captain Bertrand does not appreciate being pushed. He glares at you but steps aside anyway." CR>)
+                  <TELL "Captain Bertrand does not appreciate being pushed. He glares at Pip but steps aside anyway." CR>)
                  (T
-                  <TELL "He is far too heavy to push. Besides, you would never want to be rude to a nutcracker." CR>)>)
+                  <TELL "Bertrand is far too heavy to push. Besides, Pip would never want to be rude to a nutcracker." CR>)>)
           (<VERB? TALK-TO ASK TELL>
            <COND (,BERTRAND-WOUND
                   <COND (<EQUAL? ,PRSI ,WORKSHOP-KEY>
@@ -431,7 +431,7 @@
                         (<EQUAL? ,PRSI ,TOLLIVER-COAT>
                          <TELL "'The Grandfather? Finest toymaker in three counties. He wound me himself, every evening at six.' His voice softens. 'He has not come down tonight. I am... concerned.'" CR>)
                         (T
-                         <TELL "'I am Captain Bertrand of the Nutcracker Brigade. State your business, small apprentice.' He seems to be waiting for you to address him properly." CR>)>)
+                         <TELL "'I am Captain Bertrand of the Nutcracker Brigade. State your business, small apprentice.' He seems to be waiting for Pip to address him properly." CR>)>)
                   (T
                    <TELL "His painted mouth stays clamped shut. He looks like he has plenty to say, if only someone would wind him up." CR>)>)>>
 
@@ -448,7 +448,7 @@
 
 <ROUTINE TOOL-RACK-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "A wooden rack of tools hangs on the wall: tiny chisels, needle-files, a jeweller's hammer. Everything a toymaker needs. Everything except what you are looking for." CR>)>>
+           <TELL "A wooden rack of tools hangs on the wall: tiny chisels, needle-files, and a jeweller's hammer. Everything a toymaker needs -- except the missing key." CR>)>>
 
 ; === COUNTERTOP OBJECT HANDLERS ===
 
@@ -493,7 +493,7 @@
                   <TELL " The case has a small brass latch." CR>)>)
           (<AND <VERB? OPEN>
                 <NOT <FSET? ,DISPLAY-CASE ,OPENBIT>>>
-           <TELL "You flip the brass latch and open the display case. The glass lid lifts smoothly, releasing the faint scent of old polish." CR>
+           <TELL "Pip flips the brass latch and opens the display case. The glass lid lifts smoothly, releasing the faint scent of old polish." CR>
            <FSET ,DISPLAY-CASE ,OPENBIT>
            <RTRUE>)
            (<AND <VERB? OPEN>
@@ -508,13 +508,13 @@
 <ROUTINE MUSIC-BOX-F ()
     <COND (<VERB? EXAMINE>
            <COND (<FSET? ,MUSIC-BOX ,TOUCHBIT>
-                  <TELL "A silver music box. Its crank has been turned recently, and you can almost still hear the echo of its melody." CR>)
+                  <TELL "A silver music box. Its crank has been turned recently, and the echo of its melody still seems to linger." CR>)
                   (T
                    <TELL "A small silver music box with a tiny crank on its side. It looks like it would play a tune if wound." CR>)>)>>
 
 <ROUTINE SHOP-WINDOW-F ()
     <COND (<VERB? EXAMINE LOOK-THROUGH>
-           <TELL "Through the frosted shop window, you can see the snowy street outside. The clock tower is visible in the distance, its face pale in the moonlight. The snow is deep -- deeper than you are tall.">
+           <TELL "Through the frosted shop window, Pip can see the snowy street outside. The clock tower's face is pale in the moonlight, and the snow is deeper than Pip is tall.">
            <COND (<L? ,TICK-COUNT 31>
                   <TELL " The sky is noticeably lighter now. Dawn is approaching.">)>
            <TELL CR>)>>
@@ -530,7 +530,7 @@
            <COND (,OLD-TICK-HEARD
                   <TELL "The old cuckoo clock is awake now. Its hands move steadily, and the little wooden bird peers out from its door with bright painted eyes. It has the air of something very old and very patient." CR>)
                  (T
-                  <TELL "An old cuckoo clock, the twin of the one downstairs. It is dusty and still, its hands frozen at five to midnight. Odd -- it feels like it is waiting for you to do something." CR>)>)
+                  <TELL "An old cuckoo clock, the twin of the one downstairs. It is dusty and still, its hands frozen at five to midnight. Odd -- it seems to be waiting for Pip to do something." CR>)>)
            (<VERB? ASK TELL>
             <COND (<AND ,OLD-TICK-HEARD
                         <OR <EQUAL? ,PRSI ,TOPIC-TOLLIVER>
@@ -542,9 +542,9 @@
                    <TELL "The clock remains silent. It seems to be waiting for a more... mechanical form of attention." CR>)>)
           (<VERB? LISTEN>
            <COND (,OLD-TICK-HEARD
-                  <TELL "You listen. The clock ticks with a deep, resonant tone -- almost like a heartbeat. Beneath it, you hear something else: the distant echo of another mechanism, somewhere below." CR>)
+                  <TELL "Pip listens. The clock ticks with a deep, resonant tone -- almost like a heartbeat. Beneath it comes the distant echo of another mechanism, somewhere below." CR>)
                  (T
-                  <TELL "You press your ear to the old clock. Silence. But then -- was that a faint tick? It is hard to tell. The clock seems to need winding before it will speak." CR>)>)>>
+                  <TELL "Pip presses an ear to the old clock. Silence. But then -- was that a faint tick? It is hard to tell. The clock seems to need winding before it will speak." CR>)>)>>
 
 <ROUTINE TOY-BOX-F ()
     <COND (<VERB? EXAMINE>
@@ -557,7 +557,7 @@
                   <TELL "A dusty cardboard box labelled 'Broken -- For Repair'. The flaps are tucked shut." CR>)>)
            (<AND <VERB? OPEN>
                  <NOT <FSET? ,TOY-BOX ,OPENBIT>>>
-            <TELL "You open the cardboard box. Inside are broken toy parts: a porcelain doll arm, a wooden wheel, some springs. Tolliver always meant to fix these." CR>
+            <TELL "Pip opens the cardboard box. Inside are broken toy parts: a porcelain doll arm, a wooden wheel, and some springs. Tolliver always meant to fix them." CR>
             <FSET ,TOY-BOX ,OPENBIT>
             <RTRUE>)
            (<AND <VERB? OPEN>
@@ -594,25 +594,25 @@
 
 <ROUTINE SNOW-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "Fresh snow blankets the cobblestones. It sparkles in the moonlight, untouched except for the fox footprints. It is cold -- you can feel it even through your wind-up body." CR>)
+           <TELL "Fresh snow blankets the cobblestones. It sparkles around the fox footprints, and its cold reaches even through Pip's wind-up body." CR>)
           (<VERB? TAKE>
-           <TELL "The snow melts in your tiny hands. You cannot carry it anywhere useful." CR>)>>
+           <TELL "The snow melts in Pip's tiny hands. There is no useful way to carry it." CR>)>>
 
 ; === CLOCK-SQUARE OBJECT HANDLERS ===
 
 <ROUTINE CLOCK-TOWER-F ()
     <COND (<VERB? EXAMINE>
            <COND (,TOWER-WOUND
-                  <TELL "The clock tower stands over the square, its great face now ticking with a slow, steady beat. Time feels stretched -- you have bought yourself precious extra hours." CR>)
+                  <TELL "The clock tower stands over the square, its great face now ticking with a slow, steady beat. Time feels stretched -- Pip has bought precious extra hours." CR>)
                   (T
-                   <TELL "The giant clock tower dominates the square. Its face shows the hours until dawn -- each tick of its great hand a reminder that time is running out. A brass winding mechanism sits at the base, but it is too high for you to reach alone." CR>)>)>>
+                   <TELL "The giant clock tower dominates the square. Its face shows the hours until dawn -- each tick of its great hand a reminder that time is running out. A brass winding mechanism sits at the base, too high for Pip to reach alone." CR>)>)>>
 
 <ROUTINE CLOCK-WINDING-F ()
     <COND (<VERB? EXAMINE>
            <COND (,TOWER-WOUND
                   <TELL "The brass winding mechanism has been turned. The gears inside move with a slow, deliberate rhythm." CR>)
                   (T
-                   <TELL "A brass winding mechanism at the tower's base. It is just out of reach -- if only you had something to stand on." CR>)>)>>
+                   <TELL "A brass winding mechanism at the tower's base. It is just out of reach -- Pip needs something to stand on." CR>)>)>>
 
 <ROUTINE BAKER-TOY-F ()
     <COND (<VERB? EXAMINE>
@@ -633,7 +633,7 @@
            <TELL "The mailbox flap is already open. It hangs loose, like a mouth ready to speak." CR>
            <RTRUE>)
           (<VERB? CLOSE>
-           <TELL "You try to close the flap, but it swings open again immediately -- as if the mailbox has something to say." CR>
+           <TELL "Pip tries to close the flap, but it swings open again immediately -- as if the mailbox has something to say." CR>
            <RTRUE>)
           (<VERB? ASK TELL>
            <COND (<EQUAL? ,PRSI ,NUTMEG>
@@ -670,12 +670,12 @@
            <COND (,CART-MOVED
                   <TELL "The cart is already out of the way." CR>)
                  (T
-                  <TELL "The cart is far too heavy for you to push. It rumbles softly, almost like a growl -- but it does not move." CR>)>)
+                  <TELL "The cart is far too heavy for Pip to push. It rumbles softly, almost like a growl -- but it does not move." CR>)>)
           (<VERB? ATTACK>
            <COND (,CART-MOVED
                   <TELL "The cart has done nothing to you. Leave it be." CR>)
                   (T
-                   <TELL "The cart does not fight back. It simply continues its work, creaking along its track, ignoring you entirely." CR>)>)>>
+                   <TELL "The cart does not fight back. It simply continues its work, creaking along its track and ignoring Pip entirely." CR>)>)>>
 
 <ROUTINE HEADLESS-DOLL-F ()
     <COND (<VERB? EXAMINE>
@@ -687,14 +687,14 @@
 
 <ROUTINE TOY-HORSE-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "A wooden toy horse, its paint chipped and one leg missing. It rocks gently when you touch it, as if dreaming of galloping." CR>)>>
+           <TELL "A wooden toy horse, its paint chipped and one leg missing. It rocks gently at Pip's touch, as if dreaming of galloping." CR>)>>
 
 <ROUTINE YARD-GATE-F ()
     <COND (<VERB? EXAMINE>
            <COND (,CART-MOVED
                   <TELL "The iron gate leads east. Now that the cart has moved aside, the way is clear." CR>)
                   (T
-                   <TELL "An iron gate leads east, but the scrap cart is blocking the way. You cannot squeeze past it." CR>)>)>>
+                   <TELL "An iron gate leads east, but the scrap cart is blocking the way. Pip cannot squeeze past it." CR>)>)>>
 
 ; === FOX-DEN OBJECT HANDLERS ===
 
@@ -703,16 +703,16 @@
            <COND (<NOT <IN? ,NUTMEG ,FOX-DEN>>
                   <TELL "Nutmeg is not here. Her den feels empty -- just rags and a dying candle." CR>)
                  (<G? ,NUTMEG-TRUST 2>
-                  <TELL "Nutmeg, the fox toy. Her patchy orange fur and mismatched button eyes give her a lopsided, vulnerable look. She watches you with something close to trust now. The workshop key is no longer around her neck." CR>)
+                  <TELL "Nutmeg, the fox toy. Her patchy orange fur and mismatched button eyes give her a lopsided, vulnerable look. She watches Pip with something close to trust now. The workshop key is no longer around her neck." CR>)
                  (<EQUAL? ,NUTMEG-TRUST -1>
-                  <TELL "Nutmeg is curled in the furthest corner of her den, her back to you. Her shoulders tremble slightly. The key is still around her neck, but she will not let you near it." CR>)
+                  <TELL "Nutmeg is curled in the furthest corner of her den, her back to Pip. Her shoulders tremble slightly. The key is still around her neck, but she will not let Pip near it." CR>)
                  (T
-                  <TELL "A fox-shaped toy with patchy orange fur. Her button eyes watch you warily. The workshop key -- the one from the empty hook -- hangs from a string around her neck. It ticks faintly, its magic growing weaker." CR>)>)
+                  <TELL "A fox-shaped toy with patchy orange fur. Her button eyes watch Pip warily. The workshop key -- the one from the empty hook -- hangs from a string around her neck. It ticks faintly, its magic growing weaker." CR>)>)
           (<VERB? ATTACK>
            <COND (<EQUAL? ,NUTMEG-TRUST -1>
-                  <TELL "You have already hurt her enough. She flinches at your movement but does not fight back." CR>)
+                  <TELL "Pip has already hurt her enough. She flinches at Pip's movement but does not fight back." CR>)
                  (T
-                  <TELL "Nutmeg flinches. 'I knew it,' she whispers. 'You are just like the others.' She retreats to the deepest corner of the den, key clutched tight to her chest. She will not look at you anymore." CR>
+                  <TELL "Nutmeg flinches. 'I knew it,' she whispers. 'You are just like the others.' She retreats to the deepest corner of the den, key clutched tight to her chest. She will not look at Pip anymore." CR>
                   <SETG NUTMEG-TRUST -1>)>
            <RTRUE>)
           (<VERB? ASK TELL>
@@ -742,7 +742,7 @@
            (<AND <VERB? TAKE>
                  <NOT ,KEY-FOUND>
                  <EQUAL? ,NUTMEG-TRUST -1>>
-            <TELL "Nutmeg growls softly. The key is around her neck, and she will not let you near it. Not after what you did." CR>)
+            <TELL "Nutmeg growls softly. The key is around her neck, and she will not let Pip near it. Not after what Pip did." CR>)
            (<AND <VERB? TAKE>
                  <NOT ,KEY-FOUND>
                  <L? ,NUTMEG-TRUST 1>>
@@ -750,7 +750,7 @@
           (<AND <VERB? TAKE>
                 <NOT ,KEY-FOUND>
                 <G? ,NUTMEG-TRUST 0>>
-           <TELL "Nutmeg is quiet for a long moment. Then, slowly, she paws the key off her neck and places it before you. 'Take it,' she says. Her voice cracks. 'I am sorry I took it. I just... I did not want to be alone when the ticking stopped. But you came all this way. You really care, do you not?' She looks up at you with her mismatched button eyes. 'Promise you will come back. Please.'" CR>
+           <TELL "Nutmeg is quiet for a long moment. Then, slowly, she paws the key off her neck and places it before Pip. 'Take it,' she says. Her voice cracks. 'I am sorry I took it. I just... I did not want to be alone when the ticking stopped. But you came all this way. You really care, do you not?' She looks up at Pip with her mismatched button eyes. 'Promise you will come back. Please.'" CR>
            <SETG KEY-FOUND T>
            <SETG NUTMEG-KEY-METHOD 1>
            <MOVE ,WORKSHOP-KEY ,WINNER>
@@ -764,9 +764,9 @@
 
 <ROUTINE TOY-CANDLE-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "A tiny toy candle, no bigger than your finger. Its flame is steady and warm -- real fire, real light. It must have been burning for a long time." CR>)
+           <TELL "A tiny toy candle, no bigger than Pip's finger. Its flame is steady and warm -- real fire, real light. It must have been burning for a long time." CR>)
           (<VERB? LAMP-OFF BLOW>
-           <TELL "You consider blowing it out, but something stops you. It is the only warmth in this cold little den." CR>)>>
+           <TELL "Pip considers blowing it out, but stops. It is the only warmth in this cold little den." CR>)>>
 
 <ROUTINE STRING-BALL-F ()
     <COND (<VERB? EXAMINE>
@@ -778,13 +778,13 @@
     <COND (<VERB? EXAMINE>
            <TELL "Grandfather Tolliver's worn tweed coat. It still smells like him -- wood shavings, lamp oil, and something faintly like peppermint. The pockets are empty." CR>)
           (<VERB? WEAR>
-           <TELL "The coat is far too large for you. It would swallow you whole. But you wrap a corner of it around your shoulders for a moment. It is warm. It still feels like him." CR>)>>
+           <TELL "The coat is far too large for Pip; it would swallow him whole. Still, Pip wraps a corner around his shoulders. It is warm. It still feels like Tolliver." CR>)>>
 
 <ROUTINE TEA-CUP-F ()
     <COND (<VERB? EXAMINE>
            <TELL "A cup of tea, long gone cold. A skin of dust floats on the surface. Tolliver never got to finish it." CR>)
           (<VERB? DRINK>
-           <TELL "You dip your finger in the cold tea. It is bitter with age. You leave the rest." CR>)>>
+           <TELL "Pip dips one finger in the cold tea. It is bitter with age, so he leaves the rest." CR>)>>
 
 <ROUTINE STUDY-DESK-F ()
     <COND (<VERB? EXAMINE LOOK-INSIDE>
@@ -822,13 +822,13 @@
            <COND (,KEY-WOUND
                   <TELL "The workshop heart is turning now -- slowly, but steadily. Its brass gears catch the candlelight. A deep, resonant ticking fills the chamber. It sounds like hope.">
                   <COND (<G? ,COMPANION-COUNT 0>
-                         <TELL " The presence of your companions has made the light brighter, the ticking stronger.">)>
+           <TELL " The presence of Pip's companions has made the light brighter, the ticking stronger.">)>
                   <TELL " A brass keyhole gleams at its centre -- the workshop key is in place." CR>)
                  (T
                   <TELL "The workshop's heart -- a vast brass mechanism of interlocking gears -- stands silent and still. At its centre, a keyhole waits, dark and empty. Around the walls, dozens of toys stand frozen in the shadows, as if they came here hoping to be rewound." CR>)>)
           (<VERB? LISTEN>
            <COND (,KEY-WOUND
-                  <TELL "You press your hand to the mechanism. Tick, tick, tick -- a heartbeat. Growing stronger." CR>)
+                  <TELL "Pip presses a hand to the mechanism. Tick, tick, tick -- a heartbeat, growing stronger." CR>)
                   (T
                    <TELL "Silence. The heart is completely still. Not even an echo." CR>)>)>>
 
@@ -845,7 +845,7 @@
                   <COND (,GAME-WON
                          <TELL "The toys around the heart are stirring. Paint is brightening. Joints are loosening. They are waking up." CR>)
                         (T
-                         <TELL "The silent toys around the chamber walls. Their painted eyes seem to follow you. They are waiting -- hoping -- that you can bring the magic back." CR>)>)
+                         <TELL "The silent toys around the chamber walls. Their painted eyes seem to follow Pip. They are waiting -- hoping -- that the magic will return." CR>)>)
                   (T
                    <TELL "Dozens of toy figures stand around the heart chamber. Soldiers, dolls, wooden animals -- all of them motionless. Their paint is dull. Their joints are stiff. They are waiting for the heart to beat again." CR>)>)>>
 
@@ -854,9 +854,9 @@
 <ROUTINE WORKSHOP-BUILDING-F ()
     <COND (<VERB? EXAMINE>
            <COND (,GAME-WON
-                  <TELL "The workshop looks different now. Warm light glows in every window. The magic has returned, and you can feel it -- a steady, gentle hum from deep within the building." CR>)
+                  <TELL "The workshop looks different now. Warm light glows in every window. The magic has returned, a steady, gentle hum from deep within the building." CR>)
                   (T
-                   <TELL "Grandfather Tolliver's workshop -- a cosy old building with frosted windows and a crooked chimney. From outside, you would never guess the magic it holds within." CR>)>)>>
+                   <TELL "Grandfather Tolliver's workshop -- a cosy old building with frosted windows and a crooked chimney. From outside, nobody would guess the magic it holds within." CR>)>)>>
 
 <ROUTINE MOON-F ()
     <COND (<VERB? EXAMINE>
@@ -871,7 +871,7 @@
 
 <ROUTINE COBBLER-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "An old cobbler's shop, its sign creaking in the wind. Through the dusty window you can see tiny shoes on display -- doll-sized boots and toy-sized slippers, all gathering dust. No one has worked here in a long time." CR>)>>
+           <TELL "An old cobbler's shop, its sign creaking in the wind. Through the dusty window, tiny shoes gather dust: doll-sized boots and toy-sized slippers. No one has worked here in a long time." CR>)>>
 
 ; === GIVE HANDLER OVERRIDES ===
 
@@ -922,7 +922,7 @@
                  (,CART-MOVED
                   <TELL "The cart has already moved aside. Its work here is done." CR>)
                  (T
-                  <TELL "You hold up the porcelain doll head. The cart pauses. A mechanical arm -- surprisingly gentle -- extends and takes the head from your hands. It places the head beside the headless doll in its bed. For a moment, the cart is perfectly still. Then it rumbles -- a low, soft sound, like a purr -- and rolls slowly aside, revealing the iron gate to the east." CR>
+           <TELL "Pip holds up the porcelain doll head. The cart pauses. A mechanical arm -- surprisingly gentle -- extends and takes the head from Pip's hands. It places the head beside the headless doll in its bed. For a moment, the cart is perfectly still. Then it rumbles -- a low, soft sound, like a purr -- and rolls aside, revealing the iron gate to the east." CR>
                   <SETG CART-MOVED T>
                   <SETG CART-HELPED T>
                   <SCORE-UPD 5>)>
@@ -941,27 +941,27 @@
     <COND (<NOT <EQUAL? ,HERE ,WORKSHOP-HEART>>
            <TELL "There is no reason to place that here." CR>)
           (<NOT ,KEY-WOUND>
-           <TELL "The heart is not yet wound. You need to wind it with the key first." CR>)
+           <TELL "The heart is not yet wound. Pip must wind it with the key first." CR>)
           (<EQUAL? ,PRSO ,TIN-SOLDIER>
-           <TELL "You place the tin soldier beside the heart mechanism. He snaps to attention -- and the heart ticks louder, stronger. His painted eyes seem to brighten. 'Standing guard,' he seems to say, though his tin mouth never moves." CR>
+           <TELL "Pip places the tin soldier beside the heart mechanism. He snaps to attention -- and the heart ticks louder, stronger. His painted eyes seem to brighten. 'Standing guard,' he seems to say, though his tin mouth never moves." CR>
            <SETG COMPANION-COUNT <+ ,COMPANION-COUNT 1>>
            <SCORE-UPD 10>
            <MOVE ,TIN-SOLDIER ,WORKSHOP-HEART>
            <CHECK-ENDING>)
           (<EQUAL? ,PRSO ,MUSIC-BOX>
-           <TELL "You place the silver music box near the heart. Its crank turns by itself, and the lullaby fills the chamber. The gears respond -- their rhythm shifts to match the melody." CR>
+           <TELL "Pip places the silver music box near the heart. Its crank turns by itself, and the lullaby fills the chamber. The gears respond -- their rhythm shifts to match the melody." CR>
            <SETG COMPANION-COUNT <+ ,COMPANION-COUNT 1>>
            <SCORE-UPD 10>
            <MOVE ,MUSIC-BOX ,WORKSHOP-HEART>
            <CHECK-ENDING>)
           (<EQUAL? ,PRSO ,DOLL-ARM>
-           <TELL "You place the doll arm gently beside the heart. It is a small gesture, but the heart knows -- every mended toy, every kind act, feeds the magic." CR>
+           <TELL "Pip places the doll arm gently beside the heart. It is a small gesture, but the heart knows -- every mended toy, every kind act, feeds the magic." CR>
            <SETG COMPANION-COUNT <+ ,COMPANION-COUNT 1>>
            <SCORE-UPD 10>
            <MOVE ,DOLL-ARM ,WORKSHOP-HEART>
            <CHECK-ENDING>)
           (<EQUAL? ,PRSO ,BUTTON>
-           <TELL "You place the spare button at the heart's base. A tiny offering -- but the heart remembers everything." CR>
+           <TELL "Pip places the spare button at the heart's base. A tiny offering -- but the heart remembers everything." CR>
            <SETG COMPANION-COUNT <+ ,COMPANION-COUNT 1>>
            <SCORE-UPD 10>
            <MOVE ,BUTTON ,WORKSHOP-HEART>
@@ -998,16 +998,16 @@
            <TELL "The workshop heart beats -- a deep, steady rhythm that echoes through every corner of Wrenfold. The clock tower chimes. Toys stir in shop windows all across the square. Streetlamps flicker to full brightness. The magic is back." CR CR>
            <TELL "Grandfather Tolliver's voice, somehow, whispers through the gears: 'Well done, apprentice. Well done.'" CR CR>
            <COND (,NUTMEG-SAVED
-                  <TELL "Nutmeg curls at your feet, her patchy fur warm and her new red scarf bright in the candlelight. 'You kept your promise,' she says. 'Nobody ever kept their promise before.'" CR CR>)>
+                  <TELL "Nutmeg curls at Pip's feet, her patchy fur warm and her new red scarf bright in the candlelight. 'You kept your promise,' she says. 'Nobody ever kept their promise before.'" CR CR>)>
            <TELL "The sun rises over Wrenfold, and every toy in town is awake to see it." CR>
-           <TELL "The last of the night's cold fades from your gears. You are home." CR CR>
-           <TELL "*** You have restored the heart of Wrenfold ***" CR>)
+           <TELL "The last of the night's cold fades from Pip's gears. At last, Pip is home." CR CR>
+           <TELL "*** Pip has restored the heart of Wrenfold ***" CR>)
           (T
            <SETG ENDING-TIER 1>
            <TELL CR>
            <TELL "The workshop heart shudders and begins to turn -- weakly, unsteadily, but it turns. A few toys in the nearest shop windows stir and blink. The streetlamps flicker but do not stay lit." CR CR>
            <TELL "Grandfather Tolliver's voice comes through the gears as a faint whisper, barely audible: '...well done, apprentice... keep trying...'" CR CR>
            <TELL "The heart beats, but softly -- too softly to wake every toy. Some are still asleep this morning. But the magic is not gone. It lingers, waiting for someone to bring more love into this world." CR CR>
-           <TELL "The sun rises, pale and cold. You have done what you could, Pip. There is still work ahead." CR CR>
-           <TELL "*** You have saved what you could of Wrenfold ***" CR>)>
+           <TELL "The sun rises, pale and cold. Pip has done what he could. There is still work ahead." CR CR>
+           <TELL "*** Pip has saved what he could of Wrenfold ***" CR>)>
     <FINISH>>
