@@ -16,10 +16,18 @@ It resembles polished modern digital illustration for a premium children’s sto
 * Surfaces are rendered in broad tonal masses with crisp edges where needed
 * A polished children’s animation look, not sketchy, photorealistic, 3D-rendered, or heavily textured
 
-Characters should use crisp 2D linework, flat local colour, and graphic
-restrained cel shading so they stand out clearly from the environment while
-still matching the illustration. Use hard-edged shadow planes rather than
-softly blended painterly gradients.
+Characters should use the same painterly digital rendering as the environment:
+matching light direction, atmospheric haze, material texture, soft gradients,
+and depth. Do not render characters as a separate cel-shaded, flat, outlined,
+sticker-like, or graphic layer.
+
+Pip is no taller than a teacup, approximately 8–12 cm in-world. In workshop
+scenes he must read as genuinely tiny beside the workbench, drawers, tools,
+oil can, broom, door, and floorboards. Use low eye-level perspective, enlarged
+foreground forms, cinematic warm key light, cool moonlit fill, visible dust and
+sawdust motes, rich wood grain, worn leather, tarnished brass, glass reflections,
+colored shadows, and atmospheric depth. Keep a quiet low-detail region for
+future story text while preserving all gameplay clues.
 
 The organ image is especially effective because it treats the location almost like a character. The pipes are enlarged, curved and arranged rhythmically, producing a grand, magical, slightly mysterious feeling.
 
@@ -37,7 +45,12 @@ Use this as the general art direction for the entire book:
 
 The first and third examples combine a simpler **flat-shaded animated character style** with softly rendered digital backgrounds. Use:
 
-> Expressive, cleanly drawn 2D animated characters with simple readable silhouettes, restrained facial detail, crisp controlled outlines, flat local colours, and graphic cel shading with one or two hard-edged shadow planes. Characters should sit naturally inside polished digital environments. Poses should be theatrical and immediately understandable, suitable for a children’s picture book. Avoid painterly gradients, visible brush texture, glossy CGI, and photorealistic material rendering.
+> Expressive painterly digital animated characters with simple readable
+> silhouettes, restrained facial detail, warm/cool cinematic lighting, soft
+> atmospheric integration, and tactile material rendering. Characters should
+> sit naturally inside polished digital environments. Poses should be theatrical
+> and immediately understandable, suitable for a children’s picture book. Do
+> not use a separate cel-shaded or sticker-like character layer.
 
 For visual consistency, keep character proportions, outline thickness, eye design, colour palette, and shading method fixed across every page.
 
