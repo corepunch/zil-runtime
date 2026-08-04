@@ -53,6 +53,7 @@ adventure-name/
 │   ├── STORY_STATE.md     # Game state variables
 │   ├── TRANSCRIPT_TESTS.md # Test transcript plans
 │   ├── PROSE.md           # Room/object descriptions, NPC topics
+│   ├── ILLUSTRATION_PLAN.md # Selected dramatic beats and composition briefs
 │   ├── HINTS.md           # Progressive hint system
 │   └── ITERATION.md       # Development roadmap
 ├── test/                  # Stage 6: Testing materials
@@ -66,6 +67,12 @@ adventure-name/
     ├── REVIEWS.md         # Critical reviews
     └── METADATA.md        # Technical details
 ```
+
+Illustrated adventures may also add `ARTSTYLE.zil` and
+`CHARACTER_DESIGN_BIBLE.md` at the adventure root, plus host-specific image
+assets and a logical-key manifest. Follow
+[`docs/ILLUSTRATING_ADVENTURES.md`](../docs/ILLUSTRATING_ADVENTURES.md); do not
+infer illustration coverage from rooms alone.
 
 ## Non-Negotiable: Play As You Build
 

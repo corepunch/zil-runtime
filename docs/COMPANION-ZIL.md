@@ -1295,6 +1295,9 @@ a previously valid payload.
 ## Scene illustrations
 
 The companion can describe the logical scene while keeping artwork outside ZIL.
+For the editorial workflow that selects dramatic beats, separates art style
+from beat planning, and verifies text-image pairs, see
+[Illustrating Adventures as Interactive Storybooks](ILLUSTRATING_ADVENTURES.md).
 
 ```zil
 <ROUTINE SUGGEST-SCENE ()

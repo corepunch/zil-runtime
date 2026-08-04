@@ -9,7 +9,7 @@
 
 ## PREMISE
 
-You are **Pip**, a wind-up apprentice — no taller than a teacup — who works for Grandfather Tolliver, the last toymaker in the town of **Wrenfold**. Every night after the shop closes, the toys wake up. Pip's job is small and simple: oil the joints, sweep the sawdust, keep the workshop running before dawn.
+You are **Pip**, a tiny workshop gnome apprentice — no taller than a teacup — who works for Grandfather Tolliver, the last toymaker in the town of **Wrenfold**. Every night after the shop closes, the toys wake up. Pip's job is small and simple: oil the joints, sweep the sawdust, keep the workshop running before dawn.
 
 Tonight, Grandfather Tolliver doesn't come down to lock up. His workshop key — the only thing that keeps the shop's magic wound — has stopped ticking on its hook. Without it, the toys will fall silent by sunrise, one by one, forever.
 

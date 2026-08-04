@@ -17,21 +17,24 @@ make every character a small human in a different costume.
 
 | Character | Selected construction | Why it wins |
 |---|---|---|
-| Pip | Option 2: brown-cap leather-apron apprentice | The warmest and most natural fit for the workshop; instantly readable as a child who works with his hands. |
-| Bertrand | Option 1: tall classic wooden nutcracker guard | Clear contrast with Pip’s tin body; the carved jaw and rigid posture sell his pompous military personality. |
-| Old Tick | Option 1: wall cuckoo clock with little wooden legs | Most iconic and readable; gives the riddle-speaker a clear face, door, pendulum, and physical comedy. |
+| Pip | Option 2: brown-cap leather-apron workshop folk-child | The warmest and most natural fit for the workshop; instantly readable as a tiny magical child who works with his hands. |
+| Grandfather Tolliver | Option 1: slender bespectacled toymaker | His long, slightly rumpled silhouette and gentle face balance wisdom, weariness, and precise craftsmanship. |
+| Bertrand | Option 1: tall classic wooden nutcracker guard | Clear contrast with Pip’s living folk-child body; the carved jaw and rigid posture sell his pompous military personality. |
+| Old Tick | Option 1: rustic peaked wall cuckoo clock | Most iconic and readable; the expressive bird supplies the speaking face while the case, dial, and weights preserve the antique-clock silhouette. |
 | Marzipan | Option 7: lopsided quilt-patchwork doll | Makes her handmade history visible; asymmetry supports her one-eyed, secretly perceptive personality. |
 | Nutmeg | Option 1: soft plush fox with floppy ears | The most emotionally expressive and huggable version; the worn softness supports her loneliness and eventual trust. |
 
 ## Pip — final model
 
-Pip is a small, friendly **workshop apprentice boy**. He has a soft compact
+Pip is a small, friendly **magical workshop folk-child**, with the approachable
+quality of a young brownie or gnome. He has a soft compact
 storybook silhouette, a brown padded newsboy/work cap, tousled brown hair, a
 warm childlike face, a cream rolled-sleeve shirt, a brown leather workshop
 apron with pockets, dark green cropped trousers, striped socks, and sturdy
 brown lace-up boots. His apron carries ordinary hand tools.
 
-Important change: Pip has **no winding mechanism**. Do not draw a key, gears,
+Pip is a living magical child, not a toy, robot, or automaton. He has **no
+winding mechanism**. Do not draw a key, gears,
 springs, exposed clockwork, a circular gear emblem, or mechanical parts on his
 body or clothing. The workshop’s magic exists in the world and its toys; Pip
 does not need a mechanism on his body.
@@ -64,7 +67,8 @@ board:
 > no springs, no clockwork, no mechanical emblems, no watermark, no
 > photorealism, no glossy CGI, no anime.
 
-Reference asset: [pip-final-celshade.png](pip-final-celshade.png)
+Definitive reference asset:
+[wondertown-cast-reference.png](design-explorations/wondertown-cast-reference.png)
 
 ## Cel-shading rules
 
@@ -121,11 +125,11 @@ than threatening.
 
 ## Old Tick — selected model
 
-Old Tick is a **living wall cuckoo clock with little wooden legs**. His warm
-walnut case has a peaked top, an ivory clock face, expressive hands, a small
-cuckoo door that works like a mouth, a visible pendulum, and two hanging
-weights. His legs are short and slightly crooked. The clock face carries the
-character’s eyes without becoming a human face pasted onto a clock.
+Old Tick is a **living rustic wall cuckoo clock**. His warm walnut cottage case
+has a steep peaked roof, carved scrollwork, tiny evergreen details, an ivory
+clock face, a leaf pendulum, and two pinecone weights. A small expressive
+wooden bird in the upper door is the speaking face; emotion is reinforced by
+the bird’s eyes, brows, beak, head tilt, and the overall posture of the case.
 
 ### Old Tick option board
 
@@ -140,10 +144,10 @@ character’s eyes without becoming a human face pasted onto a clock.
 
 ### Old Tick reproduction prompt
 
-> Charming living antique wall cuckoo clock, warm walnut case, peaked roof,
-> ivory clock face with expressive hands, small cuckoo door as a speaking mouth,
-> visible pendulum and two hanging weights, short crooked wooden legs, wise and
-> rumpled personality, premium polished children’s animated-feature character
+> Charming living antique wall cuckoo clock, warm walnut cottage case, steep
+> peaked roof, carved scrollwork and tiny evergreen details, ivory clock face,
+> leaf pendulum and two pinecone weights, expressive wooden bird speaking from
+> the upper door, wise and rumpled personality, premium polished children’s animated-feature character
 > art, clean outlines, restrained cel shading, warm highlights and cool shadows.
 > No realistic human body, no photorealism, no glossy CGI, no clutter.
 
@@ -207,10 +211,12 @@ her anatomy. Her defensive posture should be able to soften into a curl.
 ## Consistency rules for the future artbook
 
 - Keep each character’s construction fixed across expressions and poses.
-- Pip remains tin, Bertrand remains carved wood, Old Tick remains a clock,
-  Marzipan remains quilt cloth, and Nutmeg remains plush.
-- Keep Pip’s navy / cream / muted-red uniform stable; vary expression and pose,
-  not costume identity.
+- Pip remains a living magical workshop folk-child; Bertrand remains carved
+  wood, Old Tick remains a clock, Marzipan remains quilt cloth, and Nutmeg
+  remains plush.
+- Keep Pip’s brown work cap, cream shirt, brown leather apron, dark green
+  trousers, striped socks, brown boots, and muted teal neckerchief stable; vary
+  expression and pose, not costume identity.
 - Use a shared eye language: large readable eyes, simple highlights, no anime
   sparkle overload.
 - Use restrained cel shading and warm highlights against cool shadows.
