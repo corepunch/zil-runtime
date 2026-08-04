@@ -53,6 +53,15 @@ authoritative workflow is
 and authoring format are specified in
 [Companion ZIL Files](docs/COMPANION-ZIL.md).
 
+## Illustrating Adventures
+
+To turn a playable adventure into a beat-illustrated interactive storybook,
+follow [Illustrating Adventures as Interactive Storybooks](docs/ILLUSTRATING_ADVENTURES.md).
+It defines the beat inventory, selection, generation, runtime mapping, and QA
+workflow. Keep each adventure's visual identity separate in `ARTSTYLE.zil` and
+`CHARACTER_DESIGN_BIBLE.md`; those files define how the book looks, while the
+guide defines which dramatic moments receive art.
+
 ## Available Skills
 
 The `.opencode/skills/` directory provides stage-specific skills loadable with the `skill` tool:

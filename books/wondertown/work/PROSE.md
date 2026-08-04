@@ -109,7 +109,7 @@
 - "'Foxy, foxy, all alone / Colder than a stepping stone / Give her something warm and red / And she might trust a word you've said.'"
 
 **GIVE BUTTON TO MARZIPAN:**
-- "'For me?' Her stitched face seems to brighten. She sews the button on as a second eye. Now both eyes watch you. 'Thank you, little wind-up one. I'll sing you a secret now.'"
+- "'For me?' Her stitched face seems to brighten. She sews the button on as a second eye. Now both eyes watch you. 'Thank you, little apprentice. I'll sing you a secret now.'"
 - Secret song: "'Behind the ticking, ticking clock / A door that needs no key or lock / But small paws only fit the crack / To push the hidden latch way back.'"
 
 ### Nutmeg (Fox Toy)

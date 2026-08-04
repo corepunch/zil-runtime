@@ -10,7 +10,7 @@
 
 ## Synopsis
 
-You are Pip, a wind-up apprentice no taller than a teacup, working for Grandfather Tolliver, the last toymaker in Wrenfold. Every night, the toys wake up. Tonight, they may never wake again.
+You are Pip, a tiny workshop gnome apprentice no taller than a teacup, working for Grandfather Tolliver, the last toymaker in Wrenfold. Every night, the toys wake up. Tonight, they may never wake again.
 
 The workshop key — the source of all magic in town — is missing from its hook. Pip must venture beyond the cosy workshop into the snowy streets of Wrenfold, where every streetlamp, mailbox, and shopfront was once a discarded toy. The key was taken by Nutmeg, a fox-shaped toy so long alone she no longer believes she was ever loved.
 

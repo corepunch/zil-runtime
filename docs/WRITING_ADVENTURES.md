@@ -1754,6 +1754,10 @@ Use this checklist before submitting your adventure:
 - [ ] `SYNOPSIS.md` — full description for the game detail page
 - [ ] `REVIEWS.md` — sample reviews (author, rating, title, body; feeds `reviews` array)
 - [ ] `METADATA.md` — title, genre, author, year, rating (all fields needed for Games.json)
+- [ ] For an illustrated edition, follow
+      [Illustrating Adventures as Interactive Storybooks](ILLUSTRATING_ADVENTURES.md)
+      and create `work/ILLUSTRATION_PLAN.md`; keep beat selection separate from
+      the adventure's `ARTSTYLE.zil` and character design bible
 
 ---
 

@@ -367,7 +367,7 @@
 
 <ROUTINE PET-DOOR-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "A small pet door is cut into the bottom of the workshop's main door. It is just the right size for a wind-up apprentice -- or a fox toy. Moonlight and cold air seep through the flap." CR>)
+           <TELL "A small pet door is cut into the bottom of the workshop's main door. It is just the right size for a workshop gnome -- or a fox toy. Moonlight and cold air seep through the flap." CR>)
           (<VERB? OPEN>
            <TELL "The pet door flap swings freely. It is just wide enough for Pip to slip into the snowy night." CR>)>>
 
@@ -594,7 +594,7 @@
 
 <ROUTINE SNOW-F ()
     <COND (<VERB? EXAMINE>
-           <TELL "Fresh snow blankets the cobblestones. It sparkles around the fox footprints, and its cold reaches even through Pip's wind-up body." CR>)
+           <TELL "Fresh snow blankets the cobblestones. It sparkles around the fox footprints, and its cold reaches even through Pip's woollen clothes." CR>)
           (<VERB? TAKE>
            <TELL "The snow melts in Pip's tiny hands. There is no useful way to carry it." CR>)>>
 
@@ -883,7 +883,7 @@
            <COND (,MARZIPAN-BUTTON
                   <TELL "Marzipan already has her second eye. She touches it with a stitched finger and smiles." CR>)
                  (T
-                  <TELL "Marzipan takes the button in her fabric hand. 'For me?' She looks at it -- then at you. Her stitched smile somehow seems wider. She sews the button into place beside her other eye. Now both eyes watch you with warmth. 'Thank you, little wind-up one. Now I can see twice as much. Let me sing you a secret.' She leans close and whispers: 'Behind the ticking, ticking clock, a door that needs no key or lock. But small paws only fit the crack -- the fox can push the hidden latch way back.'" CR>
+                  <TELL "Marzipan takes the button in her fabric hand. 'For me?' She looks at it -- then at you. Her stitched smile somehow seems wider. She sews the button into place beside her other eye. Now both eyes watch you with warmth. 'Thank you, little apprentice. Now I can see twice as much. Let me sing you a secret.' She leans close and whispers: 'Behind the ticking, ticking clock, a door that needs no key or lock. But small paws only fit the crack -- the fox can push the hidden latch way back.'" CR>
                    <SETG MARZIPAN-BUTTON T>
                    <SCORE-UPD 3>
                    <MOVE ,BUTTON ,MARZIPAN>)>
@@ -1000,7 +1000,7 @@
            <COND (,NUTMEG-SAVED
                   <TELL "Nutmeg curls at Pip's feet, her patchy fur warm and her new red scarf bright in the candlelight. 'You kept your promise,' she says. 'Nobody ever kept their promise before.'" CR CR>)>
            <TELL "The sun rises over Wrenfold, and every toy in town is awake to see it." CR>
-           <TELL "The last of the night's cold fades from Pip's gears. At last, Pip is home." CR CR>
+           <TELL "The last of the night's cold fades from Pip's bones. At last, Pip is home." CR CR>
            <TELL "*** Pip has restored the heart of Wrenfold ***" CR>)
           (T
            <SETG ENDING-TIER 1>
