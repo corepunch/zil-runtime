@@ -106,6 +106,22 @@
                   <TELL " The way upward is blocked.">)>
            <TELL CR>)>>
 
+<ROUTINE WORKBENCH-TOP-FCN (RARG)
+    <COND (<EQUAL? .RARG ,M-LOOK>
+           <TELL "The workbench top stretches around Pip like a wooden plain. Half-finished toys wait beneath the lamp, and the workshop floor lies far below.">
+           <COND (,REPAIR-BOOK-OPEN
+                  <TELL " Tolliver's illustrated repair book stands open, its paper workshop rising from the pages.">)
+                 (T
+                  <TELL " Tolliver's enormous illustrated repair book rests closed beside a toy sailboat.">)>
+           <TELL CR>)>>
+
+<ROUTINE WORKBENCH-DOWN-EXIT ()
+    <COND (,REPAIR-BOOK-OPEN
+           <TELL "The paper workshop trembles in the open book. Pip cannot leave it balanced like that; the heavy cover must be closed first." CR>
+           <RFALSE>)
+          (T
+           <RETURN ,WORKSHOP-FLOOR>)>>
+
 <ROUTINE COUNTERTOP-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
            <TELL "The toy display spreads across the countertop. Through the frosted shop window, the snowy street and distant clock tower glow in the moonlight.">
@@ -344,13 +360,14 @@
     <COND (<VERB? EXAMINE LOOK-INSIDE>
            <TELL "The enormous workbench towers over Pip. Its surface is cluttered with tools and half-finished toys. Underneath, something small and copper catches the light." CR>)
           (<VERB? LOOK-UNDER>
-           <COND (<IN? ,OIL-CAN ,WORKBENCH>
+           <COND (<IN? ,OIL-CAN ,WORKSHOP-FLOOR>
                   <TELL "Pip peers under the workbench. A tiny copper oil can sits in the shadows." CR>)
                  (T
                   <TELL "There is nothing under the workbench now." CR>)>
            <RTRUE>)
           (<VERB? CLIMB CLIMB-FOO CLIMB-UP>
-           <TELL "Pip scrambles up the workbench leg. From that height, the whole workshop comes into view: the empty key hook, the pet door, and the cuckoo clock. Pip climbs down with the picture fixed in mind." CR>
+           <TELL "Pip scrambles up the carved workbench leg, using drawer handles and wooden joints as footholds. At last one hand catches the tabletop. Pip swings over the edge and lands among curls of cedar shavings." CR>
+           <GOTO ,WORKBENCH-TOP>
            <RTRUE>)>>
 
 <ROUTINE OIL-CAN-F ()
@@ -449,6 +466,38 @@
 <ROUTINE TOOL-RACK-F ()
     <COND (<VERB? EXAMINE>
            <TELL "A wooden rack of tools hangs on the wall: tiny chisels, needle-files, and a jeweller's hammer. Everything a toymaker needs -- except the missing key." CR>)>>
+
+; === WORKBENCH TOP OBJECT HANDLERS ===
+
+<ROUTINE REPAIR-BOOK-F ()
+    <COND (<VERB? EXAMINE>
+           <COND (,REPAIR-BOOK-OPEN
+                  <TELL "The open book is a miniature workshop made from paper: gears, stairs, benches, and doors all folded into one another. A mouse with an oil can stands beside a pencilled path that winds toward a second heart beneath the floor." CR>)
+                 (T
+                  <TELL "An enormous green leather book with battered brass corners. Grandfather Tolliver stamped a tiny gear and paintbrush into the cover. Pip has seen him sketch repairs in it, but never opened it alone." CR>)>
+           <RTRUE>)
+          (<VERB? OPEN READ LOOK-INSIDE>
+           <COND (,REPAIR-BOOK-OPEN
+                  <TELL "The repair book is already open to Tolliver's paper workshop." CR>)
+                 (T
+                  <TELL "Pip plants both boots against the book and heaves. The wooden cover opens with a breath of cedar dust. Pages spring upright in little paper gears and staircases. In the margin, Grandfather has drawn a mouse no bigger than Pip, holding an oil can high like a lantern. Beneath it he has written: 'When the workshop loses its way, follow the ticking beneath the ticking.'" CR>
+                  <SETG REPAIR-BOOK-OPEN T>
+                  <FSET ,REPAIR-BOOK ,OPENBIT>
+                  <SCORE-UPD 2>)>
+           <RTRUE>)
+          (<VERB? CLOSE>
+           <COND (,REPAIR-BOOK-OPEN
+                  <TELL "Pip lowers the heavy cover. The paper workshop folds itself quietly between the pages." CR>
+                  <SETG REPAIR-BOOK-OPEN <>>
+                  <FCLEAR ,REPAIR-BOOK ,OPENBIT>)
+                 (T
+                  <TELL "The repair book is already closed." CR>)>
+           <RTRUE>)>>
+
+<ROUTINE HALF-FINISHED-TOYS-F ()
+    <COND (<VERB? EXAMINE LOOK-INSIDE>
+           <TELL "Pip walks between Grandfather's unfinished inventions: a sailboat waiting for its mast, a train with careful red wheels, and a wooden duck whose missing wheel leaves it tilted as if listening. Nothing here is discarded. Everything is waiting for Tolliver to return." CR>
+           <RTRUE>)>>
 
 ; === COUNTERTOP OBJECT HANDLERS ===
 

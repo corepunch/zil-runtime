@@ -16,6 +16,8 @@
   <COND
     (<EQUAL? ,HERE ,WORKSHOP-FLOOR>
      <SUGGEST-WORKSHOP-FLOOR>)
+    (<EQUAL? ,HERE ,WORKBENCH-TOP>
+     <SUGGEST-WORKBENCH-TOP>)
     (<EQUAL? ,HERE ,TOOL-BENCH>
      <SUGGEST-TOOL-BENCH>)
     (<EQUAL? ,HERE ,COUNTERTOP>
@@ -113,7 +115,12 @@
              "Examine the enormous workbench"
              "examine workbench"
              ,CHOICE-INVESTIGATE
-             80>)
+             80>
+     <CHOICE "workshop-floor.climb-workbench"
+             "Climb the workbench for a better view"
+             "climb workbench"
+             ,CHOICE-INVESTIGATE
+             70>)
 
     ;"State: Initial"
     (<NOT ,KEY-FOUND>
@@ -127,8 +134,13 @@
              "examine hook"
              ,CHOICE-INVESTIGATE
              80>
+     <CHOICE "workshop-floor.climb-workbench"
+             "Climb the giant workbench"
+             "climb workbench"
+             ,CHOICE-INVESTIGATE
+             88>
      <CHOICE "workshop-floor.take-oil-can"
-             "Pick up the tiny copper oil can near the workbench"
+             "Pull the tiny copper oil can from under the workbench"
              "take oil can"
              ,CHOICE-PROGRESS
              85>)>
@@ -147,6 +159,39 @@
               ,CHOICE-PROGRESS
               75>
       <CHOICE-DETAILS "group" "move">)>>
+
+;"=== WORKBENCH TOP ==="
+
+<ROUTINE SUGGEST-WORKBENCH-TOP ()
+  <COND
+    (,REPAIR-BOOK-OPEN
+     <CHOICE "workbench-top.read-repair-book"
+             "Study Grandfather's paper workshop"
+             "read illustrated book"
+             ,CHOICE-INVESTIGATE
+             90>
+     <CHOICE "workbench-top.close-repair-book"
+             "Close the illustrated repair book"
+             "close illustrated book"
+             ,CHOICE-PROGRESS
+             110>)
+    (T
+     <CHOICE "workbench-top.open-repair-book"
+             "Open Grandfather's illustrated repair book"
+             "open illustrated book"
+             ,CHOICE-PROGRESS
+             110>
+     <CHOICE "workbench-top.examine-toys"
+             "Look over Grandfather's half-finished toys"
+             "examine toys"
+             ,CHOICE-INVESTIGATE
+             70>
+     <CHOICE "workbench-top.go-down"
+             "Climb back down to the workshop floor"
+             "down"
+             ,CHOICE-RETURN
+             60>
+     <CHOICE-DETAILS "group" "move">)>>
 
 ;"=== TOOL-BENCH ==="
 
@@ -996,6 +1041,14 @@
            (T
             <SCENE "workshop.floor-initial"
                    "Grandfather Tolliver's workshop, sawdust on the floorboards.">)>)
+
+    (<EQUAL? ,HERE ,WORKBENCH-TOP>
+     <COND (,REPAIR-BOOK-OPEN
+            <SCENE "workbench.top-open"
+                   "The workbench top with Tolliver's paper workshop rising from the open repair book.">)
+           (T
+            <SCENE "workbench.top-closed"
+                   "The workbench top with Tolliver's closed illustrated repair book among half-finished toys.">)>)
 
     (<EQUAL? ,HERE ,TOOL-BENCH>
      <COND (,BERTRAND-WOUND

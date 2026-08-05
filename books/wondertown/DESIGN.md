@@ -46,6 +46,15 @@ Find what happened to Grandfather Tolliver, recover the workshop key, and rewind
 
 ## Core Mechanics
 
+### Focus Interaction Model
+
+The shared Companion layer separates Pip's physical world location from the
+current interaction focus. It progressively discloses local choices for an
+object, character, document, or puzzle while the ZIL room and world state
+remain authoritative. Text-only and illustrated products use the same focus
+state and actions; only their rendering differs. See
+[FOCUS_INTERACTION_MODEL.md](FOCUS_INTERACTION_MODEL.md).
+
 ### The Tick System
 - The "tick" counter starts at 200 and decrements each turn
 - Certain rooms and actions slow/accelerate the tick

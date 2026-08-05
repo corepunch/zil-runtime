@@ -25,6 +25,7 @@
 <GLOBAL LETTER-READ <>>
 <GLOBAL DIAGRAM-READ <>>
 <GLOBAL STUDY-JOURNAL-READ <>>
+<GLOBAL REPAIR-BOOK-OPEN <>>
 <GLOBAL GAME-WON <>>
 <GLOBAL ENDING-TIER 0>
 <GLOBAL COMPANION-COUNT 0>
@@ -55,6 +56,15 @@
       (IN TO TOLLIVER-STUDY IF STUDY-ACCESS)
       (FLAGS RLANDBIT ONBIT)
       (GLOBAL WORKSHOP-BUILDING TOPIC-TOLLIVER TOPIC-KEY TOPIC-HEART SPOOL-STAIRS LADDER-MECH)>
+
+<ROOM WORKBENCH-TOP
+      (IN ROOMS)
+      (DESC "Workbench Top")
+      (ACTION WORKBENCH-TOP-FCN)
+      (LDESC "The top of Grandfather Tolliver's workbench is a landscape of half-finished toys, curled wood shavings, and tiny tools. His enormous illustrated repair book rests near the edge.")
+      (DOWN PER WORKBENCH-DOWN-EXIT)
+      (FLAGS RLANDBIT ONBIT)
+      (GLOBAL WORKBENCH TOPIC-TOLLIVER TOPIC-HEART)>
 
 <ROOM TOOL-BENCH
       (IN ROOMS)
@@ -173,7 +183,7 @@
         (SYNONYM CAN OILCAN OIL-CAN)
         (ADJECTIVE TINY COPPER OIL)
         (DESC "tiny copper oil can")
-        (LDESC "A tiny copper oil can, still half full, sits near the workbench.")
+        (LDESC "A tiny copper oil can, still half full, sits in the shadows beneath the workbench.")
         (FLAGS TAKEBIT)
         (SIZE 3)
         (ACTION OIL-CAN-F)>
@@ -282,6 +292,26 @@
         (LDESC "A wooden rack of tools hangs on the wall — chisels, files, tiny hammers.")
         (FLAGS NDESCBIT)
         (ACTION TOOL-RACK-F)>
+
+; === OBJECTS: WORKBENCH TOP ===
+
+<OBJECT REPAIR-BOOK
+        (IN WORKBENCH-TOP)
+        (SYNONYM BOOK MANUAL GUIDE ALBUM)
+        (ADJECTIVE REPAIR ILLUSTRATED TOLLIVER LEATHER GREEN)
+        (DESC "illustrated repair book")
+        (LDESC "Tolliver's enormous green leather repair book rests closed beside a toy sailboat.")
+        (FLAGS CONTBIT OPENABLEBIT READBIT)
+        (ACTION REPAIR-BOOK-F)>
+
+<OBJECT HALF-FINISHED-TOYS
+        (IN WORKBENCH-TOP)
+        (SYNONYM TOYS SAILBOAT BOAT TRAIN DUCK)
+        (ADJECTIVE HALF-FINISHED WOODEN TOY)
+        (DESC "half-finished toys")
+        (LDESC "A half-rigged sailboat, a wooden train, and a duck with only one wheel wait beneath the work lamp.")
+        (FLAGS NDESCBIT)
+        (ACTION HALF-FINISHED-TOYS-F)>
 
 ; === OBJECTS: COUNTERTOP ===
 

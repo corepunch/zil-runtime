@@ -82,6 +82,14 @@ test.describe("Wondertown companion integration", function(t)
 
 		-- Act 1: Workshop
 		choose("workshop-floor.examine-workbench")
+		choose("workshop-floor.climb-workbench")
+		assert.assert_equal(env.HERE, env.WORKBENCH_TOP)
+		choose("workbench-top.open-repair-book")
+		assert.assert_true(env.REPAIR_BOOK_OPEN)
+		local book_scene = env.COMPANION_QUERY().scene
+		assert.assert_equal(book_scene.key, "workbench.top-open")
+		choose("workbench-top.close-repair-book")
+		choose("workbench-top.go-down")
 		choose("workshop-floor.take-oil-can")
 		choose("workshop-floor.go-toolbench")
 
