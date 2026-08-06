@@ -57,13 +57,13 @@
 - **Visible:** Workbench to climb, sawdust piles, pet door, cuckoo clock on wall, Bertrand in corner
 - **Blocked:** Pet door (can fit through — Pip is small), Countertop (too high to climb)
 - **First reward:** Oil can under workbench (teaches TAKE, EXAMINE)
-- **Exits:** UP (climb spool-stairs to STORAGE-LOFT, needs OIL), EAST (to TOOL-BENCH), OUT (pet door to SNOWY-ALLEY)
+- **Exits:** UP (raise and climb the folding loft ladder to STORAGE-LOFT, needs OIL), EAST (to TOOL-BENCH), OUT (pet door to SNOWY-ALLEY)
 
 ### TOOL-BENCH
 - **Role:** Tutorial expansion, Bertrand's post
-- **Landmark:** Enormous tools, spool of thread as stairs, varnish pot
-- **Visible:** Bertrand (nutcracker), spool-stairs up to COUNTERTOP, tiny winding key for Bertrand
-- **Blocked:** Spool-stairs guarded by Bertrand (he's stuck mid-stride, needs WIND)
+- **Landmark:** Enormous tools, a crate-chair-book climb, varnish pot
+- **Visible:** Bertrand (nutcracker), stable makeshift steps up to COUNTERTOP, tiny winding key for Bertrand
+- **Blocked:** Chair and book steps guarded by Bertrand (he's frozen on the seat, needs WIND)
 - **Puzzle:** WIND BERTRAND → he moves aside, allows access to COUNTERTOP
 - **Exits:** WEST (to WORKSHOP-FLOOR), UP (to COUNTERTOP, blocked by Bertrand)
 

@@ -13,7 +13,7 @@ In-game HINT command provides progressive hints. Each time the player types HINT
 |-------|------|
 | 1 | "The workshop feels different tonight. Check the key hook on the wall." |
 | 2 | "The key is gone. Look around the workshop for clues — try examining things." |
-| 3 | "There's an oil can under the workbench. Oil might help with the rusty spool stairs." |
+| 3 | "There's an oil can under the workbench. Oil might help with the rusty loft-ladder mechanism." |
 | 4 | "LOOK UNDER WORKBENCH, then TAKE OIL CAN, then OIL MECHANISM." |
 
 ### Bertrand (at TOOL-BENCH, Bertrand not wound)
@@ -27,7 +27,7 @@ In-game HINT command provides progressive hints. Each time the player types HINT
 ### Ladder/Mechanism (ladder not oiled, player has oil can)
 | Level | Text |
 |-------|------|
-| 1 | "Those spool stairs won't budge. Something's rusted." |
+| 1 | "The folding loft ladder won't rise. Something's rusted." |
 | 2 | "The lifting mechanism needs oil. You have an oil can." |
 | 3 | "OIL the mechanism or ladder with the oil can." |
 | 4 | "OIL MECHANISM." |

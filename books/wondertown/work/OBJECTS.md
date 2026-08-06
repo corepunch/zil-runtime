@@ -18,7 +18,7 @@ Every concrete noun must have a parser object. Format:
 | OIL-CAN | can oil | tiny copper | Under workbench (WORKBENCH) | TAKEBIT | Tool (OIL things) | LOOK UNDER WORKBENCH or SEARCH WORKBENCH |
 | SAWDUST | sawdust | soft | WORKSHOP-FLOOR | NDESCBIT | Worldbuilding, light puzzle | "Soft sawdust covers the floor." |
 | PET-DOOR | door | pet wooden small | WORKSHOP-FLOOR | NDESCBIT | Exit to Act 2 | "A small pet door is cut into the bottom of the main door." |
-| SPOOL-STAIRS | stairs spool | thread wooden | WORKSHOP-FLOOR | NDESCBIT | Climbable to STORAGE-LOFT | "A staircase made from giant wooden thread spools." |
+| LOFT-LADDER | ladder stairs | folding loft wooden | WORKSHOP-FLOOR | NDESCBIT | Climbable to STORAGE-LOFT | "A folding wooden ladder leads toward the storage loft." |
 | SWEEP-BROOM | broom | tiny brush | WORKSHOP-FLOOR | TAKEBIT | Practical (sweep sawdust) | "Your tiny broom leans against the workbench." |
 | CLOCK-FACE | clock cuckoo | old wooden | WORKSHOP-FLOOR | NDESCBIT | Hint system (Old Tick), worldbuilding | "An old cuckoo clock hangs on the wall." |
 | KEY-STRING | string | frayed | KEY-HOOK | TAKEBIT | Clue (key was here) | "A frayed string dangles from the empty hook." |
@@ -30,7 +30,7 @@ Every concrete noun must have a parser object. Format:
 | BERTRAND | nutcracker | pompous painted | TOOL-BENCH | ACTORBIT | NPC, guardian | "A painted wooden nutcracker stands at attention, frozen mid-stride." |
 | BERTRAND-KEY | key | winding tiny brass | TOOL-BENCH (on BERTRAND) | TAKEBIT | Tool (wind Bertrand) | EXAMINE BERTRAND → "There's a tiny winding key in his back." |
 | VARNISH-POT | pot | varnish sticky | TOOL-BENCH | CONTBIT OPENBIT SURFACEBIT | Risk (sticky), worldbuilding | "A pot of varnish sits open, its contents gone tacky." |
-| SPOOL-BENCH | spool | thread giant | TOOL-BENCH | NDESCBIT | Climbable to COUNTERTOP | "A giant thread spool serves as a staircase upward." |
+| MAKESHIFT-STEPS | steps crate chair books | makeshift repair broad | TOOL-BENCH | NDESCBIT CLIMBBIT | Climbable to COUNTERTOP | "A low crate, old chair, and three broad repair books form a stable route upward." |
 | TOOL-RACK | rack tools | wooden | TOOL-BENCH | CONTBIT OPENBIT | Worldbuilding | "A rack of tools — chisels, files, tiny hammers." |
 
 #### COUNTERTOP
@@ -148,7 +148,7 @@ Every concrete noun must have a parser object. Format:
 
 From the starting room description, every noun must be parseable:
 
-> You are in Grandfather Tolliver's workshop. The **workbench** towers above you, its surface cluttered with **tools**. A brass **key hook** on the wall hangs empty, a frayed **string** still dangling from it. Your tiny **broom** leans nearby. Soft **sawdust** covers the floor. A **pet door** is cut into the workshop's main **door** to the north. An old **cuckoo clock** ticks softly on the wall. A staircase made of giant wooden **spools** leads upward, its **mechanism** rusted.
+> You are in Grandfather Tolliver's workshop. The **workbench** towers above you, its surface cluttered with **tools**. A brass **key hook** on the wall hangs empty, a frayed **string** still dangling from it. Your tiny **broom** leans nearby. Soft **sawdust** covers the floor. A **pet door** is cut into the workshop's main **door** to the north. An old **cuckoo clock** ticks softly on the wall. A folding loft **ladder** leads upward, its **mechanism** rusted.
 
 | Word | Has Object? | Object ID |
 |------|------------|-----------|
@@ -162,5 +162,5 @@ From the starting room description, every noun must be parseable:
 | pet door | Yes | PET-DOOR |
 | door | Yes | WORKSHOP-DOOR (PSEUDO) |
 | cuckoo clock | Yes | CLOCK-FACE |
-| spools | Yes | SPOOL-STAIRS |
+| ladder | Yes | LOFT-LADDER |
 | mechanism | Yes | LADDER-MECH |

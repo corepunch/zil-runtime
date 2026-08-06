@@ -77,7 +77,7 @@
              ,CHOICE-PROGRESS
              100>
      <CHOICE "workshop-floor.climb-loft"
-             "Climb the spool stairs to the storage loft"
+             "Raise the folding ladder and climb to the storage loft"
              "up"
              ,CHOICE-PROGRESS
              85>
@@ -92,7 +92,7 @@
     ;"State: Ladder oiled, can reach loft"
     (<AND ,LADDER-OILED <NOT ,KEY-FOUND>>
      <CHOICE "workshop-floor.climb-loft"
-             "Climb the spool stairs to the storage loft"
+             "Climb the folding ladder to the storage loft"
              "up"
              ,CHOICE-PROGRESS
              90>
@@ -200,7 +200,7 @@
     ;"State: Bertrand wound"
     (,BERTRAND-WOUND
      <CHOICE "tool-bench.climb-countertop"
-             "Climb the spool stairs to the countertop"
+             "Climb the crate, chair, and stacked books to the countertop"
              "up"
              ,CHOICE-PROGRESS
              90>
@@ -1037,7 +1037,7 @@
                    "The workshop with the clock swung open.">)
            (,LADDER-OILED
             <SCENE "workshop.floor-oiled"
-                   "The workshop with the spool stairs working smoothly.">)
+                   "The workshop with the folding loft ladder raised.">)
            (T
             <SCENE "workshop.floor-initial"
                    "Grandfather Tolliver's workshop, sawdust on the floorboards.">)>)

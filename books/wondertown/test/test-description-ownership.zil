@@ -17,13 +17,18 @@
     <ASSERT-TEXT "two mismatched button eyes" <CO-RESUME ,CO "look">>
     <ASSERT-NOT-TEXT "one button eye" <CO-RESUME ,CO "look">>
 
+    <SETG HERE ,WORKSHOP-FLOOR>
+    <MOVE ,WINNER ,WORKSHOP-FLOOR>
+    <SETG LADDER-OILED T>
+    <ASSERT-TEXT "rises smoothly" <CO-RESUME ,CO "examine loft ladder">>
+    <ASSERT-NOT-TEXT "rusted solid" <CO-RESUME ,CO "examine loft ladder">>
+
     <SETG HERE ,TOOL-BENCH>
     <MOVE ,WINNER ,TOOL-BENCH>
     <MOVE ,BERTRAND-KEY ,WINNER>
-    <SETG LADDER-OILED T>
-    <ASSERT-TEXT "lifting mechanism moves freely" <CO-RESUME ,CO "look">>
+    <ASSERT-TEXT "low crate" <CO-RESUME ,CO "look">>
     <ASSERT-TEXT "winding socket in his back empty" <CO-RESUME ,CO "look">>
-    <ASSERT-NOT-TEXT "frozen with rust" <CO-RESUME ,CO "look">>
+    <ASSERT-NOT-TEXT "spool" <CO-RESUME ,CO "look">>
 
     <SETG HERE ,STORAGE-LOFT>
     <MOVE ,WINNER ,STORAGE-LOFT>

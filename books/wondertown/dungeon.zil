@@ -55,7 +55,7 @@
       (UP TO STORAGE-LOFT IF LADDER-OILED)
       (IN TO TOLLIVER-STUDY IF STUDY-ACCESS)
       (FLAGS RLANDBIT ONBIT)
-      (GLOBAL WORKSHOP-BUILDING TOPIC-TOLLIVER TOPIC-KEY TOPIC-HEART SPOOL-STAIRS LADDER-MECH)>
+      (GLOBAL WORKSHOP-BUILDING TOPIC-TOLLIVER TOPIC-KEY TOPIC-HEART)>
 
 <ROOM WORKBENCH-TOP
       (IN ROOMS)
@@ -70,7 +70,7 @@
       (IN ROOMS)
       (DESC "Tool Bench")
       (ACTION TOOL-BENCH-FCN)
-      (LDESC "The tool bench stretches away, a landscape of enormous chisels and planes. A staircase made of giant wooden spools leads toward the countertop.")
+      (LDESC "The tool bench stretches away, a landscape of enormous chisels and planes. A low crate, an old chair, and three broad repair books form a makeshift route to the countertop.")
       (WEST TO WORKSHOP-FLOOR)
       (UP TO COUNTERTOP IF BERTRAND-WOUND)
       (FLAGS RLANDBIT ONBIT)
@@ -235,21 +235,21 @@
         (SIZE 1)
         (ACTION KEY-STRING-F)>
 
-<OBJECT SPOOL-STAIRS
-        (IN TOOL-BENCH)
-        (SYNONYM STAIRS SPOOL STAIRCASE)
-        (ADJECTIVE THREAD WOODEN SPOOL GIANT)
-        (DESC "spool staircase")
-        (LDESC "A staircase made of giant wooden thread spools leads upward. Its lifting mechanism is rusted solid.")
+<OBJECT LOFT-LADDER
+        (IN WORKSHOP-FLOOR)
+        (SYNONYM LADDER STAIRS STAIRCASE)
+        (ADJECTIVE FOLDING LOFT WOODEN)
+        (DESC "folding loft ladder")
+        (LDESC "A folding wooden ladder leads toward the storage loft. Its iron lifting mechanism is rusted solid.")
         (FLAGS NDESCBIT)
-        (ACTION SPOOL-STAIRS-F)>
+        (ACTION LOFT-LADDER-F)>
 
 <OBJECT LADDER-MECH
-        (IN TOOL-BENCH)
+        (IN WORKSHOP-FLOOR)
         (SYNONYM MECHANISM LADDER LIFT WINCH)
         (ADJECTIVE RUSTY IRON LIFTING)
         (DESC "rusty ladder mechanism")
-        (LDESC "The rusty iron lifting mechanism that controls the spool staircase. It is frozen with rust.")
+        (LDESC "The rusty iron lifting mechanism that raises the folding loft ladder is frozen solid.")
         (FLAGS TURNBIT NDESCBIT)
         (ACTION LADDER-MECH-F)>
 
@@ -293,6 +293,14 @@
         (FLAGS NDESCBIT)
         (ACTION TOOL-RACK-F)>
 
+<OBJECT MAKESHIFT-STEPS
+        (IN TOOL-BENCH)
+        (SYNONYM STEPS STAIRCASE CRATE CHAIR BOOK BOOKS STACK ROUTE)
+        (ADJECTIVE MAKESHIFT LOW OLD REPAIR BROAD CLIMBING)
+        (DESC "makeshift climbing steps")
+        (LDESC "A low crate leads to an old chair, where three broad repair books make the final steps to the countertop.")
+        (FLAGS NDESCBIT CLIMBBIT)
+        (ACTION MAKESHIFT-STEPS-F)>
 ; === OBJECTS: WORKBENCH TOP ===
 
 <OBJECT REPAIR-BOOK
@@ -312,7 +320,6 @@
         (LDESC "A half-rigged sailboat, a wooden train, and a duck with only one wheel wait beneath the work lamp.")
         (FLAGS NDESCBIT)
         (ACTION HALF-FINISHED-TOYS-F)>
-
 ; === OBJECTS: COUNTERTOP ===
 
 <OBJECT MARZIPAN

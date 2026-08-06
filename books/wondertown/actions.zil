@@ -97,13 +97,9 @@
 
 <ROUTINE TOOL-BENCH-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
-           <TELL "The tool bench stretches away, a landscape of enormous chisels and planes. A staircase made of giant wooden spools leads toward the countertop.">
-           <COND (,LADDER-OILED
-                  <TELL " Its lifting mechanism moves freely now.">)
-                 (T
-                  <TELL " Its lifting mechanism is frozen with rust.">)>
+           <TELL "The tool bench stretches away, a landscape of enormous chisels and planes. A low crate, an old chair, and three broad repair books form a sturdy makeshift route to the countertop.">
            <COND (<NOT ,BERTRAND-WOUND>
-                  <TELL " The way upward is blocked.">)>
+                  <TELL " Captain Bertrand stands frozen on the chair seat, blocking the books and the way upward.">)>
            <TELL CR>)>>
 
 <ROUTINE WORKBENCH-TOP-FCN (RARG)
@@ -125,7 +121,7 @@
 <ROUTINE COUNTERTOP-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
            <TELL "The toy display spreads across the countertop. Through the frosted shop window, the snowy street and distant clock tower glow in the moonlight.">
-           <TELL " Stairs lead back down to the tool bench." CR>)>>
+           <TELL " The chair and stacked books provide a careful route back down to the tool bench." CR>)>>
 
 <ROUTINE STORAGE-LOFT-FCN (RARG)
     <COND (<EQUAL? .RARG ,M-LOOK>
@@ -153,9 +149,9 @@
            <COND (,BERTRAND-WOUND
                   <TELL "Captain Bertrand stands proudly beside the now-clear way upward, his jaw fully operational." CR>)
                  (<NOT <IN? ,BERTRAND-KEY ,TOOL-BENCH>>
-                  <TELL "A painted wooden nutcracker stands frozen mid-stride beside the spool staircase, the winding socket in his back empty." CR>)
+                  <TELL "A painted wooden nutcracker stands frozen on the chair seat beside the stacked books, the winding socket in his back empty." CR>)
                  (T
-                  <TELL "A painted wooden nutcracker stands frozen mid-stride beside the spool staircase. A tiny brass winding key protrudes from his back." CR>)>
+                  <TELL "A painted wooden nutcracker stands frozen on the chair seat beside the stacked books. A tiny brass winding key protrudes from his back." CR>)>
            <RTRUE>)>>
 
 <ROUTINE MARZIPAN-DESC-F (RARG)
@@ -263,17 +259,17 @@
            <COND (,LADDER-OILED
                   <TELL "The mechanism is already well-oiled and working smoothly." CR>)
                  (<IN? ,OIL-CAN ,WINNER>
-                  <TELL "Pip works oil from the tiny copper can into the rusty joints. With a satisfying creak, the mechanism loosens. The spool staircase is climbable now." CR>
+                  <TELL "Pip works oil from the tiny copper can into the rusty joints. With a satisfying creak, the mechanism loosens. The folding loft ladder can rise now." CR>
                   <SETG LADDER-OILED T>
                   <SCORE-UPD 5>)
                  (T
                   <TELL "The mechanism needs oil. An oil can may be waiting somewhere in the workshop." CR>)>
            <RTRUE>)
-          (<EQUAL? ,PRSO ,SPOOL-STAIRS>
+          (<EQUAL? ,PRSO ,LOFT-LADDER>
            <COND (,LADDER-OILED
-                  <TELL "The spool staircase is already working smoothly." CR>)
+                  <TELL "The folding loft ladder is already working smoothly." CR>)
                  (<IN? ,OIL-CAN ,WINNER>
-                  <TELL "Pip oils the spool staircase's lifting mechanism. It loosens with a satisfying creak." CR>
+                  <TELL "Pip oils the folding ladder's lifting mechanism. It loosens with a satisfying creak." CR>
                   <SETG LADDER-OILED T>
                   <SCORE-UPD 5>)
                  (T
@@ -332,7 +328,7 @@
           (<NOT ,LADDER-OILED>
            <COND (<L? ,HINT-LEVEL 4>
                   <SETG HINT-LEVEL <+ ,HINT-LEVEL 1>>)>
-           <COND (<EQUAL? ,HINT-LEVEL 1> <TELL "Those spool stairs will not move. Something is rusted." CR>)
+           <COND (<EQUAL? ,HINT-LEVEL 1> <TELL "The folding loft ladder will not rise. Something is rusted." CR>)
                  (<EQUAL? ,HINT-LEVEL 2> <TELL "The lifting mechanism needs oil. Search under the workbench." CR>)
                  (<EQUAL? ,HINT-LEVEL 3> <TELL "Take the oil can from under the workbench, then oil the mechanism." CR>)
                  (T <TELL "LOOK UNDER WORKBENCH. TAKE OIL CAN. OIL MECHANISM." CR>)>
@@ -407,23 +403,23 @@
     <COND (<VERB? EXAMINE>
            <TELL "A frayed piece of string, once used to hang the workshop key. The ends are chewed -- by small sharp teeth, from the look of it." CR>)>>
 
-<ROUTINE SPOOL-STAIRS-F ()
+<ROUTINE LOFT-LADDER-F ()
     <COND (<VERB? EXAMINE>
            <COND (,LADDER-OILED
-                  <TELL "A staircase made of giant wooden thread spools. With the lifting mechanism oiled, the stairs move smoothly toward the storage loft." CR>)
+                  <TELL "A folding wooden ladder with broad, Pip-sized rungs. With its mechanism oiled, it rises smoothly toward the storage loft." CR>)
                   (T
-                   <TELL "A staircase made of giant wooden thread spools leads upward. The lifting mechanism is rusted solid -- it will not budge without oil." CR>)>)>>
+                   <TELL "A folding wooden ladder leads toward the storage loft. Its lifting mechanism is rusted solid -- it will not rise without oil." CR>)>)>>
 
 <ROUTINE LADDER-MECH-F ()
     <COND (<VERB? EXAMINE>
            <COND (,LADDER-OILED
-                  <TELL "The iron lifting mechanism is well-oiled now. It moves freely, allowing the spool stairs to rise." CR>)
+                  <TELL "The iron lifting mechanism is well-oiled now. It moves freely, allowing the loft ladder to rise." CR>)
                  (T
                   <TELL "The rusty iron lifting mechanism is frozen with rust. It needs oil -- badly." CR>)>
            <RTRUE>)
           (<VERB? TURN>
            <COND (,LADDER-OILED
-                  <TELL "The mechanism turns smoothly under Pip's hands. The spool stairs shift upward." CR>)
+                  <TELL "The mechanism turns smoothly under Pip's hands. The folding ladder rises toward the loft." CR>)
                  (T
                   <TELL "Pip strains against the mechanism, but it is rusted solid. The iron needs oil first." CR>)>
            <RTRUE>)>>
@@ -467,6 +463,19 @@
     <COND (<VERB? EXAMINE>
            <TELL "A wooden rack of tools hangs on the wall: tiny chisels, needle-files, and a jeweller's hammer. Everything a toymaker needs -- except the missing key." CR>)>>
 
+<ROUTINE MAKESHIFT-STEPS-F ()
+    <COND (<VERB? EXAMINE>
+           <TELL "A low packing crate makes the first step. From there Pip can reach the seat of an old chair, then climb three broad repair books stacked flat against its back. The final step reaches the countertop without wobbling or overhang." CR>
+           <COND (<NOT ,BERTRAND-WOUND>
+                  <TELL " Bertrand is frozen squarely in the middle of the chair seat." CR>)>
+           <RTRUE>)
+          (<VERB? CLIMB CLIMB-FOO CLIMB-UP>
+           <COND (,BERTRAND-WOUND
+                  <TELL "Pip climbs from crate to chair, steps carefully up the broad books, and pulls onto the countertop." CR>
+                  <GOTO ,COUNTERTOP>)
+                 (T
+                  <TELL "Captain Bertrand's frozen wooden boots block the chair seat. Pip cannot reach the books until he moves." CR>)>
+           <RTRUE>)>>
 ; === WORKBENCH TOP OBJECT HANDLERS ===
 
 <ROUTINE REPAIR-BOOK-F ()
@@ -498,7 +507,6 @@
     <COND (<VERB? EXAMINE LOOK-INSIDE>
            <TELL "Pip walks between Grandfather's unfinished inventions: a sailboat waiting for its mast, a train with careful red wheels, and a wooden duck whose missing wheel leaves it tilted as if listening. Nothing here is discarded. Everything is waiting for Tolliver to return." CR>
            <RTRUE>)>>
-
 ; === COUNTERTOP OBJECT HANDLERS ===
 
 <ROUTINE MARZIPAN-F ()

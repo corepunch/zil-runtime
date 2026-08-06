@@ -5,12 +5,12 @@
 ### WORKSHOP-FLOOR
 > You are in Grandfather Tolliver's workshop. The enormous workbench towers above you, its surface cluttered with tools and half-finished toys. A brass key hook on the wall hangs empty — only a frayed string still dangles from it. Your tiny broom leans against the bench. Soft sawdust covers the floorboards like a golden blanket.
 >
-> A small pet door is cut into the workshop's main door to the north. An old cuckoo clock ticks softly on the wall. To the east, the tool bench — a staircase of giant wooden spools leads upward, though its mechanism looks worryingly rusted.
+> A small pet door is cut into the workshop's main door to the north. An old cuckoo clock ticks softly on the wall. A folding wooden ladder rises toward the storage loft, though its mechanism looks worryingly rusted. To the east, the tool bench waits beneath the countertop.
 
 ### TOOL-BENCH
-> The tool bench stretches away, a landscape of enormous chisels and planes. A painted wooden nutcracker stands at attention near a thread spool staircase, frozen mid-stride as if someone pressed pause on his parade. A pot of varnish sits open nearby, its contents gone tacky.
+> The tool bench stretches away, a landscape of enormous chisels and planes. A low crate leads to an old chair, where three broad repair books are stacked flat against the back. A painted wooden nutcracker stands frozen on the seat. A pot of varnish sits open nearby, its contents gone tacky.
 >
-> The spool staircase leads up toward the countertop, but the nutcracker blocks the way.
+> The crate, chair, and books make a stable route to the countertop, but the nutcracker blocks the chair seat.
 
 ### COUNTERTOP
 > You've climbed to the countertop — the toy display. A dusty glass case holds forgotten treasures, and through the frosted shop window you can see the snowy street outside, the clock tower visible in the distance.
