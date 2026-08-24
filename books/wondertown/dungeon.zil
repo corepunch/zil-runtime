@@ -309,7 +309,7 @@
         (ADJECTIVE REPAIR ILLUSTRATED TOLLIVER LEATHER GREEN)
         (DESC "illustrated repair book")
         (LDESC "Tolliver's enormous green leather repair book rests closed beside a toy sailboat.")
-        (FLAGS CONTBIT OPENABLEBIT READBIT)
+        (FLAGS CONTBIT OPENABLEBIT READBIT NDESCBIT)
         (ACTION REPAIR-BOOK-F)>
 
 <OBJECT HALF-FINISHED-TOYS

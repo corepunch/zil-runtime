@@ -44,8 +44,10 @@ test.describe("Wondertown companion integration", function(t)
 
 		-- Verify required IDs are present in the choices.
 		local choice_ids = {}
+		local choices_by_id = {}
 		for _, choice in ipairs(choices) do
 			choice_ids[choice.id] = true
+			choices_by_id[choice.id] = choice
 		end
 		-- Should have at least one workshop-floor.* choice
 		local has_workshop = false
@@ -53,6 +55,10 @@ test.describe("Wondertown companion integration", function(t)
 			if id:match("^workshop%-floor%.") then has_workshop = true end
 		end
 		assert.assert_true(has_workshop, "Expected workshop-floor.* companion choice")
+		assert.assert_equal(
+			choices_by_id["workshop-floor.climb-workbench"].image_key,
+			"workshop-floor.climb-workbench"
+		)
 	end)
 
 	t.it("should play through Act 1 golden path via companion choices", function(assert)

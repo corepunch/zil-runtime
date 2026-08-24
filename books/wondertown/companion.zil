@@ -120,7 +120,8 @@
              "Climb the workbench for a better view"
              "climb workbench"
              ,CHOICE-INVESTIGATE
-             70>)
+             70>
+     <CHOICE-DETAILS "image-key" "workshop-floor.climb-workbench">)
 
     ;"State: Initial"
     (<NOT ,KEY-FOUND>
@@ -134,16 +135,19 @@
              "examine hook"
              ,CHOICE-INVESTIGATE
              80>
+     <CHOICE-DETAILS "image-key" "workshop-floor.examine-hook">
      <CHOICE "workshop-floor.climb-workbench"
              "Climb the giant workbench"
              "climb workbench"
              ,CHOICE-INVESTIGATE
              88>
+     <CHOICE-DETAILS "image-key" "workshop-floor.climb-workbench">
      <CHOICE "workshop-floor.take-oil-can"
              "Pull the tiny copper oil can from under the workbench"
              "take oil can"
              ,CHOICE-PROGRESS
-             85>)>
+             85>
+     <CHOICE-DETAILS "image-key" "workshop-floor.take-oil-can">)>
    <COND
      (<FSET? ,TOOL-BENCH ,TOUCHBIT>
       <CHOICE "workshop-floor.go-toolbench"
@@ -174,13 +178,15 @@
              "Close the illustrated repair book"
              "close illustrated book"
              ,CHOICE-PROGRESS
-             110>)
+             110>
+     <CHOICE-DETAILS "image-key" "workbench-top.close-repair-book">)
     (T
      <CHOICE "workbench-top.open-repair-book"
              "Open Grandfather's illustrated repair book"
              "open illustrated book"
              ,CHOICE-PROGRESS
              110>
+     <CHOICE-DETAILS "image-key" "workbench-top.open-repair-book">
      <CHOICE "workbench-top.examine-toys"
              "Look over Grandfather's half-finished toys"
              "examine toys"
@@ -224,6 +230,7 @@
              "wind nutcracker"
              ,CHOICE-PROGRESS
              100>
+     <CHOICE-DETAILS "image-key" "tool-bench.wind-bertrand">
      <CHOICE "tool-bench.examine-bertrand"
              "Examine Bertrand closely"
              "examine nutcracker"

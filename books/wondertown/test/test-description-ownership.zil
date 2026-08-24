@@ -9,6 +9,9 @@
     <ASSERT-NOT-TEXT "Your tiny broom leans against the bench" <CO-RESUME ,CO "look">>
     <ASSERT-NOT-TEXT "A frayed string dangles from the empty key hook" <CO-RESUME ,CO "look">>
 
+    ;"The workbench-top room owns the book's stateful staging; the object must not repeat it."
+    <ASSERT-NOT-TEXT "green leather repair book rests closed" <CO-RESUME ,CO "climb workbench">>
+
     ;"Stateful focal objects own their current descriptions."
     <SETG HERE ,COUNTERTOP>
     <MOVE ,WINNER ,COUNTERTOP>
