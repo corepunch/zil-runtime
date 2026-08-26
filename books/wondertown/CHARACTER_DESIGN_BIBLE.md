@@ -10,6 +10,13 @@ soft gradients or painterly modelling. Highlights are warm; shadows lean
 blue-green. Materials should remain legible through shape and colour, not
 realistic surface texture.
 
+These shading rules govern characters and model sheets, not the amount of
+design or painted detail in the environment. Scene backgrounds may use rich
+timber grain, aged metal, atmospheric depth and selective painterly edges;
+keep the cast readable within them. For 3D-blockout overpaints, follow the Book
+process document's drawing instructions: the blockout locks geography, not
+the final prop designs or material finish.
+
 The cast should feel like a collection of different toy traditions. Do not
 make every character a small human in a different costume.
 
@@ -18,7 +25,7 @@ make every character a small human in a different costume.
 | Character | Selected construction | Why it wins |
 |---|---|---|
 | Pip | Option 2: brown-cap leather-apron apprentice | The warmest and most natural fit for the workshop; instantly readable as a child who works with his hands. |
-| Bertrand | Option 1: tall classic wooden nutcracker guard | Clear contrast with Pip’s tin body; the carved jaw and rigid posture sell his pompous military personality. |
+| Bertrand | Option 1: tall classic wooden nutcracker guard | Clear contrast with Pip’s soft apprentice silhouette; the carved jaw and rigid posture sell his pompous military personality. |
 | Old Tick | Option 1: wall cuckoo clock with little wooden legs | Most iconic and readable; gives the riddle-speaker a clear face, door, pendulum, and physical comedy. |
 | Marzipan | Option 7: lopsided quilt-patchwork doll | Makes her handmade history visible; asymmetry supports her one-eyed, secretly perceptive personality. |
 | Nutmeg | Option 1: soft plush fox with floppy ears | The most emotionally expressive and huggable version; the worn softness supports her loneliness and eventual trust. |
@@ -207,10 +214,12 @@ her anatomy. Her defensive posture should be able to soften into a curl.
 ## Consistency rules for the future artbook
 
 - Keep each character’s construction fixed across expressions and poses.
-- Pip remains tin, Bertrand remains carved wood, Old Tick remains a clock,
-  Marzipan remains quilt cloth, and Nutmeg remains plush.
-- Keep Pip’s navy / cream / muted-red uniform stable; vary expression and pose,
-  not costume identity.
+- Pip remains the apprentice boy specified above, Bertrand remains carved
+  wood, Old Tick remains a clock, Marzipan remains quilt cloth, and Nutmeg
+  remains plush.
+- Keep Pip’s selected brown cap, cream shirt, leather apron, green trousers,
+  striped socks, boots and muted teal neckerchief stable; vary expression and
+  pose, not costume identity. Do not restore the superseded tin body or uniform.
 - Use a shared eye language: large readable eyes, simple highlights, no anime
   sparkle overload.
 - Use restrained cel shading and warm highlights against cool shadows.
